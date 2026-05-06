@@ -1,0 +1,607 @@
+/* resetea los margenes y padding de todos los elementos */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* estilos base del cuerpo de la pagina */
+body {
+    font-family: Arial, sans-serif; /* fuente general del proyecto */
+    background-color: #f0f4f8; /* color de fondo gris azulado */
+    color: #333; /* color de texto por defecto */
+}
+
+/* 
+SIDEBAR
+barra de navegación fija a la izquierda
+aparece en todos los módulos
+*/
+
+
+.sidebar {
+    position: fixed; /* siempre visible aunque se haga scroll */
+    top: 0;
+    left: 0;
+    height: 100vh; /* ocupa toda la altura de la pantalla */
+    width: 220px; /* ancho del sidebar - modifica para hacerlo más ancho o angosto */
+    background-color: #1a3a5c; /* color azul oscuro del sidebar */
+    display: flex;
+    flex-direction: column;
+}
+
+/* logo y título del sidebar */
+.sidebar-logo {
+    padding: 12px 20px 20px;
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.1); /* línea separadora */
+}
+
+
+/* título "Academia" del sidebar */
+.sidebar-logo h2 {
+    color: #fff;
+    font-size: 30px; /* modifica para cambiar el tamaño del título */
+    font-weight: 500;
+}
+
+/* subtítulo "Sistema de Gestión" del sidebar */
+.sidebar-logo p {
+    color: rgba(255, 255, 255, 0.5); /* texto semitransparente */
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* contenedor de los enlaces del menú */
+.nav-menu {
+    padding: 12px 0;
+}
+
+/* cada enlace del men lateral */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px; /* modifica para cambiar el tamaño de cada item */
+    color: rgba(255, 255, 255, 0.65); /* color del texto inactivo */
+    font-size: 14px;
+    text-decoration: none; /* quita el subrayado de los enlaces */
+    border-left: 3px solid transparent; /* borde izquierdo invisible por defecto */
+    transition: all 0.15s; /* animación suave al pasar el mouse */
+}
+
+/* efecto al pasar el mouse por encima de un item */
+.nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    color: #fff;
+}
+
+/* item activo - indica en qué módulo estamos actualmente */
+/* se agrega la clase "active" en el enlace del módulo actual */
+.nav-item.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-left: 3px solid #4a9eff; /* línea azul clara que indica el módulo activo */
+}
+
+/*
+CONTENIDO PRINCIPAL
+área donde se muestra el contenido de cada módulo
+*/
+.main {
+    margin-left: 220px; /* debe ser igual al width del sidebar para no solaparse */
+    padding: 28px 32px; /* espacio interno del contenido */
+    min-height: 100vh;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between; /* titulo a la izquierda, boton a la derecha */
+    align-items: center;
+    margin-bottom: 18px;
+    position: relative; /* necesario para centrar el span */
+}
+
+/* titulo de cada modulo */
+.topbar h1 {
+    font-size: 35px; /* modifica para cambiar el tamano del titulo */
+    font-weight: 500;
+    color: #1a3a5c;
+}
+
+/* texto secundario centrado en el topbar */
+.topbar span {
+    font-size: 20px;
+    color: #888;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: -2.5%;
+}
+
+/*
+TARJETAS del dashboard
+muestran estadísticas como total de estudiantes, cursos y promedio
+*/
+
+/* contenedor de las tarjetas en cuadrícula */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas iguales - modifica el número para más o menos tarjetas */
+    gap: 16px; /* espacio entre tarjetas */
+    margin-bottom: 28px;
+}
+
+/* cada tarjeta individual */
+.card {
+    background-color: #fff;
+    border: 0.5px solid #dde3ea;
+    border-radius: 12px;
+    padding: 30px 24px;
+    border-top: 5px solid #1a3a5c; /* línea azul superior de la tarjeta */
+}
+
+/* etiqueta de la tarjeta como "Total Estudiantes" */
+.card-label {
+    font-size: 19px;
+    color: #888;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+/* número grande de la tarjeta como "20" */
+.card-value {
+    font-size: 50px; /* modifica para cambiar el tamaño del número */
+    text-align: center;
+    font-weight: 500;
+    color: #1a3a5c;
+}
+
+/* texto pequeño debajo del número como "Registrados en el sistema" */
+.card-sub {
+    font-size: 14px;
+    color: #aaa;
+    margin-top: 4px;
+    text-align: center;
+}
+
+/*
+TABLAS
+se usan en listar.php de todos los módulos
+*/
+
+/* título encima de la tabla como "Estudiantes por Ciudad" */
+.section-title {
+    font-size: 19px;
+    font-weight: 500;
+    color: #1a3a5c;
+    margin-bottom: 14px;
+}
+
+/* contenedor de la tabla con bordes redondeados */
+.table-card {
+    background-color: #fff;
+    border: 0.5px solid #dde3ea;
+    border-radius: 12px;
+    overflow: hidden; /* necesario para que los bordes redondeados funcionen */
+    margin-bottom: 24px;
+}
+
+/* tabla en general */
+table {
+    width: 100%;
+    border-collapse: collapse; /* elimina el espacio entre celdas */
+    font-size: 16px;
+}
+
+/* fila del encabezado de la tabla */
+thead tr {
+    background-color: #1a3a5c; /* color azul oscuro del encabezado */
+}
+
+/* celdas del encabezado */
+thead th {
+    padding: 12px 16px; /* modificamos el tamaño del encabezado */
+    text-align: left; 
+    color: #fff;
+    font-weight: 500;
+    font-size: 22px;
+}
+
+/* cada celda del cuerpo de la tabla */
+tbody td {
+    padding: 12px 16px; /* modifica para cambiar el tamaño de las celdas */
+    color: #333;
+}
+
+/* efecto al pasar el mouse por una fila */
+tbody tr:hover {
+    background-color: #f7f9fc;
+}
+
+
+/* cada fila del cuerpo de la tabla */
+tbody tr {
+    border-bottom: 0.5px solid #eee; /* línea separadora entre filas */
+}
+
+/* elimina la línea de la última fila */
+tbody tr:last-child {
+    border-bottom: none;
+}
+
+
+
+
+/*
+BADGES
+etiquetas de colores que se usan para mostrar la ciudad del estudiante
+*/
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px; /* hace que sea ovalado */
+    font-size: 12px;
+    font-weight: 500;
+    background-color: #e6f1fb; /* fondo azul claro - modifica para cambiar el color */
+    color: #185fa5; /* texto azul oscuro - modifica para cambiar el color */
+}
+
+/*
+BARRAS del dashboard
+se usan para mostrar la distribución de estudiantes por ciudad
+*/
+
+/* contenedor de la barra con el porcentaje */
+.bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* fondo gris de la barra */
+.bar-bg {
+    flex: 1;
+    height: 6px; /* modifica para cambiar el grosor de la barra */
+    background-color: #eee;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+/* relleno azul de la barra - el width se calcula dinámicamente en PHP */
+.bar-fill {
+    height: 100%;
+    background-color: #1a3a5c; /* modifica para cambiar el color de la barra */
+    border-radius: 3px;
+}
+
+/*
+FORMULARIOS
+se usan en crear.php y editar.php de todos los módulos
+*/
+
+/* tarjeta contenedora del formulario */
+.form-card {
+    background-color: #fff;
+    border: 0.5px solid #dde3ea;
+    border-radius: 12px;
+    padding: 28px 32px;
+    max-width: 600px; /* modifica para cambiar el ancho máximo del formulario */
+    margin: 0 auto; /* centramos el formulario de nueva inscripcion */
+}
+
+/* cada grupo de label + input */
+.form-group {
+    margin-bottom: 7px; /* estamos modificando lo espacio de lo input y label entre ellos  */
+}
+
+/* etiqueta de cada campo */
+.form-group label {
+    display: block;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+/* 
+MODIFICACIÓN: se aumentó el padding de 10px a 13px para más altura
+y el font-size de 14px a 15px para texto más grande
+estilos base para input y select de los formularios
+width 100% hace que ocupe todo el ancho del form-card
+*/
+.form-group input,
+.form-group select {
+    width: 320px; /* modifica para cambiar el ancho de los campos */
+    padding: 15px 20px; /* modifica el primer número para cambiar la altura */
+    border: 0.5px solid #ccd3dc;
+    border-radius: 8px;
+    font-size: 15px; /* modifica para cambiar el tamaño del texto */
+    color: #333;
+    background-color: #fff;
+    outline: none;
+    transition: border 0.15s;
+}
+
+/* 
+estilos extras solo para el textarea del formulario de cursos
+tiene propiedades adicionales que input y select no necesitan
+*/
+.form-group textarea {
+    width: 100%;
+    padding: 13px 16px; /* mismo padding que input para consistencia */
+    border: 0.5px solid #ccd3dc;
+    border-radius: 8px;
+    font-size: 15px; /* mismo font-size que input para consistencia */
+    color: #333;
+    background-color: #fff;
+    outline: none;
+    transition: border 0.15s;
+    resize: vertical; /* solo se puede redimensionar verticalmente */
+    min-height: 100px; /* modifica para cambiar la altura mínima del textarea */
+    font-family: Arial, sans-serif; /* hereda la fuente del proyecto */
+}
+
+/* cuando el campo está en foco cambia el color del borde a azul */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #1a3a5c;
+}
+
+/*
+BOTONES
+se usan en todos los módulos
+se combinan así: class="btn btn-primary" o class="btn btn-danger"
+*/
+
+/* estilos base de todos los botones */
+.btn {
+    display: inline-block;
+    padding: 10px 20px; /* modifica para cambiar el tamaño de los botones */
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: all 0.15s;
+}
+
+/* botón principal azul - se usa para guardar y registrar */
+.btn-primary {
+    background-color: #1a3a5c; /* modifica para cambiar el color del botón principal */
+    color: #fff;
+}
+
+/* efecto hover del botón principal */
+.btn-primary:hover {
+    background-color: #15304d;
+}
+
+/* botón de eliminar - fondo blanco con borde y texto rojo */
+.btn-danger {
+    background-color: #fff;
+    color: #c0392b;
+    border: 0.5px solid #c0392b;
+}
+
+/* efecto hover del botón eliminar */
+.btn-danger:hover {
+    background-color: #fdf0ef;
+}
+
+/* botón secundario - fondo blanco con borde y texto azul */
+/* se usa para cancelar y volver al listado */
+.btn-secondary {
+    background-color: #fff;
+    color: #1a3a5c;
+    border: 0.5px solid #1a3a5c;
+}
+
+/* efecto hover del botón secundario */
+.btn-secondary:hover {
+    background-color: #f0f4f8;
+}
+
+/* botón pequeño para filtros y búsqueda */
+/* se combina así: class="btn btn-primary btn-sm" */
+.btn-sm {
+    padding: 6px 14px; /* modifica para cambiar el tamaño del botón pequeño */
+    font-size: 13px;
+}
+
+/*
+TOPBAR ACCIONES
+contenedor del botón de acción en el topbar como "+ Nuevo Estudiante"
+*/
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/*
+FILTROS Y BUSQUEDA
+se usan en listar.php de estudiantes, cursos e inscripciones
+*/
+
+/* contenedor de los filtros */
+.filtros {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* permite que los filtros bajen a otra línea en pantallas pequeñas */
+}
+
+/* input y select de los filtros */
+.filtros input,
+.filtros select {
+    padding: 10px 14px; /* modifica el primer número para cambiar la altura */
+    border: 0.5px solid #ccd3dc;
+    border-radius: 8px;
+    font-size: 13px;  /* tamaño del texto */
+    outline: none;
+    width: 320px; /* modifica para cambiar el ancho del input y select */
+    color: #333;
+    background-color: #fff;
+}
+
+/* cuando el filtro está en foco cambia el color del borde */
+.filtros input:focus,
+.filtros select:focus {
+    border-color: #4e7fb1;
+}
+
+
+
+
+/*
+ACCIONES EN TABLA
+contenedor de los botones editar y eliminar en cada fila
+*/
+.acciones {
+    display: flex;
+    gap: 8px; /* espacio entre botones - modifica para más o menos espacio */
+}
+
+/*
+TITULOS DE FORMULARIOS
+*/
+
+/* título dentro del form-card como "Datos del Estudiante" */
+.form-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #1a3a5c;
+    margin-bottom: 20px;
+}
+
+/* contenedor de los botones al final del formulario */
+.form-footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+/*
+MENSAJES DE ERROR Y EXITO
+se usan para mostrar alertas al usuario
+*/
+
+/* mensaje de error en rojo */
+.mensaje-error {
+    background-color: #fdf0ef;
+    border: 0.5px solid #c0392b;
+    color: #c0392b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+/* mensaje de éxito en verde */
+.mensaje-exito {
+    background-color: #eafaf1;
+    border: 0.5px solid #1e8449;
+    color: #1e8449;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+/*
+FECHAS Y TEXTOS SECUNDARIOS
+se usa para mostrar fechas y textos informativos en gris
+*/
+.fecha {
+    color: #888; /* color gris */
+    font-size: 13px;
+}
+
+
+
+
+/*
+estilo para el login
+*/
+
+/* Contenedor principal del login - centra el formulario en pantalla */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f4f8;
+}
+
+/* Tarjeta del login - ancho fijo para que se vea proporcionado */
+.login-card {
+    width: 600px; /*ancho*/
+    height: 760px;
+    margin: 0 auto;
+}
+
+/* encabezado del login los títulos y subtitulos centrados */
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* titulo "Academia" */
+.login-header h1 {
+    color: #1a3a5c;
+    font-size: 50px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+/* Subtitulo "Sistema de Gestión" */
+.login-header p {
+    color: #666;
+    font-size: 16px;
+}
+
+/* Pie del login - enlace para registrarse */
+.login-footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Estilo del enlace "¿No tienes cuenta? Regístrate" */
+.login-footer a {
+    color: #1a3a5c;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.15s;
+}
+
+/* Efecto hover del enlace */
+.login-footer a:hover {
+    text-decoration: underline;
+    color: #4a9eff;
+}
+
+/* boton de ancho completo para el login */
+.btn-block {
+    width: 100%;
+    height: 50px;
+}
+
+/* aseguramos que los inputs del login ocupen todo el ancho */
+.login-card .form-group input,
+.login-card .form-group select {
+    width: 100%;
+}
+
+.login-image {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.login-image img {
+max-width: 50%;
+height: auto;
+border-radius: 10px;
+}
+
+
