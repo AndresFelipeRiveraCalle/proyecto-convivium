@@ -1,6 +1,6 @@
 <?php
 $host = "localhost";
-$db   = "desarrollo_agil";
+$db   = "convivium";
 $user = "root";
 $pass = "";
 
