@@ -21,7 +21,28 @@ $resultado = $conexion->query($sql);
 
 <body>
 
-    <h1>Listado de Zonas Comunes</h1>
+    <h1>Registrar Zona Común</h1>
+
+    <!-- Formulario zonas comunes -->
+    <form action="guardar.php" method="POST">
+
+        <label>Nombre</label>
+        <input type="text" name="nombre" required>
+
+        <label>Descripción</label>
+        <textarea name="descripcion" required></textarea>
+
+        <label>Capacidad</label>
+        <input type="number" name="capacidad" required>
+
+        <label>Horario Disponible</label>
+        <input type="text" name="horario_disponible" required>
+
+        <button type="submit">Guardar Zona</button>
+
+    </form>
+
+    <h2>Listado de Zonas Comunes</h2>
 
     <!-- Tabla de zonas comunes -->
     <table border="1">
