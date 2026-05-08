@@ -3,6 +3,18 @@
 // Importa la conexión a la base de datos
 require_once "../config/conexion.php";
 
+// Mensaje confirmación
+if (isset($_GET['mensaje'])) {
+
+    if ($_GET['mensaje'] == 'registrado') {
+        echo "<p>Zona común registrada correctamente</p>";
+    }
+
+    if ($_GET['mensaje'] == 'existe') {
+        echo "<p>La zona común ya existe</p>";
+    }
+}
+
 // Consulta SQL para obtener todas las zonas comunes
 $sql = "SELECT * FROM zona_comun";
 
