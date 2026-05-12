@@ -21,6 +21,36 @@ $sql = "SELECT * FROM zona_comun";
 // Ejecuta la consulta usando PDO
 $resultado = $conexion->query($sql);
 
+$modo_edicion = false;
+$id = '';
+$nombre = '';
+$descripcion = '';
+$capacidad = '';
+$horario = '';
+
+// Editar
+if (isset($_GET['editar'])) {
+
+    $modo_edicion = true;
+    $id = $_GET['editar'];
+
+    $sql_editar = "SELECT * FROM zona_comun WHERE id = :id";
+    $stmt_editar = $conexion->prepare($sql_editar);
+    $stmt_editar->execute([
+        ':id' => $id
+    ]);
+
+    $zona = $stmt_editar->fetch();
+
+    if ($zona) {
+        $id = $zona['id'];
+        $nombre = $zona['nombre'];
+        $descripcion = $zona['descripcion'];
+        $capacidad = $zona['capacidad'];
+        $horario = $zona['horario_disponible'];
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -36,21 +66,28 @@ $resultado = $conexion->query($sql);
     <h1>Registrar Zona Común</h1>
 
     <!-- Formulario zonas comunes -->
-    <form action="guardar.php" method="POST">
+    <form action="<?= $modo_edicion ? 'actualizar.php' : 'guardar.php' ?>" method="POST">
+
+        <input type="hidden" name="id" value="<?= $id ?>">
 
         <label>Nombre</label>
-        <input type="text" name="nombre" required>
+        <input type="text" name="nombre" value="<?= htmlspecialchars($nombre) ?>" required>
 
         <label>Descripción</label>
-        <textarea name="descripcion" required></textarea>
+        <textarea name="descripcion" required><?= htmlspecialchars($descripcion) ?></textarea>
 
         <label>Capacidad</label>
-        <input type="number" name="capacidad" required>
+        <input type="number" name="capacidad" value="<?= htmlspecialchars($capacidad) ?>" required>
 
         <label>Horario Disponible</label>
-        <input type="text" name="horario_disponible" required>
+        <input type="text" name="horario_disponible" value="<?= htmlspecialchars($horario) ?>" required>
 
-        <button type="submit">Guardar Zona</button>
+        <button type="submit">
+            <?= $modo_edicion ? 'Actualizar Zona' : 'Guardar Zona' ?>
+        </button>
+        <a href="index.php">
+            <button type="button">Cancelar</button>
+        </a>
 
     </form>
 
@@ -65,6 +102,8 @@ $resultado = $conexion->query($sql);
             <th>Nombre</th>
             <th>Descripción</th>
             <th>Capacidad</th>
+            <th>Horario Disponible</th>
+            <th>Acciones</th>
         </tr>
 
         <!-- Recorre cada zona obtenida desde la base de datos -->
@@ -75,6 +114,11 @@ $resultado = $conexion->query($sql);
                 <td><?= $fila['nombre'] ?></td>
                 <td><?= $fila['descripcion'] ?></td>
                 <td><?= $fila['capacidad'] ?></td>
+                <td><?= $fila['horario_disponible'] ?></td>
+                <td>
+                    <a href="index.php?editar=<?= $fila['id'] ?>">Editar /</a>
+                    <a href="eliminar.php?id=<?= $fila['id'] ?>">Eliminar</a>
+                </td>
             </tr>
 
         <?php } ?>
