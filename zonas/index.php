@@ -14,7 +14,7 @@ if (isset($_GET['mensaje'])) {
         echo "<p>Zona común actualizada correctamente</p>";
     }
 
-    if($_GET['mensaje'] == 'eliminado') {
+    if ($_GET['mensaje'] == 'eliminado') {
         echo "<p>Zona común eliminada correctamente</p>";
     }
 
@@ -134,18 +134,6 @@ if (isset($_GET['editar'])) {
 
     </table>
 
-    <script>
-        document.getElementById('btn-eliminar').addEventListener('click', function(event) {
-            const respuesta = confirm('¿Está seguro que desea eliminar la zona común?');
-
-            // Si el usuario presiona Cancelar, se cancela la acción del enlace
-            if (!respuesta) {
-                event.preventDefault();
-            } else {
-
-            }
-        });
-    </script>
 </body>
 
 </html>
