@@ -10,6 +10,14 @@ if (isset($_GET['mensaje'])) {
         echo "<p>Zona común registrada correctamente</p>";
     }
 
+    if ($_GET['mensaje'] == 'actualizado') {
+        echo "<p>Zona común actualizada correctamente</p>";
+    }
+
+    if($_GET['mensaje'] == 'eliminado') {
+        echo "<p>Zona común eliminada correctamente</p>";
+    }
+
     if ($_GET['mensaje'] == 'existe') {
         echo "<p>La zona común ya existe</p>";
     }
@@ -117,7 +125,8 @@ if (isset($_GET['editar'])) {
                 <td><?= $fila['horario_disponible'] ?></td>
                 <td>
                     <a href="index.php?editar=<?= $fila['id'] ?>">Editar /</a>
-                    <a href="eliminar.php?id=<?= $fila['id'] ?>">Eliminar</a>
+                    <a href="eliminar.php?id=<?= $fila['id'] ?>" onclick="return confirm('¿Está seguro que desea eliminar la zona común?');">Eliminar</a>
+
                 </td>
             </tr>
 
@@ -125,6 +134,18 @@ if (isset($_GET['editar'])) {
 
     </table>
 
+    <script>
+        document.getElementById('btn-eliminar').addEventListener('click', function(event) {
+            const respuesta = confirm('¿Está seguro que desea eliminar la zona común?');
+
+            // Si el usuario presiona Cancelar, se cancela la acción del enlace
+            if (!respuesta) {
+                event.preventDefault();
+            } else {
+
+            }
+        });
+    </script>
 </body>
 
 </html>
