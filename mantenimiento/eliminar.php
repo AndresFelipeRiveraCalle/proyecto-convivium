@@ -1,21 +1,27 @@
 <?php
-
+// Conectar a la base de datos
 require_once "conexion.php";
 
-if (isset($_GET["id"])) {
-    $id = $_GET["id"];
+// Obtener el ID a eliminar
+$id = $_GET["id"];
 
-    if (!empty($id)) {
-        $sql = "DELETE FROM mantenimiento WHERE id = :id";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([":id" => $id]);
-
-        header("Location: mantenimientos_pendientes.php");
-        exit;
+// Validar que el ID no esté vacío
+if($id != "") {
+    
+    // Consulta SQL para eliminar
+    $sql = "DELETE FROM mantenimiento WHERE id = $id";
+    
+    // Ejecutar la consulta
+    if($conn->query($sql)) {
+        // Si todo bien, ir al listado
+        header("Location: listar.php");
     } else {
-        echo "ID inválido";
+        echo "Error al eliminar: " . $conn->error;
     }
+    
 } else {
-    echo "No se recibió ningún ID";
+    echo "ID inválido";
 }
+
+$conn->close();
 ?>
