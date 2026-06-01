@@ -1,27 +1,19 @@
 <?php
-// Conectar a la base de datos
-require_once "conexion.php";
+require_once "../config/conexion.php";
+ // eliminamos con id
+$id = isset($_GET["id"]) ? (int)$_GET["id"] : 0;
 
-// Obtener el ID a eliminar
-$id = $_GET["id"];
-
-// Validar que el ID no esté vacío
-if($id != "") {
-    
-    // Consulta SQL para eliminar
-    $sql = "DELETE FROM mantenimiento WHERE id = $id";
-    
-    // Ejecutar la consulta
-    if($conn->query($sql)) {
-        // Si todo bien, ir al listado
-        header("Location: listar.php");
-    } else {
-        echo "Error al eliminar: " . $conn->error;
-    }
-    
-} else {
-    echo "ID inválido";
+if ($id === 0) {
+    echo "ID inválido.";
+    exit;
 }
 
-$conn->close();
+$stmt = $conexion->prepare("DELETE FROM mantenimiento WHERE id = :id");
+
+if ($stmt->execute([':id' => $id])) {
+    header("Location: listar.php");
+    exit;
+} else {
+    echo "Error al eliminar el registro.";
+}
 ?>

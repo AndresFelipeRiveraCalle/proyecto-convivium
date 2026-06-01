@@ -1,166 +1,110 @@
 <?php
-// Conectar a la base de datos
-require_once "conexion.php";
+require_once "../config/conexion.php";
 
-// Obtener el ID del mantenimiento a editar
-$id = $_GET["id"];
+$id = isset($_GET["id"]) ? (int)$_GET["id"] : 0;
+if ($id === 0) { echo "ID inválido."; exit; }
 
-// Buscar los datos del mantenimiento
-$sql = "SELECT * FROM mantenimiento WHERE id = $id";
-$resultado = $conn->query($sql);
-$fila = $resultado->fetch_assoc();
+// preparamos consulta ala base de datos
+$stmt = $conexion->prepare("SELECT * FROM mantenimiento WHERE id = :id");
+$stmt->execute([':id' => $id]);
+$fila = $stmt->fetch();
 
-// Si no existe, mostrar error
-if(!$fila) {
-    echo "Mantenimiento no encontrado";
-    exit;
+if (!$fila) { echo "Mantenimiento no encontrado."; exit; }
+
+$zonas    = $conexion->query("SELECT id, nombre FROM zona_comun ORDER BY nombre")->fetchAll();
+$usuarios = $conexion->query("SELECT id, nombre, apellido FROM usuario ORDER BY nombre")->fetchAll();
+
+// formatear fecha para input datetime-local
+$fechaSolucion = "";
+if (!empty($fila['fecha_solucion']) && $fila['fecha_solucion'] !== "0000-00-00 00:00:00") {
+    $fechaSolucion = date('Y-m-d\TH:i', strtotime($fila['fecha_solucion']));
 }
-
-// Consultar usuarios para el SELECT
-$sqlUsuarios = "SELECT id, nombre FROM usuario ORDER BY nombre";
-$resultadoUsuarios = $conn->query($sqlUsuarios);
-
-// Consultar torres para el SELECT
-$sqlTorres = "SELECT id, nombre FROM conjunto ORDER BY nombre";
-$resultadoTorres = $conn->query($sqlTorres);
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Editar Mantenimiento</title>
+    <title>Editar Mantenimiento #<?= $fila['id'] ?></title>
 </head>
 <body>
 
-<h1>Editar Mantenimiento #<?php echo $fila['id']; ?></h1>
+<h1>Editar Mantenimiento #<?= $fila['id'] ?></h1>
 
 <form action="actualizar.php" method="POST" enctype="multipart/form-data">
-    
-    <!-- Campo oculto para enviar el ID -->
-    <input type="hidden" name="id" value="<?php echo $fila['id']; ?>">
 
-    <!-- Campo: Descripción -->
+    <input type="hidden" name="id" value="<?= $fila['id'] ?>">
+
     <div>
-        <label>Descripción:</label><br>
-        <textarea name="descripcion" rows="4" cols="50" required><?php echo $fila['descripcion']; ?></textarea>
+        <label>Zona comun:</label><br>
+        <select name="zona_id" required>
+            <?php foreach ($zonas as $zona): ?>
+                <option value="<?= $zona['id'] ?>"
+                    <?= $fila['zona_id'] == $zona['id'] ? "selected" : "" ?>>
+                    <?= htmlspecialchars($zona['nombre']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
     </div>
-
     <br>
 
-    <!-- Campo: Prioridad -->
+    <div>
+        <label>Solicitante:</label><br>
+        <select name="usuario_reporta_id" required>
+            <?php foreach ($usuarios as $u): ?>
+                <option value="<?= $u['id'] ?>"
+                    <?= $fila['usuario_reporta_id'] == $u['id'] ? "selected" : "" ?>>
+                    <?= htmlspecialchars($u['nombre'] . ' ' . $u['apellido']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <br>
+
+    <div>
+        <label>Descripcion:</label><br>
+        <textarea name="descripcion" rows="4" cols="50" required><?= htmlspecialchars($fila['descripcion']) ?></textarea>
+    </div>
+    <br>
+
     <div>
         <label>Prioridad:</label><br>
         <select name="prioridad">
-            <option value="baja" <?php if($fila['prioridad'] == "baja") echo "selected"; ?>>Baja</option>
-            <option value="media" <?php if($fila['prioridad'] == "media") echo "selected"; ?>>Media</option>
-            <option value="alta" <?php if($fila['prioridad'] == "alta") echo "selected"; ?>>Alta</option>
-            <option value="critica" <?php if($fila['prioridad'] == "critica") echo "selected"; ?>>Crítica</option>
+            <option value="baja"  <?= $fila['prioridad'] == "baja"  ? "selected" : "" ?>>Baja</option>
+            <option value="media" <?= $fila['prioridad'] == "media" ? "selected" : "" ?>>Media</option>
+            <option value="alta"  <?= $fila['prioridad'] == "alta"  ? "selected" : "" ?>>Alta</option>
         </select>
     </div>
-
     <br>
 
-    <!-- Campo: Estado -->
     <div>
         <label>Estado:</label><br>
         <select name="estado">
-            <option value="pendiente" <?php if($fila['estado'] == "pendiente") echo "selected"; ?>>Pendiente</option>
-            <option value="en_proceso" <?php if($fila['estado'] == "en_proceso") echo "selected"; ?>>En Proceso</option>
-            <option value="finalizado" <?php if($fila['estado'] == "finalizado") echo "selected"; ?>>Finalizado</option>
+            <option value="pendiente"  <?= $fila['estado'] == "pendiente"  ? "selected" : "" ?>>Pendiente</option>
+            <option value="en_proceso" <?= $fila['estado'] == "en_proceso" ? "selected" : "" ?>>En Proceso</option>
+            <option value="solucionado"<?= $fila['estado'] == "solucionado"? "selected" : "" ?>>Solucionado</option>
         </select>
     </div>
-
     <br>
 
-    <!-- Campo: Responsable -->
     <div>
-        <label>Responsable:</label><br>
-        <input type="text" name="responsable" size="40" value="<?php echo $fila['responsable']; ?>">
+        <label>Fecha de solucion (opcional):</label><br>
+        <input type="datetime-local" name="fecha_solucion" value="<?= $fechaSolucion ?>">
     </div>
-
     <br>
 
-    <!-- Campo: Costo -->
-    <div>
-        <label>Costo:</label><br>
-        <input type="number" step="0.01" name="costo" value="<?php echo $fila['costo']; ?>">
-    </div>
-
-    <br>
-
-    <!-- Campo: Fecha finalización -->
-    <div>
-        <label>Fecha finalización:</label><br>
-        <?php
-        // Formatear la fecha para el input datetime-local
-        $fechaFormateada = "";
-        if($fila['fecha_finalizacion'] != "" && $fila['fecha_finalizacion'] != "0000-00-00 00:00:00") {
-            $fechaFormateada = date('Y-m-d\TH:i', strtotime($fila['fecha_finalizacion']));
-        }
-        ?>
-        <input type="datetime-local" name="fecha_finalizacion" value="<?php echo $fechaFormateada; ?>">
-    </div>
-
-    <br>
-
-    <!-- Campo: Evidencia - mostrar la actual y permitir subir nueva -->
     <div>
         <label>Evidencia actual:</label><br>
-        <?php
-        if($fila['evidencia'] != "" && file_exists($fila['evidencia'])) {
-            echo "<a href='" . $fila['evidencia'] . "' target='_blank'>📎 Ver archivo actual</a>";
-        } else {
-            echo "No hay evidencia guardada";
-        }
-        ?>
+        <?php if (!empty($fila['evidencia']) && file_exists($fila['evidencia'])): ?>
+            <a href="<?= $fila['evidencia'] ?>" target="_blank">Ver archivo actual</a>
+        <?php else: ?>
+            <em>Sin evidencia guardada</em>
+        <?php endif; ?>
         <br><br>
-        <label>Subir nueva evidencia (opcional):</label><br>
+        <label>Subir nueva evidencia (reemplaza la anterior):</label><br>
         <input type="file" name="evidencia" accept="image/*,application/pdf">
-        <br><small>Si subes un archivo nuevo, reemplazará al anterior</small>
     </div>
-
     <br>
 
-    <!-- Campo: Comentarios -->
-    <div>
-        <label>Comentarios:</label><br>
-        <textarea name="comentarios" rows="3" cols="50"><?php echo $fila['comentarios']; ?></textarea>
-    </div>
-
-    <br>
-
-    <!-- Campo: Solicitante -->
-    <div>
-        <label>Solicitante:</label><br>
-        <select name="usuario_id">
-            <?php while($usuario = $resultadoUsuarios->fetch_assoc()): ?>
-                <option value="<?php echo $usuario['id']; ?>"
-                    <?php if($fila['usuario_id'] == $usuario['id']) echo "selected"; ?>>
-                    <?php echo $usuario['nombre']; ?>
-                </option>
-            <?php endwhile; ?>
-        </select>
-    </div>
-
-    <br>
-
-    <!-- Campo: Torre -->
-    <div>
-        <label>Torre:</label><br>
-        <select name="conjunto_id">
-            <?php while($torre = $resultadoTorres->fetch_assoc()): ?>
-                <option value="<?php echo $torre['id']; ?>"
-                    <?php if($fila['conjunto_id'] == $torre['id']) echo "selected"; ?>>
-                    <?php echo $torre['nombre']; ?>
-                </option>
-            <?php endwhile; ?>
-        </select>
-    </div>
-
-    <br>
-
-    <!-- Botones -->
     <div>
         <button type="submit">Guardar Cambios</button>
         <a href="listar.php">Cancelar</a>
@@ -170,5 +114,3 @@ $resultadoTorres = $conn->query($sqlTorres);
 
 </body>
 </html>
-
-<?php $conn->close(); ?>
