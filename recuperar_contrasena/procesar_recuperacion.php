@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $update->execute([$token, $expiracion, $correo]);
 
         // 6. ENLACE DINÁMICO: Construimos la URL inyectándole el token como parámetro GET
-        $enlace = "http://localhost/proyecto-convivium/recuperar_contraseña/restablecer_password.php?token=" . $token;
+        $enlace = "http://localhost/proyecto-convivium/recuperar_contrasena/restablecer_password.php?token=" . $token;
 
         // --- ENTORNO DE DESARROLLO (SIMULACIÓN) ---
         // Explicación para el equipo: Como estamos en localhost, simulamos el envío imprimiendo el enlace.
