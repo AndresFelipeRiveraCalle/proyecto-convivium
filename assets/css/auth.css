@@ -1,15 +1,17 @@
 /**
- * auth.css - Estilos para pantallas de autenticación de Convivium
- * Aplica para: login.php, registro.php, recuperar_contraseña/*
- * Paleta oficial: #162D73, #1462A6, #132B40, #32A64F, #14733D
+ * CONVIVIUM - Módulo de Autenticación y Recuperación
+ * Archivo: auth.css
+ * Ubicación: assets/css/auth.css
+ * Aplica para: login.php, registro.php, recuperar_contrasena/*
+ * Paleta oficial: #162D73, #1462A6, #132B40, #32A64F, #DC3545
  * @author Andrés Felipe Rivera Calle
- * @version 1.0
+ * @version 1.2
  */
 
-/* Importa Poppins desde Google Fonts. Pesos 400 normal, 500 medio, 600 semi-bold, 700 bold */
+/* Importa Poppins desde Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* VARIABLES CSS: Cambia aquí y se actualiza en todo el sitio */
+/* VARIABLES CSS: Centralización de marca y estilos compartidos */
 :root {
     --color-primario: #162D73;
     /* Azul oscuro: botones, títulos */
@@ -29,82 +31,79 @@
     /* Sombra con tinte azul */
 }
 
-/* RESET BÁSICO: Quita márgenes por defecto del navegador */
+/* RESET BÁSICO */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    /* Padding no aumenta el ancho total */
 }
 
-/* BODY: Centra la card en toda la pantalla */
+/* BODY: Centra las tarjetas vertical y horizontalmente en la pantalla */
 .auth-body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--color-fondo);
     min-height: 100vh;
-    /* Ocupa toda la altura de la pantalla */
     display: flex;
-    /* Activa flexbox */
     align-items: center;
-    /* Centra verticalmente */
     justify-content: center;
-    /* Centra horizontalmente */
     padding: 20px;
-    /* Evita que la card pegue en bordes de móvil */
 }
 
-/* CARD: Contenedor blanco principal del formulario */
+/* CARD: Contenedor estándar blanco (Login, Solicitar, Procesar, Restablecer) */
 .auth-card {
     background: white;
     padding: 48px 40px;
-    /* 48px arriba/abajo, 40px izq/der */
     border-radius: 16px;
-    /* Esquinas redondeadas */
     box-shadow: var(--sombra-card);
     width: 100%;
     max-width: 440px;
-    /* En desktop no pasa de 440px */
+    /* Tamaño compacto ideal para flujos simples */
+    transition: max-width 0.3s ease;
 }
 
-/* LOGO: Centrado y con tamaño máximo */
+/* CARD MODIFICADORA: Amplía la tarjeta exclusivamente para el formulario de Registro */
+.auth-card-wide {
+    max-width: 640px;
+    /* Espacio extra para que el diseño de 2 columnas respire */
+}
+
+/* ENCABEZADOS Y ELEMENTOS DE MARCA (Optimizado para usar LOGO en lugar de H1) */
+.auth-header {
+    text-align: center;
+    margin-bottom: 24px;
+    /* Espacio limpio antes de los formularios o alertas */
+}
+
 .auth-logo {
     display: block;
-    margin: 0 auto 16px;
-    /* 0 arriba, auto izq/der para centrar, 16px abajo */
+    margin: 0 auto 12px;
+    /* Centra el logo y lo separa del subtítulo */
     max-width: 180px;
-    /* No se hace gigante en pantallas grandes */
+    /* Evita que la imagen pierda nitidez o se sobredimensione */
     height: auto;
-    /* Mantiene proporción */
 }
 
-/* SUBTÍTULO: "Sistema de Gestión" */
 .auth-subtitle {
     text-align: center;
     color: #6C757D;
-    /* Gris medio */
     font-size: 14px;
-    margin-bottom: 32px;
-    /* Espacio antes del form */
+    margin-bottom: 0;
 }
 
-/* GRUPO DE FORMULARIO: Label + Input */
+/* ELEMENTOS DE FORMULARIO TRADICIONALES */
 .form-group {
     margin-bottom: 20px;
-    /* Espacio entre campos */
+    /* Separación vertical uniforme entre campos */
 }
 
-/* LABELS: "Correo", "Contraseña" */
 .form-label {
     display: block;
-    /* Ocupa toda la línea */
     margin-bottom: 8px;
     color: var(--color-oscuro);
     font-weight: 500;
-    /* Semi-bold */
     font-size: 14px;
 }
 
-/* INPUTS: Campos de texto */
 .form-control {
     width: 100%;
     padding: 12px 16px;
@@ -112,55 +111,49 @@
     border-radius: 8px;
     font-size: 15px;
     font-family: 'Poppins', sans-serif;
+    color: var(--color-oscuro);
     transition: all 0.3s ease;
-    /* Animación suave al hacer focus */
 }
 
-/* FOCUS: Cuando haces click en el input */
+/* EFECTO FOCUS: Resplandor sutil al interactuar con los campos */
 .form-control:focus {
     outline: none;
-    /* Quita el borde negro feo del navegador */
     border-color: var(--color-secundario);
-    /* Borde azul */
     box-shadow: 0 0 0 4px rgba(20, 98, 166, 0.1);
-    /* "Resplandor" azul suave */
 }
 
-/* INPUT GROUP: Para juntar input + botón de ojito */
+/* INPUT GROUP: Acople perfecto para Input + Botón del Ojo */
 .input-group {
     position: relative;
     display: flex;
 }
 
-/* Input dentro del grupo: quita borde derecho para pegarse al botón */
 .input-group .form-control {
     border-radius: 8px 0 0 8px;
     border-right: none;
+    /* Une visualmente el campo con el botón */
 }
 
-/* BOTÓN OJITO: Mostrar/ocultar contraseña */
 .btn-toggle-pass {
     border: 2px solid var(--color-borde);
     border-left: none;
-    /* Se pega al input */
     background: white;
     padding: 0 16px;
     border-radius: 0 8px 8px 0;
     cursor: pointer;
     font-size: 18px;
-    transition: background 0.3s;
+    transition: background 0.3s ease;
 }
 
 .btn-toggle-pass:hover {
     background: #F8F9FA;
-    /* Gris muy claro al pasar mouse */
 }
 
-/* BOTÓN PRINCIPAL: "Iniciar sesión" */
+/* BOTÓN PRINCIPAL (Soporta <button> y enlaces <a> que simulan ser botones) */
 .btn-primary {
+    display: block;
     width: 100%;
     background-color: var(--color-primario);
-    /* #162D73 */
     color: white;
     border: none;
     padding: 14px;
@@ -168,17 +161,20 @@
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s;
-    margin-top: 8px;
+    text-align: center;
+    text-decoration: none;
+    /* Evita el subrayado si es una etiqueta <a> */
+    margin-top: 16px;
+    /* Desacoplamiento superior automático */
+    transition: background 0.3s ease;
 }
 
-/* HOVER: Cuando pasas el mouse por encima */
 .btn-primary:hover {
     background-color: var(--color-secundario);
-    /* #1462A6 más claro */
+    color: white;
 }
 
-/* MENSAJE DE ÉXITO: Fondo verde claro */
+/* COMPONENTES DE ALERTA OPERACIONALES */
 .mensaje-exito {
     background-color: #D1F2DB;
     color: var(--color-exito);
@@ -190,7 +186,6 @@
     font-weight: 500;
 }
 
-/* MENSAJE DE ERROR: Fondo rojo claro */
 .mensaje-error {
     background-color: #F8D7DA;
     color: var(--color-error);
@@ -202,7 +197,16 @@
     font-weight: 500;
 }
 
-/* FOOTER: Links de abajo */
+/* TEXTOS INFORMATIVOS (Párrafos internos para guías del usuario) */
+.auth-text {
+    color: #6C757D;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+/* FOOTER: Enlaces alternativos e inferiores */
 .auth-footer {
     text-align: center;
     margin-top: 24px;
@@ -211,24 +215,53 @@
 .auth-footer a {
     color: var(--color-secundario);
     text-decoration: none;
-    /* Quita subrayado */
     font-size: 14px;
     display: block;
-    /* Cada link en su línea */
     margin: 8px 0;
-    transition: color 0.3s;
+    transition: color 0.3s ease;
 }
 
 .auth-footer a:hover {
     color: var(--color-primario);
     text-decoration: underline;
-    /* Subrayado al pasar mouse */
 }
 
-/* RESPONSIVE: Ajustes para móvil */
-@media (max-width: 480px) {
-    .auth-card {
+/* CAMPOS SELECT: Personalización de la flecha nativa */
+select.form-control {
+    appearance: none;
+    /* Elimina la flecha estándar del sistema operativo */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23132B40' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    padding-right: 40px;
+    /* Espacio de seguridad para evitar solapamiento del texto */
+    cursor: pointer;
+}
+
+/* MAQUETACIÓN EN CUADRÍCULA (Diseño optimizado en 2 columnas) */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* Crea dos espacios idénticos */
+    gap: 16px;
+    /* Distancia horizontal y vertical entre los elementos hijos */
+}
+
+/* ADAPTACIÓN RESPONSIVA (Móviles y Tablets) */
+@media (max-width: 576px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+        /* Retorna a una sola columna en pantallas pequeñas */
+        gap: 0;
+        /* Permite que el margen del form-group tome el control */
+    }
+
+    .auth-card,
+    .auth-card-wide {
+        max-width: 100%;
         padding: 32px 24px;
-        /* Menos padding en móvil */
+        /* Tarjeta un poco más compacta en smartphones */
+        margin: 16px;
     }
 }

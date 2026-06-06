@@ -3,34 +3,35 @@
 /**
  * CONVIVIUM - Módulo de Autenticación
  * Archivo: restablecer_password.php
- * Objetivo: Validar el token de la URL y mostrar el formulario para la nueva contraseña.
+ * Ubicación: recuperar_contrasena/restablecer_password.php
+ * * Explicación para el equipo: Valida el token de seguridad temporal por URL (GET).
+ * Si es válido, abre la tarjeta con el formulario estilizado para la nueva contraseña.
  */
 
 require '../config/conexion.php';
 
-// 1. CAPTURA DEL TOKEN: Recibimos el token viajando de forma visible en la URL (?token=...)
+// Capturamos el token que viene por la URL
 $token = $_GET['token'] ?? '';
+$token_valido = false;
+$error_mensaje = "";
 
-// Si la URL no contiene ningún token, bloqueamos el acceso inmediatamente
 if (empty($token)) {
-    die("Acceso denegado: Token de recuperación no proporcionado.");
+    $error_mensaje = "El enlace es completamente inválido o ha sido alterado.";
+} else {
+    // Verificamos si el token existe y aún no ha expirado
+    date_default_timezone_set('America/Bogota');
+    $ahora = date('Y-m-d H:i:s');
+
+    $stmt = $conexion->prepare("SELECT id FROM usuario WHERE reset_token = ? AND reset_expires_at > ?");
+    $stmt->execute([$token, $ahora]);
+    $user = $stmt->fetch();
+
+    if ($user) {
+        $token_valido = true; // ¡Todo super bien! El token es legal y vigente
+    } else {
+        $error_mensaje = "El enlace ha expirado, ya fue usado o es inválido.";
+    }
 }
-
-// 2. VALIDACIÓN DE TIEMPO: Capturamos la hora actual de Colombia
-date_default_timezone_set('America/Bogota');
-$ahora = date('Y-m-d H:i:s');
-
-// 3. CONSULTA DE SEGURIDAD: Buscamos un usuario que tenga ese token exacto Y que la hora de expiración
-// guardada en la BD sea MAYOR que la hora actual (es decir, que no hayan pasado los 15 minutos).
-$stmt = $conexion->prepare("SELECT id FROM usuario WHERE reset_token = ? AND reset_expires_at > ?");
-$stmt->execute([$token, $ahora]);
-$user = $stmt->fetch();
-
-// Si no encuentra ningún usuario bajo esas reglas, el enlace ya caducó o es falso
-if (!$user) {
-    die("<h2>Error de Validación</h2><p>El enlace ha expirado o es inválido. Por favor, solicita uno nuevo en la sección de login.</p><a href='solicitar_recuperacion.php'>Volver a intentarlo</a>");
-}
-// Si la consulta fue exitosa, el script continúa hacia abajo y pinta el HTML
 ?>
 
 <!DOCTYPE html>
@@ -39,21 +40,47 @@ if (!$user) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convivium - Nueva Contraseña</title>
+    <title>Restablecer Contraseña - Convivium</title>
+    <link rel="stylesheet" href="../assets/css/auth.css">
 </head>
 
-<body>
-    <h2>Crea tu nueva contraseña de acceso</h2>
-    <p>Ingresa una combinación segura que no olvides.</p>
+<body class="auth-body">
+    <div class="auth-card">
+        <div class="auth-header">
+            <img src="../assets/img/logo_2.png" alt="Convivium" class="auth-logo">
+        </div>
 
-    <form action="guardar_nuevo_password.php" method="POST">
-        <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
+        <?php if ($token_valido): ?>
+            <p class="auth-subtitle">Establecer nueva contraseña</p>
 
-        <label for="nueva_contrasena">Nueva Contraseña:</label>
-        <input type="password" id="nueva_contrasena" name="nueva_contrasena" required minlength="6" placeholder="Mínimo 6 caracteres">
-        <br><br>
-        <button type="submit">Actualizar y Guardar Contraseña</button>
-    </form>
+            <form action="guardar_nuevo_password.php" method="post">
+                <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Nueva Contraseña</label>
+                    <input type="password" class="form-control" name="nueva_contrasena" id="password" placeholder="Mínimo 6 caracteres" required>
+                </div>
+
+                <button type="submit" class="btn-primary">Guardar Contraseña</button>
+            </form>
+
+        <?php else: ?>
+            <p class="auth-subtitle">Enlace Inválido</p>
+
+            <div class="mensaje-error">
+                <?= htmlspecialchars($error_mensaje) ?>
+            </div>
+
+            <p class="auth-text">
+                Por motivos de seguridad, los enlaces de recuperación expiran a los 15 minutos de ser solicitados o quedan inutilizados tras su primer uso.
+            </p>
+
+            <div class="auth-footer">
+                <a href="solicitar_recuperacion.php">Solicitar un nuevo enlace</a>
+            </div>
+        <?php endif; ?>
+
+    </div>
 </body>
 
 </html>

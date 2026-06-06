@@ -3,60 +3,108 @@
 /**
  * CONVIVIUM - Módulo de Autenticación
  * Archivo: procesar_recuperacion.php
- * Objetivo: Validar el correo, generar el token de seguridad y registrar la expiración.
+ * Ubicación: recuperar_contrasena/procesar_recuperacion.php
+ * * Explicación para el equipo: Este archivo recibe el correo, valida si existe,
+ * guarda el token temporal en la base de datos y simula el envío del correo
+ * pintando el botón de acceso con el estilo unificado de la app.
  */
 
-// 1. Importamos la conexión centralizada a la base de datos
+// Conexión central saliendo de la carpeta actual
 require '../config/conexion.php';
 
-// Seguridad: Verificar que los datos lleguen estrictamente por el método POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // Limpiamos espacios en blanco innecesarios en el correo ingresado
-    $correo = trim($_POST['correo']);
+    $correo = trim($_POST['correo'] ?? '');
 
     if (empty($correo)) {
         die("Por favor, ingresa un correo válido.");
     }
 
-    // 2. CONSULTA: Validamos si el correo existe en la tabla 'usuario'
+    // CONSULTA: Validamos si el correo existe en la tabla 'usuario'
     $stmt = $conexion->prepare("SELECT id FROM usuario WHERE correo = ?");
     $stmt->execute([$correo]);
-    $user = $stmt->fetch(); // Retorna un array asociativo si encuentra al usuario, o false si no
+    $user = $stmt->fetch();
 
-    if ($user) {
-        // 3. GENERACIÓN DEL TOKEN: Creamos una cadena alfanumérica aleatoria de 64 caracteres
-        // bin2hex(random_bytes(32)) genera un código criptográficamente seguro e indescifrable
-        $token = bin2hex(random_bytes(32));
+    // Abrimos la estructura HTML para pintar la respuesta de forma estética
+?>
+    <!DOCTYPE html>
+    <html lang="es">
 
-        // 4. TIEMPO DE EXPIRACIÓN: Sincronizamos la hora local de Colombia
-        date_default_timezone_set('America/Bogota');
-        // Calculamos la hora actual + 15 minutos en formato estándar de MySQL (Año-Mes-Día Hora:Min:Seg)
-        $expiracion = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Procesando Recuperación - Convivium</title>
+        <link rel="stylesheet" href="../assets/css/auth.css">
+    </head>
 
-        // 5. ACTUALIZACIÓN: Guardamos el token y la expiración en el registro del usuario correspondiente
-        $update = $conexion->prepare("UPDATE usuario SET reset_token = ?, reset_expires_at = ? WHERE correo = ?");
-        $update->execute([$token, $expiracion, $correo]);
+    <body class="auth-body">
+        <div class="auth-card">
+            <img src="../assets/img/logo_2.png" alt="Convivium" class="auth-logo">
+            <?php
 
-        // 6. ENLACE DINÁMICO: Construimos la URL inyectándole el token como parámetro GET
-        $enlace = "http://localhost/proyecto-convivium/recuperar_contrasena/restablecer_password.php?token=" . $token;
+            if ($user) {
+                // GENERACIÓN DEL TOKEN: Código seguro de 64 caracteres
+                $token = bin2hex(random_bytes(32));
 
-        // --- ENTORNO DE DESARROLLO (SIMULACIÓN) ---
-        // Explicación para el equipo: Como estamos en localhost, simulamos el envío imprimiendo el enlace.
-        // En producción, aquí se integraría PHPMailer para disparar el correo de forma oculta al usuario.
-        echo "<h2>Convivium - Servidor de Correo (Simulación)</h2>";
-        echo "<p>Se ha generado una solicitud de cambio de clave para: <b>" . htmlspecialchars($correo) . "</b></p>";
-        echo "<p>Para probarlo ahora mismo, haz clic aquí:</p>";
-        echo "<a href='$enlace'>Restablecer mi contraseña</a>";
-    } else {
-        // Buenas prácticas de ciberseguridad: Si el correo no existe, mostramos el mismo mensaje.
-        // Esto evita que atacantes maliciosos adivinen qué correos están registrados en el sistema.
-        echo "<h3>Proceso iniciado</h3>";
-        echo "<p>Si el correo electrónico coincide con una cuenta registrada, se enviará un enlace de recuperación.</p>";
-        echo "<br><a href='../login.php'>Volver al login</a>";
-    }
+                // ZONA HORARIA: Sincronizamos la hora local de Colombia
+                date_default_timezone_set('America/Bogota');
+                $expiracion = date('Y-m-d H:i:s', strtotime('+15 minutes'));
+
+                // ACTUALIZACIÓN: Guardamos token y expiración en el registro del usuario
+                $update = $conexion->prepare("UPDATE usuario SET reset_token = ?, reset_expires_at = ? WHERE correo = ?");
+                $update->execute([$token, $expiracion, $correo]);
+
+                // ENLACE DINÁMICO: URL apuntando a la subcarpeta correcta
+                $enlace = "http://localhost/proyecto-convivium/recuperar_contrasena/restablecer_password.php?token=" . $token;
+
+                // --- ENTORNO DE DESARROLLO (VISTA DE SIMULACIÓN) ---
+                // Pintamos el buzón de simulación usando las clases unificadas de auth.css
+            ?>
+                <p class="auth-subtitle">Servidor de Correo (Simulación)</p>
+
+                <div class="mensaje-exito">
+                    Solicitud procesada correctamente para el residente.
+                </div>
+
+                <p class="auth-text">
+                    Se ha generado un enlace único de un solo uso para: <br>
+                    <b><?= htmlspecialchars($correo) ?></b>.
+                </p>
+
+                <a href="<?= $enlace ?>" class="btn-primary">
+                    Restablecer mi contraseña
+                </a>
+            <?php
+
+            } else {
+                // CIBERSEGURIDAD: Si el correo no existe, mostramos un mensaje genérico para que un 
+                // atacante no descubra qué correos están registrados en el conjunto residencial.
+            ?>
+                <p class="auth-subtitle">Proceso Iniciado</p>
+
+                <div class="mensaje-exito">
+                    Si el correo electrónico coincide con una cuenta registrada, se enviará un enlace de recuperación.
+                </div>
+
+                <p class="auth-text">
+                    Por favor, revisa la bandeja de entrada o la carpeta de spam en los próximos minutos.
+                </p>
+            <?php
+            }
+
+            // Cierre del contenedor de la tarjeta y el pie de página común para ambos casos
+            ?>
+            <div class="auth-footer">
+                <a href="../login.php">Volver al Inicio de Sesión</a>
+            </div>
+        </div>
+    </body>
+
+    </html>
+<?php
+
 } else {
-    // Si alguien intenta entrar a este archivo escribiendo la URL a mano, lo mandamos al formulario
     header("Location: solicitar_recuperacion.php");
     exit;
 }
+?>

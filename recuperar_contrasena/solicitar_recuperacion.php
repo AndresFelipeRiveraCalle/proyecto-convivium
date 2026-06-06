@@ -12,22 +12,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convivium - Recuperar Contraseña</title>
+    <title>Recuperar Contraseña - Convivium</title>
+    <link rel="stylesheet" href="../assets/css/auth.css">
 </head>
 
-<body>
-    <h2>¿Olvidaste tu contraseña?</h2>
-    <p>Ingresa tu correo electrónico registrado y te enviaremos un enlace para restablecerla.</p>
+<body class="auth-body">
 
-    <form action="procesar_recuperacion.php" method="POST">
-        <label for="correo">Correo Electrónico:</label>
-        <input type="email" id="correo" name="correo" required placeholder="ejemplo@correo.com">
-        <br><br>
-        <button type="submit">Enviar enlace de recuperación</button>
-    </form>
+    <div class="auth-card">
+        <img src="../assets/img/Logo_2.png" alt="Convivium" class="auth-logo">
+        <p class="auth-subtitle">¿Olvidaste tu contraseña?</p>
 
-    <br>
-    <a href="../login.php">Volver al Inicio de Sesión</a>
+        <p class="auth-text">Ingresa tu correo electrónico registrado y te enviaremos un enlace seguro para restablecerla de inmediato.</p>
+
+        <form action="procesar_recuperacion.php" method="POST">
+            <div class="form-group">
+                <label class="form-label" for="correo">Correo Electrónico</label>
+                <input type="email" class="form-control" id="correo" name="correo" required placeholder="ejemplo@correo.com">
+            </div>
+
+            <button type="submit" class="btn-primary">Enviar enlace de recuperación</button>
+
+            <div class="auth-footer">
+                <a href="../login.php">Volver al Inicio de Sesión</a>
+            </div>
+        </form>
+    </div>
+
 </body>
 
 </html>
