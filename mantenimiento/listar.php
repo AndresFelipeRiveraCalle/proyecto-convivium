@@ -67,7 +67,7 @@ $mantenimientos = $stmt->fetchAll();
     <meta charset="UTF-8">
     <title>Lista de Mantenimientos</title>
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/script.js">
+    <script src="../assets/css/script.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
@@ -76,10 +76,10 @@ $mantenimientos = $stmt->fetchAll();
     <!-- HEADER -->
     <header class="header">
         <div class="logo">
-            <img src="../assets/css/Imagenes/Logo_2.png" alt="Logo">
+            <img src="../assets/Imagenes/Logo_2.png" alt="Logo">
         </div>
         <div class="usuario">
-            <img src="..Imagenes/user.png" alt="Usuario">
+            <img src="../assets/Imagenes/user.png" alt="Usuario">
             <span>Usuario</span>
         </div>
     </header>
