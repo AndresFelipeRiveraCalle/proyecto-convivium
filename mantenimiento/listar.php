@@ -121,13 +121,13 @@ $mantenimientos = $stmt->fetchAll();
                     <div class="year-control">
                         <span class="year-change" id="prev-year">
                             <
-                                </span>
-                                <span id="year">
-                                    2026
-                                </span>
-                                <span class="year-change" id="next-year">
-                                    >
-                                </span>
+                        </span>
+                        <span id="year">
+                            2026
+                        </span>
+                        <span class="year-change" id="next-year">
+                            >
+                        </span>
                     </div>
                 </div>
 
@@ -156,7 +156,6 @@ $mantenimientos = $stmt->fetchAll();
                 </div>
             </div>
         </aside>
-
 
 
                 <!-- CONTENIDO -->
