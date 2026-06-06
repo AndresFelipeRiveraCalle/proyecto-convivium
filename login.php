@@ -136,6 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
 
             <div class="login-footer">
+                <a href="recuperar_contraseña/solicitar_recuperacion.php">¿Olvidaste tu contraseña?</a><br>
                 <a href="registro.php">¿No tiene una cuenta? Regístrese</a>
             </div>
         </div>
