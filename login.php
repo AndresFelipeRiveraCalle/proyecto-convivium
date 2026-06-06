@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION["rol"] = $user["nombre_rol"]; // 'Administrador', 'Cliente', etc
 
             // 6. Redirigir al dashboard y detener ejecución
-            header("Location: dashboard/index1.php");
+            header("Location: dashboard/index.php");
             exit;
         } else {
             // Mensaje genérico por seguridad. No decir si falló correo o contraseña
