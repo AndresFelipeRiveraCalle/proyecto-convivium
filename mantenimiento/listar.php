@@ -163,7 +163,7 @@ $mantenimientos = $stmt->fetchAll();
 
                 <!-- CARD 1 -->
                 <div class="bloque"></div>
-                    <h1>Lista de Mantenimientos</h1>
+                    <h2>Lista de Mantenimientos</h2>
                     <a href="crear.php">+ Crear Nuevo Mantenimiento</a>
                     <br><br>
 
