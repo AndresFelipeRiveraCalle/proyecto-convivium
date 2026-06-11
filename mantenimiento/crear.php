@@ -6,6 +6,9 @@ $zonas        = $stmtZonas->fetchAll();
 
 $stmtUsuarios = $conexion->query("SELECT id, nombre, apellido FROM usuario ORDER BY nombre");
 $usuarios     = $stmtUsuarios->fetchAll();
+
+include "sidebar.php";
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
