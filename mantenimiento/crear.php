@@ -23,24 +23,23 @@ $usuarios     = $stmtUsuarios->fetchAll();
     <?php include "sidebar.php"; ?>
 
     <main class="contenido">
-        <h1>Crear Nuevo Mantenimiento</h1>
+        <h2 align="center">Crear Nuevo Mantenimiento</h2>
 
-        <div class="form-card">  
+        <div class="bloque filtros">
+
             <form action="guardar.php" method="POST" enctype="multipart/form-data">
 
-                <div>
-                    <label>Zona comun:</label><br>
+                <div class="bloque filtros">
+                    <h4>Zona comun:</h4>
                     <select name="zona_id" required>
                         <option value="">--- Seleccione una zona ---</option>
                         <?php foreach ($zonas as $zona): ?>
                             <option value="<?= $zona['id'] ?>"><?= htmlspecialchars($zona['nombre']) ?></option>
                         <?php endforeach; ?>
                     </select>
-                </div>
+                    
 
-
-                <div>
-                    <label>Solicitante:</label><br>
+                    <h4>Solicitante:</h4>
                     <select name="usuario_reporta_id" required>
                         <option value="">--- Seleccione un usuario ---</option>
                         <?php foreach ($usuarios as $u): ?>
@@ -49,57 +48,53 @@ $usuarios     = $stmtUsuarios->fetchAll();
                             </option>
                         <?php endforeach; ?>
                     </select>
-                </div>
 
 
-                <div>
-                    <label>Descripcion del problema:</label><br>
-                    <textarea name="descripcion" rows="4" cols="50" required
-                        placeholder="Describa el problema"></textarea>
-                </div>
-
-
-                <div>
-                    <label>Prioridad:</label><br>
+                    <h4>Prioridad:</h4 >
                     <select name="prioridad">
                         <option value="baja">Baja - No es urgente</option>
                         <option value="media" selected>Media - Se puede esperar unos días</option>
                         <option value="alta">Alta - Urgente, hay que atender pronto</option>
                     </select>
+                    
                 </div>
+                <div class="bloque filtros">
+                    <h4>Descripcion del problema:</h4>
+                    
+                <textarea class="textarea-tareas" name="descripcion" required placeholder="Describa el problema">
 
+                </textarea>
+                            
 
-                <div>
-                    <label>Estado actual:</label><br>
+                    <h4>Estado actual:</h4>
                     <select name="estado">
                         <option value="pendiente" selected>Pendiente</option>
                         <option value="en_proceso">En Proceso</option>
                         <option value="solucionado">Solucionado</option>
                     </select>
-                </div>
 
-
-                <div>
-                    <label>Fecha promedio solucion (F.solucionado):</label><br>
+                    <h4>Fecha de solucion (Fecha tentativa):</h4>
                     <input type="datetime-local" name="fecha_solucion">
-                    <br><small>Solo si ya está resuelto</small>
+
                 </div>
-
-
-                <div>
-                    <label>Evidencia foto o PDF:</label><br>
+                <h3>Si ya está resuelto:</H3>                
+                <div class="bloque filtros">
+                    Por favor ingrese la evidencia de la solución (foto o PDF) y cambie el estado a "solucionado". Esto nos ayuda a mantener un registro claro de los mantenimientos realizados y su resolución.
+                    <h4> Foto o PDF:</h4>
                     <input type="file" name="evidencia" accept="image/*,application/pdf">
                 </div>
 
+                    <button type="submit" class="btn-filtrar">Guardar Mantenimiento</button>
+                    <button type="submit" class="btn-filtrar">
+                        <a href="listar.php">Cancelar</a>
+                    </button>
 
-                <div>
-                    <button type="submit">Guardar Mantenimiento</button>
-                    <a href="listar.php">Cancelar</a>
                 </div>
-
             </form>
         </div>
+
     </main>
 
 </body>
+
 </html>

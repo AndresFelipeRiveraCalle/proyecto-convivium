@@ -142,17 +142,15 @@ $mantenimientos = $stmt->fetchAll();
 
                 </form>
             
-
+            </div>
 
             <!-- TABLA -->
+            <h3>Historial de Mantenimientos</h3>
+            
             <div class="bloque historial-grid">
 
-                <h3>Historial de Mantenimientos</h3>
-
                 <div class="card">
-
                     <table>
-
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -169,15 +167,10 @@ $mantenimientos = $stmt->fetchAll();
                         </thead>
 
                         <tbody>
-
                             <?php if (count($mantenimientos) > 0): ?>
-
                                 <?php foreach ($mantenimientos as $fila): ?>
-
                                     <tr>
-
                                         <td><?= $fila['id'] ?></td>
-
                                         <td>
                                             <?= etiquetaPrioridad($fila['prioridad']) ?>
                                         </td>
@@ -209,43 +202,29 @@ $mantenimientos = $stmt->fetchAll();
                                         <td>
                                             <?= $fila['fecha_solucion'] ?: '-' ?>
                                         </td>
-
                                         <td>
-
                                             <?php if (!empty($fila['evidencia'])): ?>
-
                                                 <a href="<?= $fila['evidencia'] ?>" target="_blank">
                                                     Ver archivo
                                                 </a>
-
                                             <?php else: ?>
-
                                                 -
-
                                             <?php endif; ?>
 
                                         </td>
-
                                         <td>
-
                                             <a href="editar.php?id=<?= $fila['id'] ?>">
                                                 Editar
                                             </a>
-
                                             |
-
                                             <a
                                                 href="eliminar.php?id=<?= $fila['id'] ?>"
                                                 onclick="return confirm('¿Seguro que deseas eliminar este mantenimiento?')">
 
                                                 Eliminar
-
                                             </a>
-
                                         </td>
-
                                     </tr>
-
                                 <?php endforeach; ?>
 
                             <?php else: ?>
@@ -257,11 +236,8 @@ $mantenimientos = $stmt->fetchAll();
                                 </tr>
 
                             <?php endif; ?>
-
                         </tbody>
-
                     </table>
-
                 </div>
 
             </div>
