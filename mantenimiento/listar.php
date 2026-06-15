@@ -67,7 +67,7 @@ $mantenimientos = $stmt->fetchAll();
 
 <head>
     <meta charset="UTF-8">
-    <title>Lista de Mantenimientos</title>
+    <title>Lista de mantenimientos</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="../assets/css/script.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -80,7 +80,7 @@ $mantenimientos = $stmt->fetchAll();
         <!-- CONTENIDO -->
         <main class="contenido">
 
-            <h2 align="center">Lista de Mantenimientos</h2>            
+            <h2 align="center">Lista de mantenimientos</h2>            
 
             <!-- BOTÓN NUEVO -->
             

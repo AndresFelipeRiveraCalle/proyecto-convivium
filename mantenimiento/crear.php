@@ -13,7 +13,7 @@ $usuarios     = $stmtUsuarios->fetchAll();
 
 <head>
     <meta charset="UTF-8">
-    <title>Crear Mantenimiento</title>
+    <title>Crear mantenimiento</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="../assets/css/script.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +23,7 @@ $usuarios     = $stmtUsuarios->fetchAll();
     <?php include "sidebar.php"; ?>
 
     <main class="contenido">
-        <h2 align="center">Crear Nuevo Mantenimiento</h2>
+        <h2 align="center">Crear nuevo mantenimiento</h2>
 
         <div class="bloque filtros">
 
