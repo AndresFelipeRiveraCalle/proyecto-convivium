@@ -1,10 +1,10 @@
 <header class="header">
     <div class="logo">
-        <img src="../assets/Imagenes/Logo_2.png" alt="Logo">
+        <img src="../assets/img/Logo_2.png" alt="Logo">
     </div>
 
     <div class="usuario">
-        <img src="../assets/Imagenes/user.png" alt="Usuario">
+        <img src="../assets/img/user.png" alt="Usuario">
         <span>Usuario</span>
     </div>
 </header>
