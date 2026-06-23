@@ -75,7 +75,7 @@ $mantenimientos = $stmt->fetchAll();
 
 <body>
 
-<?php include "sidebar.php"; ?>
+<?php include "../includes/sidebar.php"; ?>
 
         <!-- CONTENIDO -->
         <main class="contenido">
