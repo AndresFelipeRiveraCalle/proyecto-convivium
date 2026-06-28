@@ -7,12 +7,14 @@ $estado    = isset($_GET["estado"])    ? $_GET["estado"]          : "";
 $prioridad = isset($_GET["prioridad"]) ? $_GET["prioridad"]       : "";
 
 
-function etiquetaEstado($e) {
+function etiquetaEstado($e)
+{
     $map = ['pendiente' => 'Pendiente', 'en_proceso' => 'En Proceso', 'solucionado' => 'Solucionado'];
     return $map[$e] ?? $e;
 }
 
-function etiquetaPrioridad($p) {
+function etiquetaPrioridad($p)
+{
     $map = ['baja' => 'Baja', 'media' => 'Media', 'alta' => 'Alta'];
     return $map[$p] ?? $p;
 }
@@ -57,95 +59,190 @@ $sql .= " ORDER BY
 $stmt = $conexion->prepare($sql);
 $stmt->execute($params);
 $mantenimientos = $stmt->fetchAll();
+
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <title>Lista de Mantenimientos</title>
+    <title>Lista de mantenimientos</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/css/script.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
+
 <body>
 
-<h1>Lista de Mantenimientos</h1>
-<a href="crear.php">+ Crear Nuevo Mantenimiento</a>
-<br><br>
+<?php include "../includes/sidebar.php"; ?>
 
+        <!-- CONTENIDO -->
+        <main class="contenido">
 
-<form method="GET">
-    <input type="text" name="buscar" placeholder="Buscar por descripcion"
-            value="<?= htmlspecialchars($buscar) ?>">
+            <h2 align="center">Lista de mantenimientos</h2>            
 
-    <select name="estado">
-        <option value="">Todos los estados</option>
-        <option value="pendiente"  <?= $estado == "pendiente"  ? "selected" : "" ?>>Pendiente</option>
-        <option value="en_proceso" <?= $estado == "en_proceso" ? "selected" : "" ?>>En Proceso</option>
-        <option value="solucionado"<?= $estado == "solucionado"? "selected" : "" ?>>Solucionado</option>
-    </select>
+            <!-- BOTÓN NUEVO -->
+            
+            <button type="submit" class="btn-filtrar">
+                <a href="crear.php"  >
+                    <h3>Crear nuevo mantenimiento</h3>
+                </a>
 
-    <select name="prioridad">
-        <option value="">Todas las prioridades</option>
-        <option value="alta"  <?= $prioridad == "alta"  ? "selected" : "" ?>>Alta</option>
-        <option value="media" <?= $prioridad == "media" ? "selected" : "" ?>>Media</option>
-        <option value="baja"  <?= $prioridad == "baja"  ? "selected" : "" ?>>Baja</option>
-    </select>
+            </button>
+            
 
-    <button type="submit">Filtrar</button>
-    <?php if ($buscar || $estado || $prioridad): ?>
-        <a href="listar.php">Limpiar filtros</a>
-    <?php endif; ?>
-</form>
-<br>
+            <!-- FILTROS -->
+            <div class="bloque filtros">
 
+                <form method="GET">
 
-<table border="1" cellpadding="6">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Prioridad</th>
-            <th>Descripción</th>
-            <th>Estado</th>
-            <th>Zona</th>
-            <th>Solicitante</th>
-            <th>Fecha Reporte</th>
-            <th>Fecha Solución</th>
-            <th>Evidencia</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php if (count($mantenimientos) > 0): ?>
-            <?php foreach ($mantenimientos as $fila): ?>
-            <tr>
-                <td><?= $fila['id'] ?></td>
-                <td><?= etiquetaPrioridad($fila['prioridad']) ?></td>
-                <td><?= htmlspecialchars($fila['descripcion']) ?></td>
-                <td><?= etiquetaEstado($fila['estado']) ?></td>
-                <td><?= htmlspecialchars($fila['nombre_zona'] ?? '-') ?></td>
-                <td><?= htmlspecialchars(($fila['nombre_usuario'] ?? '') . ' ' . ($fila['apellido_usuario'] ?? '')) ?></td>
-                <td><?= $fila['fecha_reporte'] ?></td>
-                <td><?= $fila['fecha_solucion'] ?? '-' ?></td>
-                <td>
-                    <?php if (!empty($fila['evidencia']) && file_exists($fila['evidencia'])): ?>
-                        <a href="<?= $fila['evidencia'] ?>" target="_blank">Ver archivo</a>
-                    <?php else: ?>
-                        -
+                    <input
+                        type="text"
+                        name="buscar"
+                        placeholder="Buscar por descripción"
+                        value="<?= htmlspecialchars($buscar) ?>">
+
+                    <select name="estado">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente" <?= $estado == "pendiente" ? "selected" : "" ?>>
+                            Pendiente
+                        </option>
+                        <option value="en_proceso" <?= $estado == "en_proceso" ? "selected" : "" ?>>
+                            En Proceso
+                        </option>
+                        <option value="solucionado" <?= $estado == "solucionado" ? "selected" : "" ?>>
+                            Solucionado
+                        </option>
+                    </select>
+
+                    <select name="prioridad">
+                        <option value="">Todas las prioridades</option>
+                        <option value="alta" <?= $prioridad == "alta" ? "selected" : "" ?>>
+                            Alta
+                        </option>
+                        <option value="media" <?= $prioridad == "media" ? "selected" : "" ?>>
+                            Media
+                        </option>
+                        <option value="baja" <?= $prioridad == "baja" ? "selected" : "" ?>>
+                            Baja
+                        </option>
+                    </select>
+
+                    
+                    <button type="submit" class="btn-filtrar">
+                        Filtrar
+                    </button>
+
+                    <?php if ($buscar || $estado || $prioridad): ?>
+                        <a href="listar.php" class="btn-limpiar">
+                            Limpiar filtros
+                        </a>
                     <?php endif; ?>
-                </td>
-                <td>
-                    <a href="editar.php?id=<?= $fila['id'] ?>">Editar</a>
-                    |
-                    <a href="eliminar.php?id=<?= $fila['id'] ?>"
-                        onclick="return confirm('¿Seguro que deseas eliminar este mantenimiento?')">Eliminar</a>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr>
-                <td colspan="10">No hay mantenimientos registrados.</td>
-            </tr>
-        <?php endif; ?>
-    </tbody>
-</table>
 
+                </form>
+            
+            </div>
+
+            <!-- TABLA -->
+            <h3>Historial de Mantenimientos</h3>
+            
+            <div class="bloque historial-grid">
+
+                <div class="card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Prioridad</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                                <th>Zona</th>
+                                <th>Solicitante</th>
+                                <th>Fecha Reporte</th>
+                                <th>Fecha Solución</th>
+                                <th>Evidencia</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <?php if (count($mantenimientos) > 0): ?>
+                                <?php foreach ($mantenimientos as $fila): ?>
+                                    <tr>
+                                        <td><?= $fila['id'] ?></td>
+                                        <td>
+                                            <?= etiquetaPrioridad($fila['prioridad']) ?>
+                                        </td>
+
+                                        <td>
+                                            <?= htmlspecialchars($fila['descripcion']) ?>
+                                        </td>
+
+                                        <td>
+                                            <?= etiquetaEstado($fila['estado']) ?>
+                                        </td>
+
+                                        <td>
+                                            <?= htmlspecialchars($fila['nombre_zona'] ?? '-') ?>
+                                        </td>
+
+                                        <td>
+                                            <?= htmlspecialchars(
+                                                ($fila['nombre_usuario'] ?? '') .
+                                                    ' ' .
+                                                    ($fila['apellido_usuario'] ?? '')
+                                            ) ?>
+                                        </td>
+
+                                        <td>
+                                            <?= $fila['fecha_reporte'] ?>
+                                        </td>
+
+                                        <td>
+                                            <?= $fila['fecha_solucion'] ?: '-' ?>
+                                        </td>
+                                        <td>
+                                            <?php if (!empty($fila['evidencia'])): ?>
+                                                <a href="<?= $fila['evidencia'] ?>" target="_blank">
+                                                    Ver archivo
+                                                </a>
+                                            <?php else: ?>
+                                                -
+                                            <?php endif; ?>
+
+                                        </td>
+                                        <td>
+                                            <a href="editar.php?id=<?= $fila['id'] ?>">
+                                                Editar
+                                            </a>
+                                            |
+                                            <a
+                                                href="eliminar.php?id=<?= $fila['id'] ?>"
+                                                onclick="return confirm('¿Seguro que deseas eliminar este mantenimiento?')">
+
+                                                Eliminar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+
+                            <?php else: ?>
+
+                                <tr>
+                                    <td colspan="10">
+                                        No hay mantenimientos registrados.
+                                    </td>
+                                </tr>
+
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </main>
 </body>
+
 </html>
