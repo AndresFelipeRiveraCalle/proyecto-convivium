@@ -10,7 +10,7 @@ CREATE TABLE rol (
 );
 
 -- ======================
--- TABLA USUARIO
+-- TABLA USUARIO 
 -- ======================
 CREATE TABLE usuario (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -22,6 +22,10 @@ CREATE TABLE usuario (
     rol_id INT NOT NULL,
     estado BOOLEAN DEFAULT TRUE,
     fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    -- NUEVOS CAMPOS PARA RECUPERACIÓN DE CONTRASEÑA:
+    reset_token VARCHAR(64) NULL,
+    reset_expires_at DATETIME NULL,
+    
     FOREIGN KEY (rol_id) REFERENCES rol(id)
 );
 
