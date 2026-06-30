@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $mensaje = urlencode("Debe seleccionar un país.");
 
-        header("Location: ../configuracion/datos.php?tipo=warning&texto=$mensaje");
+        header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
         exit;
     }
 
@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $mensaje = urlencode("Debe ingresar el nombre del departamento.");
 
-        header("Location: ../configuracion/datos.php?tipo=warning&texto=$mensaje");
+        header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
         exit;
     }
 
@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $mensaje = urlencode("El departamento ya se encuentra registrado para ese país.");
 
-            header("Location: ../configuracion/datos.php?tipo=warning&texto=$mensaje");
+            header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
             exit;
         }
 
@@ -66,14 +66,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $mensaje = urlencode("El departamento fue registrado correctamente.");
 
-        header("Location: ../configuracion/datos.php?tipo=success&texto=$mensaje");
+        header("Location: ../configuracion/basico.php?tipo=success&texto=$mensaje");
         exit;
 
     } catch (PDOException $e) {
 
         $mensaje = urlencode("Error al guardar el departamento.");
 
-        header("Location: ../configuracion/datos.php?tipo=error&texto=$mensaje");
+        header("Location: ../configuracion/basico.php?tipo=error&texto=$mensaje");
         exit;
     }
 
@@ -81,6 +81,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $mensaje = urlencode("Acceso no permitido.");
 
-    header("Location: ../configuracion/datos.php?tipo=error&texto=$mensaje");
+    header("Location: ../configuracion/basico.php?tipo=error&texto=$mensaje");
     exit;
 }

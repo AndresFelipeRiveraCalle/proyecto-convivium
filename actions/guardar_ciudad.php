@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $mensaje = urlencode("Debe seleccionar un departamento.");
 
-        header("Location: ../configuracion/datos.php?tipo=warning&texto=$mensaje");
+        header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
         exit;
     }
 
@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $mensaje = urlencode("Debe ingresar el nombre de la ciudad.");
 
-        header("Location: ../configuracion/datos.php?tipo=warning&texto=$mensaje");
+        header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
         exit;
     }
 
@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $mensaje = urlencode("La ciudad ya se encuentra registrada.");
 
-            header("Location: ../configuracion/datos.php?tipo=warning&texto=$mensaje");
+            header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
             exit;
         }
 
@@ -71,14 +71,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $mensaje = urlencode("La ciudad fue registrada correctamente.");
 
-        header("Location: ../configuracion/datos.php?tipo=success&texto=$mensaje");
+        header("Location: ../configuracion/basico.php?tipo=success&texto=$mensaje");
         exit;
 
     } catch (PDOException $e) {
 
         $mensaje = urlencode("Error al guardar la ciudad.");
 
-        header("Location: ../configuracion/datos.php?tipo=error&texto=$mensaje");
+        header("Location: ../configuracion/basico.php?tipo=error&texto=$mensaje");
         exit;
     }
 
@@ -86,6 +86,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $mensaje = urlencode("Acceso no permitido.");
 
-    header("Location: ../configuracion/datos.php?tipo=error&texto=$mensaje");
+    header("Location: ../configuracion/basico.php?tipo=error&texto=$mensaje");
     exit;
 }
