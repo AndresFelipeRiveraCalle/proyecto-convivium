@@ -11,6 +11,12 @@ $departamentos = $stmtDepartamentos->fetchAll(PDO::FETCH_ASSOC);
 $stmtCiudades = $conexion->query("SELECT id_ciudad AS id, nombre , codigo_dane FROM ciudades ORDER BY nombre");
 $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
 
+$tipos = $conexion->query("SELECT id_tipo_vivienda as id, nombre FROM tipos_vivienda ORDER BY nombre");
+$tiposVivienda = $tipos->fetchAll(PDO::FETCH_ASSOC);
+
+$usos = $conexion->query("SELECT id_uso as id, nombre FROM usos_vivienda ORDER BY nombre");
+$usosVivienda = $usos->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -57,6 +63,7 @@ $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
         <br>
         <p>En esta seccion podras configurar las áreas de la copropiedad como cantidad de apartamentos, zonas comunes y distrinbuciones generales</p>
         <br>
+
         <h3>Ubicación de la copropiedad</h3>
 
         <div class="bloque filtros">
@@ -103,7 +110,7 @@ $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
 
 
             <div class="form-group label">
-                <span for="direccion">Dirección o Ubicación:</span>
+                <span for="direccion">Dirección:</span>
                 <input type="text" id="direccion" name="direccion" placeholder="Ej. Vía Las Palmas Km 4" required>
             </div>
             <div class="form-group label">
@@ -112,6 +119,53 @@ $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
         </div>
+
+        <h3>Unidades de vivienda</h3>
+        <div class="bloque filtros">
+
+            <div class="card">
+                <h4>Tipo de vivienda</h4>
+                <select name="id_tipo_vivienda" class="form-control" required>
+                    <option value="">Seleccione un tipo</option>
+                    <?php foreach ($tiposVivienda as $tipo): ?>
+                        <option value="<?= $tipo['id'] ?>">
+                            <?= htmlspecialchars($tipo['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="card">
+                <h4>Cantidad</h4>
+                <input type="number" id="cantidadApartamentos" name="cantidadApartamentos" min="1" required>
+            </div>
+
+            <div class="card">
+                <h4>Uso de las viviendas</h4>
+                <select name="id_uso_vivienda" class="form-control" required>
+                    <option value="">Seleccione un uso</option>
+                    <?php foreach ($usosVivienda as $uso): ?>
+                        <option value="<?= $uso['id'] ?>">
+                            <?= htmlspecialchars($uso['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="card">
+                <h4>Cantidad de pisos</h4>
+                <input type="number" id="cantidadPisos" name="cantidadPisos" min="1" required>
+            </div>
+
+            <div class="card">
+                <h4>Unidades por piso</h4>
+                <input type="number" id="unidadesPorPiso" name="unidadesPorPiso" min="1" required>
+            </div>
+        </div>    
+
+        
+
+
         <div class="form-actions">
             <button type="submit" class="btn-limpiar">Cancelar</button>
             <button type="submit" class="btn-filtrar">Guardar</button>
