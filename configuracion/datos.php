@@ -26,39 +26,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
 
-    <!-- ==========================================
-        MODAL DE MENSAJES DEL SISTEMA
-        ========================================== -->
-
-    <div id="modalMensaje" class="modal">
-        <div class="modal-contenido modal-mensaje">
-            <h2 id="tituloMensaje"></h2>
-            <br>
-            <p id="textoMensaje"></p>
-            <br><br>
-            <div class="acciones-modal">
-                <button
-                    type="button"
-                    id="btnCerrarMensaje"
-                    class="btn-filtrar">
-                    Aceptar
-                </button>
-            </div>
-        </div>
-    </div>
 
     <body>
 
         <?php include "../includes/sidebar.php"; ?>
-        <?php include "../includes/mensajes.php"; ?>
 
         <main class="contenido">
 
             <h2 align="center">Bienvenido, Administrador</h2>
             <br>
-            <p>Antes de comenzar a utilizar el sistema, es necesario que completes la configuración inicial de la copropiedad. Por favor, proporciona la información requerida en los campos a continuación.</p>
             <p>Configura los datos básicos de la copropiedad para activar el sistema.</p>
             <br>
+<<<<<<< HEAD
             <br>
             <h3>Datos de la copropiedad</h3>
   
@@ -129,6 +108,27 @@
                 </div>
 
                 <div class="form-group label">
+=======
+        
+
+            <div class="bloque filtros">
+                <div class="card">
+                    <span class="step active">Nombre del Conjunto Residncial</span>
+                    <input type="text" id="nombre_unidad" name="nombre_unidad" placeholder="Ej. Urbanización Las Palmas" required>
+                </div>
+                <div class="card">
+                    <span for="id_unidad">Identificación de la Unidad - NIT:</span>
+                    <input type="text" id="nit_unidad" name="nit_unidad" placeholder="Ingrese el NIT de la unidad" required>
+                </div>
+                <div class="card">
+                    <span class="step active">Representante Legal</span>
+                    <input type="text" id="representante_legal" name="representante_legal" placeholder="Nombre del representante legal" required>
+                </div>
+            </div>
+
+            <div class="bloque filtros">
+                <div class="card">
+>>>>>>> b23cb68d4f69f8ae29ed1857333aa259ebf56f0e
                     <span for="direccion">Dirección o Ubicación:</span>
                     <input type="text" id="direccion" name="direccion" placeholder="Ej. Vía Las Palmas Km 4" required>
                 </div>
@@ -148,16 +148,24 @@
 
             </div>
 
+<<<<<<< HEAD
 
             <h3>Datos de contacto</h3>
             <div class="bloque filtros">
                 <div class="card">
                     <span for="correo_propietario">Correo Electrónico:</span>
                     <input type="email" id="correo_propietario" name="correo_propietario" placeholder="carlos.propietario@email.com" >
+=======
+            <div class="bloque filtros">
+                <div class="card">
+                    <span for="correo_propietario">Correo Electrónico:</span>
+                    <input type="email" id="correo_propietario" name="correo_propietario" placeholder="Correo de la copropiedad" required>
+>>>>>>> b23cb68d4f69f8ae29ed1857333aa259ebf56f0e
                 </div>
 
                 <div class="card">
                     <span for="telefono_propietario">Teléfono de Contacto:</span>
+<<<<<<< HEAD
                     <input type="tel" id="telefono_propietario" name="telefono_propietario" placeholder="Ingrese telefono de contacto" >
                 </div>
 
@@ -178,8 +186,22 @@
                     <span for="logo">Logo de la unidad</span>
                     <input type="file" id="logo" name="logo" placeholder="Cargue el logo" accept="image/*">                    
                         <img src="../assets/Img/user.png" alt="logo" id="logoPreview" class="preview-logo">
+=======
+                    <input type="tel" id="telefono_propietario" name="telefono_propietario" placeholder="Telefono de la copropiedad" required>
+                </div>
+            </div>
+
+            <div class="bloque filtros">
+                <div class="card">
+                    <span for="reglamento">Reglamento de propiedad horizontal:</span>
+                    <input type="reglamento" id="reglamento" name="reglamento" placeholder="Cargue el reglamento" required>
+>>>>>>> b23cb68d4f69f8ae29ed1857333aa259ebf56f0e
                 </div>
 
+                <div class="card">
+                    <span for="manual">Manual de convivencia:</span>
+                    <input type="text" id="manual" name="manual" placeholder="Cargue el manual" required>
+                </div>
             </div>
 
             <div class="form-actions">

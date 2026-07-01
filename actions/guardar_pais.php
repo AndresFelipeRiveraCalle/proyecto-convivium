@@ -6,13 +6,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Obtener el nombre del país
     $nombre = trim($_POST["nombreP"]);
+    $id_pais = isset($_POST["codigoP"]) ? trim($_POST["codigoP"]) : null;
 
     // Validar que no esté vacío
     if ($nombre == "") {
 
         $mensaje = urlencode("Debe ingresar el nombre del país.");
 
-        header("Location: ../configuracion/datos.php?tipo=warning&texto=$mensaje");
+        header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
         exit;
     }
 
@@ -28,26 +29,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $mensaje = urlencode("El país ya se encuentra registrado.");
 
-            header("Location: ../configuracion/datos.php?tipo=warning&texto=$mensaje");
+            header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
             exit;
         }
 
         // Insertar el nuevo país
-        $sql = "INSERT INTO paises (nombre) VALUES (:nombre)";
+        $sql = "INSERT INTO paises (nombre, id_pais) VALUES (:nombre, :id_pais)";
         $stmt = $conexion->prepare($sql);
         $stmt->bindParam(":nombre", $nombre, PDO::PARAM_STR);
+        $stmt->bindParam(":id_pais", $id_pais, PDO::PARAM_STR);
         $stmt->execute();
 
         $mensaje = urlencode("El país fue registrado correctamente.");
 
-        header("Location: ../configuracion/datos.php?tipo=success&texto=$mensaje");
+        header("Location: ../configuracion/basico.php?tipo=success&texto=$mensaje");
         exit;
 
     } catch (PDOException $e) {
 
         $mensaje = urlencode("Error al guardar el país: " . $e->getMessage());
 
-        header("Location: ../configuracion/datos.php?tipo=error&texto=$mensaje");
+        header("Location: ../configuracion/basico.php?tipo=error&texto=$mensaje");
         exit;
 
     }
@@ -57,6 +59,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Si alguien intenta acceder directamente al archivo
     $mensaje = urlencode("Acceso no permitido.");
 
-    header("Location: ../configuracion/datos.php?tipo=error&texto=$mensaje");
+    header("Location: ../configuracion/basico.php?tipo=error&texto=$mensaje");
     exit;
 }
