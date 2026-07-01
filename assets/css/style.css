@@ -367,11 +367,17 @@ body{
     font-weight:600;
     text-decoration:none;
     transition:.3s;   
+    display: inline-block;
+    
 }
 
 .btn-filtrar:hover{
     background:#27ae60;
     transform:translateY(-2px);
+}
+
+.btn-derecha{
+    margin-left:auto;
 }
 /* ==========================================
    FILTROS
@@ -544,6 +550,11 @@ tbody td{
     resize:vertical;
 }
 
+.form-actions{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
 /* Campo de texto para tareas */
 .textarea-tareas{
