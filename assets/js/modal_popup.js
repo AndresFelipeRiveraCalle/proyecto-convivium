@@ -1,4 +1,7 @@
+
+
 document.addEventListener("DOMContentLoaded", function () {
+
 
     // ==========================
     // MODALES DEL SISTEMA
@@ -22,6 +25,15 @@ document.addEventListener("DOMContentLoaded", function () {
         "modalCiudad",
         "cerrarCiudad",
         "cancelarCiudad"
+    );
+
+    // MODAL GRUPOS
+
+    configurarModal(
+        "btnNuevoTipo",
+        "modalGrupo",
+        "cerrarGrupo",
+        "cancelarGrupo"
     );
 
     // ==========================
@@ -49,48 +61,32 @@ function configurarModal(idBoton, idModal, idCerrar, idCancelar) {
 
     // Abrir modal
     boton.addEventListener("click", function () {
-
         modal.style.display = "block";
-
     });
 
     // Cerrar con la X
     if (cerrar) {
-
         cerrar.addEventListener("click", function () {
-
             cerrarModal(modal);
-
         });
-
     }
 
     // Botón Cancelar
     if (cancelar) {
-
         cancelar.addEventListener("click", function () {
-
             const formulario = modal.querySelector("form");
-
             if (formulario) {
                 formulario.reset();
             }
-
             cerrarModal(modal);
-
         });
-
     }
 
     // Cerrar haciendo clic fuera
     window.addEventListener("click", function (event) {
-
         if (event.target === modal) {
-
             cerrarModal(modal);
-
         }
-
     });
 
 }

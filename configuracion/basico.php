@@ -11,11 +11,62 @@ $departamentos = $stmtDepartamentos->fetchAll(PDO::FETCH_ASSOC);
 $stmtCiudades = $conexion->query("SELECT id_ciudad AS id, nombre , codigo_dane FROM ciudades ORDER BY nombre");
 $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
 
-$tipos = $conexion->query("SELECT id_tipo_vivienda as id, nombre FROM tipos_vivienda ORDER BY nombre");
-$tiposVivienda = $tipos->fetchAll(PDO::FETCH_ASSOC);
+
+// ===========================================
+// GRUPO SELECCIONADO
+// ===========================================
+
+$idGrupoSeleccionado = isset($_GET['id'])
+    ? intval($_GET['id'])
+    : 0;
+
+
+// ===========================================
+// CARGAR GRUPOS CONFIGURADOS
+// ===========================================
+
+$sql = "SELECT dt.id_tipo_config, dt.id_tipo_vivienda, dt.nombre_grupo, tv.nombre AS tipo,
+    dt.cantidad_unidades, dt.area_total, dt.coeficiente_total, dt.observaciones
+FROM detalle_tipos_unidad dt
+INNER JOIN tipos_vivienda tv ON tv.id_tipo_vivienda = dt.id_tipo_vivienda
+WHERE dt.activo = 1
+ORDER BY dt.id_tipo_config";
+
+$stmt = $conexion->query($sql);
+
+$tiposVivienda = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+// ===========================================
+// SI NO HAY GRUPO SELECCIONADO,
+// TOMAR EL PRIMERO
+// ===========================================
+
+if ($idGrupoSeleccionado == 0 && !empty($tiposVivienda)) {
+    $idGrupoSeleccionado = $tiposVivienda[0]['id_tipo_config'];
+}
+
+// ===========================================
+// BUSCAR EL GRUPO SELECCIONADO
+// ===========================================
+
+$grupoSeleccionado = null;
+
+foreach ($tiposVivienda as $tipo) {
+    if ($tipo['id_tipo_config'] == $idGrupoSeleccionado) {
+        $grupoSeleccionado = $tipo;
+        break;
+    }
+}
 
 $usos = $conexion->query("SELECT id_uso as id, nombre FROM usos_vivienda ORDER BY nombre");
 $usosVivienda = $usos->fetchAll(PDO::FETCH_ASSOC);
+
+$tipoCopropiedad = $conexion->query("SELECT id, nombre FROM tipos_copropiedad ORDER BY nombre");
+$tiposCopropiedad = $tipoCopropiedad->fetchAll(PDO::FETCH_ASSOC);
+
+$stmtTipos = $conexion->query("SELECT * FROM detalle_tipos_unidad WHERE activo = 1 ORDER BY id_tipo_config");
+$tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -25,9 +76,9 @@ $usosVivienda = $usos->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title>CONFIGURACION</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css?v=<?= time() ?>">
     <script src="../assets/js/calendar.js" defer></script>
-    <script src="../assets/js/modal_popup.js" defer></script>
+    <script src="../assets/js/modal_popup.js?v=1.0"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
@@ -68,14 +119,7 @@ $usosVivienda = $usos->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="bloque filtros">
 
-            <div class="card">
-                <h4>País</h4>
-                    <?php foreach ($paises as $pais): ?>
-                        <option value="<?= $pais['id'] ?>">
-                            <?= htmlspecialchars($pais['nombre']) ?>
-                        </option>
-                    <?php endforeach; ?>
-            </div>
+
 
             <div class="card">
                 <h4>Departamento</h4>
@@ -121,49 +165,94 @@ $usosVivienda = $usos->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <h3>Unidades de vivienda</h3>
+
         <div class="bloque filtros">
 
-            <div class="card">
-                <h4>Tipo de vivienda</h4>
-                <select name="id_tipo_vivienda" class="form-control" required>
-                    <option value="">Seleccione un tipo</option>
-                    <?php foreach ($tiposVivienda as $tipo): ?>
-                        <option value="<?= $tipo['id'] ?>">
-                            <?= htmlspecialchars($tipo['nombre']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+            <div class="card-tabla">
+                <!--h3>Tipo de unidad</h3-->
+                <div class="card">
+                    <h4>Tipo de unidad</h4>
+                    <select name="tipo_copropiedad" class="form-control" required>
+                        <option value="">Seleccione un tipo</option>
+                        <?php foreach ($tiposCopropiedad as $propiedad): ?>
+                            <option value="<?= $propiedad['id'] ?>">
+                                <?= htmlspecialchars($propiedad['nombre']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
+        </div>
 
-            <div class="card">
-                <h4>Cantidad</h4>
-                <input type="number" id="cantidadApartamentos" name="cantidadApartamentos" min="1" required>
+        <h3>Configuración de tipos de unidad</h3>
+        <div class="bloque filtros">
+            <div class="tabs-container">
+                <?php foreach ($tiposVivienda as $tipo): ?>
+                    <a
+                        href="basico.php?id=<?= $tipo['id_tipo_config'] ?>"
+                        class="tab-button <?= ($tipo['id_tipo_config'] == $idGrupoSeleccionado) ? 'active' : '' ?>">
+                        <?= htmlspecialchars($tipo['nombre_grupo']) ?>
+                    </a>
+                <?php endforeach; ?>
+
+                <button
+                    type="button" class="tab-button tab-add" id="btnNuevoTipo">
+                    +
+                </button>
             </div>
+        </div>
 
-            <div class="card">
-                <h4>Uso de las viviendas</h4>
-                <select name="id_uso_vivienda" class="form-control" required>
-                    <option value="">Seleccione un uso</option>
-                    <?php foreach ($usosVivienda as $uso): ?>
-                        <option value="<?= $uso['id'] ?>">
-                            <?= htmlspecialchars($uso['nombre']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+
+
+        <div class="bloque filtros">
+            <div id="contenidoTipo" class="tab-content">
+
+                <?php if ($grupoSeleccionado): ?>
+
+                    <h3><?= htmlspecialchars($grupoSeleccionado['nombre_grupo']) ?></h3>
+                    <form action="../actions/guardar_tipo_unidad.php" method="POST">
+                        <input
+                            type="hidden" name="id_tipo_config" value="<?= $grupoSeleccionado['id_tipo_config'] ?>">
+                        <div class="bloque filtros">
+                            <div class="form-group">
+                                <label>Cantidad de unidades</label>
+                                <input
+                                    type="number" name="cantidad_unidades" value="<?= $grupoSeleccionado['cantidad_unidades'] ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Área total (m²)</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    name="area_total"
+                                    value="<?= $grupoSeleccionado['area_total'] ?>">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Coeficiente total</label>
+                                <input
+                                    type="number" step="0.00001" name="coeficiente_total" value="<?= $grupoSeleccionado['coeficiente_total'] ?>">
+                            </div>
+                        </div>
+                        <br>
+
+                        <label>Observaciones</label>
+                        <textarea
+                            name="observaciones" rows="4"><?= htmlspecialchars($grupoSeleccionado['observaciones']) ?></textarea>
+                        <br><br>
+
+                        <button
+                            type="submit"
+                            class="btn-filtrar">
+                            Guardar configuración
+                        </button>
+                    </form>
+                <?php endif; ?>
             </div>
+        </div>
 
-            <div class="card">
-                <h4>Cantidad de pisos</h4>
-                <input type="number" id="cantidadPisos" name="cantidadPisos" min="1" required>
-            </div>
 
-            <div class="card">
-                <h4>Unidades por piso</h4>
-                <input type="number" id="unidadesPorPiso" name="unidadesPorPiso" min="1" required>
-            </div>
-        </div>    
-
-        
 
 
         <div class="form-actions">
@@ -192,6 +281,7 @@ $usosVivienda = $usos->fetchAll(PDO::FETCH_ASSOC);
                 <button type="reset" class="btn-limpiar" id="cancelarPais">Cancelar</button>
                 <button type="submit" class="btn-filtrar">Guardar</button>
             </form>
+
         </div>
     </div>
 
@@ -237,6 +327,74 @@ $usosVivienda = $usos->fetchAll(PDO::FETCH_ASSOC);
 
             </form>
         </div>
+    </div>
+
+    <!-- ==========================================
+     MODAL NUEVO GRUPO
+    ========================================== -->
+
+    <div id="modalGrupo" class="modal">
+        <div class="modal-contenido">
+            <span id="cerrarGrupo" class="cerrar">&times;</span>
+            <h2>Nuevo grupo de unidades</h2>
+            <br>
+            <form action="../actions/guardar_grupo.php" method="POST">
+                <label>Tipo de unidad</label>
+                <select
+                    name="id_tipo_vivienda" required>
+                    <option value="">
+                        Seleccione...
+                    </option>   
+
+                    <?php
+                    $stmtTipos = $conexion->query("SELECT id_tipo_vivienda, nombre FROM tipos_vivienda WHERE activo = 1 ORDER BY orden ");
+
+                    while ($fila = $stmtTipos->fetch(PDO::FETCH_ASSOC)):
+                    ?>
+                        <option value="<?= $fila['id_tipo_vivienda'] ?>">
+                            <?= htmlspecialchars($fila['nombre']) ?>
+                        </option>
+                    <?php endwhile; ?>
+                </select>
+                <br><br>
+
+                <label>Nombre del grupo</label>
+                <input
+                    type="text" name="nombre_grupo" maxlength="100" required>
+                <br><br>
+
+                <label>Cantidad de unidades</label>
+                <input
+                    type="number" name="cantidad_unidades" min="1" required>
+                <br><br>
+
+                <label>Área total (m²)</label>
+                <input
+                    type="number" step="0.01" name="area_total">
+                <br><br>
+
+                <label>Coeficiente total</label>
+                <input
+                    type="number" step="0.00001" name="coeficiente_total">
+                <br><br>
+
+                <label>Observaciones</label>
+                <textarea
+                    name="observaciones" rows="3"></textarea>
+                <br><br>
+
+                <button
+                    type="reset" class="btn-limpiar" id="cancelarGrupo">
+                    Cancelar
+                </button>
+
+                <button
+                    type="submit" class="btn-filtrar">
+                    Guardar
+                </button>
+            </form>
+        </div>
+
     </div>
 
 </body>
