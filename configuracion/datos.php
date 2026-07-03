@@ -278,7 +278,7 @@ $bloqueado = ($unidad !== false);
                     class="btn-filtrar btn-derecha"
                     onclick="window.location.href='../configuracion/basico.php'">
 
-                    Configuración de zonas
+                    Configuración de áreas
 
                 </button>
 
