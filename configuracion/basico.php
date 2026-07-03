@@ -109,6 +109,14 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
     <?php include "../includes/mensajes.php"; ?>
 
     <main class="contenido">
+        <div class="form-actions">
+            <button
+                    type="button"
+                    class="btn-filtrar btn-derecha"
+                    onclick="window.location.href='../configuracion/datos.php'">
+                    Datos de la copropiedad
+                </button>
+        </div>
 
         <h2 align="center">Configuracion básica</h2>
         <br>
@@ -168,7 +176,7 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="bloque filtros">
 
-            <div class="card-tabla">
+
                 <!--h3>Tipo de unidad</h3-->
                 <div class="card">
                     <h4>Tipo de unidad</h4>
@@ -181,10 +189,14 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                         <?php endforeach; ?>
                     </select>
                 </div>
-            </div>
+                <div class="card">
+                    <span class="step active">Cantidad total de unidades</span>
+                    <input type="text" id="cantidad_unidades" name="cantidad_unidades" placeholder="Cantidad total de unidades" required>
+                </div>               
+
         </div>
 
-        <h3>Configuración de tipos de unidad</h3>
+        <h3>Configuración de tipos de unidades</h3>
         <div class="bloque filtros">
             <div class="tabs-container">
                 <?php foreach ($tiposVivienda as $tipo): ?>

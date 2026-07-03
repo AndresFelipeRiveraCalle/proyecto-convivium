@@ -236,7 +236,7 @@ body{
     width:400px;
     margin:8% auto;
     padding:30px;
-    border-radius:10px;
+    border-radius:15px;
     position:relative;
 }
 
@@ -548,6 +548,7 @@ tbody td{
 .form-group textarea{
     min-height:120px;
     resize:vertical;
+    border-radius:15px;
 }
 
 .form-actions{
@@ -628,14 +629,15 @@ tbody td{
 }
 
 .tab-add{
-
+    display:flex;
+    justify-content:center;
     margin-left:auto;
     background:#2ecc71;
     color:white;
     font-size:22px;
     width:45px;
     height:45px;
-    border-radius:50%;
+    border-radius:40%;
 }
 
 .tab-add:hover{
@@ -646,7 +648,7 @@ tbody td{
 
     border:1px solid #ddd;
     padding:25px;
-    border-radius:0 10px 10px 10px;
+    border-radius:15px;
     background:white;
 
 }
