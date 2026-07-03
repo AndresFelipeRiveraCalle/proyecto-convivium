@@ -579,6 +579,7 @@ tbody td{
 .textarea-tareas:focus{
     outline:none;
     border-color:#12304A;
+    border-radius:15px;
     box-shadow:0 0 8px rgba(18,48,74,.2);
 }
 
@@ -593,6 +594,62 @@ tbody td{
     gap:8px;
 }
 
+
+/* ======================================
+   PESTAÑAS
+====================================== */
+
+.tabs-container{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    margin:20px 0;
+    border-bottom:2px solid #ddd;
+}
+
+.tab-button{
+    padding:10px 20px;
+    border:none;
+    background:#f4f4f4;
+    cursor:pointer;
+    border-radius:10px 10px 0 0;
+    transition:.3s;
+    font-weight:600;
+}
+
+.tab-button:hover{
+    background:#12304A;
+    color:white;
+}
+
+.tab-button.active{
+    background:#12304A;
+    color:white;
+}
+
+.tab-add{
+
+    margin-left:auto;
+    background:#2ecc71;
+    color:white;
+    font-size:22px;
+    width:45px;
+    height:45px;
+    border-radius:50%;
+}
+
+.tab-add:hover{
+    background:#27ae60;
+}
+
+.tab-content{
+
+    border:1px solid #ddd;
+    padding:25px;
+    border-radius:0 10px 10px 10px;
+    background:white;
+
+}
 
 /* ==========================================
    RESPONSIVE
