@@ -127,7 +127,15 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="bloque filtros">
 
+            <div class="card">
+                <h4>País</h4>
 
+                    <?php foreach ($paises as $pais): ?>
+                        <option value="<?= $pais['id'] ?>">
+                            <?= htmlspecialchars($pais['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+            </div>
 
             <div class="card">
                 <h4>Departamento</h4>
@@ -235,10 +243,7 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                             <div class="form-group">
                                 <label>Área total (m²)</label>
                                 <input
-                                    type="number"
-                                    step="0.01"
-                                    name="area_total"
-                                    value="<?= $grupoSeleccionado['area_total'] ?>">
+                                    type="number" step="0.01" name="area_total" value="<?= $grupoSeleccionado['area_total'] ?>">
                             </div>
 
                             <div class="form-group">
@@ -249,10 +254,12 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <br>
 
-                        <label>Observaciones</label>
-                        <textarea
-                            name="observaciones" rows="4"><?= htmlspecialchars($grupoSeleccionado['observaciones']) ?></textarea>
-                        <br><br>
+                        <div class="form-group textarea"  >
+                            <label>Observaciones</label>
+                            <textarea
+                                name="observaciones" rows="4"><?= htmlspecialchars($grupoSeleccionado['observaciones']) ?></textarea>
+                        </div>
+                        <br>
 
                         <button
                             type="submit"
@@ -360,7 +367,6 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 
                     <?php
                     $stmtTipos = $conexion->query("SELECT id_tipo_vivienda, nombre FROM tipos_vivienda WHERE activo = 1 ORDER BY orden ");
-
                     while ($fila = $stmtTipos->fetch(PDO::FETCH_ASSOC)):
                     ?>
                         <option value="<?= $fila['id_tipo_vivienda'] ?>">
