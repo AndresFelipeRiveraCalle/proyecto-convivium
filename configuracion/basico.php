@@ -129,12 +129,13 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 
             <div class="card">
                 <h4>País</h4>
-
+                <select name="id_pais" class="form-control">
                     <?php foreach ($paises as $pais): ?>
                         <option value="<?= $pais['id'] ?>">
-                            <?= htmlspecialchars($pais['nombre']) ?>
+                            <?= htmlspecialchars($pais['id']) ?> - <?= htmlspecialchars($pais['nombre']) ?>
                         </option>
                     <?php endforeach; ?>
+                </select>
             </div>
 
             <div class="card">
@@ -198,7 +199,7 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                     </select>
                 </div>
                 <div class="card">
-                    <span class="step active">Cantidad total de unidades</span>
+                    <span class="step active"><h4>Cantidad total de unidades</h4></span>
                     <input type="text" id="cantidad_unidades" name="cantidad_unidades" placeholder="Cantidad total de unidades" required>
                 </div>               
 
@@ -334,6 +335,28 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
             <h2>Nueva Ciudad</h2>
 
             <form action="../actions/guardar_ciudad.php" method="POST">
+                
+            
+                <label>País</label>
+                <select name="id_pais" class="form-control">
+                    <?php foreach ($paises as $pais): ?>
+                        <option value="<?= $pais['id'] ?>">
+                            <?= htmlspecialchars($pais['id']) ?> - <?= htmlspecialchars($pais['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <br><br>
+                <label>Departamento</label>
+                <select name="id_departamento" class="form-control">
+                    <option value="">Seleccione un departamento</option>
+                    <?php foreach ($departamentos as $departamento): ?>
+                        <option value="<?= $departamento['id'] ?>">
+                            <?= htmlspecialchars($departamento['codigo']) ?> - <?= htmlspecialchars($departamento['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <br><br>
+            
                 <label>Nombre de la ciudad</label>
                 <input
                     type="text" id="nombreCiudad" name="nombreC" required maxlength="100">
@@ -341,6 +364,7 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                 <label>Código de la ciudad</label>
                 <input
                     type="text" id="codigoCiudad" name="codigo" maxlength="10">
+                <br><br>
                 <button type="reset" class="btn-limpiar" id="cancelarCiudad">Cancelar</button>
                 <button type="submit" class="btn-filtrar">Guardar</button>
 

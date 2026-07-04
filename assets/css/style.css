@@ -235,8 +235,8 @@ body{
     background:#fff;
     width:400px;
     margin:8% auto;
-    padding:30px;
-    border-radius:15px;
+    padding:20px;
+    border-radius:10px;
     position:relative;
 }
 
@@ -252,6 +252,7 @@ body{
     width:100%;
     padding:10px;
     box-sizing:border-box;
+    border-radius:10px;
 }
 
 /*==========================================
@@ -600,7 +601,7 @@ tbody td{
     display:flex;
     align-items:center;
     gap:5px;
-    margin:10px 0;
+    margin:2px 0;
     border-bottom:2px solid #ddd;
 }
 
