@@ -296,7 +296,7 @@ body{
     justify-content: center;
     gap: 8px;
     flex-wrap:nowrap;   /* Todo en una sola línea */
-    
+    border-radius: 15px;
     
 }
     
@@ -392,7 +392,7 @@ body{
 
 .filtros input,
 .filtros select{
-    padding:7px;
+    padding:10px;
     border:1px solid #ccc;
     border-radius:8px;
     min-width:180px;
@@ -542,13 +542,14 @@ tbody td{
     width:100%;
     padding:10px;
     border:1px solid #ccc;
-    border-radius:8px;
+    border-radius:11px;
 }
 
 .form-group textarea{
-    min-height:120px;
+    min-height:80px;
     resize:vertical;
     border-radius:15px;
+    
 }
 
 .form-actions{
@@ -558,23 +559,18 @@ tbody td{
 }
 
 /* Campo de texto para tareas */
-.textarea-tareas{
-    /*width:100%;*/
-    min-height:120px;
+.textarea-tarea{
+    width:100%;
+    min-height:3000px;
     padding:12px 15px;
-
     font-family: Arial, Helvetica, sans-serif;
     font-size:14px;
     line-height:1.5;
-
     color:#333;
     background:#fff;
-
     border:1px solid #ccd3dc;
     border-radius:15px;
-
     resize:vertical;
-
     transition:all .3s ease;
 }
 .textarea-tareas:focus{
@@ -604,7 +600,7 @@ tbody td{
     display:flex;
     align-items:center;
     gap:5px;
-    margin:20px 0;
+    margin:10px 0;
     border-bottom:2px solid #ddd;
 }
 
