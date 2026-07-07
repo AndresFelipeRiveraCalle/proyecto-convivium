@@ -38,8 +38,7 @@ $tiposVivienda = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 // ===========================================
-// SI NO HAY GRUPO SELECCIONADO,
-// TOMAR EL PRIMERO
+// SI NO HAY GRUPO SELECCIONADO, TOMAR EL PRIMERO
 // ===========================================
 
 if ($idGrupoSeleccionado == 0 && !empty($tiposVivienda)) {
