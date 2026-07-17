@@ -1,5 +1,3 @@
-
-<div class="contenedor">
     <aside class="menu">
         <nav>
             <ul class="menu-principal">
@@ -20,21 +18,21 @@
 
                     <ul class="submenu-items">
                         <li>
-                            <a href="configuracion/datos.php">
+                            <a href="<?= BASE_URL ?>configuracion/datos.php">
                                 Datos de la copropiedad
                             </a>
                         </li>
 
                         <li>
-                            <a href="../configuracion/basico.php">
+                            <a href="<?= BASE_URL ?>configuracion/basico.php">
                                 Tipos de unidades
                             </a>
                         </li>
 
                         <li>
-                            <a href="../configuracion/unidades.php">
-                                Unidades
-                            </a>
+                            <a href="<?= BASE_URL ?>configuracion/unidades.php">
+                            Unidades
+                        </a>
                         </li>
 
                         <li>
@@ -108,6 +106,15 @@
                 <li>
                     <a href="#">📊 Reportes</a>
                 </li>
+                <li class="cerrar-sesion">
+
+                    <a href="<?= BASE_URL ?>logout.php">
+
+                    🚪 Cerrar sesión
+
+                    </a>
+
+                </li>
             </ul>
 
         </nav>
@@ -117,14 +124,14 @@
             <div class="calendar-header">
                 <div class="month-control">
                     <span class="month-change" id="prev-month"><</span>
-                    <span class="month-picker" id="month-picker">
-                        Mayo
-                    </span>
+                        <span class="month-picker" id="month-picker">
+                            Mayo
+                        </span>
                     <span class="month-change" id="next-month">></span>
                 </div>
 
                 <div class="year-control">
-                    <span class="year-change" id="prev-year"></span>
+                    <span class="year-change" id="prev-year"><</span>
                     <span id="year">2026</span>
                     <span class="year-change" id="next-year">></span>
                 </div>
@@ -148,5 +155,5 @@
                 <div class="date-formate"></div>
             </div>
         </div>
-    </div>
-</aside>
+
+    </aside>
