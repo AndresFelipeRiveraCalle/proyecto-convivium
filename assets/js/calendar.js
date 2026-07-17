@@ -40,9 +40,12 @@ const dateFormate =
 /* GENERAR CALENDARIO */
 const generateCalendar = (month, year) => {
 
-    let calendar_days =
-        document.querySelector('.calendar-days');
+    const calendar_days = document.querySelector('.calendar-days');
 
+    if (!calendar_days) {
+        console.log("No existe el calendario en esta página.");
+        return;
+    }
     calendar_days.innerHTML = '';
 
     let days_of_month = [
@@ -135,9 +138,7 @@ document.querySelector('#prev-month').onclick = () => {
     currentMonth.value--;
 
     if (currentMonth.value < 0) {
-
         currentMonth.value = 11;
-
         currentYear.value--;
     }
 
