@@ -9,4 +9,5 @@
     <script src="<?= BASE_URL ?>assets/js/calendar.js?v=<?= time() ?>" defer></script>
     <script src="<?= BASE_URL ?>assets/js/sidebar.js?v=<?= time() ?>" defer></script>
     <script src="<?= BASE_URL ?>assets/js/modal_popup.js?v=<?= time() ?>" defer></script>
+    <script src="<?= BASE_URL ?>assets/js/formulario.js?v=<?= time() ?>" defer></script>
 </head>
