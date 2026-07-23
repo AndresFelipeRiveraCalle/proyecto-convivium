@@ -18,7 +18,7 @@ $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
 // CARGAR DATOS DE LA UNIDAD
 // ===========================================
 
-$stmtUnidad = $conexion->query("SELECT * FROM datos_unidad LIMIT 1");
+$stmtUnidad = $conexion->query("SELECT * FROM datos_unidad ORDER BY id DESC LIMIT 1");
 $unidad = $stmtUnidad->fetch(PDO::FETCH_ASSOC);
 
 // Si existe información, el formulario inicia bloqueado
@@ -42,7 +42,7 @@ $bloqueado = ($unidad !== false);
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
 
         <main class="contenido">
-            <form action="../actions/guardar_datos.php" method="POST" enctype="multipart/form-data">
+            <form action="<?= BASE_URL ?>actions/guardar_datos.php" method="POST" enctype="multipart/form-data">
 
                 <h2 align="center">Bienvenido, Administrador</h2>
                 <br>
@@ -199,7 +199,7 @@ $bloqueado = ($unidad !== false);
 
                         <input
                             type="file" id="logo" name="logo" accept="image/*"
-                            <?= $bloqueado ? 'disabled' : '' ?>>
+                            <?= $bloqueado ? 'disabled' : '' ?>
 
                         <?php if (!empty($unidad['logo'])): ?>
 
@@ -208,7 +208,6 @@ $bloqueado = ($unidad !== false);
                                 alt="Logo de la unidad"
                                 id="logoPreview"
                                 class="preview-logo">
-
                         <?php else: ?>
 
                             <img
@@ -216,7 +215,6 @@ $bloqueado = ($unidad !== false);
                                 alt="Logo por defecto"
                                 id="logoPreview"
                                 class="preview-logo">
-
                         <?php endif; ?>
 
                     </div>
@@ -351,6 +349,7 @@ $bloqueado = ($unidad !== false);
             </div>
         </div-->
     </div>
+    
 </body>
 
 </html>
