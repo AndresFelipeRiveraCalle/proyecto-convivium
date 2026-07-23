@@ -1,6 +1,7 @@
 <?php
 
-require_once "../config/conexion.php";
+require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/config/conexion.php";
 
 $stmtPais = $conexion->query("SELECT id_pais AS id, nombre FROM paises ORDER BY nombre");
 $paises = $stmtPais->fetchAll(PDO::FETCH_ASSOC);
@@ -73,12 +74,7 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>CONFIGURACION</title>
-    <link rel="stylesheet" href="../assets/css/style.css?v=<?= time() ?>">
-    <script src="../assets/js/calendar.js" defer></script>
-    <script src="../assets/js/modal_popup.js?v=1.0"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php include ROOT_PATH . "/includes/head.php"; ?>
 </head>
 
 <!-- ==========================================
@@ -103,183 +99,185 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <body>
+    <?php include ROOT_PATH . "/includes/header.php"; ?>
+    <?php require_once  ROOT_PATH . "/includes/mensajes.php"; ?>
 
-    <?php include "../includes/sidebar.php"; ?>
-    <?php include "../includes/mensajes.php"; ?>
+    <div class="contenedor">
+        <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
+        <main class="contenido">
 
-    <main class="contenido">
-        <div class="form-actions">
-            <button
-                    type="button"
-                    class="btn-filtrar btn-derecha"
-                    onclick="window.location.href='../configuracion/datos.php'">
-                    Datos de la copropiedad
-                </button>
-        </div>
-
-        <h2 align="center">Configuracion básica</h2>
-        <br>
-        <p>En esta seccion podras configurar las áreas de la copropiedad como cantidad de apartamentos, zonas comunes y distrinbuciones generales</p>
-        <br>
-
-        <h3>Ubicación de la copropiedad</h3>
-
-        <div class="bloque filtros">
-
-            <div class="card">
-                <h4>País</h4>
-                <select name="id_pais" class="form-control">
-                    <?php foreach ($paises as $pais): ?>
-                        <option value="<?= $pais['id'] ?>">
-                            <?= htmlspecialchars($pais['id']) ?> - <?= htmlspecialchars($pais['nombre']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+            <div class="form-actions">
+                <button
+                        type="button"
+                        class="btn-filtrar btn-derecha"
+                        onclick="window.location.href='../configuracion/datos.php'">
+                        Datos de la copropiedad
+                    </button>
             </div>
 
-            <div class="card">
-                <h4>Departamento</h4>
-                <select name="id_departamento" class="form-control">
-                    <option value="">Seleccione un departamento</option>
-                    <?php foreach ($departamentos as $departamento): ?>
-                        <option value="<?= $departamento['id'] ?>">
-                            <?= htmlspecialchars($departamento['codigo']) ?> - <?= htmlspecialchars($departamento['nombre']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+            <h2 align="center">Configuracion básica</h2>
+            <br>
+            <p>En esta seccion podras configurar las áreas de la copropiedad como cantidad de apartamentos, zonas comunes y distrinbuciones generales</p>
+            <br>
 
+            <h3>Ubicación de la copropiedad</h3>
 
-            <div class="card">
-                <h4>Ciudad</h4>
-                <select name="id_ciudad" class="form-control">
-                    <option value="">Seleccione una ciudad</option>
-                    <?php foreach ($ciudades as $c): ?>
-                        <option value="<?= $c['id'] ?>">
-                            <?= htmlspecialchars($c['codigo_dane']) ?> - <?= htmlspecialchars($c['nombre']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <br>
+            <div class="bloque filtros">
 
-                <button type="button" class="btn-secondary" id="btnNuevaCiudad">
-                    + Nueva ciudad
-                </button>
-
-            </div>
-
-
-            <div class="form-group label">
-                <span for="direccion">Dirección:</span>
-                <input type="text" id="direccion" name="direccion" placeholder="Ej. Vía Las Palmas Km 4" required>
-            </div>
-            <div class="form-group label">
-                <span for="sector">Sector:</span>
-                <input type="text" id="sector" name="sector" placeholder="Comuna - Barrio - Zona">
-            </div>
-
-        </div>
-
-        <h3>Unidades de vivienda</h3>
-
-        <div class="bloque filtros">
-
-
-                <!--h3>Tipo de unidad</h3-->
                 <div class="card">
-                    <h4>Tipo de unidad</h4>
-                    <select name="tipo_copropiedad" class="form-control" required>
-                        <option value="">Seleccione un tipo</option>
-                        <?php foreach ($tiposCopropiedad as $propiedad): ?>
-                            <option value="<?= $propiedad['id'] ?>">
-                                <?= htmlspecialchars($propiedad['nombre']) ?>
+                    <h4>País</h4>
+                    <select name="id_pais" class="form-control">
+                        <?php foreach ($paises as $pais): ?>
+                            <option value="<?= $pais['id'] ?>">
+                                <?= htmlspecialchars($pais['id']) ?> - <?= htmlspecialchars($pais['nombre']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
+
                 <div class="card">
-                    <span class="step active"><h4>Cantidad total de unidades</h4></span>
-                    <input type="text" id="cantidad_unidades" name="cantidad_unidades" placeholder="Cantidad total de unidades" required>
-                </div>               
+                    <h4>Departamento</h4>
+                    <select name="id_departamento" class="form-control">
+                        <option value="">Seleccione un departamento</option>
+                        <?php foreach ($departamentos as $departamento): ?>
+                            <option value="<?= $departamento['id'] ?>">
+                                <?= htmlspecialchars($departamento['codigo']) ?> - <?= htmlspecialchars($departamento['nombre']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-        </div>
 
-        <h3>Configuración de tipos de unidades</h3>
-        <div class="bloque filtros">
-            <div class="tabs-container">
-                <?php foreach ($tiposVivienda as $tipo): ?>
-                    <a
-                        href="basico.php?id=<?= $tipo['id_tipo_config'] ?>"
-                        class="tab-button <?= ($tipo['id_tipo_config'] == $idGrupoSeleccionado) ? 'active' : '' ?>">
-                        <?= htmlspecialchars($tipo['nombre_grupo']) ?>
-                    </a>
-                <?php endforeach; ?>
+                <div class="card">
+                    <h4>Ciudad</h4>
+                    <select name="id_ciudad" class="form-control">
+                        <option value="">Seleccione una ciudad</option>
+                        <?php foreach ($ciudades as $c): ?>
+                            <option value="<?= $c['id'] ?>">
+                                <?= htmlspecialchars($c['codigo_dane']) ?> - <?= htmlspecialchars($c['nombre']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <br>
 
-                <button
-                    type="button" class="tab-button tab-add" id="btnNuevoTipo">
-                    +
-                </button>
+                    <button type="button" class="btn-secondary" id="btnNuevaCiudad">
+                        + Nueva ciudad
+                    </button>
+
+                </div>
+
+
+                <div class="form-group label">
+                    <span for="direccion">Dirección:</span>
+                    <input type="text" id="direccion" name="direccion" placeholder="Ej. Vía Las Palmas Km 4" required>
+                </div>
+                <div class="form-group label">
+                    <span for="sector">Sector:</span>
+                    <input type="text" id="sector" name="sector" placeholder="Comuna - Barrio - Zona">
+                </div>
+
             </div>
-        </div>
+
+            <h3>Unidades de vivienda</h3>
+
+            <div class="bloque filtros">
 
 
+                    <!--h3>Tipo de unidad</h3-->
+                    <div class="card">
+                        <h4>Tipo de unidad</h4>
+                        <select name="tipo_copropiedad" class="form-control" required>
+                            <option value="">Seleccione un tipo</option>
+                            <?php foreach ($tiposCopropiedad as $propiedad): ?>
+                                <option value="<?= $propiedad['id'] ?>">
+                                    <?= htmlspecialchars($propiedad['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="card">
+                        <span class="step active"><h4>Cantidad total de unidades</h4></span>
+                        <input type="text" id="cantidad_unidades" name="cantidad_unidades" placeholder="Cantidad total de unidades" required>
+                    </div>               
 
-        <div class="bloque filtros">
-            <div id="contenidoTipo" class="tab-content">
-
-                <?php if ($grupoSeleccionado): ?>
-
-                    <h3><?= htmlspecialchars($grupoSeleccionado['nombre_grupo']) ?></h3>
-                    <form action="../actions/guardar_tipo_unidad.php" method="POST">
-                        <input
-                            type="hidden" name="id_tipo_config" value="<?= $grupoSeleccionado['id_tipo_config'] ?>">
-                        <div class="bloque filtros">
-                            <div class="form-group">
-                                <label>Cantidad de unidades</label>
-                                <input
-                                    type="number" name="cantidad_unidades" value="<?= $grupoSeleccionado['cantidad_unidades'] ?>">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Área total (m²)</label>
-                                <input
-                                    type="number" step="0.01" name="area_total" value="<?= $grupoSeleccionado['area_total'] ?>">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Coeficiente total</label>
-                                <input
-                                    type="number" step="0.00001" name="coeficiente_total" value="<?= $grupoSeleccionado['coeficiente_total'] ?>">
-                            </div>
-                        </div>
-                        <br>
-
-                        <div class="form-group textarea"  >
-                            <label>Observaciones</label>
-                            <textarea
-                                name="observaciones" rows="4"><?= htmlspecialchars($grupoSeleccionado['observaciones']) ?></textarea>
-                        </div>
-                        <br>
-
-                        <button
-                            type="submit"
-                            class="btn-filtrar">
-                            Guardar configuración
-                        </button>
-                    </form>
-                <?php endif; ?>
             </div>
-        </div>
+
+            <h3>Configuración de tipos de unidades</h3>
+            <div class="bloque filtros">
+                <div class="tabs-container">
+                    <?php foreach ($tiposVivienda as $tipo): ?>
+                        <a
+                            href="basico.php?id=<?= $tipo['id_tipo_config'] ?>"
+                            class="tab-button <?= ($tipo['id_tipo_config'] == $idGrupoSeleccionado) ? 'active' : '' ?>">
+                            <?= htmlspecialchars($tipo['nombre_grupo']) ?>
+                        </a>
+                    <?php endforeach; ?>
+
+                    <button
+                        type="button" class="tab-button tab-add" id="btnNuevoTipo">
+                        +
+                    </button>
+                </div>
+            </div>
+
+
+
+            <div class="bloque filtros">
+                <div id="contenidoTipo" class="tab-content">
+
+                    <?php if ($grupoSeleccionado): ?>
+
+                        <h3><?= htmlspecialchars($grupoSeleccionado['nombre_grupo']) ?></h3>
+                        <form action="../actions/guardar_tipo_unidad.php" method="POST">
+                            <input
+                                type="hidden" name="id_tipo_config" value="<?= $grupoSeleccionado['id_tipo_config'] ?>">
+                            <div class="bloque filtros">
+                                <div class="form-group">
+                                    <label>Cantidad de unidades</label>
+                                    <input
+                                        type="number" name="cantidad_unidades" value="<?= $grupoSeleccionado['cantidad_unidades'] ?>">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Área total (m²)</label>
+                                    <input
+                                        type="number" step="0.01" name="area_total" value="<?= $grupoSeleccionado['area_total'] ?>">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Coeficiente total</label>
+                                    <input
+                                        type="number" step="0.00001" name="coeficiente_total" value="<?= $grupoSeleccionado['coeficiente_total'] ?>">
+                                </div>
+                            </div>
+                            <br>
+
+                            <div class="form-group textarea"  >
+                                <label>Observaciones</label>
+                                <textarea
+                                    name="observaciones" rows="4"><?= htmlspecialchars($grupoSeleccionado['observaciones']) ?></textarea>
+                            </div>
+                            <br>
+
+                            <button
+                                type="submit"
+                                class="btn-filtrar">
+                                Guardar configuración
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            </div>
 
 
 
 
-        <div class="form-actions">
-            <button type="submit" class="btn-limpiar">Cancelar</button>
-            <button type="submit" class="btn-filtrar">Guardar</button>
-        </div>
-    </main>
-
+            <div class="form-actions">
+                <button type="submit" class="btn-limpiar">Cancelar</button>
+                <button type="submit" class="btn-filtrar">Guardar</button>
+            </div>
+        </main>
+    </div>
 
     <div id="modalPais" class="modal">
         <div class="modal-contenido">
