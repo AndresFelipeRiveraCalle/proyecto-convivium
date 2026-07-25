@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION["rol"] = $user["nombre_rol"]; // 'Administrador', 'Cliente', etc
 
             // 6. Redirigir al dashboard y detener ejecución
-            header("Location: dashboard/index1.php");
+            header("Location: dashboard/index.php");
             exit;
         } else {
             // Mensaje genérico por seguridad. No decir si falló correo o contraseña
@@ -92,73 +92,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Convivium</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/auth.css">
 </head>
 
-<body>
-    <div class="login-container">
-        <div class="form-card login-card">
-            <div class="login-header">
-                <h1>Convivium</h1>
-                <p>Sistema de Gestión</p>
+<body class="auth-body">
+    <div class="auth-card">
+        <img src="assets/img/logo_2.png" alt="Convivium" class="auth-logo">
+        <p class="auth-subtitle">Sistema de Gestión</p>
+
+        <?php if ($mensaje): ?>
+            <div class="mensaje-exito" id="mensaje-exito">
+                <?= htmlspecialchars($mensaje) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($error): ?>
+            <div class="mensaje-error" id="mensaje-error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <form action="" method="post">
+            <div class="form-group">
+                <label for="correo" class="form-label">Correo</label>
+                <input type="email" class="form-control" name="correo" id="correo"
+                    placeholder="ejemplo@correo.com" autocomplete="email"
+                    value="<?= htmlspecialchars($correo ?? '') ?>" required>
             </div>
 
-            <!-- Mensaje de éxito: solo se muestra si $mensaje tiene contenido -->
-            <?php if ($mensaje): ?>
-                <div class="mensaje-exito" id="mensaje-exito">
-                    <?= htmlspecialchars($mensaje) // Previene XSS 
-                    ?>
+            <div class="form-group">
+                <label for="password" class="form-label">Contraseña</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" name="password" id="password"
+                        placeholder="Ingrese su contraseña" autocomplete="current-password" required>
+                    <button class="btn-toggle-pass" type="button" id="togglePass">👁️</button>
                 </div>
-            <?php endif; ?>
-
-            <!-- Mensaje de error: solo se muestra si $error tiene contenido -->
-            <?php if ($error): ?>
-                <div class="mensaje-error" id="mensaje-error"><?= htmlspecialchars($error) ?></div>
-            <?php endif; ?>
-
-            <div class="login-image">
-                <img src="assets/css/img/login.jpg" alt="Imagen de bienvenida Academia">
             </div>
 
-            <!-- Formulario envía a sí mismo con method POST -->
-            <form action="" method="post">
-                <div class="form-group">
-                    <label for="correo">Correo</label>
-                    <input type="email" name="correo" id="correo" placeholder="ejemplo@correo.com" autocomplete="email" value="<?= htmlspecialchars($correo ?? '') ?>" required>
-                </div>
+            <button type="submit" class="btn-primary">Iniciar sesión</button>
+        </form>
 
-                <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" name="password" id="password" placeholder="Ingrese su contraseña" autocomplete="current-password" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-block" style="width: 100%;">Iniciar sesión</button>
-            </form>
-
-            <div class="login-footer">
-                <a href="registro.php">¿No tiene una cuenta? Regístrese</a>
-            </div>
+        <div class="auth-footer">
+            <a href="recuperar_contrasena/solicitar_recuperacion.php">¿Olvidaste tu contraseña?</a>
+            <a href="registro.php">¿No tiene una cuenta? Regístrese</a>
         </div>
     </div>
 
-    <script>
-        // Si viene ?registro=exitoso, lo quitamos de la URL sin recargar
-        if (window.location.search.includes('registro')) {
-            window.history.replaceState(null, '', window.location.pathname);
-        }
-
-        // Oculta el mensaje de éxito después de 3 segundos
-        setTimeout(() => {
-            const mensaje = document.getElementById("mensaje-exito");
-            if (mensaje) mensaje.style.display = "none";
-        }, 3000);
-
-        // Oculta el mensaje de error después de 3 segundos
-        setTimeout(() => {
-            const error = document.getElementById("mensaje-error");
-            if (error) error.style.display = "none";
-        }, 3000);
-    </script>
+    <script src="assets/js/auth.js"></script>
 </body>
 
 </html>

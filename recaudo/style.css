@@ -1,0 +1,280 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* HEADER */
+.header {
+    background: #12304A;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* TITULOS */
+h2,
+h3 {
+    margin: 5px 0;
+}
+
+/* LOGO */
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 50px;
+    border-radius: 15px;
+}
+
+/* USUARIO */
+.usuario {
+    display: flex;
+    align-items: center;
+}
+
+.usuario img {
+    width: 40px;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+/* CONTENEDOR */
+.contenedor {
+    display: flex;
+}
+
+/* MENU */
+.menu {
+    width: 220px;
+    background: #34495e;
+    color: white;
+    min-height: 100vh;
+    padding: 10px;
+    flex-shrink: 0;
+}
+
+.menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu li {
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.menu li:hover {
+    background: #1abc9c;
+    cursor: pointer;
+}
+
+.activo {
+    background: #2ecc71;
+}
+
+/* CONTENIDO */
+.contenido {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+/* TARJETAS */
+.card {
+    background: #ecf0f1;
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    width: 300px;
+}
+
+/* GRAFICO CIRCULAR */
+.pie-chart {
+    width: 160px;
+    height: 160px;
+
+    border-radius: 50%;
+
+    background: conic-gradient(
+        #2ecc71 0% 90%,
+        #ccc 90% 100%
+    );
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: auto;
+}
+
+.pie-chart-inner {
+    width: 100px;
+    height: 100px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* GRAFICO BARRAS */
+.bar-chart {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 20px;
+    height: 150px;
+}
+
+.bar-chart > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.bar {
+    width: 40px;
+    background: #2ecc71;
+    border-radius: 5px;
+}
+
+.bar-label {
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+/* CALENDARIO */
+.calendar {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 210px;
+    background: white;
+    border-radius: 20px;
+    padding: 10px;
+    color: #12304A;
+    box-sizing: border-box;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* HEADER CALENDARIO */
+.calendar-header {
+    background: #12304A;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* CONTROLES */
+.month-control,
+.year-control {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* BOTONES */
+.month-change,
+.year-change {
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+.month-change:hover,
+.year-change:hover {
+    color: #dfe6e9;
+}
+
+/* TEXTO */
+.month-picker,
+#year {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* DIAS */
+.calendar-week-days,
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.calendar-week-days div {
+    font-size: 10px;
+
+    font-weight: bold;
+}
+
+.calendar-days div {
+    width: 22px;
+    height: 22px;
+
+    font-size: 11px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    margin: auto;
+
+    border-radius: 50%;
+
+    cursor: pointer;
+}
+
+.calendar-days div:hover {
+    background: #dfe6e9;
+}
+
+/* DIA ACTUAL */
+.current-date {
+    background: #12304A;
+
+    color: white;
+}
+
+/* FECHA Y HORA */
+.date-time-formate {
+    margin-top: 15px;
+
+    text-align: center;
+}
+
+.time-formate {
+    font-size: 16px;
+
+    font-weight: bold;
+}
+
+.date-formate {
+    font-size: 12px;
+}
+
