@@ -33,6 +33,14 @@ document.addEventListener("DOMContentLoaded", function () {
         btnGuardar.style.display = "inline-block";
         btnCancelar.style.display = "inline-block";
 
+        // Mostrar modal de edición de unidad
+        document.querySelectorAll(".btnEditarUnidad").forEach(function(boton){
+            boton.addEventListener("click", function(){
+        document.getElementById("modalUnidad").style.display = "block";
+        });
+
+});
+
     });
 
     if (btnCancelar) {

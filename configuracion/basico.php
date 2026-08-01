@@ -21,7 +21,6 @@ $idGrupoSeleccionado = isset($_GET['id'])
     ? intval($_GET['id'])
     : 0;
 
-
 // ===========================================
 // CARGAR GRUPOS CONFIGURADOS
 // ===========================================
@@ -268,8 +267,6 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                     <?php endif; ?>
                 </div>
             </div>
-
-
 
 
             <div class="form-actions">
