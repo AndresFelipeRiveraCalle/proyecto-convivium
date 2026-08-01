@@ -300,18 +300,23 @@ body {
     left: 0;
     top: 0;
     width: 100%;
-    height: 100%;
+    /*height: 100%;*/
     background: rgba(0, 0, 0, .45);
 }
 
 .modal-contenido {
     background: #fff;
-    width: 400px;
-    margin: 8% auto;
-    padding: 20px;
+    /*width: 600px;*/   
+    margin: 2% auto;
+    padding: 20px;  
     border-radius: 10px;
     position: relative;
+
+    max-height:90vh;
+    overflow-y:auto;
+
 }
+
 
 .cerrar {
     position: absolute;
@@ -352,6 +357,7 @@ body {
     justify-content: center;
 }
 
+
 /* ==========================================
    BLOQUES
 ========================================== */
@@ -375,7 +381,74 @@ body {
 
 }
 
+/* =====================================================
+   FORMULARIO PERSONA - MODAL
+===================================================== */
 
+.modal-form-persona {
+    width: 100%;
+}
+
+.form-grid-persona {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px 5px;
+    margin-bottom: 25px;
+}
+
+.form-grid-persona .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-grid-persona .form-group.full {
+    grid-column: 1 / -1;
+}
+
+.form-grid-persona label {
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.form-grid-persona input,
+.form-grid-persona select {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* Títulos de las secciones */
+
+.titulo-seccion-persona {
+    margin: 5px 0 5px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+
+/* Botones */
+
+.botones-persona {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+
+/* Responsive */
+
+@media (max-width: 700px) {
+
+    .form-grid-persona {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid-persona .form-group.full {
+        grid-column: auto;
+    }
+
+}
 
 
 /* ==========================================

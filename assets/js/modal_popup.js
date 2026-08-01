@@ -36,6 +36,13 @@ document.addEventListener("DOMContentLoaded", function () {
         "cancelarGrupo"
     );
 
+    configurarModal(
+    "btnNuevaUnidad",
+    "modalUnidad",
+    "cerrarUnidad",
+    "cancelarUnidad"
+    );
+
     // ==========================
     // MENSAJES DEL SISTEMA
     // ==========================
@@ -161,5 +168,89 @@ function mostrarMensaje() {
 function cerrarModal(modal) {
 
     modal.style.display = "none";
+
+}
+
+/*=====================================================
+=              EDITAR UNIDAD
+=====================================================*/
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const modal = document.getElementById("modalUnidad");
+
+    document.querySelectorAll(".btnEditarUnidad").forEach(function (boton) {
+
+        boton.addEventListener("click", function () {
+
+            // Solo para probar
+            modal.style.display = "block";
+
+        });
+
+    });
+
+});
+
+// =====================================================
+// MODAL PERSONA
+// =====================================================
+
+const btnNuevaPersona = document.getElementById("btnNuevaPersona");
+const modalPersona = document.getElementById("modalPersona");
+const cerrarPersona = document.getElementById("cerrarPersona");
+const cancelarPersona = document.getElementById("cancelarPersona");
+
+
+// Abrir modal
+if (btnNuevaPersona && modalPersona) {
+
+    btnNuevaPersona.addEventListener("click", function () {
+
+        modalPersona.style.display = "flex";
+
+    });
+
+}
+
+
+// Cerrar con X
+if (cerrarPersona && modalPersona) {
+
+    cerrarPersona.addEventListener("click", function () {
+
+        modalPersona.style.display = "none";
+
+    });
+
+}
+
+
+// Cerrar con Cancelar
+if (cancelarPersona && modalPersona) {
+
+    cancelarPersona.addEventListener("click", function () {
+
+        modalPersona.style.display = "none";
+
+    });
+
+}
+
+
+// Cerrar haciendo clic fuera del contenido
+if (modalPersona) {
+
+    modalPersona.addEventListener("click", function (e) {
+
+        if (e.target === modalPersona) {
+
+            modalPersona.style.display = "none";
+
+        }
+
+    });
 
 }

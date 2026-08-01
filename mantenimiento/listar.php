@@ -1,5 +1,6 @@
 <?php
-require_once "../config/conexion.php";
+require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/config/conexion.php";
 
 // todos los filtros
 $buscar    = isset($_GET["buscar"])    ? trim($_GET["buscar"])    : "";
@@ -66,17 +67,16 @@ $mantenimientos = $stmt->fetchAll();
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Lista de mantenimientos</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <script src="../assets/css/script.js" defer></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php include ROOT_PATH . "/includes/head.php"; ?>
 </head>
 
 <body>
+    <?php include ROOT_PATH . "/includes/header.php"; ?>
+    <?php require_once  ROOT_PATH . "/includes/mensajes.php"; ?>
 
-<?php include "../includes/sidebar.php"; ?>
-
+    <div class="contenedor">
+        <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
+        
         <!-- CONTENIDO -->
         <main class="contenido">
 
@@ -243,6 +243,7 @@ $mantenimientos = $stmt->fetchAll();
             </div>
 
         </main>
+    </div>
 </body>
 
 </html>
