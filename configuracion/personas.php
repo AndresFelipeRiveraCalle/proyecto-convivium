@@ -28,6 +28,49 @@ $stmtCiudades = $conexion->query("
 $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
 
 /* =========================================================
+   ONSULTA TIPOS DE DOCUMENTO
+   ========================================================= */
+$stmtTipos = $conexion->query("
+    SELECT id_tipo_documento, codigo, nombre
+    FROM tipos_documento
+    WHERE estado=1
+");
+$tiposDocumento = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
+
+/* =========================================================
+   GÉNEROS
+========================================================= */
+$stmtGeneros = $conexion->query("
+    SELECT id_genero, codigo, nombre
+    FROM generos
+    WHERE estado = 1
+    ORDER BY nombre
+");
+$generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
+
+/* =========================================================
+   Estados civiles
+   ========================================================= */
+   $stmtEstadosCiviles = $conexion->query("
+    SELECT id_estado_civil, nombre 
+    FROM estados_civiles
+    WHERE estado = 1
+    ORDER BY nombre
+");
+$estadosCiviles = $stmtEstadosCiviles->fetchAll(PDO::FETCH_ASSOC);
+
+/* =========================================================
+   Ocupaciones
+   ========================================================= */
+   $stmtOcupaciones = $conexion->query("
+    SELECT id_ocupacion, nombre 
+    FROM ocupaciones
+    WHERE estado = 1
+    ORDER BY nombre
+");
+$ocupaciones = $stmtOcupaciones->fetchAll(PDO::FETCH_ASSOC);
+
+/* =========================================================
    BÚSQUEDA
    ========================================================= */
 
@@ -40,26 +83,14 @@ $buscar = isset($_GET['buscar'])
    ========================================================= */
 
 $sql = "
-    SELECT
-        u.id,
-        u.nombres,
-        u.apellidos,
-        u.tipo_documento,
-        u.numero_documento,
-        u.correo,
-        u.telefono,
-        u.celular,
-        u.estado,
-        p.nombre AS pais,
-        d.nombre AS departamento,
-        c.nombre AS ciudad
+    SELECT  u.id, u.nombres, u.apellidos, u.id_tipo_documento, u.numero_documento, u.correo, u.telefono,
+        u.celular, u.estado, p.nombre AS pais, d.nombre AS departamento, c.nombre AS ciudad, u.foto, 
+        td.codigo
     FROM usuario u
-    LEFT JOIN paises p
-        ON p.id_pais = u.id_pais
-    LEFT JOIN departamentos d
-        ON d.id_departamento = u.id_departamento
-    LEFT JOIN ciudades c
-        ON c.id_ciudad = u.id_ciudad
+    LEFT JOIN paises p ON p.id_pais = u.id_pais
+    LEFT JOIN departamentos d ON d.id_departamento = u.id_departamento
+    LEFT JOIN ciudades c ON c.id_ciudad = u.id_ciudad
+    LEFT JOIN tipos_documento td ON td.id_tipo_documento = u.id_tipo_documento
 ";
 
 /* =========================================================
@@ -83,7 +114,7 @@ if ($buscar !== '') {
    ========================================================= */
 
 $sql .= "
-    ORDER BY u.nombres ASC, u.apellidos ASC
+    ORDER BY u.id asc
 ";
 
 /* =========================================================
@@ -106,6 +137,7 @@ if ($buscar !== '') {
 $stmt->execute();
 
 $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 
 ?>
@@ -135,12 +167,8 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="form-actions">
 
             <button
-                type="button"
-                class="btn-filtrar btn-derecha"
-                id="btnNuevaPersona">
-
+                type="button" class="btn-filtrar btn-derecha" id="btnNuevaPersona">
                 + Nueva persona
-
             </button>
 
         </div>
@@ -156,41 +184,29 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="bloque filtros">
 
             <form method="GET" class="form-actions">
-
                 <div class="form-group">
-
                     <label for="buscar">
                         Buscar persona
                     </label>
 
                     <input
-                        type="text"
-                        id="buscar"
-                        name="buscar"
-                        value="<?= htmlspecialchars($buscar) ?>"
+                        type="text" id="buscar" name="buscar" value="<?= htmlspecialchars($buscar) ?>"
                         placeholder="Nombre, documento, correo o celular">
-
                 </div>
 
                 <button
                     type="submit"
                     class="btn-filtrar">
-
                     Buscar
-
                 </button>
 
                 <button
                     type="button"
                     class="btn-limpiar"
                     onclick="window.location.href='personas.php'">
-
                     Limpiar
-
                 </button>
-
             </form>
-
         </div>
 
         <br>
@@ -200,130 +216,96 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         ====================================================== -->
 
         <div class="bloque">
-
             <div class="table-responsive">
-
                 <table class="tabla">
-
                     <thead>
-
                         <tr>
-
+                            <th>Tipo de Documento</th>
                             <th>Documento</th>
-
                             <th>Nombre</th>
-
                             <th>Correo</th>
-
                             <th>Celular</th>
-
                             <th>Ciudad</th>
-
-                            <th>Estado</th>
-
+                            <th>Foto</th>
+                            <th>Estado</th>                    
                             <th>Acciones</th>
-
                         </tr>
-
                     </thead>
 
                     <tbody>
-
                     <?php if (empty($personas)): ?>
-
                         <tr>
-
                             <td
                                 colspan="7"
                                 style="text-align:center;">
-
                                 No existen personas registradas.
-
                             </td>
-
                         </tr>
 
                     <?php else: ?>
-
                         <?php foreach ($personas as $persona): ?>
 
                             <tr>
-
-                                <!-- DOCUMENTO -->
-
+                                <!-- TIPO DE DOCUMENTO -->
                                 <td>
-
-                                    <?php
-
-                                    $tipoDocumento =
-                                        $persona['tipo_documento'] ?? '';
-
-                                    $numeroDocumento =
-                                        $persona['numero_documento'] ?? '';
-
-                                    if ($tipoDocumento !== ''):
-
-                                    ?>
-
-                                        <?= htmlspecialchars($tipoDocumento) ?>
-
-                                        -
-
-                                    <?php endif; ?>
-
-                                    <?= htmlspecialchars($numeroDocumento) ?>
+                                    <?= htmlspecialchars(
+                                        $persona['codigo'] ?? ''
+                                    ) ?>
+                            
+                                <!-- DOCUMENTO -->
+                                <td>
+                                    <?= htmlspecialchars(
+                                        $persona['numero_documento'] ?? '') ?>
 
                                 </td>
 
-
                                 <!-- NOMBRE -->
-
                                 <td>
-
                                     <?= htmlspecialchars(
                                         $persona['nombres'] . ' ' . $persona['apellidos']
                                     ) ?>
-
                                 </td>
 
 
                                 <!-- CORREO -->
-
                                 <td>
-
                                     <?= htmlspecialchars(
                                         $persona['correo']
                                     ) ?>
-
                                 </td>
 
 
                                 <!-- CELULAR -->
-
                                 <td>
-
                                     <?= htmlspecialchars(
                                         $persona['celular'] ?? ''
                                     ) ?>
-
                                 </td>
 
 
                                 <!-- CIUDAD -->
-
                                 <td>
-
                                     <?= htmlspecialchars(
                                         $persona['ciudad'] ?? ''
                                     ) ?>
-
                                 </td>
 
+                                <!-- FOTO -->
+                                 
+                                <td>
+                                    <?php if (!empty($persona['foto'])): ?>
+                                        <img 
+                                            src="../<?= $persona['foto'] ?>"
+                                            class="foto-persona-listado">
+                                    <?php else: ?>
+                                        <span class="sin-foto">
+                                            Sin foto
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
 
                                 <!-- ESTADO -->
-
                                 <td>
-
                                     <?php if ((int)$persona['estado'] === 1): ?>
 
                                         <span class="estado activo">
@@ -331,47 +313,33 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         </span>
 
                                     <?php else: ?>
-
                                         <span class="estado inactivo">
                                             Inactivo
                                         </span>
-
                                     <?php endif; ?>
-
                                 </td>
 
 
                                 <!-- ACCIONES -->
 
                                 <td>
-
                                     <button
                                         type="button"
                                         class="btn-secondary btnEditarPersona"
                                         data-id="<?= $persona['id'] ?>">
-
                                         ✏ Editar
-
                                     </button>
-
                                 </td>
-
                             </tr>
 
                         <?php endforeach; ?>
-
                     <?php endif; ?>
 
                     </tbody>
-
                 </table>
-
             </div>
-
         </div>
-
     </main>
-
 </div>
 
 <!-- =========================================================
@@ -379,116 +347,69 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ========================================================= -->
 
 <div id="modalPersona" class="modal">
-
     <div class="modal-contenido">
-
         <span id="cerrarPersona" class="cerrar">
             &times;
         </span>
 
-        <h2>Nueva persona</h2>
+        <!--h2>Nueva persona</h2-->
 
         <form
-            class="modal-form-persona"
-            action="../actions/guardar_usuario.php"
-            method="POST"
-            enctype="multipart/form-data">
+            class="modal-form-persona" action="../actions/guardar_persona.php" method="POST" enctype="multipart/form-data">
 
             <!-- =====================================
                  DATOS PERSONALES
             ====================================== -->
 
-            <h3 class="titulo-seccion-persona">
+            <h2 class="titulo-seccion-persona">
                 Datos personales
-            </h3>
+            </h2>
 
             <div class="form-grid-persona">
-
                 <div class="form-group">
-
                     <label for="nombres">
                         Nombres
                     </label>
 
-                    <input
-                        type="text"
-                        id="nombres"
-                        name="nombres"
-                        maxlength="100"
-                        required>
-
+                    <input  type="text" id="nombres" name="nombres" maxlength="100" required>
                 </div>
 
-
                 <div class="form-group">
-
                     <label for="apellidos">
                         Apellidos
                     </label>
 
                     <input
-                        type="text"
-                        id="apellidos"
-                        name="apellidos"
-                        maxlength="100"
-                        required>
-
+                        type="text" id="apellidos" name="apellidos" maxlength="100" required>
                 </div>
 
-
                 <div class="form-group">
-
-                    <label for="tipo_documento">
+                    <label for="id_tipo_documento">
                         Tipo de documento
                     </label>
 
-                    <select
-                        id="tipo_documento"
-                        name="tipo_documento"
-                        required>
-
+                    <select id="id_tipo_documento" name="id_tipo_documento" required>
                         <option value="">
-                            Seleccione...
+                            Seleccione un tipo de documento
                         </option>
 
-                        <option value="CC">
-                            Cédula de Ciudadanía
-                        </option>
-
-                        <option value="TI">
-                            Tarjeta de Identidad
-                        </option>
-
-                        <option value="CE">
-                            Cédula de Extranjería
-                        </option>
-
-                        <option value="PA">
-                            Pasaporte
-                        </option>
-
-                        <option value="PPT">
-                            Permiso por Protección Temporal
-                        </option>
-
+                        <?php foreach ($tiposDocumento as $tipo): ?>
+                            <option value="<?= $tipo['id_tipo_documento'] ?>">
+                                <?= htmlspecialchars(
+                                    $tipo['nombre']
+                                ) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
-
                 </div>
 
 
                 <div class="form-group">
-
                     <label for="numero_documento">
                         Número de documento
                     </label>
 
-                    <input
-                        type="text"
-                        id="numero_documento"
-                        name="numero_documento"
-                        maxlength="30"
-                        required>
-
+                    <input type="text" id="numero_documento" name="numero_documento" maxlength="30" required>
                 </div>
 
 
@@ -498,43 +419,70 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         Fecha de nacimiento
                     </label>
 
-                    <input
-                        type="date"
-                        id="fecha_nacimiento"
-                        name="fecha_nacimiento">
-
+                    <input type="date" id="fecha_nacimiento" name="fecha_nacimiento">
                 </div>
 
 
                 <div class="form-group">
-
                     <label for="genero">
                         Género
                     </label>
 
-                    <select
-                        id="genero"
-                        name="genero">
-
+                    <select id="id_genero" name="id_genero">
                         <option value="">
-                            Seleccione...
+                            Seleccione género
                         </option>
 
-                        <option value="M">
-                            Masculino
-                        </option>
-
-                        <option value="F">
-                            Femenino
-                        </option>
-
-                        <option value="O">
-                            Otro
-                        </option>
-
+                        <?php foreach ($generos as $genero): ?>
+                            <option value="<?= $genero['id_genero'] ?>">
+                                <?= htmlspecialchars(
+                                    $genero['nombre']
+                                ) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
-
                 </div>
+
+                <div class="form-group">
+                    <label for="estado_civil">
+                        Estado civil
+                    </label>
+
+                    <select id="id_estado_civil" name="id_estado_civil">
+                        <option value="">
+                            Seleccione estado civil
+                        </option>
+
+                        <?php foreach ($estadosCiviles as $estadoCivil): ?>
+                            <option value="<?= $estadoCivil['id_estado_civil'] ?>">
+                                <?= htmlspecialchars(
+                                    $estadoCivil['nombre']
+                                ) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ocupacion">
+                        Ocupación
+                    </label>
+
+                    <select id="id_ocupacion" name="id_ocupacion">
+                        <option value="">
+                            Seleccione ocupación
+                        </option>
+
+                        <?php foreach ($ocupaciones as $ocupacion): ?>
+                            <option value="<?= $ocupacion['id_ocupacion'] ?>">
+                                <?= htmlspecialchars(
+                                    $ocupacion['nombre']
+                                ) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
 
             </div>
 
@@ -543,55 +491,35 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                  CONTACTO
             ====================================== -->
 
-            <h3 class="titulo-seccion-persona">
+            <h2 class="titulo-seccion-persona">
                 Información de contacto
-            </h3>
+            </h2>
 
             <div class="form-grid-persona">
-
                 <div class="form-group">
-
                     <label for="correo">
                         Correo electrónico
                     </label>
 
-                    <input
-                        type="email"
-                        id="correo"
-                        name="correo"
-                        maxlength="150"
-                        required>
-
+                    <input type="email" id="correo" name="correo" maxlength="150" required>
                 </div>
 
 
                 <div class="form-group">
-
                     <label for="telefono">
                         Teléfono
                     </label>
 
-                    <input
-                        type="text"
-                        id="telefono"
-                        name="telefono"
-                        maxlength="20">
-
+                    <input type="text" id="telefono" name="telefono" maxlength="20">
                 </div>
 
 
                 <div class="form-group">
-
                     <label for="celular">
                         Celular
                     </label>
 
-                    <input
-                        type="text"
-                        id="celular"
-                        name="celular"
-                        maxlength="20">
-
+                    <input type="text" id="celular" name="celular" maxlength="20">
                 </div>
 
             </div>
@@ -601,90 +529,65 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                  UBICACIÓN
             ====================================== -->
 
-            <h3 class="titulo-seccion-persona">
+            <h2 class="titulo-seccion-persona">
                 Ubicación
-            </h3>
+            </h2>
 
             <div class="form-grid-persona">
-
                 <div class="form-group">
-
                     <label for="id_pais">
                         País
                     </label>
 
-                    <select
-                        id="id_pais"
-                        name="id_pais">
-
+                    <select d="id_pais" name="id_pais">
                         <option value="">
                             Seleccione un país
                         </option>
 
                         <?php foreach ($paises as $pais): ?>
-
                             <option value="<?= $pais['id'] ?>">
                                 <?= htmlspecialchars($pais['nombre']) ?>
                             </option>
-
                         <?php endforeach; ?>
-
                     </select>
-
                 </div>
 
 
                 <div class="form-group">
-
                     <label for="id_departamento">
                         Departamento
                     </label>
 
                     <select
-                        id="id_departamento"
-                        name="id_departamento">
-
+                        id="id_departamento" name="id_departamento">
                         <option value="">
                             Seleccione un departamento
                         </option>
-
                         <?php foreach ($departamentos as $departamento): ?>
-
                             <option value="<?= $departamento['id'] ?>">
                                 <?= htmlspecialchars($departamento['nombre']) ?>
                             </option>
-
                         <?php endforeach; ?>
-
                     </select>
-
                 </div>
 
 
                 <div class="form-group">
-
                     <label for="id_ciudad">
                         Ciudad
                     </label>
 
-                    <select
-                        id="id_ciudad"
-                        name="id_ciudad">
-
+                    <select  id="id_ciudad" name="id_ciudad">
                         <option value="">
                             Seleccione una ciudad
                         </option>
 
                         <?php foreach ($ciudades as $ciudad): ?>
-
                             <option value="<?= $ciudad['id'] ?>">
                                 <?= htmlspecialchars($ciudad['nombre']) ?>
                             </option>
-
                         <?php endforeach; ?>
-
                     </select>
-
                 </div>
 
 
@@ -694,41 +597,8 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         Dirección
                     </label>
 
-                    <input
-                        type="text"
-                        id="direccion"
-                        name="direccion"
-                        maxlength="200">
-
+                    <input type="text" id="direccion" name="direccion" maxlength="200">
                 </div>
-
-            </div>
-
-
-            <!-- =====================================
-                 ACCESO
-            ====================================== -->
-
-            <h3 class="titulo-seccion-persona">
-                Acceso al sistema
-            </h3>
-
-            <div class="form-grid-persona">
-
-                <div class="form-group">
-
-                    <label for="contrasena">
-                        Contraseña
-                    </label>
-
-                    <input
-                        type="password"
-                        id="contrasena"
-                        name="contrasena"
-                        required>
-
-                </div>
-
             </div>
 
 
@@ -736,26 +606,18 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                  FOTO
             ====================================== -->
 
-            <h3 class="titulo-seccion-persona">
-                Fotografía
-            </h3>
-
+            <h2 class="titulo-seccion-persona">
+                Agregar una foto
+            </h2>
+            
             <div class="form-grid-persona">
-
                 <div class="form-group full">
-
                     <label for="foto">
                         Foto de perfil
                     </label>
 
-                    <input
-                        type="file"
-                        id="foto"
-                        name="foto"
-                        accept="image/*">
-
+                    <input type="file" id="foto" name="foto" accept="image/*">
                 </div>
-
             </div>
 
 
@@ -764,22 +626,15 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             ====================================== -->
 
             <div class="botones-persona">
-
                 <button
-                    type="button"
-                    class="btn-limpiar"
-                    id="cancelarPersona">
-
+                    type="button" class="btn-limpiar" id="cancelarPersona">
                     Cancelar
-
                 </button>
 
                 <button
                     type="submit"
                     class="btn-filtrar">
-
                     Guardar
-
                 </button>
 
             </div>
