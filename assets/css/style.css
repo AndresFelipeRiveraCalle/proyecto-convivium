@@ -291,6 +291,18 @@ body {
 }
 
 /* ==========================================
+   Foto de la persona
+========================================== */
+
+.foto-persona-listado{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    object-fit:cover;
+    border:1px solid #ddd;
+}
+
+/* ==========================================
    MODAL pop-up
 ========================================== */
 .modal {
@@ -393,7 +405,7 @@ body {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 5px 5px;
-    margin-bottom: 25px;
+    margin-bottom: 7px;
 }
 
 .form-grid-persona .form-group {
@@ -432,7 +444,7 @@ body {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 25px;
+    margin-top: 15px;
 }
 
 

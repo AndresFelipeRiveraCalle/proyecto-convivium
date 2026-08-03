@@ -254,3 +254,59 @@ if (modalPersona) {
     });
 
 }
+
+// MODAL ESTADOS CIVILES
+
+const btnNuevoEstadoCivil = document.getElementById(
+    "btnNuevoEstadoCivil"
+);
+
+const modalEstadoCivil = document.getElementById(
+    "modalEstadoCivil"
+);
+
+
+const cerrarModalEstadoCivil = document.getElementById(
+    "cerrarModalEstadoCivil"
+);
+
+
+const cancelarEstadoCivil = document.getElementById(
+    "cancelarEstadoCivil"
+);
+
+
+
+if(btnNuevoEstadoCivil){
+
+    btnNuevoEstadoCivil.onclick = function(){
+
+        modalEstadoCivil.style.display = "flex";
+
+    }
+
+}
+
+
+
+if(cerrarModalEstadoCivil){
+
+    cerrarModalEstadoCivil.onclick = function(){
+
+        modalEstadoCivil.style.display = "none";
+
+    }
+
+}
+
+
+
+if(cancelarEstadoCivil){
+
+    cancelarEstadoCivil.onclick = function(){
+
+        modalEstadoCivil.style.display = "none";
+
+    }
+
+}
