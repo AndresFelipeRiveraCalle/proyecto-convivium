@@ -14,9 +14,55 @@
 // Importa la conexión a la base de datos 
 require_once "../config/conexion.php";
 
-// Consulta a la base de datos todas la zonas comunes organizadas ascendentemente
-$sql = "SELECT * FROM zona_comun ORDER BY id ASC";
-$resultado = $conexion->query($sql);
+// Consultar a la base de datos todas la zonas comunes organizadas ascendentemente
+$sql_listar = "SELECT * FROM zona_comun ORDER BY id ASC";
+$resultado = $conexion->query($sql_listar);
+
+// Validar que existen los campos mensaje y tipo de mensaje y que no estén vacíos
+if (isset($_GET['tipo']) && !empty($_GET['tipo']) && isset($_GET['mensaje']) && !empty($_GET['mensaje'])) {
+
+    // Capturar las variables de la URL
+    $tipo = $_GET['tipo'];
+    $mensaje = $_GET['mensaje'];
+
+    // Validar que tipo no vaya a contender algo diferente a éxito o error
+    if (!($tipo === 'exito' || $tipo === 'error')) {
+        $tipo = 'error';
+    }
+}
+
+// Cargar la zona común a editar en el formulario
+$nombre = '';
+$descripcion = '';
+$capacidad = '';
+$horario = '';
+
+if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
+
+    // Capturar el valor de ID
+    $id = $_GET['id_editar'];
+
+    // Preparar la consulta SQL
+    $sql_consultar_id = 'SELECT * FROM zona_comun WHERE id = ?';
+
+    try {
+
+        $stmt = $conexion->prepare($sql_consultar_id);
+        $stmt->execute([$id]);
+        $fila = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Validar si encuentra el ID
+        if ($fila) {
+
+            // Asignar los valores de la zona común a las variables
+            $nombre = $fila['nombre'];
+            $descripcion = $fila['descripcion'];
+            $capacidad = $fila['capacidad'];
+            $horario = $fila['horario_disponible'];
+        }
+    } catch (PDOException $e) {
+    }
+}
 
 ?>
 
@@ -61,17 +107,25 @@ $resultado = $conexion->query($sql);
         </aside>
 
         <main class="contenido">
-            <h1>Zonas Comunes</h1>
+            <h1>Administración de Zonas Comunes</h1>
             <div class="card">
-                <form action="">
+
+                <h2>Datos de la Zona</h2>
+
+                <form class="form-zona" action="<?= isset($id) ? 'actualizar.php' : 'guardar.php' ?>" method="POST">
                     <div class="form-row">
+                        <?php if (isset($id)) { ?>
+                            <input type="hidden" name="id" value="<?= htmlspecialchars($id) ?>">
+                        <?php } ?>
                         <div class="form-group">
                             <label for="nombre">Nombre</label>
                             <input
                                 type="text"
                                 id="nombre"
                                 name="nombre"
-                                placeholder="Ej: Salón Social">
+                                placeholder="Ej: Salón Social"
+                                value="<?= htmlspecialchars($nombre) ?>"
+                                required>
                         </div>
                         <div class="form-group">
                             <label for="descripcion">Descripción</label>
@@ -79,7 +133,9 @@ $resultado = $conexion->query($sql);
                                 type="text"
                                 id="descripcion"
                                 name="descripcion"
-                                placeholder="Descripción de la zona">
+                                placeholder="Descripción de la zona"
+                                value="<?= htmlspecialchars($descripcion) ?>"
+                                required>
                         </div>
                         <div class="form-group">
                             <label for="capacidad">Capacidad</label>
@@ -87,7 +143,9 @@ $resultado = $conexion->query($sql);
                                 type="number"
                                 id="capacidad"
                                 name="capacidad"
-                                placeholder="capacidad">
+                                placeholder="capacidad"
+                                value="<?= htmlspecialchars($capacidad) ?>"
+                                required>
                         </div>
                         <div class="form-group">
                             <label for="horario">Horario Disponible</label>
@@ -95,16 +153,32 @@ $resultado = $conexion->query($sql);
                                 type="text"
                                 id="horario"
                                 name="horario"
-                                placeholder="Horario Disponible">
+                                placeholder="Horario Disponible"
+                                value="<?= htmlspecialchars($horario) ?>"
+                                required>
                         </div>
                     </div>
+
                     <div class="form-botones">
-                        <button type="submit" class="btn-guardar">Guardar Zona</button>
+                        <button type="submit" class="btn btn-principal">
+                            <?= isset($id) ? 'Editar Zona' : 'Registrar Zona' ?> <!-- Operador ternario si existe la variable $id cambia a modo actualizar sino permanece en modo guardar -->
+                        </button>
+
+                        <?php if (isset($id)) { ?> <!-- Si existe $id se genera el botón cancelar -->
+                            <a href="index.php" class="btn btn-cancelar">Cancelar</a>
+                        <?php } ?>
                     </div>
                 </form>
 
+                <?php if (isset($mensaje)) { ?>
+                    <div class="mensaje mensaje-<?= htmlspecialchars($tipo) ?>"> <!-- convertir los caracteres especiales en entidades HTML y el navegador los muestra como texto, no como código. -->
+                        <?= htmlspecialchars($mensaje) ?>
+                    </div>
+                <?php } ?>
+
                 <h2>Listado de Zonas Comunes</h2>
-                <table>
+
+                <table class="tabla-zonas">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -124,8 +198,8 @@ $resultado = $conexion->query($sql);
                                 <td><?= $fila['capacidad'] ?></td>
                                 <td><?= $fila['horario_disponible'] ?></td>
                                 <td>
-                                    <a href="index.php?editar=<?= $fila['id'] ?>">Editar</a>
-                                    <a href="eliminar.php?id=<?= $fila['id'] ?>">Eliminar</a>
+                                    <a href="index.php?id_editar=<?= $fila['id'] ?>" class="btn-tabla btn-editar">Editar</a>
+                                    <a href="eliminar.php?id=<?= $fila['id'] ?>" class="btn-tabla btn-eliminar">Eliminar</a>
                                 </td>
                             </tr>
                         <?php } ?>

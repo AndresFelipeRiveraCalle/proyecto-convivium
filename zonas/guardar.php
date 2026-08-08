@@ -1,55 +1,51 @@
 <?php
 
-// Importa la conexión a la base de datos
+/**
+ * =========================================================================
+ * MÓDULO: Zonas Comunes - Convivium
+ * ARCHIVO: guardar.php
+ * DESCRIPCIÓN: Permite guardar una zona común.
+ * AUTOR: Andrés Felipe Rivera Calle
+ * FECHA: 2026-08-07
+ * =========================================================================
+ */
+
+// Importar la conexión a la base de datos
 require_once "../config/conexion.php";
 
-// Recibe datos del formulario
-$nombre = $_POST['nombre'];
-$descripcion = $_POST['descripcion'];
-$capacidad = $_POST['capacidad'];
-$horario = $_POST['horario_disponible'];
+// Verificar que los parámetros existen en el arreglo y que no contengan cadenas vacías
+if (isset($_POST['nombre']) && !empty($_POST['nombre']) && isset($_POST['descripcion']) && !empty($_POST['descripcion']) && isset($_POST['capacidad']) && !empty($_POST['capacidad']) && isset($_POST['horario']) && !empty($_POST['horario'])) {
 
-// Consulta sql
-$validar_nombre = "SELECT * FROM zona_comun WHERE nombre = :nombre";
+    // Capturar las variables del formulario
+    $nombre = $_POST['nombre'];
+    $descripcion = $_POST['descripcion'];
+    $capacidad = $_POST['capacidad'];
+    $horario = $_POST['horario'];
 
-// Preparar consulta
-$stmt_validar = $conexion->prepare($validar_nombre);
+    // Validar que la zona no exista antes de insertarla en la base de datos
+    $sql_validar = 'SELECT id FROM zona_comun WHERE nombre = ?';
+    try {
 
-// Ejecutar consulta
-$stmt_validar->execute([
-    ':nombre' => $nombre
-]);
+        $stmt = $conexion->prepare($sql_validar);
+        $stmt->execute([$nombre]);
 
-// Obtener el resultado
-$zona_existente = $stmt_validar->fetch();
+        if ($stmt->fetch()) {
+            header("Location: index.php?tipo=error&mensaje=" . urlencode("Ya existe una zona con ese nombre"));
+            exit;
+        }
 
-// Valida que el nombre no exista en la base de datos
-if(!$zona_existente){
+        // Preparar la consulta SQL 
+        $sql_insertar = 'INSERT INTO zona_comun (nombre, descripcion, capacidad, horario_disponible) VALUES (?, ?, ?, ?)';
 
-    $sql = "INSERT INTO zona_comun
-    (nombre, descripcion, capacidad, horario_disponible)
-    VALUES
-    (:nombre, :descripcion, :capacidad, :horario)";
+        $stmt = $conexion->prepare($sql_insertar);
+        $stmt->execute([$nombre, $descripcion, $capacidad, $horario]);
 
-    // Preparar consulta
-    $stmt = $conexion->prepare($sql);
+        // Redireccionar a index.php
+        header("Location: index.php?tipo=exito&mensaje=" . urlencode("Zona creada correctamente"));
+        exit;
+    } catch (PDOException $e) {
 
-    // Ejecutar consulta
-    $stmt->execute([
-        ':nombre' => $nombre,
-        ':descripcion' => $descripcion,
-        ':capacidad' => $capacidad,
-        ':horario' => $horario
-    ]);
-
-    // Redireccionar con mensaje éxito
-    header("Location: index.php?mensaje=registrado");
-    exit;
-} else {
-
-    // Redireccionar con mensaje existencia
-    header("Location: index.php?mensaje=existe");
-    exit;
+        header("Location: index.php?tipo=error&mensaje=" . urlencode("No se pudo crear la zona"));
+        exit;
+    }
 }
-
-?>
