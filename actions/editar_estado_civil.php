@@ -3,15 +3,61 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
-
 try {
 
+    $id = (int) ($_POST["id_estado_civil"] ?? 0);
+    $nombre = trim($_POST["nombre"] ?? "");
+    $estado = isset($_POST["estado"])
+        ? (int) $_POST["estado"]
+        : 1;
 
-    $id = $_POST["id_estado_civil"];
-    $nombre = trim($_POST["nombre"]);
-    $estado = $_POST["estado"];
+
+    // ==========================================
+    // VALIDACIONES
+    // ==========================================
+
+    if ($id <= 0) {
+        throw new Exception("Estado civil no válido.");
+    }
+
+    if ($nombre === "") {
+        throw new Exception(
+            "El nombre del estado civil es obligatorio."
+        );
+    }
 
 
+    // ==========================================
+    // VERIFICAR DUPLICADO
+    // ==========================================
+
+    $sql = "
+        SELECT COUNT(*)
+        FROM estados_civiles
+        WHERE nombre = ?
+        AND id_estado_civil <> ?
+    ";
+
+    $stmt = $conexion->prepare($sql);
+
+    $stmt->execute([
+        $nombre,
+        $id
+    ]);
+
+
+    if ($stmt->fetchColumn() > 0) {
+
+        throw new Exception(
+            "Ya existe otro estado civil con ese nombre."
+        );
+
+    }
+
+
+    // ==========================================
+    // ACTUALIZAR
+    // ==========================================
 
     $sql = "
         UPDATE estados_civiles
@@ -21,9 +67,7 @@ try {
         WHERE id_estado_civil = ?
     ";
 
-
     $stmt = $conexion->prepare($sql);
-
 
     $stmt->execute([
         $nombre,
@@ -32,17 +76,27 @@ try {
     ]);
 
 
+    // ==========================================
+    // REGRESAR
+    // ==========================================
 
     header(
-        "Location: ../configuracion/estados_civiles.php?tipo=success&texto=Estado civil actualizado"
+        "Location: ../configuracion/tablas_maestras.php" .
+        "?tipo=success" .
+        "&texto=Estado civil actualizado correctamente"
     );
 
+    exit;
 
-}catch(Exception $e){
 
+} catch (Exception $e) {
 
     header(
-        "Location: ../configuracion/estados_civiles.php?tipo=error&texto=".$e->getMessage()
+        "Location: ../configuracion/tablas_maestras.php" .
+        "?tipo=error" .
+        "&texto=" .
+        urlencode($e->getMessage())
     );
 
+    exit;
 }
