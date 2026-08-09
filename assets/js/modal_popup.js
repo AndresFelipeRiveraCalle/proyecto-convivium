@@ -3,8 +3,8 @@
 document.addEventListener("DOMContentLoaded", function () {
 
 
-    // ==========================
-    // MODALES DEL SISTEMA
+    // ==========================// ==========================
+    //  TABLAS MAESTRAS - MODALES DEL SISTEMA
     // ==========================
     configurarModal(
         "btnNuevoPais",
@@ -27,37 +27,33 @@ document.addEventListener("DOMContentLoaded", function () {
         "cancelarCiudad"
     );
     
-// ==========================
-// TABLAS MAESTRAS
-// ==========================
+    configurarModal(
+        "btnNuevoTipoDocumento",
+        "modalNuevoTipoDocumento",
+        "cerrarNuevoTipoDocumento",
+        "cancelarNuevoTipoDocumento"
+    );
 
-configurarModal(
-    "btnNuevoTipoDocumento",
-    "modalNuevoTipoDocumento",
-    "cerrarNuevoTipoDocumento",
-    "cancelarNuevoTipoDocumento"
-);
+    configurarModal(
+        "btnNuevoEstadoCivil",
+        "modalNuevoEstadoCivil",
+        "cerrarNuevoEstadoCivil",
+        "cancelarNuevoEstadoCivil"
+    );
 
-configurarModal(
-    "btnNuevoEstadoCivil",
-    "modalNuevoEstadoCivil",
-    "cerrarNuevoEstadoCivil",
-    "cancelarNuevoEstadoCivil"
-);
+    configurarModal(
+        "btnNuevaOcupacion",
+        "modalNuevaOcupacion",
+        "cerrarNuevaOcupacion",
+        "cancelarNuevaOcupacion"
+    );
 
-configurarModal(
-    "btnNuevaOcupacion",
-    "modalNuevaOcupacion",
-    "cerrarNuevaOcupacion",
-    "cancelarNuevaOcupacion"
-);
-
-configurarModal(
-    "btnNuevoGenero",
-    "modalNuevoGenero",
-    "cerrarNuevoGenero",
-    "cancelarNuevoGenero"
-);
+    configurarModal(
+        "btnNuevoGenero",
+        "modalNuevoGenero",
+        "cerrarNuevoGenero",
+        "cancelarNuevoGenero"
+    );
 
     // MODAL GRUPOS
 
@@ -259,27 +255,21 @@ const cerrarNuevoTipoDocumento = document.getElementById("cerrarNuevoTipoDocumen
 const cancelarNuevoTipoDocumento = document.getElementById("cancelarNuevoTipoDocumento");
 
 if (btnNuevoTipoDocumento && modalNuevoTipoDocumento) {
-
     btnNuevoTipoDocumento.addEventListener("click", function () {
         modalNuevoTipoDocumento.style.display = "flex";
     });
-
 }
 
 if (cerrarNuevoTipoDocumento) {
-
     cerrarNuevoTipoDocumento.addEventListener("click", function () {
         modalNuevoTipoDocumento.style.display = "none";
     });
-
 }
 
 if (cancelarNuevoTipoDocumento) {
-
     cancelarNuevoTipoDocumento.addEventListener("click", function () {
         modalNuevoTipoDocumento.style.display = "none";
     });
-
 }
 
 
@@ -293,27 +283,21 @@ const cerrarNuevoEstadoCivil = document.getElementById("cerrarNuevoEstadoCivil")
 const cancelarNuevoEstadoCivil = document.getElementById("cancelarNuevoEstadoCivil");
 
 if (btnNuevoEstadoCivil && modalNuevoEstadoCivil) {
-
     btnNuevoEstadoCivil.addEventListener("click", function () {
         modalNuevoEstadoCivil.style.display = "flex";
     });
-
 }
 
 if (cerrarNuevoEstadoCivil) {
-
     cerrarNuevoEstadoCivil.addEventListener("click", function () {
         modalNuevoEstadoCivil.style.display = "none";
     });
-
 }
 
 if (cancelarNuevoEstadoCivil) {
-
     cancelarNuevoEstadoCivil.addEventListener("click", function () {
         modalNuevoEstadoCivil.style.display = "none";
     });
-
 }
 
 
@@ -327,27 +311,21 @@ const cerrarNuevaOcupacion = document.getElementById("cerrarNuevaOcupacion");
 const cancelarNuevaOcupacion = document.getElementById("cancelarNuevaOcupacion");
 
 if (btnNuevaOcupacion && modalNuevaOcupacion) {
-
     btnNuevaOcupacion.addEventListener("click", function () {
         modalNuevaOcupacion.style.display = "flex";
     });
-
 }
 
 if (cerrarNuevaOcupacion) {
-
     cerrarNuevaOcupacion.addEventListener("click", function () {
         modalNuevaOcupacion.style.display = "none";
     });
-
 }
 
 if (cancelarNuevaOcupacion) {
-
     cancelarNuevaOcupacion.addEventListener("click", function () {
         modalNuevaOcupacion.style.display = "none";
     });
-
 }
 
 
@@ -361,29 +339,338 @@ const cerrarNuevoGenero = document.getElementById("cerrarNuevoGenero");
 const cancelarNuevoGenero = document.getElementById("cancelarNuevoGenero");
 
 if (btnNuevoGenero && modalNuevoGenero) {
-
     btnNuevoGenero.addEventListener("click", function () {
         modalNuevoGenero.style.display = "flex";
     });
-
 }
 
 if (cerrarNuevoGenero) {
-
     cerrarNuevoGenero.addEventListener("click", function () {
         modalNuevoGenero.style.display = "none";
     });
-
 }
 
 if (cancelarNuevoGenero) {
-
     cancelarNuevoGenero.addEventListener("click", function () {
         modalNuevoGenero.style.display = "none";
     });
+}
+/*=========================================================
+            EDITAR PAÍS
+=========================================================*/
 
+document.addEventListener("DOMContentLoaded", function () {
+
+    const modal = document.getElementById("modalEditarPais");
+    const cerrar = document.getElementById("cerrarEditarPais");
+    const cancelar = document.getElementById("cancelarEditarPais");
+
+    const idPais = document.getElementById("editar_id_pais");
+    const nombrePais = document.getElementById("editar_nombre_pais");
+    const activoPais = document.getElementById("editar_activo_pais");
+
+    // Abrir modal
+    document.querySelectorAll(".btnEditarPais").forEach(function (boton) {
+        boton.addEventListener("click", function () {
+            idPais.value = this.dataset.id;
+            nombrePais.value = this.dataset.nombre;
+            activoPais.value = this.dataset.activo;
+            modal.style.display = "flex";
+        });
+    });
+
+    // Cerrar
+    cerrar.addEventListener("click", function () {
+        modal.style.display = "none";
+    });
+
+    cancelar.addEventListener("click", function () {
+        modal.style.display = "none";
+    });
+
+    // Cerrar haciendo clic fuera
+    window.addEventListener("click", function (event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+});
+
+
+// ==========================================================
+// EDITAR DEPARTAMENTO
+// ==========================================================
+
+const modalEditarDepartamento = document.getElementById("modalEditarDepartamento");
+const cerrarEditarDepartamento = document.getElementById("cerrarEditarDepartamento");
+const cancelarEditarDepartamento = document.getElementById("cancelarEditarDepartamento");
+
+document
+    .querySelectorAll(".btnEditarDepartamento")
+    .forEach(function (boton) {
+
+        boton.addEventListener("click", function () {
+
+            const id = this.dataset.id;
+
+            fetch(
+                "../actions/obtener_departamento.php?id=" +
+                encodeURIComponent(id)
+            )
+
+            .then(response => response.json())
+
+            .then(resultado => {
+
+                if (!resultado.success) {
+                    alert(
+                        resultado.mensaje
+                    );
+                    return;
+                }
+
+                const departamento =
+                    resultado.data;
+
+                // ID
+                document.getElementById(
+                    "editar_id_departamento"
+                ).value =
+                    departamento.id_departamento;
+
+                // PAÍS
+            document.getElementById(
+                "editar_id_pais"
+            ).value = departamento.id_pais;
+
+            document.getElementById(
+                "editar_pais"
+            ).value = departamento.nombre_pais;
+
+                // NOMBRE
+                document.getElementById(
+                    "editar_nombre_departamento"
+                ).value =
+                    departamento.nombre;
+
+                // CÓDIGO
+                document.getElementById(
+                    "editar_codigo_departamento"
+                ).value =
+                    departamento.codigo ?? "";
+
+                // ESTADO
+                document.getElementById(
+                    "editar_estado_departamento"
+                ).value =
+                    departamento.Activo;
+
+                // ABRIR MODAL
+                modalEditarDepartamento.style.display =
+                    "block";
+            })
+
+            .catch(error => {
+                console.error(error);
+                alert(
+                    "No fue posible obtener los datos del departamento."
+                );
+            });
+
+        });
+    });
+
+
+// ==========================================================
+// CERRAR CON X
+// ==========================================================
+
+if (cerrarEditarDepartamento) {
+    cerrarEditarDepartamento.addEventListener(
+        "click",
+        function () {
+            cerrarModal(
+                modalEditarDepartamento
+            );
+        }
+    );
 }
 
+
+// ==========================================================
+// CANCELAR
+// ==========================================================
+
+if (cancelarEditarDepartamento) {
+    cancelarEditarDepartamento.addEventListener(
+        "click",
+        function () {
+            cerrarModal(
+                modalEditarDepartamento
+            );
+        }
+    );
+}
+
+
+// ==========================================================
+// CERRAR HACIENDO CLIC FUERA
+// ==========================================================
+
+if (modalEditarDepartamento) {
+    window.addEventListener(
+        "click",
+        function (event) {
+            if (
+                event.target ===
+                modalEditarDepartamento
+            ) {
+                cerrarModal(
+                    modalEditarDepartamento
+                );
+            }
+        }
+    );
+}
+
+
+// ==========================================================
+// EDITAR CIUDAD
+// ==========================================================
+
+const modalEditarCiudad = document.getElementById("modalEditarCiudad");
+const cerrarEditarCiudad = document.getElementById("cerrarEditarCiudad");
+const cancelarEditarCiudad = document.getElementById("cancelarEditarCiudad");
+
+document
+    .querySelectorAll(".btnEditarCiudad")
+    .forEach(function (boton) {
+
+        boton.addEventListener("click", function () {
+
+            const id = this.dataset.id;
+
+
+            fetch(
+                "../actions/obtener_ciudad.php?id=" +
+                encodeURIComponent(id)
+            )
+
+            .then(response => response.json())
+
+            .then(resultado => {
+                if (!resultado.success) {
+                    alert(
+                        resultado.mensaje
+                    );
+                    return;
+                }
+
+                const ciudad =
+                    resultado.data;
+
+                // ID CIUDAD
+                document.getElementById(
+                    "editar_id_ciudad"
+                ).value =
+                    ciudad.id_ciudad;
+
+                // ID DEPARTAMENTO
+                document.getElementById(
+                    "editar_id_departamento_ciudad"
+                ).value =
+                    ciudad.id_departamento;
+
+                // DEPARTAMENTO
+                document.getElementById(
+                    "editar_departamento_ciudad"
+                ).value =
+                    ciudad.nombre_departamento;
+
+                // CIUDAD
+                document.getElementById(
+                    "editar_nombre_ciudad"
+                ).value =
+                    ciudad.nombre;
+
+                // CÓDIGO DANE
+                document.getElementById(
+                    "editar_codigo_dane"
+                ).value =
+                    ciudad.codigo_dane ?? "";
+
+                // ESTADO
+                document.getElementById(
+                    "editar_estado_ciudad"
+                ).value =
+                    ciudad.Activo;
+
+                // ABRIR MODAL
+                modalEditarCiudad.style.display =
+                    "block";
+            })
+
+            .catch(error => {
+                console.error(error);
+                alert(
+                    "No fue posible obtener los datos de la ciudad."
+                );
+            });
+        });
+    });
+
+
+// ==========================================================
+// CERRAR CON X
+// ==========================================================
+
+if (cerrarEditarCiudad) {
+    cerrarEditarCiudad.addEventListener(
+        "click",
+        function () {
+            cerrarModal(
+                modalEditarCiudad
+            );
+        }
+    );
+}
+
+
+// ==========================================================
+// CANCELAR
+// ==========================================================
+
+if (cancelarEditarCiudad) {
+    cancelarEditarCiudad.addEventListener(
+        "click",
+        function () {
+            cerrarModal(
+                modalEditarCiudad
+            );
+        }
+    );
+}
+
+
+// ==========================================================
+// CERRAR HACIENDO CLIC FUERA
+// ==========================================================
+
+if (modalEditarCiudad) {
+    window.addEventListener(
+        "click",
+        function (event) {
+            if (
+                event.target ===
+                modalEditarCiudad
+            ) {
+                cerrarModal(
+                    modalEditarCiudad
+                );
+            }
+        }
+    );
+}
 
 // ==========================================================
 // EDITAR TIPO DE DOCUMENTO
