@@ -74,6 +74,7 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zonas Comunes</title>
     <link rel="stylesheet" href="../assets/css/zonas.css">
+    <script src="../assets/js/zonas.js" defer></script>
 </head>
 
 <body>
@@ -161,7 +162,7 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
 
                     <div class="form-botones">
                         <button type="submit" class="btn btn-principal">
-                            <?= isset($id) ? 'Editar Zona' : 'Registrar Zona' ?> <!-- Operador ternario si existe la variable $id cambia a modo actualizar sino permanece en modo guardar -->
+                            <?= isset($id) ? 'Actualizar Zona' : 'Registrar Zona' ?> <!-- Operador ternario si existe la variable $id cambia a modo actualizar sino permanece en modo guardar -->
                         </button>
 
                         <?php if (isset($id)) { ?> <!-- Si existe $id se genera el botón cancelar -->
