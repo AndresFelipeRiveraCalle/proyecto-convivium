@@ -1,36 +1,91 @@
+
 document.addEventListener("DOMContentLoaded", function () {
 
     const btnEditar = document.getElementById("btnEditar");
     const btnGuardar = document.getElementById("btnGuardar");
     const btnCancelar = document.getElementById("btnCancelarEdicion");
 
-    if (!btnEditar) return;
+    if (!btnEditar) {
+        return;
+    }
+
+
+    // ==========================================
+    // ACTIVAR MODO EDICIÓN
+    // ==========================================
 
     btnEditar.addEventListener("click", function () {
 
-        // Habilitar todos los campos del formulario
-        document.querySelectorAll("input, select, textarea").forEach(function (campo) {
+        // --------------------------------------
+        // Habilitar campos de texto
+        // --------------------------------------
 
-            if (
-                campo.type !== "hidden" &&
-                campo.type !== "submit" &&
-                campo.type !== "button"
-            ) {
+        document
+            .querySelectorAll(
+                'input[type="text"], input[type="email"], input[type="tel"]'
+            )
+            .forEach(function (campo) {
+
                 campo.removeAttribute("readonly");
-                campo.removeAttribute("disabled");
-            }
 
-        });
+            });
+
+
+        // --------------------------------------
+        // Habilitar archivos
+        // --------------------------------------
+
+        document
+            .querySelectorAll('input[type="file"]')
+            .forEach(function (campo) {
+
+                campo.removeAttribute("disabled");
+
+            });
+
+
+        // --------------------------------------
+        // Habilitar selects
+        // --------------------------------------
+
+        document
+            .querySelectorAll("select")
+            .forEach(function (campo) {
+
+                campo.removeAttribute("disabled");
+
+            });
+
+
+        // --------------------------------------
+        // Habilitar textarea
+        // --------------------------------------
+
+        document
+            .querySelectorAll("textarea")
+            .forEach(function (campo) {
+
+                campo.removeAttribute("readonly");
+
+            });
+
+
+        // --------------------------------------
+        // Cambiar botones
+        // --------------------------------------
 
         btnEditar.style.display = "none";
 
-        if (btnGuardar)
-            btnGuardar.style.display = "inline-block";
+        btnGuardar.style.display = "inline-block";
 
-        if (btnCancelar)
-            btnCancelar.style.display = "inline-block";
+        btnCancelar.style.display = "inline-block";
 
     });
+
+
+    // ==========================================
+    // CANCELAR EDICIÓN
+    // ==========================================
 
     if (btnCancelar) {
 
