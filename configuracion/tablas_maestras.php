@@ -2,6 +2,25 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
+$stmtPaises = $conexion->query("SELECT * FROM paises ORDER BY nombre");
+$paises = $stmtPaises->fetchAll(PDO::FETCH_ASSOC);
+
+$stmtDepartamentos = $conexion->query("SELECT * FROM departamentos ORDER BY nombre");
+$departamentos = $stmtDepartamentos->fetchAll(PDO::FETCH_ASSOC);
+
+$sqlCiudades = "SELECT c.id_ciudad, c.id_departamento,c.nombre,c.codigo_dane,c.Activo,d.nombre AS nombre_departamento,p.nombre AS nombre_pais
+    FROM ciudades c
+    INNER JOIN departamentos d ON d.id_departamento = c.id_departamento
+    INNER JOIN paises p ON p.id_pais = d.id_pais
+    ORDER BY p.nombre ASC, d.nombre ASC, c.nombre ASC";
+
+$stmtCiudades = $conexion->prepare($sqlCiudades);
+$stmtCiudades->execute();
+
+$ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
+
+
+
 $stmtEstadosCiviles = $conexion->query("SELECT * FROM estados_civiles ORDER BY nombre");
 $estadosCiviles = $stmtEstadosCiviles->fetchAll(PDO::FETCH_ASSOC);
 
@@ -34,9 +53,157 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
         <main class="contenido">
 
             <h1 align="center">Tablas Maestras</h1>
+            <div class="grid-configuracion">
+                <h2>Ubicacion</h2>
+                <div class="bloque filtros">
+                    <div class="form-card">
+                        <h3>Paises</h3>
+
+                        <p>Agrega países</p>
+                        <table class="tabla">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($paises as $pais): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($pais['nombre']) ?></td>
+
+                                        <td>
+                                            <?php if ($pais['Activo'] == 1): ?>
+                                                <span class="activo">Activo</span>
+                                            <?php else: ?>
+                                                <span class="inactivo">Inactivo</span>
+                                            <?php endif; ?>
+                                        </td>
+
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="btn-secondary btnEditarPais"
+                                                data-id="<?= $pais['id_pais'] ?>"
+                                                data-nombre="<?= htmlspecialchars($pais['nombre']) ?>"
+                                                data-activo="<?= $pais['Activo'] ?>">
+                                                ✏ Editar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <button type="button" id="btnNuevoPais" class="btn-filtrar btnNuevoPais">
+                            Agregar
+                        </button>
+                    </div>
+                
+                
+                <div class="bloque filtros">
+                    <div class="form-card">
+                        <h3>Departamentos</h3>
+
+                        <p>Agrega departamentos</p>
+                        <table class="tabla">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Codigo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($departamentos as $departamento): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($departamento['nombre']) ?></td>
+                                        <td><?= htmlspecialchars($departamento['codigo']) ?></td>
+
+                                        <td>
+                                            <?php if ($departamento['Activo'] == 1): ?>
+                                                <span class="activo">Activo</span>
+                                            <?php else: ?>
+                                                <span class="inactivo">Inactivo</span>
+                                            <?php endif; ?>
+                                        </td>
+
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="btn-secondary btnEditarDepartamento"
+                                                data-id="<?= $departamento['id_departamento'] ?>"
+                                                data-nombre="<?= htmlspecialchars($departamento['nombre']) ?>"
+                                                data-codigo="<?= htmlspecialchars($departamento['codigo']) ?>"
+                                                data-estado="<?= $departamento['Activo'] ?>">
+                                                ✏ Editar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <button type="button" id="btnNuevoDepartamento" class="btn-filtrar btnNuevoDepartamento">
+                            Agregar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bloque filtros">
+                    <div class="form-card">
+                        <h3>Ciudades</h3>
+
+                        <p>Agrega ciudades</p>
+                        <table class="tabla">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Codigo Dane</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($ciudades as $ciudad): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($ciudad['nombre']) ?></td>
+                                        <td><?= htmlspecialchars($ciudad['codigo_dane']) ?></td>
+
+                                        <td>
+                                            <?php if ($ciudad['Activo'] == 1): ?>
+                                                <span class="activo">Activo</span>
+                                            <?php else: ?>
+                                                <span class="inactivo">Inactivo</span>
+                                            <?php endif; ?>
+                                        </td>
+
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="btn-secondary btnEditarCiudad"
+                                                data-id="<?= $ciudad['id_ciudad'] ?>"
+                                                data-nombre="<?= htmlspecialchars($ciudad['nombre']) ?>"
+                                                data-codigo="<?= htmlspecialchars($ciudad['codigo_dane']) ?>"
+                                                data-estado="<?= $ciudad['Activo'] ?>">
+                                                ✏ Editar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <button type="button" id="btnNuevaCiudad" class="btn-filtrar btnNuevaCiudad">
+                            Agregar
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
 
             <div class="grid-configuracion">
-
+                <h2>Datos personales</h2>
                 <!-- Tipos de documento -->
                 <div class="bloque filtros">
                     <div class="form-card">
@@ -82,7 +249,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
                     <div class="form-card">
-                        ---
+                        -
                     </div>
 
 
@@ -130,6 +297,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         </button>
                     </div>
 
+                    <div class="form-card">
+                        -
+                    </div>
 
                     <!-- Ocupaciones -->
 
@@ -182,7 +352,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         </div>
 
                         <div class="form-card">
-                            ---
+                            -
                         </div>
 
                         <!-- Géneros -->
@@ -233,6 +403,323 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
         </main>
+
+        <!-- =====================================================
+            MODAL NUEVO PAIS
+        ====================================================== -->
+        <div id="modalPais" class="modal">
+            <div class="modal-contenido">
+                <span class="cerrar-modal" id="cerrarPais">
+                    &times;
+                </span>
+
+                <h2>Nuevo País</h2>
+                <form action="../actions/guardar_pais.php" method="POST">
+                    <input type="hidden" name="origen" value="tablas_maestras">
+
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" name="nombre" required maxlength="100">
+                    </div>
+
+                    <div class="form-group">
+                        <label> Estado </label>
+                        <select name="estado">
+                            <option value="1">
+                                Activo
+                            </option>
+
+                            <option value="0">
+                                Inactivo
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="acciones-modal">
+                        <button type="submit" class="btn-primary">
+                            Guardar
+                        </button>
+
+                        <button type="button" class="btn-secondary" id="cancelarPais">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <!-- =====================================================
+            MODAL NUEVO DEPARTAMENTO
+        ====================================================== -->
+        <div id="modalDepartamento" class="modal">
+            <div class="modal-contenido">
+                <span class="cerrar-modal" id="cerrarDepartamento">
+                    &times;
+                </span>
+
+                <h2>Nuevo Departamento</h2>
+
+                <form action="../actions/guardar_departamento.php" method="POST">
+
+                    <!-- Indica que viene de Tablas Maestras -->
+                    <input type="hidden" name="origen" value="tablas_maestras">
+
+                    <!-- =================================================
+                        PAÍS
+                    ================================================== -->
+
+                    <div class="form-group">
+                        <label for="id_pais">
+                            País
+                        </label>
+
+                        <select name="id_pais" id="id_pais" required>
+
+                            <option value="">
+                                Seleccione un país
+                            </option>
+
+                            <?php foreach ($paises as $pais): ?>
+                                <?php if ($pais['Activo'] == 1): ?>
+                                    <option
+                                        value="<?= $pais['id_pais'] ?>">
+                                        <?= htmlspecialchars( $pais['nombre']) ?>
+                                    </option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- =================================================
+                        NOMBRE
+                    ================================================== -->
+                    <div class="form-group">
+                        <label for="nombreDepartamento">
+                            Departamento
+                        </label>
+
+                        <input type="text" name="nombre" id="nombreDepartamento" maxlength="100" required>
+                    </div>
+
+                    <!-- =================================================
+                        CÓDIGO
+                    ================================================== -->
+
+                    <div class="form-group">
+                        <label for="codigoDepartamento">
+                            Código
+                        </label>
+
+                        <input type="text" name="codigo" id="codigoDepartamento" maxlength="10">
+                    </div>
+
+                    <!-- =================================================
+                        ESTADO
+                    ================================================== -->
+                    <div class="form-group">
+                        <label for="estadoDepartamento">
+                            Estado
+                        </label>
+
+                        <select name="estado" id="estadoDepartamento">
+                            <option value="1">
+                                Activo
+                            </option>
+
+                            <option value="0">
+                                Inactivo
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- =================================================
+                        BOTONES
+                    ================================================== -->
+
+                    <div class="acciones-modal">
+                        <button type="submit" class="btn-primary">
+                            Guardar
+                        </button>
+
+                        <button type="button" class="btn-secondary" id="cancelarDepartamento">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- =====================================================
+            MODAL NUEVA CIUDAD
+        ====================================================== -->
+
+        <div id="modalCiudad" class="modal">
+            <div class="modal-contenido">
+                <!-- CERRAR -->
+                <span class="cerrar-modal" id="cerrarCiudad">
+                    &times;
+                </span>
+
+                <h2>Nueva Ciudad</h2>
+                <form action="../actions/guardar_ciudad.php" method="POST">
+
+                    <!-- =================================================
+                        DEPARTAMENTO
+                    ================================================== -->
+                    <div class="form-group">
+                        <label for="id_departamento_ciudad">
+                            Departamento
+                        </label>
+
+                        <select name="id_departamento" id="id_departamento_ciudad" required>
+                            <option value="">
+                                Seleccione un departamento
+                            </option>
+                            <?php foreach ($departamentos as $departamento): ?>
+                                <?php if ($departamento['Activo'] == 1): ?>
+                                    <option
+                                        value="<?= $departamento['id_departamento'] ?>">
+                                        <?= htmlspecialchars($departamento['nombre']) ?>
+                                    </option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- =================================================
+                        NOMBRE CIUDAD
+                    ================================================== -->
+                    <div class="form-group">
+                        <label for="nombre_ciudad">
+                            Ciudad
+                        </label>
+
+                        <input type="text" name="nombre" id="nombre_ciudad" maxlength="100" required>
+                    </div>
+
+                    <!-- =================================================
+                        CÓDIGO DANE
+                    ================================================== -->
+                    <div class="form-group">
+                        <label for="codigo_dane">
+                            Código DANE
+                        </label>
+                        <input type="text" name="codigo_dane" id="codigo_dane" maxlength="10">
+                    </div>
+
+                    <!-- =================================================
+                        ESTADO
+                    ================================================== -->
+                    <div class="form-group">
+                        <label for="estado_ciudad">
+                            Estado
+                        </label>
+                        <select name="estado" id="estado_ciudad">
+                            <option value="1">
+                                Activo
+                            </option>
+
+                            <option value="0">
+                                Inactivo
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- =================================================
+                        BOTONES
+                    ================================================== -->
+                    <div class="acciones-modal">
+                        <button type="submit" class="btn-primary">
+                            Guardar
+                        </button>
+
+                        <button type="button" class="btn-secondary" id="cancelarCiudad">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+                
+
+        <!-- =====================================================
+            MODAL EDITAR CIUDAD
+        ====================================================== -->
+
+        <div id="modalEditarCiudad" class="modal">
+            <div class="modal-contenido">
+                <span class="cerrar-modal" id="cerrarEditarCiudad">
+                    &times;
+                </span>
+
+                <h2>Editar Ciudad</h2>
+
+                <form action="../actions/editar_ciudad.php" method="POST">
+
+                    <!-- ID DE LA CIUDAD -->
+                    <input type="hidden" name="id_ciudad" id="editar_id_ciudad">
+
+                    <!-- DEPARTAMENTO -->
+                    <input type="hidden" name="id_departamento" id="editar_id_departamento_ciudad">
+
+                    <div class="form-group">
+                        <label for="editar_departamento_ciudad">
+                            Departamento
+                        </label>
+
+                        <input type="text" id="editar_departamento_ciudad" readonly>
+                    </div>
+
+                    <!-- CIUDAD -->
+                    <div class="form-group">
+                        <label for="editar_nombre_ciudad">
+                            Ciudad
+                        </label>
+
+                        <input type="text" name="nombre" id="editar_nombre_ciudad" maxlength="100" required>
+                    </div>
+
+                    <!-- CÓDIGO DANE -->
+                    <div class="form-group">
+                        <label for="editar_codigo_dane">
+                            Código DANE
+                        </label>
+
+                        <input type="text" name="codigo_dane" id="editar_codigo_dane" maxlength="10">
+                    </div>
+
+                    <!-- ESTADO -->
+                    <div class="form-group">
+                        <label for="editar_estado_ciudad">
+                            Estado
+                        </label>
+
+                        <select name="estado" id="editar_estado_ciudad">
+                            <option value="1">
+                                Activo
+                            </option>
+
+                            <option value="0">
+                                Inactivo
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- BOTONES -->
+                    <div class="acciones-modal">
+                        <button type="submit" class="btn-primary">
+                            Actualizar
+                        </button>
+
+                        <button type="button" class="btn-secondary" id="cancelarEditarCiudad">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
 
         <!-- =====================================================
             MODAL NUEVO TIPO DE DOCUMENTO
@@ -401,6 +888,181 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </form>
             </div>
+        </div>
+
+
+        <!-- =====================================================
+            MODAL EDITAR PAÍS
+        ====================================================== -->
+        <div id="modalEditarPais" class="modal">
+            <div class="modal-contenido">
+                <span class="cerrar-modal" id="cerrarEditarPais">&times;</span>
+
+                <h2>Editar país</h2>
+                <form action="../actions/editar_pais.php" id="formEditarPais" method="POST">
+
+                    <input type="hidden" name="id_pais" id="editar_id_pais">
+
+                    <div class="form-group">
+                        <label for="editar_nombre_pais">
+                            Nombre del país
+                        </label>
+                        <input type="text" name="nombre" id="editar_nombre_pais" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editar_activo_pais">
+                            Estado
+                        </label>
+
+                        <select name="activo" id="editar_activo_pais" required>
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+
+                    <div class="modal-botones">
+                        <button type="button" class="btn-secondary" id="cancelarEditarPais">
+                            Cancelar
+                        </button>
+
+                        <button type="submit" class="btn-primary">
+                            Guardar cambios
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+
+        <!-- =====================================================
+            MODAL EDITAR DEPARTAMENTO
+        ====================================================== -->
+        <div id="modalEditarDepartamento" class="modal">
+
+            <div class="modal-contenido">
+
+                <span
+                    class="cerrar-modal"
+                    id="cerrarEditarDepartamento">
+                    &times;
+                </span>
+
+                <h2>Editar Departamento</h2>
+
+                <form
+                    action="../actions/editar_departamento.php"
+                    method="POST">
+
+                    <input
+                        type="hidden"
+                        name="id_departamento"
+                        id="editar_id_departamento">
+
+                    <input
+                        type="hidden"
+                        name="id_pais"
+                        id="editar_id_pais">
+
+
+                    <!-- PAÍS -->
+
+                    <div class="form-group">
+
+                        <label for="editar_pais">
+                            País
+                        </label>
+
+                        <input
+                            type="text"
+                            id="editar_pais"
+                            readonly>
+
+                    </div>
+
+
+                    <!-- NOMBRE -->
+
+                    <div class="form-group">
+
+                        <label for="editar_nombre_departamento">
+                            Departamento
+                        </label>
+
+                        <input
+                            type="text"
+                            name="nombre"
+                            id="editar_nombre_departamento"
+                            maxlength="100"
+                            required>
+
+                    </div>
+
+
+                    <!-- CÓDIGO -->
+
+                    <div class="form-group">
+
+                        <label for="editar_codigo_departamento">
+                            Código
+                        </label>
+
+                        <input
+                            type="text"
+                            name="codigo"
+                            id="editar_codigo_departamento"
+                            maxlength="10">
+
+                    </div>
+
+
+                    <!-- ESTADO -->
+
+                    <div class="form-group">
+
+                        <label for="editar_estado_departamento">
+                            Estado
+                        </label>
+
+                        <select
+                            name="estado"
+                            id="editar_estado_departamento">
+
+                            <option value="1">
+                                Activo
+                            </option>
+
+                            <option value="0">
+                                Inactivo
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="acciones-modal">
+
+                        <button
+                            type="submit"
+                            class="btn-primary">
+                            Actualizar
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn-secondary"
+                            id="cancelarEditarDepartamento">
+                            Cancelar
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
         </div>
 
 
