@@ -8,15 +8,14 @@ try {
     $nombre = trim($_POST["nombre"] ?? "");
     $estado = isset($_POST["estado"]) ? (int) $_POST["estado"] : 1;
 
-    // Validar nombre
     if ($nombre === "") {
-        throw new Exception("El nombre del estado civil es obligatorio.");
+        throw new Exception("El nombre de la ocupación es obligatorio.");
     }
 
     // Verificar duplicado
     $sql = "
         SELECT COUNT(*)
-        FROM estados_civiles
+        FROM ocupaciones
         WHERE nombre = ?
     ";
 
@@ -24,12 +23,12 @@ try {
     $stmt->execute([$nombre]);
 
     if ($stmt->fetchColumn() > 0) {
-        throw new Exception("El estado civil ya existe.");
+        throw new Exception("La ocupación ya existe.");
     }
 
     // Guardar
     $sql = "
-        INSERT INTO estados_civiles
+        INSERT INTO ocupaciones
         (
             nombre,
             estado
@@ -49,7 +48,7 @@ try {
     ]);
 
     header(
-        "Location: ../configuracion/tablas_maestras.php?tipo=success&texto=Estado civil creado correctamente"
+        "Location: ../configuracion/tablas_maestras.php?tipo=success&texto=Ocupación creada correctamente"
     );
 
     exit;

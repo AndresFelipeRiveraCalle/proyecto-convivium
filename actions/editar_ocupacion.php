@@ -5,8 +5,12 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 try {
 
-    $id = (int) ($_POST["id_estado_civil"] ?? 0);
-    $nombre = trim($_POST["nombre"] ?? "");
+    $id = (int) ($_POST["id_ocupacion"] ?? 0);
+
+    $nombre = trim(
+        $_POST["nombre"] ?? ""
+    );
+
     $estado = isset($_POST["estado"])
         ? (int) $_POST["estado"]
         : 1;
@@ -17,12 +21,14 @@ try {
     // ==========================================
 
     if ($id <= 0) {
-        throw new Exception("Estado civil no válido.");
+        throw new Exception(
+            "Ocupación no válida."
+        );
     }
 
     if ($nombre === "") {
         throw new Exception(
-            "El nombre del estado civil es obligatorio."
+            "El nombre de la ocupación es obligatorio."
         );
     }
 
@@ -33,9 +39,9 @@ try {
 
     $sql = "
         SELECT COUNT(*)
-        FROM estados_civiles
+        FROM ocupaciones
         WHERE nombre = ?
-        AND id_estado_civil <> ?
+        AND id_ocupacion <> ?
     ";
 
     $stmt = $conexion->prepare($sql);
@@ -49,7 +55,7 @@ try {
     if ($stmt->fetchColumn() > 0) {
 
         throw new Exception(
-            "Ya existe otro estado civil con ese nombre."
+            "Ya existe otra ocupación con ese nombre."
         );
 
     }
@@ -60,11 +66,11 @@ try {
     // ==========================================
 
     $sql = "
-        UPDATE estados_civiles
+        UPDATE ocupaciones
         SET
             nombre = ?,
             estado = ?
-        WHERE id_estado_civil = ?
+        WHERE id_ocupacion = ?
     ";
 
     $stmt = $conexion->prepare($sql);
@@ -83,7 +89,7 @@ try {
     header(
         "Location: ../configuracion/tablas_maestras.php" .
         "?tipo=success" .
-        "&texto=Estado civil actualizado correctamente"
+        "&texto=Ocupación actualizada correctamente"
     );
 
     exit;

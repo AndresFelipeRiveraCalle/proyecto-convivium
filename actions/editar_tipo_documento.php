@@ -5,8 +5,18 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 try {
 
-    $id = (int) ($_POST["id_estado_civil"] ?? 0);
-    $nombre = trim($_POST["nombre"] ?? "");
+    $id = (int) (
+        $_POST["id_tipo_documento"] ?? 0
+    );
+
+    $codigo = trim(
+        $_POST["codigo"] ?? ""
+    );
+
+    $nombre = trim(
+        $_POST["nombre"] ?? ""
+    );
+
     $estado = isset($_POST["estado"])
         ? (int) $_POST["estado"]
         : 1;
@@ -17,25 +27,69 @@ try {
     // ==========================================
 
     if ($id <= 0) {
-        throw new Exception("Estado civil no válido.");
+
+        throw new Exception(
+            "Tipo de documento no válido."
+        );
+
     }
 
-    if ($nombre === "") {
+
+    if ($codigo === "") {
+
         throw new Exception(
-            "El nombre del estado civil es obligatorio."
+            "El código es obligatorio."
         );
+
+    }
+
+
+    if ($nombre === "") {
+
+        throw new Exception(
+            "El nombre es obligatorio."
+        );
+
     }
 
 
     // ==========================================
-    // VERIFICAR DUPLICADO
+    // VERIFICAR CÓDIGO DUPLICADO
     // ==========================================
 
     $sql = "
         SELECT COUNT(*)
-        FROM estados_civiles
+        FROM tipos_documento
+        WHERE codigo = ?
+        AND id_tipo_documento <> ?
+    ";
+
+    $stmt = $conexion->prepare($sql);
+
+    $stmt->execute([
+        $codigo,
+        $id
+    ]);
+
+
+    if ($stmt->fetchColumn() > 0) {
+
+        throw new Exception(
+            "Ya existe otro tipo de documento con ese código."
+        );
+
+    }
+
+
+    // ==========================================
+    // VERIFICAR NOMBRE DUPLICADO
+    // ==========================================
+
+    $sql = "
+        SELECT COUNT(*)
+        FROM tipos_documento
         WHERE nombre = ?
-        AND id_estado_civil <> ?
+        AND id_tipo_documento <> ?
     ";
 
     $stmt = $conexion->prepare($sql);
@@ -49,7 +103,7 @@ try {
     if ($stmt->fetchColumn() > 0) {
 
         throw new Exception(
-            "Ya existe otro estado civil con ese nombre."
+            "Ya existe otro tipo de documento con ese nombre."
         );
 
     }
@@ -60,16 +114,18 @@ try {
     // ==========================================
 
     $sql = "
-        UPDATE estados_civiles
+        UPDATE tipos_documento
         SET
+            codigo = ?,
             nombre = ?,
             estado = ?
-        WHERE id_estado_civil = ?
+        WHERE id_tipo_documento = ?
     ";
 
     $stmt = $conexion->prepare($sql);
 
     $stmt->execute([
+        $codigo,
         $nombre,
         $estado,
         $id
@@ -83,7 +139,7 @@ try {
     header(
         "Location: ../configuracion/tablas_maestras.php" .
         "?tipo=success" .
-        "&texto=Estado civil actualizado correctamente"
+        "&texto=Tipo de documento actualizado correctamente"
     );
 
     exit;
