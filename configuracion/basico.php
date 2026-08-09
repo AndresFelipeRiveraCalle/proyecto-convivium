@@ -3,14 +3,28 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
-$stmtPais = $conexion->query("SELECT id_pais AS id, nombre FROM paises ORDER BY nombre");
-$paises = $stmtPais->fetchAll(PDO::FETCH_ASSOC);
+// ==========================================================
+// TIPOS DE AGRUPACIÓN
+// ==========================================================
 
-$stmtDepartamentos = $conexion->query("SELECT codigo, id_departamento AS id, nombre FROM departamentos ORDER BY nombre");
-$departamentos = $stmtDepartamentos->fetchAll(PDO::FETCH_ASSOC);
+$stmtTiposAgrupacion = $conexion->query(" SELECT  id_tipo_agrupacion, nombre
+    FROM tipos_agrupacion WHERE activo = 1 ORDER BY nombre ASC
+");
 
-$stmtCiudades = $conexion->query("SELECT id_ciudad AS id, nombre , codigo_dane FROM ciudades ORDER BY nombre");
-$ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
+$tiposAgrupacion = $stmtTiposAgrupacion->fetchAll(PDO::FETCH_ASSOC);
+
+// ==========================================================
+// AGRUPACIONES DE LA COPROPIEDAD
+// ==========================================================
+
+$stmtAgrupaciones = $conexion->query(" SELECT a.id_agrupacion, a.id_tipo_agrupacion, a.nombre, a.descripcion, a.activo, ta.nombre AS tipo_agrupacion
+    FROM agrupaciones a
+    INNER JOIN tipos_agrupacion ta ON ta.id_tipo_agrupacion = a.id_tipo_agrupacion
+    WHERE a.activo = 1
+    ORDER BY ta.nombre ASC, a.nombre ASC
+");
+
+$agrupaciones = $stmtAgrupaciones->fetchAll(PDO::FETCH_ASSOC);
 
 
 // ===========================================
@@ -119,64 +133,6 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
             <p>En esta seccion podras configurar las áreas de la copropiedad como cantidad de apartamentos, zonas comunes y distrinbuciones generales</p>
             <br>
 
-            <h3>Ubicación de la copropiedad</h3>
-
-            <div class="bloque filtros">
-
-                <div class="card">
-                    <h4>País</h4>
-                    <select name="id_pais" class="form-control">
-                        <?php foreach ($paises as $pais): ?>
-                            <option value="<?= $pais['id'] ?>">
-                                <?= htmlspecialchars($pais['id']) ?> - <?= htmlspecialchars($pais['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="card">
-                    <h4>Departamento</h4>
-                    <select name="id_departamento" class="form-control">
-                        <option value="">Seleccione un departamento</option>
-                        <?php foreach ($departamentos as $departamento): ?>
-                            <option value="<?= $departamento['id'] ?>">
-                                <?= htmlspecialchars($departamento['codigo']) ?> - <?= htmlspecialchars($departamento['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-
-                <div class="card">
-                    <h4>Ciudad</h4>
-                    <select name="id_ciudad" class="form-control">
-                        <option value="">Seleccione una ciudad</option>
-                        <?php foreach ($ciudades as $c): ?>
-                            <option value="<?= $c['id'] ?>">
-                                <?= htmlspecialchars($c['codigo_dane']) ?> - <?= htmlspecialchars($c['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <br>
-
-                    <button type="button" class="btn-secondary" id="btnNuevaCiudad">
-                        + Nueva ciudad
-                    </button>
-
-                </div>
-
-
-                <div class="form-group label">
-                    <span for="direccion">Dirección:</span>
-                    <input type="text" id="direccion" name="direccion" placeholder="Ej. Vía Las Palmas Km 4" required>
-                </div>
-                <div class="form-group label">
-                    <span for="sector">Sector:</span>
-                    <input type="text" id="sector" name="sector" placeholder="Comuna - Barrio - Zona">
-                </div>
-
-            </div>
-
             <h3>Unidades de vivienda</h3>
 
             <div class="bloque filtros">
@@ -220,6 +176,55 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
 
+            <h3>Configuración de agrupaciones</h3>
+            <div class="bloque filtros">
+                <div class="form-card">
+                    <h4>Bloques de la copropiedad</h4>
+                    <p>Configure las torres, bloques, manzanas, etapas u otras agrupaciones que conforman la copropiedad.</p>
+
+                    <button type="button" class="btn-primary" id="btnNuevaAgrupacion">
+                        + Nueva agrupación
+                    </button>
+                </div>
+            </div>
+            <div class="bloque">
+                <table class="tabla">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <?php if (!empty($agrupaciones)): ?>
+                            <?php foreach ($agrupaciones as $agrupacion): ?>
+                                <tr>
+                                    <td> <?= htmlspecialchars($agrupacion['tipo_agrupacion']) ?> </td>
+                                    <td> <?= htmlspecialchars($agrupacion['nombre']) ?> </td>
+                                    <td> <?= htmlspecialchars($agrupacion['descripcion'] ?? '') ?></td>
+                                    <td>
+                                        <button
+                                            type="button"
+                                            class="btn-secondary btnEditarAgrupacion"
+                                            data-id="<?= $agrupacion['id_agrupacion'] ?>">
+                                            ✏ Editar
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="4" style="text-align:center;">
+                                    No hay agrupaciones configuradas.
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
 
             <div class="bloque filtros">
                 <div id="contenidoTipo" class="tab-content">
@@ -276,95 +281,6 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
         </main>
     </div>
 
-    <div id="modalPais" class="modal">
-        <div class="modal-contenido">
-            <span id="cerrarPais" class="cerrar">&times;</span>
-
-            <h2>Nuevo País</h2>
-            <br><br>
-            <form action="../actions/guardar_pais.php" method="POST">
-                <label>Nombre del país</label>
-                <br>
-                <input
-                    type="text" id="nombrePais" name="nombreP" required maxlength="100">
-                <br><br>
-                <label>Codigo del país</label>
-                <input
-                    type="text" id="codigoPais" name="codigoP" maxlength="10">
-                <br><br>
-                <button type="reset" class="btn-limpiar" id="cancelarPais">Cancelar</button>
-                <button type="submit" class="btn-filtrar">Guardar</button>
-            </form>
-
-        </div>
-    </div>
-
-
-    <div id="modalDepartamento" class="modal">
-        <div class="modal-contenido">
-            <span id="cerrarDepartamento" class="cerrar">&times;</span>
-
-            <h2>Nuevo Departamento</h2>
-
-            <form action="../actions/guardar_Departamento.php" method="POST">
-                <label>Nombre del departamento</label>
-                <input
-                    type="text" id="nombreDepartamento" name="nombreD" required maxlength="100">
-                <br><br>
-                <label>Código del departamento</label>
-                <input
-                    type="text" id="codigoDepartamento" name="codigo" maxlength="10">
-                <br><br>
-                <button type="reset" class="btn-limpiar" id="cancelarDepartamento">Cancelar</button>
-                <button type="submit" class="btn-filtrar">Guardar</button>
-
-            </form>
-        </div>
-    </div>
-
-    <div id="modalCiudad" class="modal">
-        <div class="modal-contenido">
-            <span id="cerrarCiudad" class="cerrar">&times;</span>
-
-            <h2>Nueva Ciudad</h2>
-
-            <form action="../actions/guardar_ciudad.php" method="POST">
-                
-            
-                <label>País</label>
-                <select name="id_pais" class="form-control">
-                    <?php foreach ($paises as $pais): ?>
-                        <option value="<?= $pais['id'] ?>">
-                            <?= htmlspecialchars($pais['id']) ?> - <?= htmlspecialchars($pais['nombre']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <br><br>
-                <label>Departamento</label>
-                <select name="id_departamento" class="form-control">
-                    <option value="">Seleccione un departamento</option>
-                    <?php foreach ($departamentos as $departamento): ?>
-                        <option value="<?= $departamento['id'] ?>">
-                            <?= htmlspecialchars($departamento['codigo']) ?> - <?= htmlspecialchars($departamento['nombre']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <br><br>
-            
-                <label>Nombre de la ciudad</label>
-                <input
-                    type="text" id="nombreCiudad" name="nombreC" required maxlength="100">
-                <br><br>
-                <label>Código de la ciudad</label>
-                <input
-                    type="text" id="codigoCiudad" name="codigo" maxlength="10">
-                <br><br>
-                <button type="reset" class="btn-limpiar" id="cancelarCiudad">Cancelar</button>
-                <button type="submit" class="btn-filtrar">Guardar</button>
-
-            </form>
-        </div>
-    </div>
 
     <!-- ==========================================
      MODAL NUEVO GRUPO
