@@ -30,8 +30,8 @@ $nombre = trim(
     $_POST["nombre"] ?? ""
 );
 
-$codigo_dane = trim(
-    $_POST["codigo_dane"] ?? ""
+$codigo = trim(
+    $_POST["codigo"] ?? ""
 );
 
 $activo = isset($_POST["estado"])
@@ -40,27 +40,18 @@ $activo = isset($_POST["estado"])
 
 
 // ==========================================================
-// PÁGINA DE RETORNO
-// ==========================================================
-
-$paginaRetorno =
-    "../configuracion/tablas_maestras.php";
-
-
-// ==========================================================
-// VALIDAR DEPARTAMENTO
+// VALIDAR ID
 // ==========================================================
 
 if ($id_departamento <= 0) {
 
     $mensaje = urlencode(
-        "Debe seleccionar un departamento."
+        "Departamento no válido."
     );
 
     header(
-        "Location: " .
-        $paginaRetorno .
-        "?tipo=warning&texto=" .
+        "Location: ../configuracion/tablas_maestras.php" .
+        "?tipo=error&texto=" .
         $mensaje
     );
 
@@ -75,12 +66,11 @@ if ($id_departamento <= 0) {
 if ($nombre === "") {
 
     $mensaje = urlencode(
-        "Debe ingresar el nombre de la ciudad."
+        "Debe ingresar el nombre del departamento."
     );
 
     header(
-        "Location: " .
-        $paginaRetorno .
+        "Location: ../configuracion/tablas_maestras.php" .
         "?tipo=warning&texto=" .
         $mensaje
     );
@@ -92,14 +82,14 @@ if ($nombre === "") {
 try {
 
     // ======================================================
-    // VERIFICAR DEPARTAMENTO
+    // OBTENER EL PAÍS ACTUAL
     // ======================================================
 
     $sql = "
-        SELECT COUNT(*)
+        SELECT id_pais
         FROM departamentos
         WHERE id_departamento = ?
-        AND Activo = 1
+        LIMIT 1
     ";
 
     $stmt = $conexion->prepare($sql);
@@ -108,91 +98,88 @@ try {
         $id_departamento
     ]);
 
+    $id_pais = $stmt->fetchColumn();
 
-    if ($stmt->fetchColumn() == 0) {
+
+    if (!$id_pais) {
 
         throw new Exception(
-            "El departamento seleccionado no existe o está inactivo."
+            "El departamento no existe."
         );
 
     }
 
 
     // ======================================================
-    // VERIFICAR CIUDAD DUPLICADA
+    // VERIFICAR DUPLICADO
     // ======================================================
 
     $sql = "
         SELECT COUNT(*)
-        FROM ciudades
-        WHERE id_departamento = ?
+        FROM departamentos
+        WHERE id_pais = ?
         AND nombre = ?
+        AND id_departamento <> ?
     ";
 
     $stmt = $conexion->prepare($sql);
 
     $stmt->execute([
-        $id_departamento,
-        $nombre
+        $id_pais,
+        $nombre,
+        $id_departamento
     ]);
 
 
     if ($stmt->fetchColumn() > 0) {
 
         throw new Exception(
-            "Esa ciudad ya existe para el departamento seleccionado."
+            "Ya existe otro departamento con ese nombre para este país."
         );
 
     }
 
 
     // ======================================================
-    // INSERTAR CIUDAD
+    // ACTUALIZAR
     // ======================================================
 
     $sql = "
-        INSERT INTO ciudades (
-            id_departamento,
-            nombre,
-            codigo_dane,
-            Activo
-        )
-        VALUES (
-            ?,
-            ?,
-            ?,
-            ?
-        )
+        UPDATE departamentos
+        SET
+            nombre = ?,
+            codigo = ?,
+            Activo = ?
+        WHERE id_departamento = ?
     ";
 
     $stmt = $conexion->prepare($sql);
 
     $stmt->execute([
 
-        $id_departamento,
-
         $nombre,
 
-        $codigo_dane !== ""
-            ? $codigo_dane
+        $codigo !== ""
+            ? $codigo
             : null,
 
-        $activo
+        $activo,
+
+        $id_departamento
 
     ]);
 
 
     // ======================================================
-    // ÉXITO
+    // MENSAJE DE ÉXITO
     // ======================================================
 
     $mensaje = urlencode(
-        "La ciudad fue registrada correctamente."
+        "El departamento fue actualizado correctamente."
     );
 
     header(
-        "Location: " .
-        $paginaRetorno .
+        "Location: ../configuracion/tablas_maestras.php" .
         "?tipo=success&texto=" .
         $mensaje
     );
@@ -207,8 +194,7 @@ try {
     );
 
     header(
-        "Location: " .
-        $paginaRetorno .
+        "Location: ../configuracion/tablas_maestras.php" .
         "?tipo=error&texto=" .
         $mensaje
     );

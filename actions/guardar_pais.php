@@ -1,64 +1,184 @@
 <?php
 
-require_once "../config/conexion.php";
+require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/config/conexion.php";
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    // Obtener el nombre del país
-    $nombre = trim($_POST["nombreP"]);
-    $id_pais = isset($_POST["codigoP"]) ? trim($_POST["codigoP"]) : null;
+// ==========================================================
+// VALIDAR MÉTODO
+// ==========================================================
 
-    // Validar que no esté vacío
-    if ($nombre == "") {
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
-        $mensaje = urlencode("Debe ingresar el nombre del país.");
+    header(
+        "Location: ../configuracion/basico.php"
+    );
 
-        header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
-        exit;
-    }
+    exit;
+}
 
-    try {
 
-        // Verificar si el país ya existe
-        $sql = "SELECT COUNT(*) FROM paises WHERE nombre = :nombre";
-        $stmt = $conexion->prepare($sql);
-        $stmt->bindParam(":nombre", $nombre, PDO::PARAM_STR);
-        $stmt->execute();
+// ==========================================================
+// DETERMINAR ORIGEN
+// ==========================================================
 
-        if ($stmt->fetchColumn() > 0) {
+$origen = $_POST["origen"] ?? "basico";
 
-            $mensaje = urlencode("El país ya se encuentra registrado.");
 
-            header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
-            exit;
-        }
+// ==========================================================
+// DETERMINAR DATOS SEGÚN EL FORMULARIO
+// ==========================================================
 
-        // Insertar el nuevo país
-        $sql = "INSERT INTO paises (nombre, id_pais) VALUES (:nombre, :id_pais)";
-        $stmt = $conexion->prepare($sql);
-        $stmt->bindParam(":nombre", $nombre, PDO::PARAM_STR);
-        $stmt->bindParam(":id_pais", $id_pais, PDO::PARAM_STR);
-        $stmt->execute();
+if ($origen === "tablas_maestras") {
 
-        $mensaje = urlencode("El país fue registrado correctamente.");
+    // Formulario de Tablas Maestras
 
-        header("Location: ../configuracion/basico.php?tipo=success&texto=$mensaje");
-        exit;
+    $nombre = trim(
+        $_POST["nombre"] ?? ""
+    );
 
-    } catch (PDOException $e) {
-
-        $mensaje = urlencode("Error al guardar el país: " . $e->getMessage());
-
-        header("Location: ../configuracion/basico.php?tipo=error&texto=$mensaje");
-        exit;
-
-    }
+    $activo = isset($_POST["estado"])
+        ? (int) $_POST["estado"]
+        : 1;
 
 } else {
 
-    // Si alguien intenta acceder directamente al archivo
-    $mensaje = urlencode("Acceso no permitido.");
+    // Formulario antiguo de basico.php
 
-    header("Location: ../configuracion/basico.php?tipo=error&texto=$mensaje");
+    $nombre = trim(
+        $_POST["nombreP"] ?? ""
+    );
+
+    $activo = 1;
+}
+
+
+// ==========================================================
+// DEFINIR PÁGINA DE RETORNO
+// ==========================================================
+
+if ($origen === "tablas_maestras") {
+
+    $paginaRetorno =
+        "../configuracion/tablas_maestras.php";
+
+} else {
+
+    $paginaRetorno =
+        "../configuracion/basico.php";
+}
+
+
+// ==========================================================
+// VALIDAR NOMBRE
+// ==========================================================
+
+if ($nombre === "") {
+
+    $mensaje = urlencode(
+        "Debe ingresar el nombre del país."
+    );
+
+    header(
+        "Location: " .
+        $paginaRetorno .
+        "?tipo=warning&texto=" .
+        $mensaje
+    );
+
+    exit;
+}
+
+
+try {
+
+    // ======================================================
+    // VERIFICAR SI EL PAÍS YA EXISTE
+    // ======================================================
+
+    $sql = "
+        SELECT COUNT(*)
+        FROM paises
+        WHERE nombre = ?
+    ";
+
+    $stmt = $conexion->prepare($sql);
+
+    $stmt->execute([
+        $nombre
+    ]);
+
+    if ($stmt->fetchColumn() > 0) {
+
+        $mensaje = urlencode(
+            "El país ya se encuentra registrado."
+        );
+
+        header(
+            "Location: " .
+            $paginaRetorno .
+            "?tipo=warning&texto=" .
+            $mensaje
+        );
+
+        exit;
+    }
+
+
+    // ======================================================
+    // INSERTAR PAÍS
+    // ======================================================
+
+    $sql = "
+        INSERT INTO paises (
+            nombre,
+            Activo
+        )
+        VALUES (
+            ?,
+            ?
+        )
+    ";
+
+    $stmt = $conexion->prepare($sql);
+
+    $stmt->execute([
+        $nombre,
+        $activo
+    ]);
+
+
+    // ======================================================
+    // MENSAJE DE ÉXITO
+    // ======================================================
+
+    $mensaje = urlencode(
+        "El país fue registrado correctamente."
+    );
+
+    header(
+        "Location: " .
+        $paginaRetorno .
+        "?tipo=success&texto=" .
+        $mensaje
+    );
+
+    exit;
+
+
+} catch (PDOException $e) {
+
+    $mensaje = urlencode(
+        "Error al guardar el país: " .
+        $e->getMessage()
+    );
+
+    header(
+        "Location: " .
+        $paginaRetorno .
+        "?tipo=error&texto=" .
+        $mensaje
+    );
+
     exit;
 }

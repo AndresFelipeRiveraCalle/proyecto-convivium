@@ -1,86 +1,208 @@
 <?php
 
-require_once "../config/conexion.php";
+require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/config/conexion.php";
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    // Obtener datos del formulario
-    $idPais = isset($_POST["id_pais"]) ? intval($_POST["id_pais"]) : 0;
-    $nombre = trim($_POST["nombreD"]);
-    $codigo = isset($_POST["codigo"]) ? trim($_POST["codigo"]) : null;
+// ==========================================================
+// VALIDAR MÉTODO
+// ==========================================================
 
-    // Validar país
-    if ($idPais <= 0) {
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
-        $mensaje = urlencode("Debe seleccionar un país.");
+    header(
+        "Location: ../configuracion/tablas_maestras.php"
+    );
 
-        header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
-        exit;
+    exit;
+}
+
+
+// ==========================================================
+// DATOS DEL FORMULARIO
+// ==========================================================
+
+$origen = $_POST["origen"] ?? "tablas_maestras";
+
+$id_pais = (int) (
+    $_POST["id_pais"] ?? 0
+);
+
+$nombre = trim(
+    $_POST["nombre"] ?? ""
+);
+
+$codigo = trim(
+    $_POST["codigo"] ?? ""
+);
+
+$activo = isset($_POST["estado"])
+    ? (int) $_POST["estado"]
+    : 1;
+
+
+// ==========================================================
+// PÁGINA DE RETORNO
+// ==========================================================
+
+$paginaRetorno =
+    "../configuracion/tablas_maestras.php";
+
+
+// ==========================================================
+// VALIDAR PAÍS
+// ==========================================================
+
+if ($id_pais <= 0) {
+
+    $mensaje = urlencode(
+        "Debe seleccionar un país."
+    );
+
+    header(
+        "Location: " .
+        $paginaRetorno .
+        "?tipo=warning&texto=" .
+        $mensaje
+    );
+
+    exit;
+}
+
+
+// ==========================================================
+// VALIDAR NOMBRE
+// ==========================================================
+
+if ($nombre === "") {
+
+    $mensaje = urlencode(
+        "Debe ingresar el nombre del departamento."
+    );
+
+    header(
+        "Location: " .
+        $paginaRetorno .
+        "?tipo=warning&texto=" .
+        $mensaje
+    );
+
+    exit;
+}
+
+
+try {
+
+    // ======================================================
+    // VERIFICAR QUE EL PAÍS EXISTA Y ESTÉ ACTIVO
+    // ======================================================
+
+    $sql = "
+        SELECT COUNT(*)
+        FROM paises
+        WHERE id_pais = ?
+        AND Activo = 1
+    ";
+
+    $stmt = $conexion->prepare($sql);
+
+    $stmt->execute([
+        $id_pais
+    ]);
+
+    if ($stmt->fetchColumn() == 0) {
+
+        throw new Exception(
+            "El país seleccionado no existe o está inactivo."
+        );
     }
 
-    // Validar nombre
-    if ($nombre == "") {
 
-        $mensaje = urlencode("Debe ingresar el nombre del departamento.");
+    // ======================================================
+    // VERIFICAR DEPARTAMENTO DUPLICADO
+    // ======================================================
 
-        header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
-        exit;
+    $sql = "
+        SELECT COUNT(*)
+        FROM departamentos
+        WHERE id_pais = ?
+        AND nombre = ?
+    ";
+
+    $stmt = $conexion->prepare($sql);
+
+    $stmt->execute([
+        $id_pais,
+        $nombre
+    ]);
+
+    if ($stmt->fetchColumn() > 0) {
+
+        throw new Exception(
+            "Ese departamento ya existe para el país seleccionado."
+        );
     }
 
-    try {
 
-        // Verificar si ya existe ese departamento para el país
-        $sql = "SELECT COUNT(*)
-                FROM departamentos
-                WHERE id_pais = :id_pais
-                  AND nombre = :nombre";
+    // ======================================================
+    // INSERTAR DEPARTAMENTO
+    // ======================================================
 
-        $stmt = $conexion->prepare($sql);
+    $sql = "
+        INSERT INTO departamentos (
+            id_pais,
+            nombre,
+            codigo,
+            Activo
+        )
+        VALUES (
+            ?,
+            ?,
+            ?,
+            ?
+        )
+    ";
 
-        $stmt->bindParam(":id_pais", $idPais, PDO::PARAM_INT);
-        $stmt->bindParam(":nombre", $nombre, PDO::PARAM_STR);
+    $stmt = $conexion->prepare($sql);
 
-        $stmt->execute();
+    $stmt->execute([
+        $id_pais,
+        $nombre,
+        $codigo !== "" ? $codigo : null,
+        $activo
+    ]);
 
-        if ($stmt->fetchColumn() > 0) {
 
-            $mensaje = urlencode("El departamento ya se encuentra registrado para ese país.");
+    // ======================================================
+    // MENSAJE DE ÉXITO
+    // ======================================================
 
-            header("Location: ../configuracion/basico.php?tipo=warning&texto=$mensaje");
-            exit;
-        }
+    $mensaje = urlencode(
+        "El departamento fue registrado correctamente."
+    );
 
-        // Insertar departamento
-        $sql = "INSERT INTO departamentos
-                    (id_pais, nombre, codigo)
-                VALUES
-                    (:id_pais, :nombre, :codigo)";
+    header(
+        "Location: " .
+        $paginaRetorno .
+        "?tipo=success&texto=" .
+        $mensaje
+    );
 
-        $stmt = $conexion->prepare($sql);
+    exit;
 
-        $stmt->bindParam(":id_pais", $idPais, PDO::PARAM_INT);
-        $stmt->bindParam(":nombre", $nombre, PDO::PARAM_STR);
-        $stmt->bindParam(":codigo", $codigo, PDO::PARAM_STR);
 
-        $stmt->execute();
+} catch (Exception $e) {
 
-        $mensaje = urlencode("El departamento fue registrado correctamente.");
+    $mensaje = urlencode(
+        $e->getMessage()
+    );
 
-        header("Location: ../configuracion/basico.php?tipo=success&texto=$mensaje");
-        exit;
+    header(
+        "Location: " .
+        $paginaRetorno .
+        "?tipo=error&texto=" .
+        $mensaje
+    );
 
-    } catch (PDOException $e) {
-
-        $mensaje = urlencode("Error al guardar el departamento.");
-
-        header("Location: ../configuracion/basico.php?tipo=error&texto=$mensaje");
-        exit;
-    }
-
-} else {
-
-    $mensaje = urlencode("Acceso no permitido.");
-
-    header("Location: ../configuracion/basico.php?tipo=error&texto=$mensaje");
     exit;
 }

@@ -19,11 +19,11 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 
 // ==========================================================
-// DATOS DEL FORMULARIO
+// DATOS
 // ==========================================================
 
-$id_departamento = (int) (
-    $_POST["id_departamento"] ?? 0
+$id_ciudad = (int) (
+    $_POST["id_ciudad"] ?? 0
 );
 
 $nombre = trim(
@@ -40,27 +40,18 @@ $activo = isset($_POST["estado"])
 
 
 // ==========================================================
-// PÁGINA DE RETORNO
+// VALIDAR ID
 // ==========================================================
 
-$paginaRetorno =
-    "../configuracion/tablas_maestras.php";
-
-
-// ==========================================================
-// VALIDAR DEPARTAMENTO
-// ==========================================================
-
-if ($id_departamento <= 0) {
+if ($id_ciudad <= 0) {
 
     $mensaje = urlencode(
-        "Debe seleccionar un departamento."
+        "Ciudad no válida."
     );
 
     header(
-        "Location: " .
-        $paginaRetorno .
-        "?tipo=warning&texto=" .
+        "Location: ../configuracion/tablas_maestras.php" .
+        "?tipo=error&texto=" .
         $mensaje
     );
 
@@ -79,8 +70,7 @@ if ($nombre === "") {
     );
 
     header(
-        "Location: " .
-        $paginaRetorno .
+        "Location: ../configuracion/tablas_maestras.php" .
         "?tipo=warning&texto=" .
         $mensaje
     );
@@ -92,27 +82,30 @@ if ($nombre === "") {
 try {
 
     // ======================================================
-    // VERIFICAR DEPARTAMENTO
+    // OBTENER DEPARTAMENTO ACTUAL
     // ======================================================
 
     $sql = "
-        SELECT COUNT(*)
-        FROM departamentos
-        WHERE id_departamento = ?
-        AND Activo = 1
+        SELECT id_departamento
+        FROM ciudades
+        WHERE id_ciudad = ?
+        LIMIT 1
     ";
 
     $stmt = $conexion->prepare($sql);
 
     $stmt->execute([
-        $id_departamento
+        $id_ciudad
     ]);
 
+    $id_departamento =
+        $stmt->fetchColumn();
 
-    if ($stmt->fetchColumn() == 0) {
+
+    if (!$id_departamento) {
 
         throw new Exception(
-            "El departamento seleccionado no existe o está inactivo."
+            "La ciudad no existe."
         );
 
     }
@@ -127,49 +120,43 @@ try {
         FROM ciudades
         WHERE id_departamento = ?
         AND nombre = ?
+        AND id_ciudad <> ?
     ";
 
     $stmt = $conexion->prepare($sql);
 
     $stmt->execute([
         $id_departamento,
-        $nombre
+        $nombre,
+        $id_ciudad
     ]);
 
 
     if ($stmt->fetchColumn() > 0) {
 
         throw new Exception(
-            "Esa ciudad ya existe para el departamento seleccionado."
+            "Ya existe otra ciudad con ese nombre para este departamento."
         );
 
     }
 
 
     // ======================================================
-    // INSERTAR CIUDAD
+    // ACTUALIZAR
     // ======================================================
 
     $sql = "
-        INSERT INTO ciudades (
-            id_departamento,
-            nombre,
-            codigo_dane,
-            Activo
-        )
-        VALUES (
-            ?,
-            ?,
-            ?,
-            ?
-        )
+        UPDATE ciudades
+        SET
+            nombre = ?,
+            codigo_dane = ?,
+            Activo = ?
+        WHERE id_ciudad = ?
     ";
 
     $stmt = $conexion->prepare($sql);
 
     $stmt->execute([
-
-        $id_departamento,
 
         $nombre,
 
@@ -177,7 +164,9 @@ try {
             ? $codigo_dane
             : null,
 
-        $activo
+        $activo,
+
+        $id_ciudad
 
     ]);
 
@@ -187,12 +176,11 @@ try {
     // ======================================================
 
     $mensaje = urlencode(
-        "La ciudad fue registrada correctamente."
+        "La ciudad fue actualizada correctamente."
     );
 
     header(
-        "Location: " .
-        $paginaRetorno .
+        "Location: ../configuracion/tablas_maestras.php" .
         "?tipo=success&texto=" .
         $mensaje
     );
@@ -207,8 +195,7 @@ try {
     );
 
     header(
-        "Location: " .
-        $paginaRetorno .
+        "Location: ../configuracion/tablas_maestras.php" .
         "?tipo=error&texto=" .
         $mensaje
     );
