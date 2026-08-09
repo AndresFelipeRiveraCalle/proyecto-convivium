@@ -593,6 +593,7 @@ body {
 table {
     width: 100%;
     border-collapse: collapse;
+    
 }
 
 thead {
@@ -601,9 +602,10 @@ thead {
 
 thead th {
     color: white;
-    padding: 12px;
+    padding: 15px;
     text-align: center;
     font-size: 14px;
+    border-radius: 5px;
 }
 
 tbody tr {
@@ -615,7 +617,7 @@ tbody tr:hover {
 }
 
 tbody td {
-    padding: 10px;
+    
     text-align: center;
 }
 

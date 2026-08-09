@@ -36,14 +36,20 @@
                         </li>
 
                         <li>
-                            <a href="#">
+                            <a href="<?= BASE_URL ?>configuracion/personas.php">
                                 Personas
                             </a>
                         </li>
 
                         <li>
-                            <a href="#">
+                            <a href="<?= BASE_URL ?>configuracion/usuarios.php">
                                 Usuarios
+                            </a>
+                        </li>
+                        
+                        <li>
+                            <a href="<?= BASE_URL ?>configuracion/tablas_maestras.php">
+                                Tablas Maestras
                             </a>
                         </li>
                     </ul>
