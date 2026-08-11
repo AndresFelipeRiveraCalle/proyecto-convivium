@@ -171,6 +171,24 @@ function actualizarHorarios() {
     });
 }
 
+// Obtener el formulario mediante el id
+const formularioZona = document.getElementById('form-zona');
+
+// Capturar el evento click del botón registrar zona del formulario
+formularioZona.addEventListener('submit', (evento) => {
+
+     // Verificar que exista al menos un horario configurado
+    if (horariosAgregados.length === 0) {
+
+        // Evitar que el formulario se envíe
+        evento.preventDefault();
+
+        alert('Debe agregar al menos un horario para registrar la zona.');
+
+        return;
+    }
+});
+
 // Escuchar el evento click del botón
 btnAgregarHorario.addEventListener('click', () => {
 
