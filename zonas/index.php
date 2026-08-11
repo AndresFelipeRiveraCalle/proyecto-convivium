@@ -123,7 +123,7 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
 
                 <h2>Datos de la Zona</h2>
 
-                <form class="form-zona" action="<?= isset($id) ? 'actualizar.php' : 'guardar.php' ?>" method="POST">
+                <form id="form-zona" class="form-zona" action="<?= isset($id) ? 'actualizar.php' : 'guardar.php' ?>" method="POST">
                     <div class="form-row">
                         <?php if (isset($id)) { ?>
                             <input type="hidden" name="id" value="<?= htmlspecialchars($id) ?>">
