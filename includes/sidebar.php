@@ -1,165 +1,159 @@
-    <aside class="menu">
-        <nav>
-            <ul class="menu-principal">
-                <li>
-                    <a href="<?= BASE_URL ?>inicio.php">
-                        <span class="icono">🏠</span>
-                        Inicio
-                    </a>
-                </li>
+<aside class="menu">
+    <nav>
+        <ul class="menu-principal">
+            <li>
+                <a href="<?= BASE_URL ?>inicio.php">
+                    <i class="fa-solid fa-house icono"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
 
-                <!-- CONFIGURACIÓN -->
+            <!-- CONFIGURACIÓN -->
+            <li class="submenu">
+                <div class="submenu-titulo">
+                    <span><i class="fa-solid fa-gear icono"></i> Configuración</span>
+                    <i class="fa-solid fa-chevron-down flecha"></i>
+                </div>
 
-                <li class="submenu">
-                    <div class="submenu-titulo">
-                        <span>⚙ Configuración</span>
-                        <span class="flecha">▼</span>
-                    </div>
-
-                    <ul class="submenu-items">
-                        <li>
-                            <a href="<?= BASE_URL ?>configuracion/datos.php">
-                                Datos de la copropiedad
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="<?= BASE_URL ?>configuracion/basico.php">
-                                Tipos de unidades
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="<?= BASE_URL ?>configuracion/unidades.php">
+                <ul class="submenu-items">
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/datos.php">
+                            Datos de la copropiedad
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/basico.php">
+                            Tipos de unidades
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/unidades.php">
                             Unidades
                         </a>
-                        </li>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/personas.php">
+                            Personas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/usuarios.php">
+                            Usuarios
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/tablas_maestras.php">
+                            Tablas Maestras
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
-                        <li>
-                            <a href="<?= BASE_URL ?>configuracion/personas.php">
-                                Personas
-                            </a>
-                        </li>
-
-                        <li>
-                            <a href="<?= BASE_URL ?>configuracion/usuarios.php">
-                                Usuarios
-                            </a>
-                        </li>
-                        
-                        <li>
-                            <a href="<?= BASE_URL ?>configuracion/tablas_maestras.php">
-                                Tablas Maestras
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                <!-- CARTERA -->
-
-                <li class="submenu">
-                    <div class="submenu-titulo">
-                        <span>💰 Cartera </span>
-                        <span class="flecha">▼</span>
-                    </div>
-
-                    <ul class="submenu-items">
-                        <li><a href="#">Estado de cuenta</a></li>
-                        <li><a href="#">Pagos</a></li>
-                        <li><a href="#">Recaudos</a></li>
-                    </ul>
-                </li>
-
-                <!-- MANTENIMIENTO -->
-                <li class="submenu">
-                    <div class="submenu-titulo">
-                        <span>🔧 Mantenimiento</span>
-
-                        <span class="flecha">▼</span>
-                    </div>
-
-                    <ul class="submenu-items">
-                        <li><a href="#">Solicitudes</a></li>
-                        <li><a href="#">Programación</a></li>
-                        <li><a href="#">Proveedores</a></li>
-                    </ul>
-                </li>
-
-                <li>
-                    <a href="#">📦 Inventario</a>
-                </li>
-
-                <li>
-                    <a href="#">🚗 Vehículos</a>
-                </li>
-
-                <li>
-                    <a href="#">🐶 Mascotas</a>
-                </li>
-
-                <li>
-                    <a href="#">📄 Correspondencia</a>
-                </li>
-
-                <li>
-                    <a href="#">📅 Reservas</a>
-                </li>
-
-                <li>
-                    <a href="#">📢 Comunicados</a>
-                </li>
-
-                <li>
-                    <a href="#">📊 Reportes</a>
-                </li>
-                <li class="cerrar-sesion">
-
-                    <a href="<?= BASE_URL ?>logout.php">
-
-                    🚪 Cerrar sesión
-
-                    </a>
-
-                </li>
-            </ul>
-
-        </nav>
-
-        <div class="calendar">
-
-            <div class="calendar-header">
-                <div class="month-control">
-                    <span class="month-change" id="prev-month"><</span>
-                        <span class="month-picker" id="month-picker">
-                            Mayo
-                        </span>
-                    <span class="month-change" id="next-month">></span>
+            <!-- CARTERA -->
+            <li class="submenu">
+                <div class="submenu-titulo">
+                    <span><i class="fa-solid fa-wallet icono"></i> Cartera</span>
+                    <i class="fa-solid fa-chevron-down flecha"></i>
                 </div>
 
-                <div class="year-control">
-                    <span class="year-change" id="prev-year"><</span>
-                    <span id="year">2026</span>
-                    <span class="year-change" id="next-year">></span>
+                <ul class="submenu-items">
+                    <li><a href="#">Estado de cuenta</a></li>
+                    <li><a href="#">Pagos</a></li>
+                    <li><a href="#">Recaudos</a></li>
+                </ul>
+            </li>
+
+            <!-- MANTENIMIENTO -->
+            <li class="submenu">
+                <div class="submenu-titulo">
+                    <span><i class="fa-solid fa-screwdriver-wrench icono"></i> Mantenimiento</span>
+                    <i class="fa-solid fa-chevron-down flecha"></i>
                 </div>
+
+                <ul class="submenu-items">
+                    <li><a href="#">Solicitudes</a></li>
+                    <li><a href="#">Programación</a></li>
+                    <li><a href="#">Proveedores</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="#"><i class="fa-solid fa-boxes-stacked icono"></i> Inventario</a>
+            </li>
+
+            <li>
+                <a href="#"><i class="fa-solid fa-car icono"></i> Vehículos</a>
+            </li>
+
+            <li>
+                <a href="#"><i class="fa-solid fa-dog icono"></i> Mascotas</a>
+            </li>
+
+            <li>
+                <a href="#"><i class="fa-solid fa-envelope-open-text icono"></i> Correspondencia</a>
+            </li>
+
+            <li>
+                <a href="#"><i class="fa-solid fa-calendar-check icono"></i> Reservas</a>
+            </li>
+
+            <li>
+                <a href="#"><i class="fa-solid fa-bullhorn icono"></i> Comunicados</a>
+            </li>
+
+            <li>
+                <a href="#"><i class="fa-solid fa-chart-pie icono"></i> Reportes</a>
+            </li>
+
+            <li class="cerrar-sesion">
+                <a href="<?= BASE_URL ?>logout.php">
+                    <i class="fa-solid fa-right-from-bracket icono"></i>
+                    <span>Cerrar sesión</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- CALENDARIO -->
+    <div class="calendar">
+        <div class="calendar-header">
+            <div class="month-control">
+                <span class="month-change" id="prev-month">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </span>
+                <span class="month-picker" id="month-picker">Mayo</span>
+                <span class="month-change" id="next-month">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </span>
             </div>
 
-            <div class="calendar-body">
-                <div class="calendar-week-days">
-                    <div>Dom</div>
-                    <div>Lun</div>
-                    <div>Mar</div>
-                    <div>Mie</div>
-                    <div>Jue</div>
-                    <div>Vie</div>
-                    <div>Sab</div>
-                </div>
-                <div class="calendar-days"></div>
-            </div>
-
-            <div class="date-time-formate">
-                <div class="time-formate"></div>
-                <div class="date-formate"></div>
+            <div class="year-control">
+                <span class="year-change" id="prev-year">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </span>
+                <span id="year">2026</span>
+                <span class="year-change" id="next-year">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </span>
             </div>
         </div>
 
-    </aside>
+        <div class="calendar-body">
+            <div class="calendar-week-days">
+                <div>Dom</div>
+                <div>Lun</div>
+                <div>Mar</div>
+                <div>Mie</div>
+                <div>Jue</div>
+                <div>Vie</div>
+                <div>Sab</div>
+            </div>
+            <div class="calendar-days"></div>
+        </div>
+
+        <div class="date-time-formate">
+            <div class="time-formate"></div>
+            <div class="date-formate"></div>
+        </div>
+    </div>
+</aside>

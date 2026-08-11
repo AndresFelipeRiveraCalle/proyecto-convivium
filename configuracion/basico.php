@@ -182,7 +182,7 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                     <h4>Bloques de la copropiedad</h4>
                     <p>Configure las torres, bloques, manzanas, etapas u otras agrupaciones que conforman la copropiedad.</p>
 
-                    <button type="button" class="btn-primary" id="btnNuevaAgrupacion">
+                    <button type="button" class="btn-filtrar" id="btnNuevaAgrupacion">
                         + Nueva agrupación
                     </button>
                 </div>
@@ -279,7 +279,152 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                 <button type="submit" class="btn-filtrar">Guardar</button>
             </div>
         </main>
+        
     </div>
+
+    <!-- ==========================================================
+        MODAL NUEVA AGRUPACIÓN
+        ========================================================== -->
+    <div id="modalNuevaAgrupacion" class="modal">
+        <div class="modal-contenido">
+            <!-- ENCABEZADO -->
+            <div class="modal-header">
+                <h3>Nueva agrupación</h3>
+                <button type="button" class="modal-cerrar" id="cerrarModalAgrupacion">
+                    &times;
+                </button>
+            </div>
+
+            <!-- FORMULARIO -->
+            <form action="<?= BASE_URL ?>actions/guardar_agrupacion.php" method="POST" ">
+
+                <!-- TIPO DE AGRUPACIÓN -->
+                <div class="form-group">
+
+                    <label for="id_tipo_agrupacion">
+                        Tipo de agrupación
+                    </label>
+
+                    <select name="id_tipo_agrupacion" id="id_tipo_agrupacion" class="form-control" required>
+                        <option value="">
+                            Seleccione un tipo
+                        </option>
+                        <?php foreach ($tiposAgrupacion as $tipo): ?>
+                            <option
+                                value="<?= $tipo['id_tipo_agrupacion'] ?>">
+                                <?= htmlspecialchars($tipo['nombre']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- NOMBRE -->
+                <div class="form-group">
+                    <label for="nombre_agrupacion">
+                        Nombre
+                    </label>
+
+                    <input type="text" name="nombre" id="nombre_agrupacion" class="form-control" placeholder="Ej. Torre 1"
+                        maxlength="100" required>
+                </div>
+
+                <!-- DESCRIPCIÓN -->
+                <div class="form-group">
+                    <label for="descripcion_agrupacion">
+                        Descripción
+                    </label>
+
+                    <textarea name="descripcion" id="descripcion_agrupacion" class="form-control" rows="3"
+                        maxlength="255" placeholder="Descripción de la agrupación"></textarea>
+                </div>
+
+                <!-- BOTONES -->
+                <div class="form-actions">
+                    <button
+                        type="button" class="btn-limpiar" id="cancelarModalAgrupacion">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="btn-filtrar">
+                        Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+        <!-- ==========================================================
+            MODAL EDITAR AGRUPACIÓN
+            ========================================================== -->
+
+        <div id="modalEditarAgrupacion" class="modal">
+            <div class="modal-contenido">
+                <div class="modal-header">
+                    <h3>Editar agrupación</h3>
+                    <button type="button" class="modal-cerrar" id="cerrarModalEditarAgrupacion">
+                        &times;
+                    </button>
+                </div>
+
+                <form action="<?= BASE_URL ?>actions/editar_agrupacion.php" method="POST">
+                    
+                <!-- ID DE LA AGRUPACIÓN -->
+                    <input type="hidden" name="id_agrupacion" id="editar_id_agrupacion">
+
+                    <!-- TIPO DE AGRUPACIÓN -->
+                    <div class="form-group">
+                        <label for="editar_id_tipo_agrupacion">
+                            Tipo de agrupación
+                        </label>
+                        <select name="id_tipo_agrupacion" id="editar_id_tipo_agrupacion" class="form-control" required>
+                            <option value="">
+                                Seleccione un tipo
+                            </option>
+
+                            <?php foreach ($tiposAgrupacion as $tipo): ?>
+                                <option
+                                    value="<?= $tipo['id_tipo_agrupacion'] ?>">
+                                    <?= htmlspecialchars($tipo['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- NOMBRE -->
+                    <div class="form-group">
+                        <label for="editar_nombre_agrupacion">
+                            Nombre
+                        </label>
+
+                        <input type="text" name="nombre" id="editar_nombre_agrupacion" class="form-control"
+                            maxlength="100" required>
+                    </div>
+
+                    <!-- DESCRIPCIÓN -->
+                    <div class="form-group">
+                        <label for="editar_descripcion_agrupacion">
+                            Descripción
+                        </label>
+
+                        <textarea name="descripcion" id="editar_descripcion_agrupacion" class="form-control"
+                            rows="3"  maxlength="150"></textarea>
+                    </div>
+
+                    <!-- BOTONES -->
+                    <div class="form-actions">
+
+                        <button type="button" class="btn-limpiar" id="cancelarModalEditarAgrupacion">
+                            Cancelar
+                        </button>
+
+                        <button type="submit" class="btn-filtrar">
+                            Actualizar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
 
     <!-- ==========================================
@@ -348,7 +493,9 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
     </div>
-
+<script src="<?= BASE_URL ?>assets/js/modal_agrupacion.js"></script>
+<script src="<?= BASE_URL ?>assets/js/editar_agrupacion.js"></script>
 </body>
+
 
 </html>
