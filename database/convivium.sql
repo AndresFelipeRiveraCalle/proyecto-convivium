@@ -113,8 +113,21 @@ CREATE TABLE zona_comun (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL UNIQUE,
     descripcion TEXT,
-    capacidad INT,
-    horario_disponible VARCHAR(100)
+    capacidad INT
+);
+
+-- ======================
+-- HORARIO_ZONA
+-- ======================
+CREATE TABLE horario_zona (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_zona INT NOT NULL,
+    dia_semana TINYINT NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    CONSTRAINT fk_horario_zona FOREIGN KEY (id_zona) REFERENCES zona_comun(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT chk_dia_semana CHECK (dia_semana BETWEEN 1 AND 7),
+    CONSTRAINT chk_hora CHECK (hora_fin > hora_inicio)
 );
 
 -- ======================
