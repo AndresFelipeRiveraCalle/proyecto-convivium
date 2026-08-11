@@ -35,7 +35,7 @@ if (isset($_GET['tipo']) && !empty($_GET['tipo']) && isset($_GET['mensaje']) && 
 $nombre = '';
 $descripcion = '';
 $capacidad = '';
-$horario = '';
+$horario = [];
 
 if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
 
@@ -58,7 +58,17 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
             $nombre = $fila['nombre'];
             $descripcion = $fila['descripcion'];
             $capacidad = $fila['capacidad'];
-            $horario = $fila['horario_disponible'];
+
+            // Consultar los horarios de la zona a editar
+            $sql_horarios = 'SELECT id, dia_semana, hora_inicio, hora_fin
+                            FROM horario_zona
+                            WHERE id_zona = ?
+                            ORDER BY dia_semana, hora_inicio';
+
+            $stmt_horarios = $conexion->prepare($sql_horarios);
+            $stmt_horarios->execute([$id]);
+
+            $horarios = $stmt_horarios->fetchAll(PDO::FETCH_ASSOC);
         }
     } catch (PDOException $e) {
     }
@@ -148,16 +158,54 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                                 value="<?= htmlspecialchars($capacidad) ?>"
                                 required>
                         </div>
-                        <div class="form-group">
-                            <label for="horario">Horario Disponible</label>
-                            <input
-                                type="text"
-                                id="horario"
-                                name="horario"
-                                placeholder="Horario Disponible"
-                                value="<?= htmlspecialchars($horario) ?>"
-                                required>
+                    </div>
+
+                    <div class="disponibilidad">
+                        <h3>Días Disponibles</h3>
+
+                        <div class="dias-semana">
+                            <label>
+                                <input type="checkbox" name="dias[]" value="1">Lunes
+                            </label>
+                            <label>
+                                <input type="checkbox" name="dias[]" value="2">Martes
+                            </label>
+                            <label>
+                                <input type="checkbox" name="dias[]" value="3">Miércoles
+                            </label>
+                            <label>
+                                <input type="checkbox" name="dias[]" value="4">Jueves
+                            </label>
+                            <label>
+                                <input type="checkbox" name="dias[]" value="5">Viernes
+                            </label>
+                            <label>
+                                <input type="checkbox" name="dias[]" value="6">Sábado
+                            </label>
+                            <label>
+                                <input type="checkbox" name="dias[]" value="7">Domingo
+                            </label>
                         </div>
+
+                        <div class="horario-form">
+                            <div class="form-group">
+                                <label for="hora_inicio">Hora de inicio</label>
+                                <input type="time" id="hora_inicio" name="hora_inicio">
+                            </div>
+                            <div class="form-group">
+                                <label for="hora_fin">Hora de fin</label>
+                                <input type="time" id="hora_fin" name="hora_fin">
+                            </div>
+                        </div>
+
+                        <button type="button" id="btn-agregar-horario" class="btn btn-secundario">
+                            Agregar horario
+                        </button>
+
+                        <div id="horarios-configurados" class="horarios-configurados"> <!-- Mostrar visualmente los horarios al usuario -->
+                            <h3>Horarios Configurados</h3>
+                        </div>
+                        <div id="horarios-inputs"></div> <!-- Contener los Inputs hidden que posteriormente recibirá PHP -->
                     </div>
 
                     <div class="form-botones">
@@ -186,7 +234,6 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                             <th>Nombre</th>
                             <th>Descripción</th>
                             <th>Capacidad</th>
-                            <th>Horario Disponible</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -197,7 +244,6 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                                 <td><?= $fila['nombre'] ?></td>
                                 <td><?= $fila['descripcion'] ?></td>
                                 <td><?= $fila['capacidad'] ?></td>
-                                <td><?= $fila['horario_disponible'] ?></td>
                                 <td>
                                     <a href="index.php?id_editar=<?= $fila['id'] ?>" class="btn-tabla btn-editar">Editar</a>
                                     <a href="eliminar.php?id=<?= $fila['id'] ?>" class="btn-tabla btn-eliminar">Eliminar</a>
