@@ -140,6 +140,61 @@ h2 {
     gap: 20px;
 }
 
+/* DISPONIBILIDAD DE LA ZONA */
+.disponibilidad {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.disponibilidad h3 {
+    font-size: 18px;
+    color: #242424;
+    margin-bottom: 15px;
+}
+
+/* DÍAS DE LA SEMANA */
+.dias-semana {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.dias-semana label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fff;
+    transition: .3s;
+}
+
+.dias-semana label:hover {
+    border-color: #2ecc71;
+    background: #f0fff6;
+}
+
+.dias-semana input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: #2ecc71;
+}
+
+/* FORMULARIO DE HORARIO */
+.horario-form {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.horario-form .form-group {
+    min-width: 200px;
+}
+
 /* BOTONES DEL FORMULARIO */
 .btn {
     padding: 10px 20px;
@@ -169,6 +224,49 @@ h2 {
 .btn-cancelar:hover{
     background: #89918c;
     transform: translateY(-2px);
+}
+
+/* BOTÓN AGREGAR HORARIO */
+.btn-secundario {
+    background: #12304A;
+}
+
+.btn-secundario:hover {
+    background: #1b4a70;
+    transform: translateY(-2px);
+}
+
+/* HORARIOS CONFIGURADOS */
+.horarios-configurados {
+    margin-top: 25px;
+}
+
+.horario-visual {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    background: #f0f1f3;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.horario-visual button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    background: #e77676;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+    transition: .3s;
+}
+
+.horario-visual button:hover {
+    background: #e95454;
+    transform: translateY(-1px);
 }
 
 /* MENSAJES DE CONFIRMACIÓN (ÉXITO - ERROR)*/

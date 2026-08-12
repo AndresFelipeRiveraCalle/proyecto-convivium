@@ -84,6 +84,9 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zonas Comunes</title>
     <link rel="stylesheet" href="../assets/css/zonas.css">
+    <script>
+        const horariosExistentes = <?= json_encode($horarios ?? []) ?>;
+    </script>
     <script src="../assets/js/zonas.js" defer></script>
 </head>
 
@@ -203,7 +206,7 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                         </button>
 
                         <div id="horarios-configurados" class="horarios-configurados"> <!-- Mostrar visualmente los horarios al usuario -->
-                            <h3>Horarios Configurados</h3>
+                            <h3 id="titulo-horarios">Horarios Configurados</h3>
                         </div>
                         <div id="horarios-inputs"></div> <!-- Contener los Inputs hidden que posteriormente recibirá PHP -->
                     </div>

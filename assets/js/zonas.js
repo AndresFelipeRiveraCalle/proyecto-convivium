@@ -45,6 +45,12 @@ const btnAgregarHorario = document.querySelector('#btn-agregar-horario');
 // Contenedor donde se mostrarán visualmente los horarios configurados
 const horariosConfigurados = document.querySelector('#horarios-configurados');
 
+// Identificar el título de horarios configurados
+const tituloHorarios = document.querySelector('#titulo-horarios');
+
+// Ocultar inicialmente el título
+tituloHorarios.style.display = 'none';
+
 // Contenedor donde se almacenarán los inputs ocultos para PHP
 const horariosInputs = document.querySelector('#horarios-inputs');
 
@@ -71,6 +77,22 @@ const nombresDias = {
     7: 'Domingo'
 };
 
+// Cargar los horarios existentes cuando se está editando una zona
+if (typeof horariosExistentes !== 'undefined' && horariosExistentes.length > 0) {
+
+    horariosExistentes.forEach((horario) => {
+
+        horariosAgregados.push({
+            dia_semana: Number(horario.dia_semana),
+            hora_inicio: horario.hora_inicio.substring(0, 5),
+            hora_fin: horario.hora_fin.substring(0, 5)
+        });
+    });
+
+    // Mostrar los horarios existentes
+    actualizarHorarios();
+}
+
 // Función actualizarHorarios 
 // Toma lo que actualmente existe en horariosAgregados y reconstruir la parte visual y los input hidden.
 function actualizarHorarios() {
@@ -84,6 +106,13 @@ function actualizarHorarios() {
     
     // Eliminar los inputs ocultos anteriores
     horariosInputs.innerHTML = '';
+
+    // Mostrar u ocultar el título según existan horarios configurados
+    if (horariosAgregados.length === 0) {
+        tituloHorarios.style.display = 'none';
+    } else {
+        tituloHorarios.style.display = 'block';
+    }
 
     // Recorrer los horarios agregados
     horariosAgregados.forEach((horario, indice) => {
