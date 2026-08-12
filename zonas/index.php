@@ -163,8 +163,12 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                         </div>
                     </div>
 
-                    <div class="disponibilidad">
+                    <fieldset class="disponibilidad" id="seccion-horarios" disabled>
                         <h3>Días Disponibles</h3>
+
+                        <p id="mensaje-horarios" class="mensaje-horarios">
+                            Completa los datos de la zona para configurar los horarios.
+                        </p>
 
                         <div class="dias-semana">
                             <label>
@@ -209,7 +213,7 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                             <h3 id="titulo-horarios">Horarios Configurados</h3>
                         </div>
                         <div id="horarios-inputs"></div> <!-- Contener los Inputs hidden que posteriormente recibirá PHP -->
-                    </div>
+                    </fieldset>
 
                     <div class="form-botones">
                         <button type="submit" class="btn btn-principal">
@@ -227,6 +231,8 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                         <?= htmlspecialchars($mensaje) ?>
                     </div>
                 <?php } ?>
+
+                <hr class="separador-listado">
 
                 <h2>Listado de Zonas Comunes</h2>
 

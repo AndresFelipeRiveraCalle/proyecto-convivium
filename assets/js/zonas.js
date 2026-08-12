@@ -36,11 +36,68 @@ if (mensaje) {
 
         // Agregar la clase ocultar al elemento para que entre el CSS 
         mensaje.classList.add('ocultar');
+
+        // Esperar a que termine la transición de opacidad
+        setTimeout(() => {
+
+            // Eliminar completamente el mensaje del documento
+            mensaje.remove();
+
+        }, 500);
     }, 5000);
 }
 
 // Identificar el boton btn-agregar-horario
 const btnAgregarHorario = document.querySelector('#btn-agregar-horario');
+
+// Campos básicos de la zona
+const nombre = document.querySelector('#nombre');
+const descripcion = document.querySelector('#descripcion');
+const capacidad = document.querySelector('#capacidad');
+
+// Sección de horarios
+const seccionHorarios = document.querySelector('#seccion-horarios');
+const mensajeHorarios = document.querySelector('#mensaje-horarios');
+
+// console.log('Mensaje horarios:', mensajeHorarios);
+
+/* console.log('Nombre:', nombre);
+console.log('Descripción:', descripcion);
+console.log('Capacidad:', capacidad);
+console.log('Sección horarios:', seccionHorarios);*/
+
+// Determinar si los datos básicos están completos para habilitar o deshabilitar la zona de horarios disponibles
+function verificarDatosZona() {
+
+    // Obtener los valores actuales de los campos
+    const nombreCompleto = nombre.value.trim();
+    const descripcionCompleta = descripcion.value.trim();
+    const capacidadCompleta = capacidad.value.trim();
+
+    // Verificar que los tres campos tengan información
+    const datosCompletos =
+        nombreCompleto !== '' &&
+        descripcionCompleta !== '' &&
+        capacidadCompleta !== '';
+
+    // Habilitar o deshabilitar la sección de horarios
+    seccionHorarios.disabled = !datosCompletos;
+
+    // Mostrar u ocultar el mensaje informativo
+    if (datosCompletos) {
+        mensajeHorarios.style.display = 'none';
+    } else {
+        mensajeHorarios.style.display = 'block';
+    }
+}
+
+// Escuchar los cambios de los tres campos input
+nombre.addEventListener('input', verificarDatosZona);
+descripcion.addEventListener('input', verificarDatosZona);
+capacidad.addEventListener('input', verificarDatosZona);
+
+// Revisar si los datos de la zona están completos 
+verificarDatosZona();
 
 // Contenedor donde se mostrarán visualmente los horarios configurados
 const horariosConfigurados = document.querySelector('#horarios-configurados');
