@@ -1,51 +1,46 @@
-
 document.addEventListener("DOMContentLoaded", function () {
 
-    const modal = document.getElementById("modalEditarAgrupacion");
-    const cerrar = document.getElementById("cerrarModalEditarAgrupacion");
-    const cancelar = document.getElementById("cancelarModalEditarAgrupacion");
-
-
-    // ==========================================================
-    // BOTONES EDITAR
-    // ==========================================================
-
-    document.querySelectorAll(".btnEditarAgrupacion").forEach(function (boton) {
+    const botonesEditar = document.querySelectorAll(".btnEditarAgrupacion");
+        botonesEditar.forEach(function (boton) {
         boton.addEventListener("click", function () {
+
             const id = this.dataset.id;
 
-            // Consultar agrupación
-            fetch(
-                "<?= BASE_URL ?>actions/obtener_agrupacion.php?id=" + id
-            )
-                .then(response => response.json())
+            if (!id) {
+                console.error("No se encontró el ID de la agrupación.");
+                return;
+            }
 
+            fetch("../actions/obtener_agrupacion.php?id=" + id)
+                .then(response => {
+
+                    if (!response.ok) {
+                        throw new Error(
+                            "Error HTTP: " + response.status
+                        );
+                    }
+
+                    return response.json();
+                })
                 .then(data => {
+
                     if (data.error) {
                         alert(data.error);
                         return;
                     }
 
-                    // Cargar información
-                    document.getElementById("editar_id_agrupacion").value = data.id_agrupacion;
-                    document.getElementById("editar_id_tipo_agrupacion").value = data.id_tipo_agrupacion;
-                    document.getElementById("editar_nombre_agrupacion").value = data.nombre;
-                    document.getElementById("editar_descripcion_agrupacion").value = data.descripcion ?? "";
-
-                    // Abrir modal
-                    modal.style.display = "block";
-
+                    document.getElementById("editar_id_agrupacion").value =data.id_agrupacion;
+                    document.getElementById("editar_id_tipo_agrupacion").value =data.id_tipo_agrupacion;
+                    document.getElementById("editar_nombre").value =data.nombre;
+                    document.getElementById("editar_descripcion").value =data.descripcion ?? "";
+                    document.getElementById("modalEditarAgrupacion").style.display ="flex";
                 })
-
                 .catch(error => {
-                    console.error(error);
-                    alert(
-                        "No fue posible cargar la agrupación."
-                    );
+                    console.error("Error:", error);
                 });
         });
     });
-
+});
 
     // ==========================================================
     // CERRAR
@@ -74,4 +69,3 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-});

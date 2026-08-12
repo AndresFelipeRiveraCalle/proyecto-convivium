@@ -380,7 +380,20 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Cerrar
-    cerrar.addEventListener("click", function () {
+    // Opción A: Usando ?. (La forma más corta en JS moderno)
+document.getElementById('cerrarModalAgrupacion')?.addEventListener('click', function() {
+    // Código para cerrar el modal
+});
+
+// Opción B: Usando validación tradicional
+const btnCerrar = document.getElementById('cerrarModalAgrupacion');
+if (btnCerrar) {
+    btnCerrar.addEventListener('click', function() {
+        // Código para cerrar el modal
+    });
+}
+    
+    /*cerrar.addEventListener("click", function () {
         modal.style.display = "none";
     });
 
@@ -393,7 +406,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (event.target === modal) {
             modal.style.display = "none";
         }
-    });
+    });*/
 });
 
 

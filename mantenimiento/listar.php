@@ -26,8 +26,8 @@ $zonas = $conexion->query("SELECT id, nombre FROM zona_comun ORDER BY nombre ")-
 // consulta principal
 $sql = "SELECT m.*, 
                 z.nombre  AS nombre_zona,
-                u.nombre  AS nombre_usuario,
-                u.apellido AS apellido_usuario
+                u.nombres  AS nombre_usuario,
+                u.apellidos AS apellido_usuario
         FROM mantenimiento m
         LEFT JOIN zona_comun z ON m.zona_id = z.id
         LEFT JOIN usuario    u ON m.usuario_reporta_id = u.id
@@ -88,7 +88,6 @@ $mantenimientos = $stmt->fetchAll();
                 <a href="crear.php"  >
                     <h3>Crear nuevo mantenimiento</h3>
                 </a>
-
             </button>
             
 

@@ -71,7 +71,11 @@
                 </div>
 
                 <ul class="submenu-items">
-                    <li><a href="#">Solicitudes</a></li>
+                    <li>
+                        <a href="<?= BASE_URL ?>mantenimiento/listar.php">
+                        Solicitudes</a>
+                    </li>
+                        
                     <li><a href="#">Programación</a></li>
                     <li><a href="#">Proveedores</a></li>
                 </ul>

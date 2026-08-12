@@ -7,9 +7,11 @@ require_once ROOT_PATH . "/config/conexion.php";
 // TIPOS DE AGRUPACIÓN
 // ==========================================================
 
-$stmtTiposAgrupacion = $conexion->query(" SELECT  id_tipo_agrupacion, nombre
-    FROM tipos_agrupacion WHERE activo = 1 ORDER BY nombre ASC
-");
+$stmtTiposAgrupacion = $conexion->query(" SELECT id_tipo_agrupacion, nombre FROM tipos_agrupacion
+    WHERE activo = 1 ORDER BY nombre");
+
+$tiposAgrupacion = $stmtTiposAgrupacion->fetchAll(PDO::FETCH_ASSOC);
+
 
 $tiposAgrupacion = $stmtTiposAgrupacion->fetchAll(PDO::FETCH_ASSOC);
 
@@ -17,15 +19,38 @@ $tiposAgrupacion = $stmtTiposAgrupacion->fetchAll(PDO::FETCH_ASSOC);
 // AGRUPACIONES DE LA COPROPIEDAD
 // ==========================================================
 
-$stmtAgrupaciones = $conexion->query(" SELECT a.id_agrupacion, a.id_tipo_agrupacion, a.nombre, a.descripcion, a.activo, ta.nombre AS tipo_agrupacion
+$stmtAgrupaciones = $conexion->query(" SELECT a.id_agrupacion, a.nombre, a.descripcion, ta.nombre AS tipo_agrupacion
     FROM agrupaciones a
     INNER JOIN tipos_agrupacion ta ON ta.id_tipo_agrupacion = a.id_tipo_agrupacion
-    WHERE a.activo = 1
-    ORDER BY ta.nombre ASC, a.nombre ASC
-");
+    WHERE a.activo = 1 ORDER BY ta.nombre, a.nombre");
 
 $agrupaciones = $stmtAgrupaciones->fetchAll(PDO::FETCH_ASSOC);
 
+
+// ==========================================================
+// DISTRIBUCIÓN DE UNIDADES
+// ==========================================================
+
+$stmtDistribucion = $conexion->query("
+    SELECT
+        id_agrupacion,
+        id_tipo_config,
+        cantidad
+    FROM agrupacion_tipos_unidad
+    WHERE activo = 1
+");
+
+$distribuciones = $stmtDistribucion->fetchAll(PDO::FETCH_ASSOC);
+
+// ==========================================================
+// AGRUPACIONES DE DISTRIBUCIONES
+// ==========================================================
+
+$stmtDistribucion = $conexion->query(" SELECT atu.id_agrupacion_tipo, atu.id_agrupacion, atu.id_tipo_config, atu.cantidad
+    FROM agrupacion_tipos_unidad atu
+    WHERE atu.activo = 1");
+
+$distribuciones = $stmtDistribucion->fetchAll(PDO::FETCH_ASSOC);
 
 // ===========================================
 // GRUPO SELECCIONADO
@@ -72,6 +97,24 @@ foreach ($tiposVivienda as $tipo) {
     }
 }
 
+// ===========================================
+// SI NO HAY GRUPO SELECCIONADO, TOMAR EL PRIMERO
+// ===========================================
+
+$mapaDistribucion = [];
+
+foreach ($distribuciones as $distribucion) {
+
+    $idAgrupacion = $distribucion["id_agrupacion"];
+    $idTipoConfig = $distribucion["id_tipo_config"];
+
+    $mapaDistribucion[$idAgrupacion][$idTipoConfig] =
+        $distribucion["cantidad"];
+}
+
+
+
+
 $usos = $conexion->query("SELECT id_uso as id, nombre FROM usos_vivienda ORDER BY nombre");
 $usosVivienda = $usos->fetchAll(PDO::FETCH_ASSOC);
 
@@ -101,10 +144,7 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
         <p id="textoMensaje"></p>
         <br><br>
         <div class="acciones-modal">
-            <button
-                type="button"
-                id="btnCerrarMensaje"
-                class="btn-filtrar">
+            <button type="button" id="btnCerrarMensaje" class="btn-filtrar">
                 Aceptar
             </button>
         </div>
@@ -175,8 +215,69 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
 
+            <div class="bloque filtros">
+                <?php if ($grupoSeleccionado): ?>
+                    <!--h3>Distribución por agrupación</h3-->
+                    
+                    <div class="card">
+                        <h4>Configuración:
+                            <?= htmlspecialchars($grupoSeleccionado['nombre_grupo']) ?>
+                        </h4>
 
-            <h3>Configuración de agrupaciones</h3>
+                        <p> Tipo de unidad:
+                            <strong><?= htmlspecialchars($grupoSeleccionado['tipo']) ?></strong>
+                        </p>
+
+                        <p>Cantidad total configurada:
+                            <strong><?= (int)$grupoSeleccionado['cantidad_unidades'] ?></strong>
+                        </p>
+                    </div>
+                
+                <?php endif; ?>
+
+
+            
+                <div id="contenidoTipo" class="tab-content">
+
+                    <?php if ($grupoSeleccionado): ?>
+
+                        <h3><?= htmlspecialchars($grupoSeleccionado['nombre_grupo']) ?></h3>
+                        <form id="formTipoUnidad" action="../actions/guardar_tipo_unidad.php" method="POST">
+                            <input
+                                type="hidden" name="id_tipo_config" value="<?= $grupoSeleccionado['id_tipo_config'] ?>">
+                            <div class="bloque filtros">
+                                <div class="card">
+                                    <label>Cantidad de unidades</label>
+                                    <input type="number" name="cantidad_unidades" value="<?= $grupoSeleccionado['cantidad_unidades'] ?>">
+                                </div>
+
+                                <div class="card">
+                                    <label>Área total (m²)</label>
+                                    <input type="number" step="0.01" name="area_total" value="<?= $grupoSeleccionado['area_total'] ?>">
+                                </div>
+
+                                <div class="card">
+                                    <label>Coeficiente total</label>
+                                    <input type="number" step="0.00001" name="coeficiente_total" value="<?= $grupoSeleccionado['coeficiente_total'] ?>">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group textarea"  >
+                                <label>Observaciones</label>
+                                <textarea
+                                    name="observaciones" rows="2"><?= htmlspecialchars($grupoSeleccionado['observaciones']) ?></textarea>
+                            </div>
+                            
+                        </form>
+
+                    <?php endif; ?>
+                </div>
+                        <button type="submit" form="formTipoUnidad" class="btn-filtrar">
+                            Editar
+                        </button>
+            </div>
+
+            <!--h3>Configuración de agrupaciones</h3>
             <div class="bloque filtros">
                 <div class="form-card">
                     <h4>Bloques de la copropiedad</h4>
@@ -199,85 +300,38 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                     </thead>
 
                     <tbody>
-                        <?php if (!empty($agrupaciones)): ?>
-                            <?php foreach ($agrupaciones as $agrupacion): ?>
+                        <!?php if (!empty($agrupaciones)): ?>
+                            <!?php foreach ($agrupaciones as $agrupacion): ?>
                                 <tr>
-                                    <td> <?= htmlspecialchars($agrupacion['tipo_agrupacion']) ?> </td>
-                                    <td> <?= htmlspecialchars($agrupacion['nombre']) ?> </td>
-                                    <td> <?= htmlspecialchars($agrupacion['descripcion'] ?? '') ?></td>
+                                    <td> <!?= htmlspecialchars($agrupacion['tipo_agrupacion']) ?> </td>
+                                    <td> <!?= htmlspecialchars($agrupacion['nombre']) ?> </td>
+                                    <td> <!?= htmlspecialchars($agrupacion['descripcion'] ?? '') ?></td>
                                     <td>
                                         <button
                                             type="button"
                                             class="btn-secondary btnEditarAgrupacion"
-                                            data-id="<?= $agrupacion['id_agrupacion'] ?>">
+                                            data-id="<!?= $agrupacion['id_agrupacion'] ?>">
                                             ✏ Editar
                                         </button>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+                            <!?php endforeach; ?>
+                        <!?php else: ?>
                             <tr>
                                 <td colspan="4" style="text-align:center;">
                                     No hay agrupaciones configuradas.
                                 </td>
                             </tr>
-                        <?php endif; ?>
+                        <!?php endif; ?>
                     </tbody>
                 </table>
-            </div>
-
-            <div class="bloque filtros">
-                <div id="contenidoTipo" class="tab-content">
-
-                    <?php if ($grupoSeleccionado): ?>
-
-                        <h3><?= htmlspecialchars($grupoSeleccionado['nombre_grupo']) ?></h3>
-                        <form action="../actions/guardar_tipo_unidad.php" method="POST">
-                            <input
-                                type="hidden" name="id_tipo_config" value="<?= $grupoSeleccionado['id_tipo_config'] ?>">
-                            <div class="bloque filtros">
-                                <div class="form-group">
-                                    <label>Cantidad de unidades</label>
-                                    <input
-                                        type="number" name="cantidad_unidades" value="<?= $grupoSeleccionado['cantidad_unidades'] ?>">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Área total (m²)</label>
-                                    <input
-                                        type="number" step="0.01" name="area_total" value="<?= $grupoSeleccionado['area_total'] ?>">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Coeficiente total</label>
-                                    <input
-                                        type="number" step="0.00001" name="coeficiente_total" value="<?= $grupoSeleccionado['coeficiente_total'] ?>">
-                                </div>
-                            </div>
-                            <br>
-
-                            <div class="form-group textarea"  >
-                                <label>Observaciones</label>
-                                <textarea
-                                    name="observaciones" rows="4"><?= htmlspecialchars($grupoSeleccionado['observaciones']) ?></textarea>
-                            </div>
-                            <br>
-
-                            <button
-                                type="submit"
-                                class="btn-filtrar">
-                                Guardar configuración
-                            </button>
-                        </form>
-                    <?php endif; ?>
-                </div>
             </div>
 
 
             <div class="form-actions">
                 <button type="submit" class="btn-limpiar">Cancelar</button>
                 <button type="submit" class="btn-filtrar">Guardar</button>
-            </div>
+            </div-->
         </main>
         
     </div>
@@ -305,13 +359,14 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                         Tipo de agrupación
                     </label>
 
-                    <select name="id_tipo_agrupacion" id="id_tipo_agrupacion" class="form-control" required>
+                    <select
+                        name="id_tipo_agrupacion" id="editar_id_tipo_agrupacion" class="form-control" required>
                         <option value="">
                             Seleccione un tipo
                         </option>
                         <?php foreach ($tiposAgrupacion as $tipo): ?>
-                            <option
-                                value="<?= $tipo['id_tipo_agrupacion'] ?>">
+
+                            <option value="<?= $tipo['id_tipo_agrupacion'] ?>">
                                 <?= htmlspecialchars($tipo['nombre']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -334,8 +389,8 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                         Descripción
                     </label>
 
-                    <textarea name="descripcion" id="descripcion_agrupacion" class="form-control" rows="3"
-                        maxlength="255" placeholder="Descripción de la agrupación"></textarea>
+                    <textarea name="descripcion" id="descripcion_agrupacion" class="form-control" rows="2"
+                        maxlength="200" placeholder="Descripción de la agrupación"></textarea>
                 </div>
 
                 <!-- BOTONES -->
@@ -408,7 +463,7 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                         </label>
 
                         <textarea name="descripcion" id="editar_descripcion_agrupacion" class="form-control"
-                            rows="3"  maxlength="150"></textarea>
+                            rows="2"  maxlength="150"></textarea>
                     </div>
 
                     <!-- BOTONES -->
@@ -433,7 +488,14 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 
     <div id="modalGrupo" class="modal">
         <div class="modal-contenido">
-            <span id="cerrarGrupo" class="cerrar">&times;</span>
+            <div class="modal-header">
+                <h3>Editar agrupación</h3>
+                <button type="button"id="cerrarGrupo" class="modal-cerrar">
+                    &times;
+                </button>
+            </div>
+
+
             <h2>Nuevo grupo de unidades</h2>
             <br>
             <form action="../actions/guardar_grupo.php" method="POST">
@@ -477,7 +539,7 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 
                 <label>Observaciones</label>
                 <textarea
-                    name="observaciones" rows="3"></textarea>
+                    name="observaciones" rows="2"></textarea>
                 <br><br>
 
                 <button
@@ -494,8 +556,147 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 
     </div>
 <script src="<?= BASE_URL ?>assets/js/modal_agrupacion.js"></script>
+<script>
+    const BASE_URL = "<?= BASE_URL ?>";
+</script>
+
 <script src="<?= BASE_URL ?>assets/js/editar_agrupacion.js"></script>
+<script src="<?= BASE_URL ?>assets/js/distribucion_unidades.js"></script>
 </body>
 
+/*---------------------------------------------------
 
 </html>
+
+
+            <?php if ($grupoSeleccionado && !empty($agrupaciones)): ?>
+
+    <hr>
+
+    <h3>Distribución por agrupación</h3>
+
+    <div class="bloque filtros">
+
+        <div class="card">
+
+            <h4>
+                <?= htmlspecialchars($grupoSeleccionado['nombre_grupo']) ?>
+            </h4>
+
+            <p>
+                Cantidad disponible:
+                <strong id="cantidadConfigurada">
+                    <?= (int)$grupoSeleccionado['cantidad_unidades'] ?>
+                </strong>
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form
+        id="formDistribucion"
+        action="../actions/guardar_distribucion.php"
+        method="POST">
+
+        <input
+            type="hidden"
+            name="id_tipo_config"
+            value="<?= (int)$grupoSeleccionado['id_tipo_config'] ?>">
+
+
+        <div class="bloque">
+
+            <table class="tabla-datos">
+
+                <thead>
+                    <tr>
+                        <th>Agrupación</th>
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <?php foreach ($agrupaciones as $agrupacion): ?>
+
+                        <?php
+
+                        $cantidadAsignada =
+                            $mapaDistribucion[
+                                $agrupacion['id_agrupacion']
+                            ][
+                                $grupoSeleccionado['id_tipo_config']
+                            ] ?? 0;
+
+                        ?>
+
+                        <tr>
+
+                            <td>
+                                <?= htmlspecialchars($agrupacion['nombre']) ?>
+                            </td>
+
+                            <td>
+                                <?= htmlspecialchars($agrupacion['tipo_agrupacion']) ?>
+                            </td>
+
+                            <td>
+
+                                <input
+                                    type="number"
+                                    name="cantidad[<?= (int)$agrupacion['id_agrupacion'] ?>]"
+                                    value="<?= (int)$cantidadAsignada ?>"
+                                    min="0"
+                                    class="cantidad-distribucion">
+
+                            </td>
+
+                        </tr>
+
+                    <?php endforeach; ?>
+
+                </tbody>
+
+                <tfoot>
+
+                    <tr>
+
+                        <th colspan="2">
+                            Total asignado
+                        </th>
+
+                        <th>
+
+                            <span id="totalDistribuido">
+                                0
+                            </span>
+
+                        </th>
+
+                    </tr>
+
+                </tfoot>
+
+            </table>
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <button
+                type="submit"
+                class="btn-filtrar">
+
+                Guardar distribución
+
+            </button>
+
+        </div>
+
+    </form>
+
+<?php endif; ?>
