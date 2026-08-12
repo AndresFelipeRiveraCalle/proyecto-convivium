@@ -144,13 +144,21 @@ h2 {
 .disponibilidad {
     margin-top: 25px;
     padding-top: 20px;
-    border-top: 1px solid #ddd;
+    border: none;
 }
 
 .disponibilidad h3 {
-    font-size: 18px;
+    font-size: 16px;
     color: #242424;
     margin-bottom: 15px;
+}
+
+/* MENSAJE INFORMATIVO CONTENEDOR HORARIOS */
+.mensaje-horarios {
+    margin: 0 0 15px;
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
 }
 
 /* DÍAS DE LA SEMANA */
@@ -193,6 +201,13 @@ h2 {
 
 .horario-form .form-group {
     min-width: 200px;
+}
+
+.horario-form label {
+    font-weight: 600;
+    color: #242424;
+    display: block;
+    margin-bottom: 6px;
 }
 
 /* BOTONES DEL FORMULARIO */
@@ -291,6 +306,15 @@ h2 {
 
 .mensaje.ocultar {
     opacity: 0;
+    visibility: hidden;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.separador-listado {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 30px 0;
 }
 
 /* TABLA */
