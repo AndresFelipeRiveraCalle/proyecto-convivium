@@ -774,7 +774,7 @@ tbody td {
 }
 
 .form-group textarea {
-    min-height: 80px;
+    min-height: 50px;
     resize: vertical;
     border-radius: 15px;
 
@@ -872,7 +872,7 @@ tbody td {
 .tab-content {
 
     border: 1px solid #ddd;
-    padding: 25px;
+    padding: 5px;
     border-radius: 15px;
     background: white;
 
