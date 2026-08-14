@@ -4,7 +4,7 @@ require_once "../config/conexion.php";
 $stmtZonas    = $conexion->query("SELECT id, nombre FROM zona_comun ORDER BY nombre");
 $zonas        = $stmtZonas->fetchAll();
 
-$stmtUsuarios = $conexion->query("SELECT id, nombre, apellido FROM usuario ORDER BY nombre");
+$stmtUsuarios = $conexion->query("SELECT id, nombres, apellidos FROM usuario ORDER BY nombres");
 $usuarios     = $stmtUsuarios->fetchAll();
 ?>
 
@@ -12,6 +12,7 @@ $usuarios     = $stmtUsuarios->fetchAll();
 <html lang="es">
 
 <head>
+<<<<<<< HEAD
     <meta charset="UTF-8">
     <title>Crear mantenimiento</title>
     <link rel="stylesheet" href="../assets/css/style.css">
@@ -21,6 +22,14 @@ $usuarios     = $stmtUsuarios->fetchAll();
 
 <body>
     <?php include "../includes/sidebar.php"; ?>
+=======
+    <?php include ROOT_PATH . "includes/head.php"; ?>
+</head>
+
+<body>
+    <?php include ROOT_PATH . "/includes/header.php"; ?>
+    <?php require_once  ROOT_PATH . "/includes/mensajes.php"; ?>
+>>>>>>> main
 
     <main class="contenido">
         <h2 align="center">Crear nuevo mantenimiento</h2>

@@ -1,5 +1,6 @@
 <?php
-require_once "../config/conexion.php";
+require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/config/conexion.php";
 
 // todos los filtros
 $buscar    = isset($_GET["buscar"])    ? trim($_GET["buscar"])    : "";
@@ -25,8 +26,8 @@ $zonas = $conexion->query("SELECT id, nombre FROM zona_comun ORDER BY nombre ")-
 // consulta principal
 $sql = "SELECT m.*, 
                 z.nombre  AS nombre_zona,
-                u.nombre  AS nombre_usuario,
-                u.apellido AS apellido_usuario
+                u.nombres  AS nombre_usuario,
+                u.apellidos AS apellido_usuario
         FROM mantenimiento m
         LEFT JOIN zona_comun z ON m.zona_id = z.id
         LEFT JOIN usuario    u ON m.usuario_reporta_id = u.id
@@ -66,17 +67,24 @@ $mantenimientos = $stmt->fetchAll();
 <html lang="es">
 
 <head>
+<<<<<<< HEAD
     <meta charset="UTF-8">
     <title>Lista de mantenimientos</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <script src="../assets/js/calendar.js" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+=======
+    <?php include ROOT_PATH . "/includes/head.php"; ?>
+>>>>>>> main
 </head>
 
 <body>
+    <?php include ROOT_PATH . "/includes/header.php"; ?>
+    <?php require_once  ROOT_PATH . "/includes/mensajes.php"; ?>
 
-<?php include "../includes/sidebar.php"; ?>
-
+    <div class="contenedor">
+        <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
+        
         <!-- CONTENIDO -->
         <main class="contenido">
 
@@ -85,10 +93,9 @@ $mantenimientos = $stmt->fetchAll();
             <!-- BOTÓN NUEVO -->
             
             <button type="submit" class="btn-filtrar">
-                <a href="crear.php"  >
+                <a href="<?= BASE_URL ?>mantenimiento/crear.php">
                     <h3>Crear nuevo mantenimiento</h3>
                 </a>
-
             </button>
             
 
@@ -243,6 +250,7 @@ $mantenimientos = $stmt->fetchAll();
             </div>
 
         </main>
+    </div>
 </body>
 
 </html>
