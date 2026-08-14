@@ -11,36 +11,95 @@ $stmtTiposAgrupacion = $conexion->query(" SELECT id_tipo_agrupacion, nombre FROM
     WHERE activo = 1 ORDER BY nombre");
 
 $tiposAgrupacion = $stmtTiposAgrupacion->fetchAll(PDO::FETCH_ASSOC);
-
-
 $tiposAgrupacion = $stmtTiposAgrupacion->fetchAll(PDO::FETCH_ASSOC);
 
+
+// ===========================================
+// GRUPO SELECCIONADO
+// ===========================================
+
+$idGrupoSeleccionado = isset($_GET['id'])
+    ? intval($_GET['id'])
+    : 0;
+
+$idAgrupacionSeleccionada = isset($_GET['agrupacion'])
+? intval($_GET['agrupacion'])
+: 0;
 // ==========================================================
-// AGRUPACIONES DE LA COPROPIEDAD
+// AGRUPACIONES
 // ==========================================================
 
-$stmtAgrupaciones = $conexion->query(" SELECT a.id_agrupacion, a.nombre, a.descripcion, ta.nombre AS tipo_agrupacion
+$stmtAgrupaciones = $conexion->query(" SELECT  a.id_agrupacion,a.id_tipo_agrupacion,
+        a.nombre,a.descripcion, ta.nombre AS tipo_agrupacion
     FROM agrupaciones a
-    INNER JOIN tipos_agrupacion ta ON ta.id_tipo_agrupacion = a.id_tipo_agrupacion
-    WHERE a.activo = 1 ORDER BY ta.nombre, a.nombre");
+    INNER JOIN tipos_agrupacion ta  ON ta.id_tipo_agrupacion = a.id_tipo_agrupacion
+    WHERE a.activo = 1 ORDER BY a.nombre
+");
 
 $agrupaciones = $stmtAgrupaciones->fetchAll(PDO::FETCH_ASSOC);
 
+if ($idAgrupacionSeleccionada == 0 && !empty($agrupaciones)) {
+    $idAgrupacionSeleccionada = $agrupaciones[0]['id_agrupacion'];
+}
 
+$agrupacionSeleccionada = null;
+
+foreach ($agrupaciones as $agrupacion) {
+    if ($agrupacion['id_agrupacion'] == $idAgrupacionSeleccionada) {
+        $agrupacionSeleccionada = $agrupacion;
+        break;
+    }
+}
 // ==========================================================
 // DISTRIBUCIÓN DE UNIDADES
 // ==========================================================
 
-$stmtDistribucion = $conexion->query("
-    SELECT
-        id_agrupacion,
-        id_tipo_config,
-        cantidad
+$stmtDistribucion = $conexion->query(" SELECT id_agrupacion, id_tipo_config, cantidad
     FROM agrupacion_tipos_unidad
     WHERE activo = 1
 ");
 
 $distribuciones = $stmtDistribucion->fetchAll(PDO::FETCH_ASSOC);
+
+
+
+$tiposDeAgrupacion = [];
+
+if ($idAgrupacionSeleccionada > 0) {
+
+    $stmtTiposAgrupacion = $conexion->prepare("
+        SELECT
+            at.id_agrupacion_tipo,
+            at.id_tipo_config,
+            at.cantidad,
+
+            dt.nombre_grupo,
+            dt.cantidad_unidades,
+            dt.area_total,
+            dt.coeficiente_total,
+
+            tv.nombre AS tipo_vivienda
+
+        FROM agrupacion_tipos_unidad at
+
+        INNER JOIN detalle_tipos_unidad dt
+            ON dt.id_tipo_config = at.id_tipo_config
+
+        INNER JOIN tipos_vivienda tv
+            ON tv.id_tipo_vivienda = dt.id_tipo_vivienda
+
+        WHERE at.id_agrupacion = :id_agrupacion
+          AND at.activo = 1
+
+        ORDER BY dt.nombre_grupo
+    ");
+
+    $stmtTiposAgrupacion->execute([
+        ':id_agrupacion' => $idAgrupacionSeleccionada
+    ]);
+
+    $tiposDeAgrupacion = $stmtTiposAgrupacion->fetchAll(PDO::FETCH_ASSOC);
+}
 
 // ==========================================================
 // AGRUPACIONES DE DISTRIBUCIONES
@@ -52,13 +111,6 @@ $stmtDistribucion = $conexion->query(" SELECT atu.id_agrupacion_tipo, atu.id_agr
 
 $distribuciones = $stmtDistribucion->fetchAll(PDO::FETCH_ASSOC);
 
-// ===========================================
-// GRUPO SELECCIONADO
-// ===========================================
-
-$idGrupoSeleccionado = isset($_GET['id'])
-    ? intval($_GET['id'])
-    : 0;
 
 // ===========================================
 // CARGAR GRUPOS CONFIGURADOS
@@ -213,6 +265,14 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                         +
                     </button>
                 </div>
+            </div>  
+            <div class="form-actions">
+                <button
+                    type="button"
+                    class="btn-filtrar"
+                    id="btnAgregarTipoAgrupacion">
+                    + Agregar tipo de unidad
+                </button>
             </div>
 
             <div class="bloque filtros">
@@ -277,6 +337,8 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
                         </button>
             </div>
 
+
+            
             <!--h3>Configuración de agrupaciones</h3>
             <div class="bloque filtros">
                 <div class="form-card">
@@ -290,8 +352,112 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
             </div>
             <div class="bloque">
                 <table class="tabla">
-                    <thead>
-                        <tr>
+                    <thead><h3>Distribución por agrupación</h3-->
+
+            <div class="bloque filtros">
+
+                <div class="tabs-container">
+
+                    <?php foreach ($agrupaciones as $agrupacion): ?>
+
+                        <a
+                            href="basico.php?agrupacion=<?= $agrupacion['id_agrupacion'] ?>"
+                            class="tab-button
+                            <?= ($agrupacion['id_agrupacion'] == $idAgrupacionSeleccionada) ? 'active' : '' ?>">
+                            <?= htmlspecialchars($agrupacion['nombre']) ?>
+                        </a>
+
+                    <?php endforeach; ?>
+
+                    <button type="button" class="tab-button tab-add" id="btnNuevaAgrupacion">
+                        +
+                    </button>
+
+                </div>
+
+            </div>
+
+            <?php if ($agrupacionSeleccionada): ?>
+
+            <div class="bloque filtros">
+
+                <div class="card">
+
+                    <h3>
+                        <?= htmlspecialchars($agrupacionSeleccionada['nombre']) ?>
+                    </h3>
+
+                    <p>
+                        Tipo de agrupación:
+                        <strong>
+                            <?= htmlspecialchars($agrupacionSeleccionada['tipo_agrupacion']) ?>
+                        </strong>
+                    </p>
+
+                    <?php if (empty($tiposDeAgrupacion)): ?>
+
+                        <p>
+                            Esta agrupación todavía no tiene tipos de unidad configurados.
+                        </p>
+
+                    <?php else: ?>
+
+                        <table class="tabla">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Tipo de unidad</th>
+                                    <th>Total copropiedad</th>
+                                    <th>Área total</th>
+                                    <th>Coeficiente</th>
+                                    <th>Cantidad en agrupación</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                <?php foreach ($tiposDeAgrupacion as $tipo): ?>
+
+                                    <tr>
+
+                                        <td>
+                                            <?= htmlspecialchars($tipo['nombre_grupo']) ?>
+                                        </td>
+
+                                        <td>
+                                            <?= (int)$tipo['cantidad_unidades'] ?>
+                                        </td>
+
+                                        <td>
+                                            <?= number_format($tipo['area_total'], 2) ?> m²
+                                        </td>
+
+                                        <td>
+                                            <?= number_format($tipo['coeficiente_total'], 5) ?>
+                                        </td>
+
+                                        <td>
+                                            <?= (int)$tipo['cantidad'] ?>
+                                        </td>
+
+                                    </tr>
+
+                                <?php endforeach; ?>
+
+                            </tbody>
+
+                        </table>
+
+                    <?php endif; ?>
+
+                </div>
+
+            </div>
+
+        <?php endif; ?>
+                        <!--tr>
                             <th>Tipo</th>
                             <th>Nombre</th>
                             <th>Descripción</th>
@@ -555,18 +721,105 @@ $tiposUnidad = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
     </div>
+
+        <div id="modalTipoAgrupacion" class="modal">
+
+        <div class="modal-contenido">
+
+            <span class="cerrar" id="cerrarModalTipoAgrupacion">&times;</span>
+
+            <h2>Agregar tipo de unidad</h2>
+
+            <form
+                action="<?= BASE_URL ?>actions/guardar_agrupacion_tipo.php"
+                method="POST">
+
+                <input
+                    type="hidden"
+                    name="id_agrupacion"
+                    value="<?= (int)$idAgrupacionSeleccionada ?>">
+
+                <div class="form-group">
+
+                    <label for="id_tipo_config">
+                        Tipo de unidad
+                    </label>
+
+                    <select
+                        name="id_tipo_config"
+                        id="id_tipo_config"
+                        class="form-control"
+                        required>
+
+                        <option value="">
+                            Seleccione un tipo
+                        </option>
+
+                        <?php foreach ($tiposVivienda as $tipo): ?>
+
+                            <option value="<?= $tipo['id_tipo_config'] ?>">
+
+                                <?= htmlspecialchars($tipo['nombre_grupo']) ?>
+
+                                -
+                                <?= htmlspecialchars($tipo['tipo']) ?>
+
+                            </option>
+
+                        <?php endforeach; ?>
+
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="cantidad">
+                        Cantidad de unidades
+                    </label>
+
+                    <input
+                        type="number"
+                        name="cantidad"
+                        id="cantidad"
+                        min="1"
+                        required>
+
+                </div>
+
+                <div class="form-actions">
+
+                    <button
+                        type="button"
+                        class="btn-limpiar"
+                        id="cancelarModalTipoAgrupacion">
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn-filtrar">
+                        Guardar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
 <script src="<?= BASE_URL ?>assets/js/modal_agrupacion.js"></script>
-<script>
-    const BASE_URL = "<?= BASE_URL ?>";
-</script>
+<script> const BASE_URL = "<?= BASE_URL ?>";</script>
 
 <script src="<?= BASE_URL ?>assets/js/editar_agrupacion.js"></script>
 <script src="<?= BASE_URL ?>assets/js/distribucion_unidades.js"></script>
 </body>
 
+</html>
 /*---------------------------------------------------
 
-</html>
+
 
 
             <?php if ($grupoSeleccionado && !empty($agrupaciones)): ?>
