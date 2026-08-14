@@ -5,7 +5,6 @@ $user = "root";
 $pass = "";
 
 try {
-
     $dsn = "mysql:host=$host;dbname=$db;charset=utf8mb4";
 
     $options = [
