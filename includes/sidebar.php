@@ -76,7 +76,9 @@
                         Solicitudes</a>
                     </li>
                         
-                    <li><a href="#">Programación</a></li>
+                    <li><a href="<?= BASE_URL ?>mantenimiento/crear.php">
+                        Programación</a>
+                    </li>
                     <li><a href="#">Proveedores</a></li>
                 </ul>
             </li>

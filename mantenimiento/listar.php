@@ -85,7 +85,7 @@ $mantenimientos = $stmt->fetchAll();
             <!-- BOTÓN NUEVO -->
             
             <button type="submit" class="btn-filtrar">
-                <a href="crear.php"  >
+                <a href="<?= BASE_URL ?>mantenimiento/crear.php">
                     <h3>Crear nuevo mantenimiento</h3>
                 </a>
             </button>
