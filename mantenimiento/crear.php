@@ -12,7 +12,7 @@ $usuarios     = $stmtUsuarios->fetchAll();
 <html lang="es">
 
 <head>
-    <?php include ROOT_PATH . "includes/head.php"; ?>
+    <?php include ROOT_PATH . "/includes/head.php"; ?>
 </head>
 
 <body>

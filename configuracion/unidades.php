@@ -100,15 +100,21 @@ $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <td><?= htmlspecialchars($u['codigo']) ?></td>
                                     <td><?= htmlspecialchars($u['nombre']) ?></td>
                                     <td><?= htmlspecialchars($u['piso']) ?></td>
-                                    <td><?= htmlspecialchars($u['area']) ?></td>
-                                    <td><?= htmlspecialchars($u['coeficiente']) ?></td>
+                                    <td><?= htmlspecialchars($u['area'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($u['coeficiente'] ?? '') ?></td>
                                     <td><?= htmlspecialchars($u['estado']) ?></td>
-                                   <td>
+                                    <td>
                                         <button
                                             class="btn-secondary btnEditarUnidad"
                                             data-id="<?= $u['id_unidad'] ?>">
                                             ✏ Editar
                                         </button>
+
+                                        <a
+                                            href="personas_unidad.php?id_unidad=<?= $u['id_unidad'] ?>"
+                                            class="btn-secondary">
+                                            👥 Personas
+                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -136,7 +142,6 @@ $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <input
                         type="text" name="codigo" maxlength="20" required>
-
                     <br><br>
                     <label>Nombre</label>
 
@@ -170,14 +175,12 @@ $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="form-group">
                         <div>
                             <label>Área (m²)</label>
-                            <input
-                                type="number" name="area"  step="0.01" min="0">
+                            <input type="number" name="area"  step="0.01" min="0">
                         </div>
 
                         <div>
                             <label>Coeficiente</label>
-                            <input
-                                type="number" name="coeficiente" step="0.00001" min="0">
+                            <input type="number" name="coeficiente" step="0.00001" min="0">
                         </div>
 
                     </div>
@@ -185,8 +188,7 @@ $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <label>Observaciones</label>
                     <textarea
-                        name="observaciones" rows="4"></textarea>
-
+                        name="observaciones" rows="2"></textarea>
                     <br><br>
 
                     <button
