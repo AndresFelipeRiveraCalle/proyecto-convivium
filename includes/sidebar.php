@@ -32,7 +32,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="<?= BASE_URL ?>configuracion/personas.php">
+                        <a href="<?= BASE_URL ?>configuracion/personas_unidad.php">
                             Personas
                         </a>
                     </li>
