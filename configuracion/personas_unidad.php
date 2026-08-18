@@ -163,49 +163,43 @@ foreach ($personas as $persona) {
 
             <h2> Personas de la unidad</h2>
             <br>
-            <div class="form-grid-persona">
-                <div>
-                    <strong>Unidad</strong>
-                    <br>
+            <div class="bloque filtros">
+                <div class="tabs-container  ">
+                    <div class="tab-content">
+                        <strong>Unidad</strong>
+                        <br>
+                        <?= htmlspecialchars($unidad['codigo']) ?>
+                    </div>
 
-                    <?= htmlspecialchars(
-                        $unidad['codigo']
-                    ) ?>
-                </div>
+                    <div class="tab-content">
+                        <strong>Nombre</strong>
+                        <br>
 
-                <div>
-                    <strong>Nombre</strong>
-                    <br>
+                        <?= htmlspecialchars(
+                            $unidad['nombre'] ?? ''
+                        ) ?>
 
-                    <?= htmlspecialchars(
-                        $unidad['nombre'] ?? ''
-                    ) ?>
+                    </div>
 
-                </div>
+                    <div class="tab-content">
+                        <strong>Piso</strong>
+                        <br>
+                        <?= htmlspecialchars(
+                            $unidad['piso'] ?? ''
+                        ) ?>
 
+                    </div>
 
-                <div>
-                    <strong>Piso</strong>
-                    <br>
-                    <?= htmlspecialchars(
-                        $unidad['piso'] ?? ''
-                    ) ?>
-
-                </div>
-
-                <div>
-                    <strong>Área</strong>
-                    <br>
-                    <?= htmlspecialchars(
-                        $unidad['area'] ?? ''
-                    ) ?> m²
+                    <div class="tab-content">
+                        <strong>Área</strong>
+                        <br>
+                        <?= htmlspecialchars(
+                            $unidad['area'] ?? ''
+                        ) ?> m²
+                    </div>
                 </div>
             </div>
         </div>
-
-
-        <br>
-
 
         <!-- ==================================================
              PROPIETARIOS
@@ -232,7 +226,7 @@ foreach ($personas as $persona) {
                                 <th>Celular</th>
                                 <th>Factura</th>
                                 <th>Desde</th>
-                                <th></th>
+                                <th>Editar/Retirar</th>
                             </tr>
                         </thead>
 
@@ -315,9 +309,6 @@ foreach ($personas as $persona) {
             <?php endif; ?>
 
         </div>
-
-
-        <br>
 
 
         <!-- ==================================================
@@ -477,15 +468,12 @@ foreach ($personas as $persona) {
         </div>
 
 
-        <br>
-
-
         <!-- ==================================================
              RESIDENTES
         =================================================== -->
 
 
-            <h3>Residentes</h3>
+        <h3>Residentes</h3>
         <div class="bloque">
 
             <br>

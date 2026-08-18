@@ -44,6 +44,13 @@ try {
         $_POST["telefono_propiedad"] ?? ""
     );
 
+$id_tipo_copropiedad = !empty($_POST["tipo_copropiedad"])
+    ? (int) $_POST["tipo_copropiedad"]
+    : null;
+
+$cantidad_unidades = !empty($_POST["cantidad_unidades"])
+    ? (int) $_POST["cantidad_unidades"]
+    : null;
 
     // Ubicación
 
@@ -148,6 +155,28 @@ try {
         exit;
     }
 
+    if (!$id_tipo_copropiedad) {
+        $mensaje = urlencode(
+            "Debe seleccionar un tipo de copropiedad."
+        );
+        header(
+            "Location: ../configuracion/datos.php" .
+            "?tipo=warning&texto=" . $mensaje
+        );
+        exit;
+    }
+
+
+    if (!$cantidad_unidades || $cantidad_unidades < 1) {
+        $mensaje = urlencode(
+            "Debe ingresar una cantidad válida de unidades."
+        );
+        header(
+            "Location: ../configuracion/datos.php" .
+            "?tipo=warning&texto=" . $mensaje
+        );
+        exit;
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -186,11 +215,8 @@ try {
     */
 
     $logo = null;
-
     $reglamento = null;
-
     $manual = null;
-
     $versionActual = null;
 
 
@@ -442,6 +468,8 @@ try {
             id_ciudad,
             direccion,
             sector,
+            id_tipo_copropiedad,
+            cantidad_unidades,
             correo,
             telefono,
             logo,
@@ -461,6 +489,8 @@ try {
             :id_ciudad,
             :direccion,
             :sector,
+            :id_tipo_copropiedad,
+            :cantidad_unidades,
             :correo,
             :telefono,
             :logo,
@@ -506,6 +536,12 @@ try {
         ":sector" =>
             $sector,
 
+        ":id_tipo_copropiedad" =>
+            $id_tipo_copropiedad,
+
+        ":cantidad_unidades" =>
+            $cantidad_unidades,
+            
         ":correo" =>
             $correo,
 

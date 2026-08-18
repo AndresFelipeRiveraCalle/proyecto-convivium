@@ -4,7 +4,7 @@
 
 * {
     margin: 0;
-    padding: 0;
+    padding: 5;
     box-sizing: border-box;
 }
 
@@ -702,9 +702,13 @@ tbody td {
     border-collapse: collapse;
 }
 
-.tabla th,
-.tabla td {
+.tabla th{
     padding: 10px;
+    vertical-align: middle;
+}
+
+.tabla td {
+    padding: 2px;
     vertical-align: middle;
 }
 
@@ -942,7 +946,7 @@ tbody td {
 .tab-content {
 
     border: 1px solid #ddd;
-    padding: 5px;
+    padding: 10px;
     border-radius: 15px;
     background: white;
 

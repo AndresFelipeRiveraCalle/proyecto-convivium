@@ -6,47 +6,69 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!btnEditar) return;
 
+
+    // ==========================================================
+    // EDITAR DATOS DE LA COPROPIEDAD
+    // ==========================================================
+
     btnEditar.addEventListener("click", function () {
 
         // Habilitar inputs de texto
-        document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"]').forEach(function(campo){
+        document.querySelectorAll(
+            'input[type="text"], input[type="email"], input[type="tel"], input[type="number"]'
+        ).forEach(function (campo) {
+
             campo.removeAttribute("readonly");
+
         });
+
 
         // Habilitar archivos
-        document.querySelectorAll('input[type="file"]').forEach(function(campo){
+        document.querySelectorAll('input[type="file"]').forEach(function (campo) {
+
             campo.removeAttribute("disabled");
+
         });
+
 
         // Habilitar selects
-        document.querySelectorAll("select").forEach(function(campo){
+        document.querySelectorAll("select").forEach(function (campo) {
+
             campo.removeAttribute("disabled");
+
         });
 
+
         // Habilitar textarea
-        document.querySelectorAll("textarea").forEach(function(campo){
+        document.querySelectorAll("textarea").forEach(function (campo) {
+
             campo.removeAttribute("readonly");
+
         });
+
 
         // Cambiar botones
         btnEditar.style.display = "none";
+
         btnGuardar.style.display = "inline-block";
+
         btnCancelar.style.display = "inline-block";
-
-        // Mostrar modal de edición de unidad
-        document.querySelectorAll(".btnEditarUnidad").forEach(function(boton){
-            boton.addEventListener("click", function(){
-        document.getElementById("modalUnidad").style.display = "block";
-        });
-
-});
 
     });
 
+
+    // ==========================================================
+    // CANCELAR EDICIÓN
+    // ==========================================================
+
     if (btnCancelar) {
+
         btnCancelar.addEventListener("click", function () {
+
             location.reload();
+
         });
+
     }
 
 });

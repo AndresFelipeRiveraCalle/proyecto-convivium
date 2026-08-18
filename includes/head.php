@@ -10,5 +10,5 @@
     <script src="<?= BASE_URL ?>assets/js/sidebar.js?v=<?= time() ?>" defer></script>
     <script src="<?= BASE_URL ?>assets/js/modal_popup.js?v=<?= time() ?>" defer></script>
     <script src="<?= BASE_URL ?>assets/js/formulario.js?v=<?= time() ?>" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"> //iconos
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
