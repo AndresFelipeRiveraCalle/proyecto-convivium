@@ -42,23 +42,11 @@ $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     <div class="contenedor">
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-        <main>
+        <main class="contenido">
+        <h2 align="center">Unidades</h2>    
             <div class="acciones-superior">
-                <div>
-                    <h2>Unidades</h2>
-                    <?php
-                    foreach ($grupos as $g) {
-                        if ($g['id_tipo_config'] == $idGrupoSeleccionado) {
-                            echo "<small>Grupo: <strong>" . htmlspecialchars($g['nombre_grupo']) . "</strong></small>";
-                            break;
-                        }
-                    }
-                    ?>
-                </div>
-                <button
-                    type="button"
-                    class="btn-filtrar"
-                    id="btnNuevaUnidad">
+                
+                <button type="button" class="btn-filtrar btn-derecha" id="btnNuevaUnidad">
                     + Nueva unidad
                 </button>
             </div>
@@ -104,16 +92,14 @@ $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <td><?= htmlspecialchars($u['coeficiente'] ?? '') ?></td>
                                     <td><?= htmlspecialchars($u['estado']) ?></td>
                                     <td>
-                                        <button
-                                            class="btn-secondary btnEditarUnidad"
+                                        <button class="btn-secondary btnEditarUnidad"
                                             data-id="<?= $u['id_unidad'] ?>">
-                                            ✏ Editar
+                                            Editar
                                         </button>
 
-                                        <a
-                                            href="personas_unidad.php?id_unidad=<?= $u['id_unidad'] ?>"
+                                        <a href="personas_unidad.php?id_unidad=<?= $u['id_unidad'] ?>"
                                             class="btn-secondary">
-                                            👥 Personas
+                                            Residentes
                                         </a>
                                     </td>
                                 </tr>

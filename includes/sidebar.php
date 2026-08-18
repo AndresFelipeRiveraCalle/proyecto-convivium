@@ -31,11 +31,11 @@
                             Unidades
                         </a>
                     </li>
-                    <li>
+                    <!--li>
                         <a href="<?= BASE_URL ?>configuracion/personas_unidad.php">
                             Personas
                         </a>
-                    </li>
+                    </li-->
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/usuarios.php">
                             Usuarios
@@ -49,6 +49,18 @@
                 </ul>
             </li>
 
+            <!-- FACTURACIÓN -->
+            <li class="submenu">
+                <div class="submenu-titulo">
+                    <span><i class="fa-solid fa-wallet icono"></i> Facturación</span>
+                    <i class="fa-solid fa-chevron-down flecha"></i>
+                </div>
+
+                <ul class="submenu-items">
+                    <li><a href="#">Estado de cuenta</a></li>
+                </ul>
+            </li>
+
             <!-- CARTERA -->
             <li class="submenu">
                 <div class="submenu-titulo">
@@ -57,9 +69,8 @@
                 </div>
 
                 <ul class="submenu-items">
-                    <li><a href="#">Estado de cuenta</a></li>
-                    <li><a href="#">Pagos</a></li>
                     <li><a href="#">Recaudos</a></li>
+                    <li><a href="#">Saldos pendientes</a></li>
                 </ul>
             </li>
 

@@ -80,21 +80,15 @@ try {
                             <tr>
                                 <!-- FOTO -->
                                 <td>
-                                    <?php
-                                    $foto = !empty($u['foto'])
-                                        ? BASE_URL . "uploads/usuarios/" . $u['foto']
-                                        : BASE_URL . "assets/img/avatar.png";
-                                    ?>
-
-                                    <img
-                                        src="<?= htmlspecialchars($foto) ?>"
-                                        alt="Foto"
-                                        style="
-                                            width:45px;
-                                            height:45px;
-                                            object-fit:cover;
-                                            border-radius:50%;
-                                        ">
+                                    <?php if (!empty($u['foto'])): ?>
+                                        <img
+                                            src="../<?= htmlspecialchars($u['foto']) ?>"
+                                            class="foto-persona-listado">
+                                    <?php else: ?>
+                                        <span class="sin-foto">
+                                            Sin foto
+                                        </span>
+                                    <?php endif; ?>
                                 </td>
 
                                 <!-- NOMBRE -->
@@ -160,7 +154,7 @@ try {
              MODAL NUEVO USUARIO
         ========================================== -->
 
-        <div id="modalUsuario" class="modal">
+        <div id="btnNuevoUsuario" class="modal">
             <div class="modal-contenido">
                 <span id="cerrarUsuario" class="cerrar">
                     &times;
@@ -380,7 +374,432 @@ try {
                 </form>
             </div>
         </div>
+
+        <!-- =========================================================
+            MODAL EDITAR USUARIO
+        ========================================================= -->
+
+        <div id="modalEditarUsuario" class="modal">
+
+            <div class="modal-contenido">
+
+                <span
+                    id="cerrarEditarUsuario"
+                    class="cerrar">
+                    &times;
+                </span>
+
+                <h2>Editar usuario</h2>
+
+                <br>
+
+                <form
+                    id="formEditarUsuario"
+                    action="<?= BASE_URL ?>actions/actualizar_usuario.php"
+                    method="POST"
+                    enctype="multipart/form-data">
+
+                    <!-- ID -->
+                    <input
+                        type="hidden"
+                        name="id"
+                        id="editar_id">
+
+
+                    <!-- ==================================================
+                        DATOS PERSONALES
+                    =================================================== -->
+
+                    <div class="form-grid">
+
+                        <div>
+
+                            <label>
+                                Nombres
+                            </label>
+
+                            <input
+                                type="text"
+                                name="nombres"
+                                id="editar_nombres"
+                                required>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Apellidos
+                            </label>
+
+                            <input
+                                type="text"
+                                name="apellidos"
+                                id="editar_apellidos"
+                                required>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Tipo de documento
+                            </label>
+
+                            <select
+                                name="id_tipo_documento"
+                                id="editar_id_tipo_documento"
+                                required>
+
+                                <option value="">
+                                    Seleccione...
+                                </option>
+
+                                <?php
+                                $stmtTiposDocumento = $conexion->query("
+                                    SELECT
+                                        id_tipo_documento,
+                                        nombre
+                                    FROM tipos_documento
+                                    WHERE estado = 1
+                                    ORDER BY nombre
+                                ");
+
+                                $tiposDocumento = $stmtTiposDocumento->fetchAll(
+                                    PDO::FETCH_ASSOC
+                                );
+                                ?>
+
+                                <?php foreach ($tiposDocumento as $tipoDocumento): ?>
+
+                                    <option
+                                        value="<?= $tipoDocumento['id_tipo_documento'] ?>">
+
+                                        <?= htmlspecialchars(
+                                            $tipoDocumento['nombre']
+                                        ) ?>
+
+                                    </option>
+
+                                <?php endforeach; ?>
+
+                            </select>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Número de documento
+                            </label>
+
+                            <input
+                                type="text"
+                                name="numero_documento"
+                                id="editar_numero_documento"
+                                required
+                                maxlength="30">
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Correo
+                            </label>
+
+                            <input
+                                type="email"
+                                name="correo"
+                                id="editar_correo">
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Teléfono
+                            </label>
+
+                            <input
+                                type="text"
+                                name="telefono"
+                                id="editar_telefono">
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Celular
+                            </label>
+
+                            <input
+                                type="text"
+                                name="celular"
+                                id="editar_celular">
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Fecha de nacimiento
+                            </label>
+
+                            <input
+                                type="date"
+                                name="fecha_nacimiento"
+                                id="editar_fecha_nacimiento">
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Género
+                            </label>
+
+                            <select
+                                name="id_genero"
+                                id="editar_id_genero">
+
+                                <option value="">
+                                    Seleccione...
+                                </option>
+
+                                <?php
+                                $stmtGeneros = $conexion->query("
+                                    SELECT
+                                        id_genero,
+                                        nombre
+                                    FROM generos
+                                    WHERE estado = 1
+                                    ORDER BY nombre
+                                ");
+
+                                $generos = $stmtGeneros->fetchAll(
+                                    PDO::FETCH_ASSOC
+                                );
+                                ?>
+
+                                <?php foreach ($generos as $genero): ?>
+
+                                    <option
+                                        value="<?= $genero['id_genero'] ?>">
+
+                                        <?= htmlspecialchars(
+                                            $genero['nombre']
+                                        ) ?>
+
+                                    </option>
+
+                                <?php endforeach; ?>
+
+                            </select>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Estado civil
+                            </label>
+
+                            <select
+                                name="id_estado_civil"
+                                id="editar_id_estado_civil">
+
+                                <option value="">
+                                    Seleccione...
+                                </option>
+
+                                <?php
+                                $stmtEstados = $conexion->query("
+                                    SELECT
+                                        id_estado_civil,
+                                        nombre
+                                    FROM estados_civiles
+                                    WHERE estado = 1
+                                    ORDER BY nombre
+                                ");
+
+                                $estadosCiviles = $stmtEstados->fetchAll(
+                                    PDO::FETCH_ASSOC
+                                );
+                                ?>
+
+                                <?php foreach ($estadosCiviles as $estadoCivil): ?>
+
+                                    <option
+                                        value="<?= $estadoCivil['id_estado_civil'] ?>">
+
+                                        <?= htmlspecialchars(
+                                            $estadoCivil['nombre']
+                                        ) ?>
+
+                                    </option>
+
+                                <?php endforeach; ?>
+
+                            </select>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Ocupación
+                            </label>
+
+                            <select
+                                name="id_ocupacion"
+                                id="editar_id_ocupacion">
+
+                                <option value="">
+                                    Seleccione...
+                                </option>
+
+                                <?php
+                                $stmtOcupaciones = $conexion->query("
+                                    SELECT
+                                        id_ocupacion,
+                                        nombre
+                                    FROM ocupaciones
+                                    WHERE estado = 1
+                                    ORDER BY nombre
+                                ");
+
+                                $ocupaciones = $stmtOcupaciones->fetchAll(
+                                    PDO::FETCH_ASSOC
+                                );
+                                ?>
+
+                                <?php foreach ($ocupaciones as $ocupacion): ?>
+
+                                    <option
+                                        value="<?= $ocupacion['id_ocupacion'] ?>">
+
+                                        <?= htmlspecialchars(
+                                            $ocupacion['nombre']
+                                        ) ?>
+
+                                    </option>
+
+                                <?php endforeach; ?>
+
+                            </select>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Estado
+                            </label>
+
+                            <select
+                                name="estado"
+                                id="editar_estado">
+
+                                <option value="1">
+                                    Activo
+                                </option>
+
+                                <option value="0">
+                                    Inactivo
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <br>
+
+
+                    <!-- ==================================================
+                        DIRECCIÓN
+                    =================================================== -->
+
+                    <div>
+
+                        <label>
+                            Dirección
+                        </label>
+
+                        <input
+                            type="text"
+                            name="direccion"
+                            id="editar_direccion">
+
+                    </div>
+
+
+                    <br>
+
+
+                    <!-- ==================================================
+                        FOTO
+                    =================================================== -->
+
+                    <div>
+
+                        <label>
+                            Foto
+                        </label>
+
+                        <br><br>
+
+                        <div id="editar_foto_actual"></div>
+
+                        <br>
+
+                        <input
+                            type="file"
+                            name="foto"
+                            id="editar_foto"
+                            accept="image/*">
+
+                    </div>
+
+
+                    <br>
+
+
+                    <!-- ==================================================
+                        BOTONES
+                    =================================================== -->
+
+                    <div class="botones-persona">
+
+                        <button type="button" class="btn-limpiar" id="cancelarEditarUsuario">
+                            Cancelar
+                        </button>
+
+                        <button type="submit" class="btn-filtrar">
+                            Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
+    <script src="<?= BASE_URL ?>assets/js/editar_usuario.js"></script>
 </body>
 
 </html>
