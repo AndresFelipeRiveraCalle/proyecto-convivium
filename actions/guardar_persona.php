@@ -49,7 +49,7 @@ try {
 
     if ($stmt->fetch(PDO::FETCH_ASSOC)) {
 
-        header("Location: ../configuracion/personas.php?tipo=warning&texto=El número de documento ya existe.");
+        header("Location: ../configuracion/usuarios.php?tipo=warning&texto=El número de documento ya existe.");
         exit;
 
     }
@@ -132,7 +132,7 @@ try {
         $foto
     ]);
 
-    header("Location: ../configuracion/personas.php?tipo=success&texto=Persona registrada correctamente.");
+    header("Location: ../configuracion/usuarios.php?tipo=success&texto=Persona registrada correctamente.");
 
     exit;
 
