@@ -203,43 +203,48 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// =====================================================
+// MODAL NUEVO USUARIO
+// =====================================================
+const btnNuevoUsuario = document.getElementById("btnNuevoUsuario");
+const modalUsuario = document.getElementById("modalUsuario");
+const cerrarUsuario = document.getElementById("cerrarUsuario");
+const cancelarUsuario = document.getElementById("cancelarUsuario");
 
 // =====================================================
-// MODAL PERSONA
+// ABRIR MODAL
 // =====================================================
-
-const btnNuevaPersona = document.getElementById("btnNuevaPersona");
-const modalPersona = document.getElementById("modalPersona");
-const cerrarPersona = document.getElementById("cerrarPersona");
-const cancelarPersona = document.getElementById("cancelarPersona");
-
-
-// Abrir modal
-if (btnNuevaPersona && modalPersona) {
-    btnNuevaPersona.addEventListener("click", function () {
-        modalPersona.style.display = "flex";
+if (btnNuevoUsuario && modalUsuario) {
+    btnNuevoUsuario.addEventListener("click", function () {
+        modalUsuario.style.display = "flex";
     });
 }
 
-// Cerrar con X
-if (cerrarPersona && modalPersona) {
-    cerrarPersona.addEventListener("click", function () {
-        modalPersona.style.display = "none";
+// =====================================================
+// CERRAR CON X
+// =====================================================
+if (cerrarUsuario && modalUsuario) {
+    cerrarUsuario.addEventListener("click", function () {
+        modalUsuario.style.display = "none";
     });
 }
 
-// Cerrar con Cancelar
-if (cancelarPersona && modalPersona) {
-    cancelarPersona.addEventListener("click", function () {
-        modalPersona.style.display = "none";
+// =====================================================
+// CERRAR CON CANCELAR
+// =====================================================
+if (cancelarUsuario && modalUsuario) {
+    cancelarUsuario.addEventListener("click", function () {
+        modalUsuario.style.display = "none";
     });
 }
 
-// Cerrar haciendo clic fuera del contenido
-if (modalPersona) {
-    modalPersona.addEventListener("click", function (e) {
-        if (e.target === modalPersona) {
-            modalPersona.style.display = "none";
+// =====================================================
+// CERRAR HACIENDO CLIC FUERA
+// =====================================================
+if (modalUsuario) {
+    modalUsuario.addEventListener("click", function (e) {
+        if (e.target === modalUsuario) {
+            modalUsuario.style.display = "none";
         }
     });
 }

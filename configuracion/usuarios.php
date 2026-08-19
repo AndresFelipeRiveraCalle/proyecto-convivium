@@ -34,7 +34,7 @@ try {
     <?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
     <div class="contenedor">
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-        <main>
+        <main class="contenido">
             <!-- ==========================================
                  ENCABEZADO
             ========================================== -->
@@ -46,7 +46,7 @@ try {
                 </div>
 
                 <button type="button" class="btn-filtrar" id="btnNuevoUsuario">
-                    + Nuevo usuario
+                    Nuevo usuario
                 </button>
             </div>
 
@@ -154,7 +154,7 @@ try {
              MODAL NUEVO USUARIO
         ========================================== -->
 
-        <div id="btnNuevoUsuario" class="modal">
+        <div id="modalUsuario" class="modal">
             <div class="modal-contenido">
                 <span id="cerrarUsuario" class="cerrar">
                     &times;
@@ -170,7 +170,6 @@ try {
                          DATOS PERSONALES
                     ================================== -->
                     <h3>Datos personales</h3>
-
                     <div class="form-group">
                         <div>
                             <label>Nombres *</label>
@@ -378,239 +377,120 @@ try {
         <!-- =========================================================
             MODAL EDITAR USUARIO
         ========================================================= -->
-
         <div id="modalEditarUsuario" class="modal">
-
             <div class="modal-contenido">
-
-                <span
-                    id="cerrarEditarUsuario"
-                    class="cerrar">
+                <span id="cerrarEditarUsuario" class="cerrar">
                     &times;
                 </span>
 
                 <h2>Editar usuario</h2>
-
                 <br>
-
-                <form
-                    id="formEditarUsuario"
-                    action="<?= BASE_URL ?>actions/actualizar_usuario.php"
-                    method="POST"
+                <form id="formEditarUsuario" action="<?= BASE_URL ?>actions/actualizar_usuario.php" method="POST"
                     enctype="multipart/form-data">
-
                     <!-- ID -->
-                    <input
-                        type="hidden"
-                        name="id"
-                        id="editar_id">
-
+                    <input type="hidden" name="id"id="editar_id">
 
                     <!-- ==================================================
                         DATOS PERSONALES
                     =================================================== -->
-
                     <div class="form-grid">
-
                         <div>
+                            <label>Nombres</label>
 
-                            <label>
-                                Nombres
-                            </label>
-
-                            <input
-                                type="text"
-                                name="nombres"
-                                id="editar_nombres"
-                                required>
-
+                            <input type="text" name="nombres"id="editar_nombres"required>
                         </div>
 
-
                         <div>
+                            <label>Apellidos</label>
 
-                            <label>
-                                Apellidos
-                            </label>
-
-                            <input
-                                type="text"
-                                name="apellidos"
-                                id="editar_apellidos"
-                                required>
-
+                            <input type="text" name="apellidos" id="editar_apellidos" required>
                         </div>
 
-
                         <div>
+                            <label>Tipo de documento</label>
 
-                            <label>
-                                Tipo de documento
-                            </label>
-
-                            <select
-                                name="id_tipo_documento"
-                                id="editar_id_tipo_documento"
-                                required>
+                            <select name="id_tipo_documento" id="editar_id_tipo_documento"required>
 
                                 <option value="">
                                     Seleccione...
                                 </option>
 
                                 <?php
-                                $stmtTiposDocumento = $conexion->query("
-                                    SELECT
-                                        id_tipo_documento,
-                                        nombre
-                                    FROM tipos_documento
-                                    WHERE estado = 1
-                                    ORDER BY nombre
-                                ");
+                                    $stmtTiposDocumento = $conexion->query("SELECT id_tipo_documento,nombre
+                                        FROM tipos_documento WHERE estado = 1
+                                        ORDER BY nombre
+                                    ");
 
-                                $tiposDocumento = $stmtTiposDocumento->fetchAll(
-                                    PDO::FETCH_ASSOC
-                                );
+                                    $tiposDocumento = $stmtTiposDocumento->fetchAll(PDO::FETCH_ASSOC);
                                 ?>
 
                                 <?php foreach ($tiposDocumento as $tipoDocumento): ?>
-
                                     <option
                                         value="<?= $tipoDocumento['id_tipo_documento'] ?>">
 
-                                        <?= htmlspecialchars(
-                                            $tipoDocumento['nombre']
-                                        ) ?>
-
+                                        <?= htmlspecialchars($tipoDocumento['nombre'])?>
                                     </option>
-
                                 <?php endforeach; ?>
-
                             </select>
-
                         </div>
 
-
                         <div>
+                            <label>Número de documento</label>
 
-                            <label>
-                                Número de documento
-                            </label>
-
-                            <input
-                                type="text"
-                                name="numero_documento"
-                                id="editar_numero_documento"
-                                required
+                            <input type="text" name="numero_documento" id="editar_numero_documento" required
                                 maxlength="30">
-
                         </div>
 
-
                         <div>
+                            <label>Correo</label>
 
-                            <label>
-                                Correo
-                            </label>
-
-                            <input
-                                type="email"
-                                name="correo"
-                                id="editar_correo">
-
+                            <input type="email" name="correo" id="editar_correo">
                         </div>
 
-
                         <div>
+                            <label>Teléfono</label>
 
-                            <label>
-                                Teléfono
-                            </label>
-
-                            <input
-                                type="text"
-                                name="telefono"
-                                id="editar_telefono">
-
+                            <input type="text" name="telefono" id="editar_telefono">
                         </div>
 
-
                         <div>
-
-                            <label>
-                                Celular
-                            </label>
-
-                            <input
-                                type="text"
-                                name="celular"
-                                id="editar_celular">
-
+                            <label>Celular</label>
+                            <input type="text" name="celular" id="editar_celular">
                         </div>
 
-
                         <div>
+                            <label>Fecha de nacimiento</label>
 
-                            <label>
-                                Fecha de nacimiento
-                            </label>
-
-                            <input
-                                type="date"
-                                name="fecha_nacimiento"
-                                id="editar_fecha_nacimiento">
-
+                            <input type="date" name="fecha_nacimiento" id="editar_fecha_nacimiento">
                         </div>
 
-
                         <div>
+                            <label>Género</label>
 
-                            <label>
-                                Género
-                            </label>
-
-                            <select
-                                name="id_genero"
-                                id="editar_id_genero">
-
+                            <select name="id_genero" id="editar_id_genero">
                                 <option value="">
                                     Seleccione...
                                 </option>
-
                                 <?php
-                                $stmtGeneros = $conexion->query("
-                                    SELECT
-                                        id_genero,
-                                        nombre
-                                    FROM generos
-                                    WHERE estado = 1
-                                    ORDER BY nombre
-                                ");
+                                    $stmtGeneros = $conexion->query(" SELECT id_genero, nombre
+                                        FROM generos WHERE estado = 1
+                                        ORDER BY nombre
+                                    ");
 
-                                $generos = $stmtGeneros->fetchAll(
-                                    PDO::FETCH_ASSOC
-                                );
+                                    $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                                 ?>
 
                                 <?php foreach ($generos as $genero): ?>
-
                                     <option
                                         value="<?= $genero['id_genero'] ?>">
 
-                                        <?= htmlspecialchars(
-                                            $genero['nombre']
-                                        ) ?>
-
+                                        <?= htmlspecialchars($genero['nombre']) ?>
                                     </option>
-
                                 <?php endforeach; ?>
-
                             </select>
-
                         </div>
 
-
                         <div>
-
                             <label>
                                 Estado civil
                             </label>
@@ -799,6 +679,7 @@ try {
         </div>
 
     </div>
+    
     <script src="<?= BASE_URL ?>assets/js/editar_usuario.js"></script>
 </body>
 
