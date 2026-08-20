@@ -1059,3 +1059,82 @@ if (modalEditarGenero) {
         }
     });
 }
+
+
+// ==========================================================
+// MODAL CARGA DE DOCUMENTOS
+// ==========================================================
+
+function mostrarMensaje(tipo, mensaje) {
+
+    const modal = document.getElementById("modalMensaje");
+    const titulo = document.getElementById("tituloMensaje");
+    const texto = document.getElementById("textoMensaje");
+
+    if (!modal || !titulo || !texto) {
+        console.error("No se encontró el modal de mensajes.");
+        return;
+    }
+
+    texto.textContent = mensaje;
+
+    if (tipo === "success") {
+
+        titulo.textContent = "✓ Operación exitosa";
+
+    } else {
+
+        titulo.textContent = "⚠ Ocurrió un problema";
+
+    }
+
+    modal.style.display = "flex";
+}
+
+
+function cerrarModalMensaje() {
+
+    const modal = document.getElementById("modalMensaje");
+
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const btnCerrarMensaje =
+        document.getElementById("btnCerrarMensaje");
+
+    if (btnCerrarMensaje) {
+
+        btnCerrarMensaje.addEventListener(
+            "click",
+            cerrarModalMensaje
+        );
+
+    }
+
+
+    // ======================================================
+    // MENSAJE ENVIADO DESDE PHP
+    // ======================================================
+
+    const parametros = new URLSearchParams(
+        window.location.search
+    );
+
+    const tipo = parametros.get("tipo");
+    const mensaje = parametros.get("mensaje");
+
+    if (tipo && mensaje) {
+
+        mostrarMensaje(
+            tipo,
+            mensaje
+        );
+
+    }
+
+});
