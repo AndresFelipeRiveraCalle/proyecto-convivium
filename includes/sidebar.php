@@ -27,18 +27,13 @@
                         </a>
                     </li>
                     <li>
-                        <a href="<?= BASE_URL ?>configuracion/unidades.php">
-                            Unidades
-                        </a>
-                    </li>
-                    <!--li>
-                        <a href="<?= BASE_URL ?>configuracion/personas_unidad.php">
-                            Personas
-                        </a>
-                    </li-->
-                    <li>
                         <a href="<?= BASE_URL ?>configuracion/usuarios.php">
                             Usuarios
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/unidades.php">
+                            Unidades
                         </a>
                     </li>
                     <li>
@@ -55,9 +50,23 @@
                     <span><i class="fa-solid fa-wallet icono"></i> Facturación</span>
                     <i class="fa-solid fa-chevron-down flecha"></i>
                 </div>
-
                 <ul class="submenu-items">
-                    <li><a href="#">Estado de cuenta</a></li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/conceptos_facturacion.php">
+                            Conceptos de facturarcion
+                        </a>
+                    </li>
+                                        <li>
+                        <a href="<?= BASE_URL ?>configuracion/tarifas.php">
+                            Valores de expensas
+                        </a>
+                    </li>
+                    </li>
+                                        <li>
+                        <a href="<?= BASE_URL ?>configuracion/extractos_bancarios.php">
+                            Cargar extractos
+                        </a>
+                    </li>
                 </ul>
             </li>
 
