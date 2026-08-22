@@ -982,3 +982,61 @@ tbody td {
         flex-direction: column;
     }
 }
+
+/* ==========================================================
+   RESULTADO OCR
+========================================================== */
+
+.resultado-ocr {
+    max-width: 1400px;
+    margin: 30px auto;
+}
+
+.resultado-ocr .ocr-exito {
+    padding: 15px;
+    background: #dff0d8;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.resultado-ocr .tabla-ocr {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.resultado-ocr .tabla-ocr th,
+.resultado-ocr .tabla-ocr td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.resultado-ocr .tabla-ocr th {
+    background: #eee;
+}
+
+.resultado-ocr .ocr-ingreso {
+    color: green;
+    font-weight: bold;
+}
+
+.resultado-ocr .ocr-egreso {
+    color: red;
+    font-weight: bold;
+}
+
+.resultado-ocr .ocr-acciones {
+    margin-top: 20px;
+}
+
+.resultado-ocr .ocr-texto {
+    margin-top: 30px;
+}
+
+.resultado-ocr .ocr-texto pre {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+}

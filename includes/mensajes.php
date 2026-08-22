@@ -1,138 +1,111 @@
 <?php
 
-// ==========================================================
-// MENSAJES DEL SISTEMA
-// ==========================================================
+$tipoMensaje = $_GET['tipo'] ?? null;
+$mensaje = $_GET['mensaje'] ?? ($_GET['texto'] ?? null);
 
-if (
-    !isset($_GET['tipo']) ||
-    !isset($_GET['texto'])
-) {
-    return;
-}
+if ($tipoMensaje && $mensaje):
 
-$tipo = $_GET['tipo'];
-$texto = $_GET['texto'];
-
-
-// ==========================================================
-// VALIDAR TIPOS PERMITIDOS
-// ==========================================================
-
-$tiposPermitidos = [
-    'success',
-    'warning',
-    'error',
-    'info'
-];
-
-if (!in_array($tipo, $tiposPermitidos, true)) {
-    return;
-}
+    $titulo = 'Mensaje';
+    
+    if ($tipoMensaje === 'success') {
+        $titulo = 'Operación exitosa';
+    } elseif ($tipoMensaje === 'error') {
+        $titulo = 'Error';
+    } elseif ($tipoMensaje === 'warning') {
+        $titulo = 'Advertencia';
+    } elseif ($tipoMensaje === 'info') {
+        $titulo = 'Información';
+    }
 
 ?>
 
-<script>
+<div id="modalMensaje" class="modal">
+    
+    <div class="modal-contenido">
+        
+        <div class="modal-header">
+            
+            <h3 id="tituloMensaje">
+                <?= htmlspecialchars($titulo) ?>
+            </h3>
 
+            <button
+                type="button"
+                class="modal-cerrar"
+                id="btnCerrarMensaje">
+                &times;
+            </button>
+
+        </div>
+
+        <div class="modal-body">
+            
+            <p id="textoMensaje">
+                <?= htmlspecialchars($mensaje) ?>
+            </p>
+
+        </div>
+
+        <div class="form-actions">
+
+            <button
+                type="button"
+                class="btn-primary"
+                id="btnAceptarMensaje">
+                Aceptar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
 document.addEventListener("DOMContentLoaded", function () {
 
     const modal = document.getElementById("modalMensaje");
+    const btnCerrar = document.getElementById("btnCerrarMensaje");
+    const btnAceptar = document.getElementById("btnAceptarMensaje");
 
-    const titulo = document.getElementById("tituloMensaje");
-
-    const texto = document.getElementById("textoMensaje");
-
-    const btnCerrar =
-        document.getElementById("btnCerrarMensaje");
-
-
-    if (!modal || !titulo || !texto) {
+    if (!modal) {
         return;
     }
 
-
-    // ======================================================
-    // DATOS DEL MENSAJE
-    // ======================================================
-
-    const tipo = <?= json_encode($tipo) ?>;
-
-    const mensaje = <?= json_encode($texto) ?>;
-
-
-    // ======================================================
-    // TÍTULO
-    // ======================================================
-
-    switch (tipo) {
-
-        case "success":
-            titulo.textContent = "¡Operación exitosa!";
-            break;
-
-        case "warning":
-            titulo.textContent = "Advertencia";
-            break;
-
-        case "error":
-            titulo.textContent = "Error";
-            break;
-
-        case "info":
-            titulo.textContent = "Información";
-            break;
-
-        default:
-            titulo.textContent = "Mensaje";
-
-    }
-
-
-    // ======================================================
-    // TEXTO
-    // ======================================================
-
-    texto.textContent = mensaje;
-
-
-    // ======================================================
-    // MOSTRAR MODAL
-    // ======================================================
-
     modal.style.display = "flex";
 
+    function cerrarModalMensaje() {
 
-    // ======================================================
-    // CERRAR
-    // ======================================================
+        modal.style.display = "none";
 
-    if (btnCerrar) {
+        // Eliminar los parámetros del mensaje de la URL
+        const url = new URL(window.location.href);
 
-        btnCerrar.onclick = function () {
+        url.searchParams.delete("tipo");
+        url.searchParams.delete("mensaje");
+        url.searchParams.delete("texto");
 
-            modal.style.display = "none";
-
-        };
+        window.history.replaceState({}, document.title, url.pathname + url.search);
 
     }
 
+    if (btnCerrar) {
+        btnCerrar.addEventListener("click", cerrarModalMensaje);
+    }
 
-    // ======================================================
-    // LIMPIAR URL
-    // ======================================================
+    if (btnAceptar) {
+        btnAceptar.addEventListener("click", cerrarModalMensaje);
+    }
 
-    const url = new URL(window.location.href);
+    modal.addEventListener("click", function (e) {
 
-    url.searchParams.delete("tipo");
-    url.searchParams.delete("texto");
-    url.searchParams.delete("mensaje");
+        if (e.target === modal) {
+            cerrarModalMensaje();
+        }
 
-    window.history.replaceState(
-        {},
-        document.title,
-        url.pathname + url.search
-    );
+    });
 
 });
-
 </script>
+
+<?php endif; ?>
