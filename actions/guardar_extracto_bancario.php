@@ -23,7 +23,6 @@ if (!is_dir($carpetaFisica)) {
             "?tipo=error&mensaje=" .
             urlencode("No fue posible crear la carpeta de documentos.")
         );
-
         exit;
     }
 }
@@ -33,16 +32,9 @@ if (!is_dir($carpetaFisica)) {
 // DATOS DEL FORMULARIO
 // ==========================================================
 
-$id_cuenta_bancaria = filter_input(
-    INPUT_POST,
-    "id_cuenta_bancaria",
-    FILTER_VALIDATE_INT
-);
+$id_cuenta_bancaria = filter_input(INPUT_POST,"id_cuenta_bancaria",FILTER_VALIDATE_INT);
 
-$observaciones = trim(
-    $_POST["observaciones"] ?? ""
-);
-
+$observaciones = trim($_POST["observaciones"] ?? "");
 
 // ==========================================================
 // VALIDAR CUENTA
@@ -60,15 +52,12 @@ if (!$id_cuenta_bancaria) {
     exit;
 }
 
-
 // ==========================================================
 // VALIDAR ARCHIVO
 // ==========================================================
 
 if (
-    !isset($_FILES["archivo"]) ||
-    $_FILES["archivo"]["error"] !== UPLOAD_ERR_OK
-) {
+    !isset($_FILES["archivo"]) ||$_FILES["archivo"]["error"] !== UPLOAD_ERR_OK) {
 
     header(
         "Location: " . BASE_URL .
@@ -76,13 +65,10 @@ if (
         "?tipo=error&mensaje=" .
         urlencode("No se recibió correctamente el archivo.")
     );
-
     exit;
 }
 
-
 $archivo = $_FILES["archivo"];
-
 
 // ==========================================================
 // TAMAÑO MÁXIMO
@@ -91,32 +77,21 @@ $archivo = $_FILES["archivo"];
 $maximo = 10 * 1024 * 1024;
 
 if ($archivo["size"] > $maximo) {
-
     header(
         "Location: " . BASE_URL .
         "configuracion/extractos_bancarios.php" .
         "?tipo=error&mensaje=" .
         urlencode("El archivo no puede superar los 10 MB.")
     );
-
     exit;
 }
-
 
 // ==========================================================
 // DATOS DEL ARCHIVO
 // ==========================================================
 
-$nombreOriginal = basename(
-    $archivo["name"]
-);
-
-$extension = strtolower(
-    pathinfo(
-        $nombreOriginal,
-        PATHINFO_EXTENSION
-    )
-);
+$nombreOriginal = basename($archivo["name"]);
+$extension = strtolower(pathinfo($nombreOriginal,PATHINFO_EXTENSION));
 
 
 // ==========================================================
@@ -130,11 +105,7 @@ $extensionesPermitidas = [
     "png"
 ];
 
-
-if (
-    !in_array(
-        $extension,
-        $extensionesPermitidas,
+if (!in_array($extension,$extensionesPermitidas,
         true
     )
 ) {
@@ -145,42 +116,23 @@ if (
         "?tipo=error&mensaje=" .
         urlencode("Tipo de archivo no permitido.")
     );
-
     exit;
 }
-
 
 // ==========================================================
 // VALIDAR MIME REAL
 // ==========================================================
-
 $finfo = new finfo(FILEINFO_MIME_TYPE);
 
-$tipoArchivo = $finfo->file(
-    $archivo["tmp_name"]
-);
+$tipoArchivo = $finfo->file($archivo["tmp_name"]);
 
 
 $tiposPermitidos = [
-
-    "pdf" => [
-        "application/pdf"
-    ],
-
-    "jpg" => [
-        "image/jpeg"
-    ],
-
-    "jpeg" => [
-        "image/jpeg"
-    ],
-
-    "png" => [
-        "image/png"
-    ]
-
+    "pdf" => ["application/pdf"],
+    "jpg" => ["image/jpeg"],
+    "jpeg" => ["image/jpeg"],
+    "png" => ["image/png"]
 ];
-
 
 if (
     !isset($tiposPermitidos[$extension]) ||
@@ -197,49 +149,29 @@ if (
         "?tipo=error&mensaje=" .
         urlencode("El tipo real del archivo no coincide con su extensión.")
     );
-
     exit;
 }
-
 
 // ==========================================================
 // HASH DEL ARCHIVO
 // ==========================================================
 
-$hashArchivo = hash_file(
-    "sha256",
-    $archivo["tmp_name"]
-);
-
+$hashArchivo = hash_file("sha256",$archivo["tmp_name"]);
 
 // ==========================================================
 // EVITAR ARCHIVO DUPLICADO
 // ==========================================================
 
-$sqlDuplicado = "
-    SELECT id_documento
-    FROM documentos_bancarios
-    WHERE hash_archivo = :hash
-    LIMIT 1
-";
+$sqlDuplicado = "SELECT id_documento FROM documentos_bancarios
+    WHERE hash_archivo = :hash LIMIT 1";
 
-$stmtDuplicado = $conexion->prepare(
-    $sqlDuplicado
-);
+$stmtDuplicado = $conexion->prepare($sqlDuplicado);
+$stmtDuplicado->execute([":hash" => $hashArchivo]);
 
-$stmtDuplicado->execute([
-    ":hash" => $hashArchivo
-]);
-
-
-$documentoExistente =
-    $stmtDuplicado->fetch(
-        PDO::FETCH_ASSOC
-    );
+$documentoExistente =$stmtDuplicado->fetch(PDO::FETCH_ASSOC);
 
 
 if ($documentoExistente) {
-
     header(
         "Location: " . BASE_URL .
         "configuracion/extractos_bancarios.php" .
@@ -248,7 +180,6 @@ if ($documentoExistente) {
             "Este documento ya fue cargado anteriormente."
         )
     );
-
     exit;
 }
 
@@ -257,22 +188,9 @@ if ($documentoExistente) {
 // NOMBRE FÍSICO DEL ARCHIVO
 // ==========================================================
 
-$nombreArchivo =
-    date("Ymd_His") .
-    "_" .
-    bin2hex(random_bytes(8)) .
-    "." .
-    $extension;
-
-
-$rutaFisica =
-    $carpetaFisica .
-    $nombreArchivo;
-
-
-$rutaBaseDatos =
-    $carpetaRelativa .
-    $nombreArchivo;
+$nombreArchivo =date("Ymd_His") ."_" . bin2hex(random_bytes(8)) . "." . $extension;
+$rutaFisica =$carpetaFisica . $nombreArchivo;
+$rutaBaseDatos = $carpetaRelativa . $nombreArchivo;
 
 
 // ==========================================================
@@ -287,35 +205,25 @@ if (
 ) {
 
     header(
-        "Location: " . BASE_URL .
-        "configuracion/extractos_bancarios.php" .
-        "?tipo=error&mensaje=" .
-        urlencode(
+        "Location: " . BASE_URL . "configuracion/extractos_bancarios.php" . "?tipo=error&mensaje=" . urlencode(
             "No fue posible guardar físicamente el archivo."
         )
     );
-
     exit;
 }
-
 
 // ==========================================================
 // TRANSACCIÓN
 // ==========================================================
 
 try {
-
     $conexion->beginTransaction();
-
 
     // ======================================================
     // INSERTAR DOCUMENTO
     // ======================================================
 
-    $sqlDocumento = "
-
-        INSERT INTO documentos_bancarios (
-
+    $sqlDocumento = "INSERT INTO documentos_bancarios (
             id_cuenta_bancaria,
             nombre_archivo,
             nombre_original,
@@ -325,11 +233,9 @@ try {
             metodo_extraccion,
             estado_procesamiento,
             observaciones
-
         )
 
         VALUES (
-
             :id_cuenta_bancaria,
             :nombre_archivo,
             :nombre_original,
@@ -339,48 +245,23 @@ try {
             'MANUAL',
             'PENDIENTE',
             :observaciones
-
         )
-
     ";
 
-
-    $stmtDocumento =
-        $conexion->prepare(
-            $sqlDocumento
-        );
+    $stmtDocumento = $conexion->prepare($sqlDocumento);
 
 
     $stmtDocumento->execute([
-
-        ":id_cuenta_bancaria" =>
-            $id_cuenta_bancaria,
-
-        ":nombre_archivo" =>
-            $nombreArchivo,
-
-        ":nombre_original" =>
-            $nombreOriginal,
-
-        ":ruta_archivo" =>
-            $rutaBaseDatos,
-
-        ":tipo_archivo" =>
-            $tipoArchivo,
-
-        ":hash_archivo" =>
-            $hashArchivo,
-
-        ":observaciones" =>
-            $observaciones !== ""
-                ? $observaciones
-                : null
-
+        ":id_cuenta_bancaria" => $id_cuenta_bancaria,
+        ":nombre_archivo" => $nombreArchivo,
+        ":nombre_original" => $nombreOriginal,
+        ":ruta_archivo" => $rutaBaseDatos,
+        ":tipo_archivo" => $tipoArchivo,
+        ":hash_archivo" => $hashArchivo,
+        ":observaciones" => $observaciones !== "" ? $observaciones : null
     ]);
 
-    $idDocumento =
-        $conexion->lastInsertId();
-
+    $idDocumento = $conexion->lastInsertId();
 
     // ======================================================
     // IMPORTANTE
@@ -392,14 +273,11 @@ try {
     // El OCR/procesador será quien cree esos movimientos.
     // ======================================================
 
-
     $conexion->commit();
-
 
     // ======================================================
     // REDIRECCIÓN
     // ======================================================
-
     header(
         "Location: " . BASE_URL .
         "configuracion/extractos_bancarios.php" .
@@ -410,38 +288,27 @@ try {
             " pendiente de procesamiento."
         )
     );
-
     exit;
 
-
 } catch (Throwable $e) {
-
 
     // ======================================================
     // DESHACER TRANSACCIÓN
     // ======================================================
-
     if (
         $conexion->inTransaction()
     ) {
-
         $conexion->rollBack();
-
     }
-
 
     // ======================================================
     // ELIMINAR ARCHIVO SI FALLÓ LA BASE DE DATOS
     // ======================================================
-
     if (
         file_exists($rutaFisica)
     ) {
-
         unlink($rutaFisica);
-
     }
-
 
     // ======================================================
     // ERROR
