@@ -123,6 +123,19 @@ function convertirAMinutos(hora) {
 // Almacenar todos los horarios agregados por el usuario
 const horariosAgregados = [];
 
+// Cargar los horarios existentes cuando se edita una zona
+const inputsHorarios = document.querySelectorAll('#horarios-inputs input[type="hidden"]');
+
+// Recorrer los inputs ocultos de tres en tres (día, inicio y fin)
+for (let i = 0; i < inputsHorarios.length; i += 3) {
+
+    horariosAgregados.push({
+        dia_semana: parseInt(inputsHorarios[i].value),
+        hora_inicio: inputsHorarios[i + 1].value,
+        hora_fin: inputsHorarios[i + 2].value
+    });
+}
+
 // Nombres de los días de la semana
 const nombresDias = {
     1: 'Lunes',
@@ -330,7 +343,7 @@ btnAgregarHorario.addEventListener('click', () => {
 
         // Crear el objeto correspondiente al horario
         const horario = {
-            dia_semana: dia.value,
+            dia_semana: Number(dia.value),
             hora_inicio: horaInicio,
             hora_fin: horaFin
         };
