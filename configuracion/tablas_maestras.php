@@ -35,6 +35,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -42,15 +43,13 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
+<?php include ROOT_PATH . "/includes/header.php"; ?>
+<?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
 
-    <?php include ROOT_PATH . "/includes/header.php"; ?>
-    <?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
+<div class="contenedor">
+    <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
 
-    <div class="contenedor">
-
-        <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-
-        <main class="contenido">
+    <main class="contenido">
 
             <h1 align="center">Tablas Maestras</h1>
             <div class="grid-configuracion">
