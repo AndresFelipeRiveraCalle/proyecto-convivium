@@ -52,6 +52,11 @@
                 </div>
                 <ul class="submenu-items">
                     <li>
+                        <a href="<?= BASE_URL ?>configuracion/calendario_financiero.php">
+                            Calendario financiero
+                        </a>
+                    </li>
+                    <li>
                         <a href="<?= BASE_URL ?>configuracion/conceptos_facturacion.php">
                             Conceptos de facturarcion
                         </a>
@@ -61,8 +66,23 @@
                             Valores de expensas
                         </a>
                     </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/generar_obligacion.php">
+                            Crear facturas
+                        </a>
                     </li>
-                                        <li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/obligaciones.php">
+                            Ver facturas
+                        </a>
+                    </li>                    
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/facturacion.php">
+                            Facturacion
+                        </a>
+                    </li>
+
+                    <li>
                         <a href="<?= BASE_URL ?>configuracion/extractos_bancarios.php">
                             Cargar extractos
                         </a>
@@ -78,8 +98,22 @@
                 </div>
 
                 <ul class="submenu-items">
-                    <li><a href="#">Recaudos</a></li>
-                    <li><a href="#">Saldos pendientes</a></li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/cartera.php">
+                            Estado de cartera
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/detalle_cartera.php">
+                            Detalle de cartera
+                        </a>
+                    </li>                    
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/tasas_interes.php">
+                            Tasas de interes
+                        </a>
+                    </li>
+
                 </ul>
             </li>
 
