@@ -42,23 +42,11 @@ $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     <div class="contenedor">
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-        <main>
+        <main class="contenido">
+        <h2 align="center">Unidades</h2>    
             <div class="acciones-superior">
-                <div>
-                    <h2>Unidades</h2>
-                    <?php
-                    foreach ($grupos as $g) {
-                        if ($g['id_tipo_config'] == $idGrupoSeleccionado) {
-                            echo "<small>Grupo: <strong>" . htmlspecialchars($g['nombre_grupo']) . "</strong></small>";
-                            break;
-                        }
-                    }
-                    ?>
-                </div>
-                <button
-                    type="button"
-                    class="btn-filtrar"
-                    id="btnNuevaUnidad">
+                
+                <button type="button" class="btn-filtrar btn-derecha" id="btnNuevaUnidad">
                     + Nueva unidad
                 </button>
             </div>
@@ -100,15 +88,19 @@ $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <td><?= htmlspecialchars($u['codigo']) ?></td>
                                     <td><?= htmlspecialchars($u['nombre']) ?></td>
                                     <td><?= htmlspecialchars($u['piso']) ?></td>
-                                    <td><?= htmlspecialchars($u['area']) ?></td>
-                                    <td><?= htmlspecialchars($u['coeficiente']) ?></td>
+                                    <td><?= htmlspecialchars($u['area'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($u['coeficiente'] ?? '') ?></td>
                                     <td><?= htmlspecialchars($u['estado']) ?></td>
-                                   <td>
-                                        <button
-                                            class="btn-secondary btnEditarUnidad"
+                                    <td>
+                                        <button class="btn-secondary btnEditarUnidad"
                                             data-id="<?= $u['id_unidad'] ?>">
-                                            ✏ Editar
+                                            Editar
                                         </button>
+
+                                        <a href="personas_unidad.php?id_unidad=<?= $u['id_unidad'] ?>"
+                                            class="btn-secondary">
+                                            Residentes
+                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -136,7 +128,6 @@ $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <input
                         type="text" name="codigo" maxlength="20" required>
-
                     <br><br>
                     <label>Nombre</label>
 
@@ -170,14 +161,12 @@ $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="form-group">
                         <div>
                             <label>Área (m²)</label>
-                            <input
-                                type="number" name="area"  step="0.01" min="0">
+                            <input type="number" name="area"  step="0.01" min="0">
                         </div>
 
                         <div>
                             <label>Coeficiente</label>
-                            <input
-                                type="number" name="coeficiente" step="0.00001" min="0">
+                            <input type="number" name="coeficiente" step="0.00001" min="0">
                         </div>
 
                     </div>
@@ -185,8 +174,7 @@ $unidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <label>Observaciones</label>
                     <textarea
-                        name="observaciones" rows="4"></textarea>
-
+                        name="observaciones" rows="2"></textarea>
                     <br><br>
 
                     <button

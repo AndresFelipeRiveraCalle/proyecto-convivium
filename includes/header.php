@@ -5,11 +5,6 @@
         </a>
     </div>
 
-    <div class="titulo-sistema">
-        <h2>Convivium</h2>
-        <span>Sistema de Administración de Propiedad Horizontal</span>
-    </div>
-
     <div class="usuario">
         <img src="<?= BASE_URL ?>assets/img/user.png" alt="Usuario">
     
