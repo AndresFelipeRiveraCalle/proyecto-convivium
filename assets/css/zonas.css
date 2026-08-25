@@ -37,54 +37,10 @@ h2 {
     margin-bottom: 10px;
 }
 
-/* HEADER */
-.header {
-    background: #12304A;
-    height: 70px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-}
-
 /* CONTENEDOR */
 .contenedor {
     display: flex; /* Permite que sus elementos se distribuyan horizontalmente */
     min-height: calc(100vh - 70px);
-}
-
-/* MENÚ */
-.menu {
-    width: 240px;
-    background: #34495e;
-    color: white;
-    padding: 20px;
-}
-
-.menu ul {
-    list-style: none;
-}
-
-.menu li {
-    margin-bottom: 5px;
-    border-radius: 8px;
-}
-
-.menu li:hover {
-    background: #2ecc71;
-}
-
-.menu a {
-    text-decoration: none;
-    color: white;
-    display: block;
-    text-decoration: none;
-    color: white;
-    padding: 12px;
-}
-
-.menu .activo {
-    background: #2ecc71;
 }
 
 /* CONTENIDO ZONAS */

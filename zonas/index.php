@@ -11,7 +11,7 @@
  * =========================================================================
  */
 
-// Importa la conexión a la base de datos 
+// Incluir la ruta de la conexión a la base de datos
 require_once "../config/conexion.php";
 
 // Consultar a la base de datos todas la zonas comunes organizadas ascendentemente
@@ -83,42 +83,22 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zonas Comunes</title>
+    <!-- Estilos exclusivos del módulo -->
     <link rel="stylesheet" href="../assets/css/zonas.css">
+    <!-- Datos del módulo -->
     <script>
         const horariosExistentes = <?= json_encode($horarios ?? []) ?>;
     </script>
+    <!-- JavaScript del módulo -->
     <script src="../assets/js/zonas.js" defer></script>
 </head>
 
 <body>
 
-    <header class="header">
-
-        <div class="logo">
-            <h2>Convivium</h2>
-        </div>
-
-        <div class="usuario">
-            <span>Administrador</span>
-        </div>
-
-    </header>
+    <header></header>
 
     <div class="contenedor">
-        <aside class="menu">
-
-            <nav>
-                <ul>
-                    <li>
-                        <a href="../dashboard/index.php">Dashboard</a>
-                    </li>
-                    <li class="activo">
-                        <a href="index.php">Zonas comunes</a>
-                    </li>
-                </ul>
-            </nav>
-
-        </aside>
+        <aside></aside>
 
         <main class="contenido">
             <h1>Administración de Zonas Comunes</h1>
