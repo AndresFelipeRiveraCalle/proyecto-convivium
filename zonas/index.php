@@ -207,7 +207,7 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                 </form>
 
                 <?php if (isset($mensaje)) { ?>
-                    <div class="mensaje mensaje-<?= htmlspecialchars($tipo) ?>"> <!-- convertir los caracteres especiales en entidades HTML y el navegador los muestra como texto, no como código. -->
+                    <div id="mensaje-alerta" class="mensaje mensaje-<?= htmlspecialchars($tipo) ?>"> <!-- convertir los caracteres especiales en entidades HTML y el navegador los muestra como texto, no como código. -->
                         <?= htmlspecialchars($mensaje) ?>
                     </div>
                 <?php } ?>

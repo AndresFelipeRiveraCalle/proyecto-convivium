@@ -476,3 +476,15 @@ btnAgregarHorario.addEventListener('click', () => {
     console.log('Horarios inputs hidden:', horariosInputs);*/
     
 });
+
+// Limpiar la URL después de mostrar un mensaje
+document.addEventListener("DOMContentLoaded", () => {
+
+    const mensaje = document.getElementById("mensaje-alerta");
+
+    // Limpiar los parámetros de la URL después de mostrar un mensaje de éxito o error,
+    // evitando que al recargar la página (F5) el navegador vuelva a mostrar la misma alerta.
+    if (mensaje && window.history.replaceState && window.location.search) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+}); 
