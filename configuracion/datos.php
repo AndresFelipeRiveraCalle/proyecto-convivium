@@ -13,6 +13,8 @@ $departamentos = $stmtDepartamentos->fetchAll(PDO::FETCH_ASSOC);
 $stmtCiudades = $conexion->query("SELECT id_ciudad, nombre , codigo_dane FROM ciudades ORDER BY nombre");
 $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
 
+$tipoCopropiedad = $conexion->query("SELECT id, nombre FROM tipos_copropiedad ORDER BY nombre");
+$tiposCopropiedad = $tipoCopropiedad->fetchAll(PDO::FETCH_ASSOC);
 
 // ===========================================
 // CARGAR DATOS DE LA UNIDAD
@@ -72,6 +74,36 @@ $bloqueado = ($unidad !== false);
                         <input type="text" id="representante_legal" name="representante_legal" placeholder="Nombre del representante legal" required
                             value="<?= htmlspecialchars($unidad['representante_legal'] ?? '') ?>" <?= $bloqueado ? 'readonly' : '' ?> required>
                     </div>
+                    
+                    <div class="card">
+                        <span class="step active">Tipo de copropiedad</span>
+
+                        <select name="tipo_copropiedad" class="form-control" required
+                            <?= $bloqueado ? 'disabled' : '' ?>>
+                            <option value="">Seleccione un tipo</option>
+
+                            <?php foreach ($tiposCopropiedad as $propiedad): ?>
+                                <option
+                                    value="<?= $propiedad['id'] ?>"
+                                    <?= (
+                                        isset($unidad['id_tipo_copropiedad']) &&
+                                        $unidad['id_tipo_copropiedad'] == $propiedad['id']
+                                    ) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($propiedad['nombre']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="card">
+                        <span class="step active">Cantidad total de unidades</span>
+
+                        <input type="number" id="cantidad_unidades" name="cantidad_unidades" min="1"
+                            placeholder="Cantidad total de unidades"
+                            value="<?= htmlspecialchars($unidad['cantidad_unidades'] ?? '') ?>"
+                            required>
+                    </div>           
+                    
                 </div>
 
                 <h3>Ubicación</h3>
@@ -145,8 +177,9 @@ $bloqueado = ($unidad !== false);
                             value="<?= htmlspecialchars($unidad['sector'] ?? '') ?>"
                             <?= $bloqueado ? 'readonly' : '' ?>>
                     </div>
-
+                    
                 </div>
+
 
 
                 <h3>Datos de contacto</h3>
@@ -263,9 +296,7 @@ $bloqueado = ($unidad !== false);
                         type="button"
                         class="btn-filtrar btn-derecha"
                         onclick="window.location.href='../configuracion/basico.php'">
-
                         Configuración de áreas
-
                     </button>
 
                 </div>

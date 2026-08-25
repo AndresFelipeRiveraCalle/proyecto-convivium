@@ -1,38 +1,111 @@
 <?php
 
-if (!isset($_GET['mensaje'])) {
-    return;
-}
+$tipoMensaje = $_GET['tipo'] ?? null;
+$mensaje = $_GET['mensaje'] ?? ($_GET['texto'] ?? null);
 
-switch ($_GET['mensaje']) {
+if ($tipoMensaje && $mensaje):
 
-    case "ok":
-        $tipo = "exito";
-        $texto = "El registro se guardó correctamente.";
-        break;
+    $titulo = 'Mensaje';
+    
+    if ($tipoMensaje === 'success') {
+        $titulo = 'Operación exitosa';
+    } elseif ($tipoMensaje === 'error') {
+        $titulo = 'Error';
+    } elseif ($tipoMensaje === 'warning') {
+        $titulo = 'Advertencia';
+    } elseif ($tipoMensaje === 'info') {
+        $titulo = 'Información';
+    }
 
-    case "existe":
-        $tipo = "error";
-        $texto = "El registro ya existe.";
-        break;
+?>
 
-    case "error":
-        $tipo = "error";
-        $texto = "Ocurrió un error al guardar la información.";
-        break;
+<div id="modalMensaje" class="modal">
+    
+    <div class="modal-contenido">
+        
+        <div class="modal-header">
+            
+            <h3 id="tituloMensaje">
+                <?= htmlspecialchars($titulo) ?>
+            </h3>
 
-    case "actualizado":
-        $tipo = "exito";
-        $texto = "El registro fue actualizado.";
-        break;
+            <button
+                type="button"
+                class="modal-cerrar"
+                id="btnCerrarMensaje">
+                &times;
+            </button>
 
-    case "eliminado":
-        $tipo = "exito";
-        $texto = "El registro fue eliminado.";
-        break;
+        </div>
 
-    default:
+        <div class="modal-body">
+            
+            <p id="textoMensaje">
+                <?= htmlspecialchars($mensaje) ?>
+            </p>
+
+        </div>
+
+        <div class="form-actions">
+
+            <button
+                type="button"
+                class="btn-primary"
+                id="btnAceptarMensaje">
+                Aceptar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const modal = document.getElementById("modalMensaje");
+    const btnCerrar = document.getElementById("btnCerrarMensaje");
+    const btnAceptar = document.getElementById("btnAceptarMensaje");
+
+    if (!modal) {
         return;
-}
+    }
 
-echo "<div class='mensaje $tipo'>$texto</div>";
+    modal.style.display = "flex";
+
+    function cerrarModalMensaje() {
+
+        modal.style.display = "none";
+
+        // Eliminar los parámetros del mensaje de la URL
+        const url = new URL(window.location.href);
+
+        url.searchParams.delete("tipo");
+        url.searchParams.delete("mensaje");
+        url.searchParams.delete("texto");
+
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+
+    }
+
+    if (btnCerrar) {
+        btnCerrar.addEventListener("click", cerrarModalMensaje);
+    }
+
+    if (btnAceptar) {
+        btnAceptar.addEventListener("click", cerrarModalMensaje);
+    }
+
+    modal.addEventListener("click", function (e) {
+
+        if (e.target === modal) {
+            cerrarModalMensaje();
+        }
+
+    });
+
+});
+</script>
+
+<?php endif; ?>

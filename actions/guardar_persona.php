@@ -49,7 +49,7 @@ try {
 
     if ($stmt->fetch(PDO::FETCH_ASSOC)) {
 
-        header("Location: ../configuracion/personas.php?tipo=warning&texto=El número de documento ya existe.");
+        header("Location: ../configuracion/usuarios.php?tipo=warning&texto=El número de documento ya existe.");
         exit;
 
     }
@@ -60,26 +60,31 @@ try {
 
     $documento = trim($_POST["numero_documento"]);
 
-    $fotoNombre = null;
 
-    if(isset($_FILES["foto"]) && $_FILES["foto"]["error"] == 0){
+    $foto = null;
+
+    if (isset($_FILES["foto"]) && $_FILES["foto"]["error"] === 0) {
 
         $extension = pathinfo(
-            $_FILES["foto"]["name"], 
+            $_FILES["foto"]["name"],
             PATHINFO_EXTENSION
         );
+
         $fotoNombre = $documento . "." . strtolower($extension);
 
-        $rutaDestino = ROOT_PATH . 
-            "/uploads/personas/" . 
+        $rutaDestino = ROOT_PATH .
+            "/uploads/personas/" .
             $fotoNombre;
 
-        move_uploaded_file(
+        if (move_uploaded_file(
             $_FILES["foto"]["tmp_name"],
             $rutaDestino
-        );
+        )) {
+
+            $foto = "uploads/personas/" . $fotoNombre;
+
+        }
     }
-        $foto = "uploads/personas/" . $fotoNombre;
 
 
     // ==========================================================
@@ -127,7 +132,7 @@ try {
         $foto
     ]);
 
-    header("Location: ../configuracion/personas.php?tipo=success&texto=Persona registrada correctamente.");
+    header("Location: ../configuracion/usuarios.php?tipo=success&texto=Persona registrada correctamente.");
 
     exit;
 
