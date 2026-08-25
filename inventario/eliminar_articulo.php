@@ -4,7 +4,9 @@
  * Propósito: Cambiar el estado 'activo' a 0 para ocultarlo del catálogo sin borrar el historial.
  */
 
-require_once '../config/conexion.php';
+require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/config/conexion.php";
+
 
 // 1. Validar que llegue un ID por la URL y que sea un número válido
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
