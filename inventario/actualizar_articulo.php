@@ -2,7 +2,9 @@
 /**
  * Procesador - Actualizar Artículo
  */
-require_once '../config/conexion.php';
+require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/config/conexion.php";
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     

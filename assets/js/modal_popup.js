@@ -1138,3 +1138,49 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 });
+
+
+    // ======================================================
+    // MODAL PAGOS
+    // ======================================================
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const btnNuevoPago = document.getElementById("btnNuevoPago");
+    const modalPago = document.getElementById("modalPago");
+    const cerrarModalPago = document.getElementById("cerrarModalPago");
+
+    if (btnNuevoPago && modalPago) {
+
+        btnNuevoPago.addEventListener("click", function () {
+
+            modalPago.style.display = "flex";
+
+        });
+
+    }
+
+    if (cerrarModalPago && modalPago) {
+
+        cerrarModalPago.addEventListener("click", function () {
+
+            modalPago.style.display = "none";
+
+        });
+
+    }
+
+    // Cerrar haciendo clic fuera del modal
+    if (modalPago) {
+
+        modalPago.addEventListener("click", function (e) {
+
+            if (e.target === modalPago) {
+                modalPago.style.display = "none";
+            }
+
+        });
+
+    }
+
+});

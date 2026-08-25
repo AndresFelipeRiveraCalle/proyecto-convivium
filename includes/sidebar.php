@@ -113,7 +113,11 @@
                             Tasas de interes
                         </a>
                     </li>
-
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/pagos.php">
+                            Pagoss
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -138,7 +142,10 @@
             </li>
 
             <li>
-                <a href="#"><i class="fa-solid fa-boxes-stacked icono"></i> Inventario</a>
+                <a href="<?= BASE_URL ?>inventario/listar.php">
+                    <i class="fa-solid fa-boxes-stacked icono"></i>
+                    Inventario
+                </a>
             </li>
 
             <li>

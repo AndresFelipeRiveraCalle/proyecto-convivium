@@ -113,30 +113,19 @@ function formatoPeriodo($periodo)
 ?>
 
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
     <?php include ROOT_PATH . "/includes/head.php"; ?>
-
 </head>
-
 
 <body>
 
 <?php include ROOT_PATH . "/includes/header.php"; ?>
-
 <?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
 
-
 <div class="contenedor">
-
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-
-
     <main class="contenido">
-
 
         <div class="form-card">
 
