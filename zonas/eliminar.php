@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * =========================================================================
+ * MÓDULO: Zonas Comunes - Convivium
+ * ARCHIVO: eliminar.php
+ * DESCRIPCIÓN: Permite eliminar una zona común por el campo ID.
+ * AUTOR: Andrés Felipe Rivera Calle
+ * FECHA: 2026-08-04
+ * =========================================================================
+ */
+
+// Importar la conexión a la base de datos 
+require_once "../config/conexion.php";
+
+// Verifiar que el parámetro ID existe y que sea diferente de cadena vacía
+if (isset($_GET['id']) && !empty($_GET['id'])) {
+
+    // Capturar las variables de la URL
+    $id = $_GET['id'];
+
+    // Preparar la consulta SQL
+    $sql_eliminar = 'DELETE FROM zona_comun WHERE id = ?';
+
+    try {
+        $stmt = $conexion->prepare($sql_eliminar);
+        $stmt->execute([$id]);
+
+        // Redireccionar al index.php
+        header("Location: index.php?tipo=exito&mensaje=" . urlencode("Zona eliminada correctamente"));
+        exit;
+
+    } catch (PDOException $e) {
+
+        // Redireccionar al index.php
+        header("Location: index.php?tipo=error&mensaje=" . urlencode("No se pudo eliminar la zona"));
+        exit;
+    } 
+
+}

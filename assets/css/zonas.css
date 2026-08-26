@@ -1,0 +1,325 @@
+/**
+ * =========================================================================
+ * MÓDULO: Zonas Comunes - Convivium
+ * ARCHIVO: zonas.css
+ * DESCRIPCIÓN: Hoja de estilos del módulo de Zonas comunes.
+ * AUTOR: Andrés Felipe Rivera Calle
+ * FECHA: 2026-08-07
+ * =========================================================================
+ */
+
+/* TÍTULOS DEL MÓDULO */
+.zc-contenido h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #242424;
+    margin-bottom: 20px;
+}
+
+.zc-contenido h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #242424;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+/* CONTENEDOR DEL MÓDULO */
+.zc-contenedor {
+    display: flex; /* Permite que sus elementos se distribuyan horizontalmente */
+    min-height: calc(100vh - 70px);
+}
+
+/* CONTENIDO DEL MÓDULO */
+.zc-contenido {
+    flex: 1;
+    padding: 20px;
+}
+
+/* CARD */
+.zc-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+}
+
+/* FORMULARIO */
+.zc-form-zona {
+    margin-bottom: 40px;
+}
+.zc-form-row {
+    display: flex;
+    gap: 10px; /* Agrgar espacio entre los elementos hijos de un contenedor */ 
+    flex-wrap: wrap; /* Si no caben todos los elementos en una sola linea, permite que bajen a la siguiente */
+}
+
+.zc-form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.zc-form-group label{
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.zc-form-group input{
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+}
+
+.zc-form-group input:focus{
+    border-color: #12304A;
+}
+
+.zc-form-botones {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+}
+
+/* DISPONIBILIDAD DE LA ZONA */
+.zc-disponibilidad {
+    margin-top: 25px;
+    padding-top: 20px;
+    border: none;
+}
+
+.zc-disponibilidad h3 {
+    font-size: 16px;
+    color: #242424;
+    margin-bottom: 15px;
+}
+
+/* MENSAJE INFORMATIVO CONTENEDOR HORARIOS */
+.zc-mensaje-horarios {
+    margin: 0 0 15px;
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
+}
+
+/* DÍAS DE LA SEMANA */
+.zc-dias-semana {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.zc-dias-semana label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fff;
+    transition: .3s;
+}
+
+.zc-dias-semana label:hover {
+    border-color: #2ecc71;
+    background: #f0fff6;
+}
+
+.zc-dias-semana input[type="checkbox"] {
+    cursor: pointer;
+    accent-color: #2ecc71;
+}
+
+/* FORMULARIO DE HORARIO */
+.zc-horario-form {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.zc-horario-form .zc-form-group {
+    min-width: 200px;
+}
+
+.zc-horario-form label {
+    font-weight: 600;
+    color: #242424;
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* BOTONES DEL FORMULARIO */
+.zc-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: .3s;
+    color: white;
+    text-decoration: none;     
+    font-family: inherit; /* Conservar el tipo de fuente del padre*/
+    font-size: inherit; /* Conservar el tamaño de fuente del padre*/
+}
+
+.zc-btn-principal {
+    background: #2ecc71;
+}
+
+.zc-btn-principal:hover {
+    background: #27ae60;
+    transform: translateY(-2px);
+}
+
+.zc-btn-cancelar {
+    background: #b0bbb4;
+}
+
+.zc-btn-cancelar:hover{
+    background: #89918c;
+    transform: translateY(-2px);
+}
+
+/* BOTÓN AGREGAR HORARIO */
+.zc-btn-secundario {
+    background: #12304A;
+}
+
+.zc-btn-secundario:hover {
+    background: #1b4a70;
+    transform: translateY(-2px);
+}
+
+/* HORARIOS CONFIGURADOS */
+.zc-horarios-configurados {
+    margin-top: 25px;
+}
+
+.zc-horario-visual {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    background: #f0f1f3;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.zc-horario-visual button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    background: #e77676;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+    transition: .3s;
+}
+
+.zc-horario-visual button:hover {
+    background: #e95454;
+    transform: translateY(-1px);
+}
+
+/* MENSAJES DE CONFIRMACIÓN (ÉXITO - ERROR)*/
+.zc-mensaje {
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    transition: opacity .5s ease;
+}
+
+.zc-mensaje-exito {
+    background: #a4ecc2;
+    color: #023d1a;
+    border: 1px solid #023d1a;
+}
+
+.zc-mensaje-error {
+    background: #f07878;
+    color: #3d0202;
+    border: 1px solid #3d0202;
+}
+
+.zc-mensaje.zc-mensaje-ocultar {
+    opacity: 0;
+    visibility: hidden;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.zc-separador-listado {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 30px 0;
+}
+
+/* TABLA */
+.zc-tabla-zonas{
+    width: 100%; /* Permite que el elemento ocupe el 100% del ancho del contenedor del padre */
+    border-collapse: collapse; /* Permite que dibuje un solo borde cuando dos celdas comparten el mismo borde */
+}
+
+.zc-tabla-zonas th,
+.zc-tabla-zonas td{
+    padding: 4px 8px; /* 4px arriba/abajo y 8px a los lados */
+    vertical-align: middle;
+}
+
+.zc-tabla-zonas th{
+    background: #e1e4e7;
+    color: #444444;
+}
+
+.zc-tabla-zonas tbody tr:nth-child(even){ /* Pseudoclase para dar color a las filas pares */
+    background-color: #f0f1f3; 
+}
+
+.zc-tabla-zonas tbody tr:hover{
+    background-color: #d8d6d6;
+}
+
+.zc-tabla-zonas td:last-child {
+    text-align: center;
+    white-space: nowrap;
+    
+}
+
+/* BOTONES DE LA TABLA */
+.zc-btn-tabla{
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: .3s;
+    color: white;
+    text-decoration: none;   
+    font-size: .9rem;
+    display: inline-block;
+    box-sizing: border-box; /* Fuerza a que el alto total sea siempre 26px */
+    width: 80px;
+}
+
+.zc-btn-editar{
+    background: #778bff;
+    margin-right: 8px;
+}
+
+.zc-btn-editar:hover {
+    background: #4c62e0;
+    transform: translateY(-1px);
+}
+
+.zc-btn-eliminar {
+    background: #e77676;
+}
+.zc-btn-eliminar:hover {
+    background: #e95454;
+    transform: translateY(-2px);
+}
