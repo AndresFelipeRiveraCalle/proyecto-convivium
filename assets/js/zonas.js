@@ -26,7 +26,7 @@ botonesEliminar.forEach((boton, indice) => {
 })
 
 // Identificar todos los elementos que contienen la clase .mensaje
-const mensaje = document.querySelector('.mensaje');
+const mensaje = document.querySelector('.zc-mensaje');
 
 // Comprovar que exista el elemento
 if (mensaje) {
@@ -35,7 +35,7 @@ if (mensaje) {
     setTimeout(() => {
 
         // Agregar la clase ocultar al elemento para que entre el CSS 
-        mensaje.classList.add('ocultar');
+        mensaje.classList.add('zc-mensaje-ocultar');
 
         // Esperar a que termine la transición de opacidad
         setTimeout(() => {
@@ -195,7 +195,7 @@ function actualizarHorarios() {
         const horarioVisual = document.createElement('div');
 
         // Identificar el elemento como horario visual
-        horarioVisual.classList.add('horario-visual');  
+        horarioVisual.classList.add('zc-horario-visual');  
 
         // Obtener el nombre del día
         const nombreDia = nombresDias[horario.dia_semana];

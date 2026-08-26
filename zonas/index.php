@@ -11,7 +11,8 @@
  * =========================================================================
  */
 
-// Incluir la ruta de la conexión a la base de datos
+// Incluir la ruta de la conexión a la base de datos y config.php
+require_once "../config/config.php";
 require_once "../config/conexion.php";
 
 // Consultar a la base de datos todas la zonas comunes organizadas ascendentemente
@@ -80,38 +81,37 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php require_once "../includes/head.php"; ?>    
     <title>Zonas Comunes</title>
     <!-- Estilos exclusivos del módulo -->
-    <link rel="stylesheet" href="../assets/css/zonas.css">
-    <!-- Datos del módulo -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/zonas.css?v=<?= time() ?>">
+    <!-- Datos enviados desde PHP hacia JavaScript -->
     <script>
         const horariosExistentes = <?= json_encode($horarios ?? []) ?>;
     </script>
-    <!-- JavaScript del módulo -->
-    <script src="../assets/js/zonas.js" defer></script>
+    <!-- JavaScript exclusivo del módulo -->
+    <script src="<?= BASE_URL ?>assets/js/zonas.js?v=<?= time() ?>" defer></script>
 </head>
 
 <body>
 
-    <header></header>
+    <?php require_once "../includes/header.php"; ?>
 
-    <div class="contenedor">
-        <aside></aside>
+    <div class="zc-contenedor">
+        <?php require_once "../includes/sidebar.php"; ?>
 
-        <main class="contenido">
+        <main class="zc-contenido">
             <h1>Administración de Zonas Comunes</h1>
-            <div class="card">
+            <div class="zc-card">
 
                 <h2>Datos de la Zona</h2>
 
-                <form id="form-zona" class="form-zona" action="<?= isset($id) ? 'actualizar.php' : 'guardar.php' ?>" method="POST">
-                    <div class="form-row">
+                <form id="form-zona" class="zc-form-zona" action="<?= isset($id) ? 'actualizar.php' : 'guardar.php' ?>" method="POST">
+                    <div class="zc-form-row">
                         <?php if (isset($id)) { ?>
                             <input type="hidden" name="id" value="<?= htmlspecialchars($id) ?>">
                         <?php } ?>
-                        <div class="form-group">
+                        <div class="zc-form-group">
                             <label for="nombre">Nombre</label>
                             <input
                                 type="text"
@@ -121,7 +121,7 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                                 value="<?= htmlspecialchars($nombre) ?>"
                                 required>
                         </div>
-                        <div class="form-group">
+                        <div class="zc-form-group">
                             <label for="descripcion">Descripción</label>
                             <input
                                 type="text"
@@ -131,7 +131,7 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                                 value="<?= htmlspecialchars($descripcion) ?>"
                                 required>
                         </div>
-                        <div class="form-group">
+                        <div class="zc-form-group">
                             <label for="capacidad">Capacidad</label>
                             <input
                                 type="number"
@@ -143,14 +143,14 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                         </div>
                     </div>
 
-                    <fieldset class="disponibilidad" id="seccion-horarios" disabled>
+                    <fieldset class="zc-disponibilidad" id="seccion-horarios" disabled>
                         <h3>Días Disponibles</h3>
 
-                        <p id="mensaje-horarios" class="mensaje-horarios">
+                        <p id="mensaje-horarios" class="zc-mensaje-horarios">
                             Completa los datos de la zona para configurar los horarios.
                         </p>
 
-                        <div class="dias-semana">
+                        <div class="zc-dias-semana">
                             <label>
                                 <input type="checkbox" name="dias[]" value="1">Lunes
                             </label>
@@ -174,49 +174,49 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                             </label>
                         </div>
 
-                        <div class="horario-form">
-                            <div class="form-group">
+                        <div class="zc-horario-form">
+                            <div class="zc-form-group">
                                 <label for="hora_inicio">Hora de inicio</label>
                                 <input type="time" id="hora_inicio" name="hora_inicio">
                             </div>
-                            <div class="form-group">
+                            <div class="zc-form-group">
                                 <label for="hora_fin">Hora de fin</label>
                                 <input type="time" id="hora_fin" name="hora_fin">
                             </div>
                         </div>
 
-                        <button type="button" id="btn-agregar-horario" class="btn btn-secundario">
+                        <button type="button" id="btn-agregar-horario" class="zc-btn zc-btn-secundario">
                             Agregar horario
                         </button>
 
-                        <div id="horarios-configurados" class="horarios-configurados"> <!-- Mostrar visualmente los horarios al usuario -->
+                        <div id="horarios-configurados" class="zc-horarios-configurados"> <!-- Mostrar visualmente los horarios al usuario -->
                             <h3 id="titulo-horarios">Horarios Configurados</h3>
                         </div>
                         <div id="horarios-inputs"></div> <!-- Contener los Inputs hidden que posteriormente recibirá PHP -->
                     </fieldset>
 
-                    <div class="form-botones">
-                        <button type="submit" class="btn btn-principal">
+                    <div class="zc-form-botones">
+                        <button type="submit" class="zc-btn zc-btn-principal">
                             <?= isset($id) ? 'Actualizar Zona' : 'Registrar Zona' ?> <!-- Operador ternario si existe la variable $id cambia a modo actualizar sino permanece en modo guardar -->
                         </button>
 
                         <?php if (isset($id)) { ?> <!-- Si existe $id se genera el botón cancelar -->
-                            <a href="index.php" class="btn btn-cancelar">Cancelar</a>
+                            <a href="index.php" class="zc-btn zc-btn-cancelar">Cancelar</a>
                         <?php } ?>
                     </div>
                 </form>
 
                 <?php if (isset($mensaje)) { ?>
-                    <div id="mensaje-alerta" class="mensaje mensaje-<?= htmlspecialchars($tipo) ?>"> <!-- convertir los caracteres especiales en entidades HTML y el navegador los muestra como texto, no como código. -->
+                    <div id="mensaje-alerta" class="zc-mensaje zc-mensaje-<?= htmlspecialchars($tipo) ?>"> <!-- convertir los caracteres especiales en entidades HTML y el navegador los muestra como texto, no como código. -->
                         <?= htmlspecialchars($mensaje) ?>
                     </div>
                 <?php } ?>
 
-                <hr class="separador-listado">
+                <hr class="zc-separador-listado">
 
                 <h2>Listado de Zonas Comunes</h2>
 
-                <table class="tabla-zonas">
+                <table class="zc-tabla-zonas">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -234,8 +234,8 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
                                 <td><?= $fila['descripcion'] ?></td>
                                 <td><?= $fila['capacidad'] ?></td>
                                 <td>
-                                    <a href="index.php?id_editar=<?= $fila['id'] ?>" class="btn-tabla btn-editar">Editar</a>
-                                    <a href="eliminar.php?id=<?= $fila['id'] ?>" class="btn-tabla btn-eliminar">Eliminar</a>
+                                    <a href="index.php?id_editar=<?= $fila['id'] ?>" class="zc-btn-tabla zc-btn-editar">Editar</a>
+                                    <a href="eliminar.php?id=<?= $fila['id'] ?>" class="zc-btn-tabla zc-btn-eliminar">Eliminar</a>
                                 </td>
                             </tr>
                         <?php } ?>
