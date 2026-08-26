@@ -169,7 +169,7 @@ function actualizarHorarios() {
     
     // Eliminar los horarios visuales anteriores sin eliminar el título "Horarios Configurados"
     horariosConfigurados
-        .querySelectorAll('.horario-visual')
+        .querySelectorAll('.zc-horario-visual')
         .forEach((elemento) => {
             elemento.remove();
         });
