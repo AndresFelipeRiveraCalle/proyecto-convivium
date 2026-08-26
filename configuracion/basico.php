@@ -166,23 +166,7 @@ $bloqueadoTipoUnidad = true;
     <?php include ROOT_PATH . "/includes/head.php"; ?>
 </head>
 
-<!-- ==========================================
-        MODAL DE MENSAJES DEL SISTEMA
-        ========================================== -->
 
-<div id="modalMensaje" class="modal">
-    <div class="modal-contenido modal-mensaje">
-        <h2 id="tituloMensaje"></h2>
-        <br>
-        <p id="textoMensaje"></p>
-        <br><br>
-        <div class="acciones-modal">
-            <button type="button" id="btnCerrarMensaje" class="btn-filtrar">
-                Aceptar
-            </button>
-        </div>
-    </div>
-</div>
 
 <body>
     <?php include ROOT_PATH . "/includes/header.php"; ?>

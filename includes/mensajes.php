@@ -6,7 +6,7 @@ $mensaje = $_GET['mensaje'] ?? ($_GET['texto'] ?? null);
 if ($tipoMensaje && $mensaje):
 
     $titulo = 'Mensaje';
-    
+
     if ($tipoMensaje === 'success') {
         $titulo = 'Operación exitosa';
     } elseif ($tipoMensaje === 'error') {
@@ -20,11 +20,11 @@ if ($tipoMensaje && $mensaje):
 ?>
 
 <div id="modalMensaje" class="modal">
-    
-    <div class="modal-contenido">
-        
+
+    <div class="modal-contenido modal-mensaje">
+
         <div class="modal-header">
-            
+
             <h3 id="tituloMensaje">
                 <?= htmlspecialchars($titulo) ?>
             </h3>
@@ -39,7 +39,7 @@ if ($tipoMensaje && $mensaje):
         </div>
 
         <div class="modal-body">
-            
+
             <p id="textoMensaje">
                 <?= htmlspecialchars($mensaje) ?>
             </p>
@@ -62,6 +62,7 @@ if ($tipoMensaje && $mensaje):
 </div>
 
 <script>
+
 document.addEventListener("DOMContentLoaded", function () {
 
     const modal = document.getElementById("modalMensaje");
@@ -78,23 +79,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
         modal.style.display = "none";
 
-        // Eliminar los parámetros del mensaje de la URL
         const url = new URL(window.location.href);
 
         url.searchParams.delete("tipo");
         url.searchParams.delete("mensaje");
         url.searchParams.delete("texto");
 
-        window.history.replaceState({}, document.title, url.pathname + url.search);
-
+        window.history.replaceState(
+            {},
+            document.title,
+            url.pathname + url.search
+        );
     }
 
     if (btnCerrar) {
-        btnCerrar.addEventListener("click", cerrarModalMensaje);
+        btnCerrar.addEventListener(
+            "click",
+            cerrarModalMensaje
+        );
     }
 
     if (btnAceptar) {
-        btnAceptar.addEventListener("click", cerrarModalMensaje);
+        btnAceptar.addEventListener(
+            "click",
+            cerrarModalMensaje
+        );
     }
 
     modal.addEventListener("click", function (e) {
@@ -106,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
 </script>
 
 <?php endif; ?>
