@@ -125,60 +125,6 @@ function configurarModal(idBoton, idModal, idCerrar, idCancelar) {
 }
 
 
-/*=====================================================
-=                  MODAL MENSAJES                      =
-=====================================================*/
-
-function mostrarMensaje() {
-
-    const modal = document.getElementById("modalMensaje");
-
-    if (!modal) return;
-
-    const titulo = document.getElementById("tituloMensaje");
-    const texto = document.getElementById("textoMensaje");
-    const btnCerrar = document.getElementById("btnCerrarMensaje");
-    const parametros = new URLSearchParams(window.location.search);
-    const tipo = parametros.get("tipo");
-    const mensaje = parametros.get("texto");
-
-    if (!tipo || !mensaje) {
-        return;
-    }
-
-    switch (tipo) {
-
-        case "success":
-            titulo.innerHTML = "✅ Éxito";
-            break;
-
-        case "warning":
-            titulo.innerHTML = "⚠ Advertencia";
-            break;
-
-        case "error":
-            titulo.innerHTML = "❌ Error";
-            break;
-
-        case "info":
-            titulo.innerHTML = "ℹ Información";
-            break;
-
-        default:
-            titulo.innerHTML = "Mensaje";
-    }
-
-    texto.innerHTML = mensaje;
-
-    modal.style.display = "block";
-
-    btnCerrar.addEventListener("click", function () {
-        cerrarModal(modal);
-        // Elimina los parámetros de la URL
-        history.replaceState({}, "", window.location.pathname);
-    });
-}
-
 
 /*=====================================================
 =            CERRAR CUALQUIER MODAL                    =
@@ -1061,35 +1007,7 @@ if (modalEditarGenero) {
 }
 
 
-// ==========================================================
-// MODAL CARGA DE DOCUMENTOS
-// ==========================================================
 
-function mostrarMensaje(tipo, mensaje) {
-
-    const modal = document.getElementById("modalMensaje");
-    const titulo = document.getElementById("tituloMensaje");
-    const texto = document.getElementById("textoMensaje");
-
-    if (!modal || !titulo || !texto) {
-        console.error("No se encontró el modal de mensajes.");
-        return;
-    }
-
-    texto.textContent = mensaje;
-
-    if (tipo === "success") {
-
-        titulo.textContent = "✓ Operación exitosa";
-
-    } else {
-
-        titulo.textContent = "⚠ Ocurrió un problema";
-
-    }
-
-    modal.style.display = "flex";
-}
 
 
 function cerrarModalMensaje() {
