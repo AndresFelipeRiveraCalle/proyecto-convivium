@@ -8,28 +8,15 @@
  * =========================================================================
  */
 
-/* RESET de style.css */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-/* BODY */
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: #f5f5f5;
-}
-
-/* TITULOS */
-h1 {
+/* TÍTULOS DEL MÓDULO */
+.zc-contenido h1 {
     font-size: 32px;
     font-weight: 700;
     color: #242424;
     margin-bottom: 20px;
 }
 
-h2 {
+.zc-contenido h2 {
     font-size: 24px;
     font-weight: 600;
     color: #242424;
@@ -37,20 +24,20 @@ h2 {
     margin-bottom: 10px;
 }
 
-/* CONTENEDOR */
-.contenedor {
+/* CONTENEDOR DEL MÓDULO */
+.zc-contenedor {
     display: flex; /* Permite que sus elementos se distribuyan horizontalmente */
     min-height: calc(100vh - 70px);
 }
 
-/* CONTENIDO ZONAS */
-.contenido {
+/* CONTENIDO DEL MÓDULO */
+.zc-contenido {
     flex: 1;
     padding: 20px;
 }
 
 /* CARD */
-.card {
+.zc-card {
     background: white;
     padding: 20px;
     border-radius: 10px;
@@ -58,27 +45,27 @@ h2 {
 }
 
 /* FORMULARIO */
-.form-zona {
+.zc-form-zona {
     margin-bottom: 40px;
 }
-.form-row {
+.zc-form-row {
     display: flex;
     gap: 10px; /* Agrgar espacio entre los elementos hijos de un contenedor */ 
     flex-wrap: wrap; /* Si no caben todos los elementos en una sola linea, permite que bajen a la siguiente */
 }
 
-.form-group {
+.zc-form-group {
     flex: 1;
     min-width: 200px;
 }
 
-.form-group label{
+.zc-form-group label{
     display: block;
     margin-bottom: 6px;
     font-weight: bold;
 }
 
-.form-group input{
+.zc-form-group input{
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -86,31 +73,31 @@ h2 {
     outline: none;
 }
 
-.form-group input:focus{
+.zc-form-group input:focus{
     border-color: #12304A;
 }
 
-.form-botones {
+.zc-form-botones {
     margin-top: 20px;
     display: flex;
     gap: 20px;
 }
 
 /* DISPONIBILIDAD DE LA ZONA */
-.disponibilidad {
+.zc-disponibilidad {
     margin-top: 25px;
     padding-top: 20px;
     border: none;
 }
 
-.disponibilidad h3 {
+.zc-disponibilidad h3 {
     font-size: 16px;
     color: #242424;
     margin-bottom: 15px;
 }
 
 /* MENSAJE INFORMATIVO CONTENEDOR HORARIOS */
-.mensaje-horarios {
+.zc-mensaje-horarios {
     margin: 0 0 15px;
     font-size: 14px;
     color: #666;
@@ -118,14 +105,14 @@ h2 {
 }
 
 /* DÍAS DE LA SEMANA */
-.dias-semana {
+.zc-dias-semana {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 20px;
 }
 
-.dias-semana label {
+.zc-dias-semana label {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -137,29 +124,29 @@ h2 {
     transition: .3s;
 }
 
-.dias-semana label:hover {
+.zc-dias-semana label:hover {
     border-color: #2ecc71;
     background: #f0fff6;
 }
 
-.dias-semana input[type="checkbox"] {
+.zc-dias-semana input[type="checkbox"] {
     cursor: pointer;
     accent-color: #2ecc71;
 }
 
 /* FORMULARIO DE HORARIO */
-.horario-form {
+.zc-horario-form {
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
     margin-bottom: 15px;
 }
 
-.horario-form .form-group {
+.zc-horario-form .zc-form-group {
     min-width: 200px;
 }
 
-.horario-form label {
+.zc-horario-form label {
     font-weight: 600;
     color: #242424;
     display: block;
@@ -167,7 +154,7 @@ h2 {
 }
 
 /* BOTONES DEL FORMULARIO */
-.btn {
+.zc-btn {
     padding: 10px 20px;
     border: none;
     border-radius: 8px;
@@ -179,40 +166,40 @@ h2 {
     font-size: inherit; /* Conservar el tamaño de fuente del padre*/
 }
 
-.btn-principal {
+.zc-btn-principal {
     background: #2ecc71;
 }
 
-.btn-principal:hover {
+.zc-btn-principal:hover {
     background: #27ae60;
     transform: translateY(-2px);
 }
 
-.btn-cancelar {
+.zc-btn-cancelar {
     background: #b0bbb4;
 }
 
-.btn-cancelar:hover{
+.zc-btn-cancelar:hover{
     background: #89918c;
     transform: translateY(-2px);
 }
 
 /* BOTÓN AGREGAR HORARIO */
-.btn-secundario {
+.zc-btn-secundario {
     background: #12304A;
 }
 
-.btn-secundario:hover {
+.zc-btn-secundario:hover {
     background: #1b4a70;
     transform: translateY(-2px);
 }
 
 /* HORARIOS CONFIGURADOS */
-.horarios-configurados {
+.zc-horarios-configurados {
     margin-top: 25px;
 }
 
-.horario-visual {
+.zc-horario-visual {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -224,7 +211,7 @@ h2 {
     border-radius: 8px;
 }
 
-.horario-visual button {
+.zc-horario-visual button {
     padding: 6px 12px;
     border: none;
     border-radius: 6px;
@@ -235,77 +222,77 @@ h2 {
     transition: .3s;
 }
 
-.horario-visual button:hover {
+.zc-horario-visual button:hover {
     background: #e95454;
     transform: translateY(-1px);
 }
 
 /* MENSAJES DE CONFIRMACIÓN (ÉXITO - ERROR)*/
-.mensaje {
+.zc-mensaje {
     padding: 10px 20px;
     border-radius: 8px;
     margin: 20px 0;
     transition: opacity .5s ease;
 }
 
-.mensaje-exito {
+.zc-mensaje-exito {
     background: #a4ecc2;
     color: #023d1a;
     border: 1px solid #023d1a;
 }
 
-.mensaje-error {
+.zc-mensaje-error {
     background: #f07878;
     color: #3d0202;
     border: 1px solid #3d0202;
 }
 
-.mensaje.ocultar {
+.zc-mensaje.zc-mensaje-ocultar {
     opacity: 0;
     visibility: hidden;
     margin-top: 0;
     margin-bottom: 0;
 }
 
-.separador-listado {
+.zc-separador-listado {
     border: none;
     border-top: 1px solid #ddd;
     margin: 30px 0;
 }
 
 /* TABLA */
-.tabla-zonas{
+.zc-tabla-zonas{
     width: 100%; /* Permite que el elemento ocupe el 100% del ancho del contenedor del padre */
     border-collapse: collapse; /* Permite que dibuje un solo borde cuando dos celdas comparten el mismo borde */
 }
 
-.tabla-zonas th,
-.tabla-zonas td{
+.zc-tabla-zonas th,
+.zc-tabla-zonas td{
     padding: 4px 8px; /* 4px arriba/abajo y 8px a los lados */
     vertical-align: middle;
 }
 
-.tabla-zonas th{
+.zc-tabla-zonas th{
     background: #e1e4e7;
     color: #444444;
 }
 
-.tabla-zonas tbody tr:nth-child(even){ /* Pseudoclase para dar color a las filas pares */
+.zc-tabla-zonas tbody tr:nth-child(even){ /* Pseudoclase para dar color a las filas pares */
     background-color: #f0f1f3; 
 }
 
-.tabla-zonas tbody tr:hover{
+.zc-tabla-zonas tbody tr:hover{
     background-color: #d8d6d6;
 }
 
-.tabla-zonas td:last-child {
+.zc-tabla-zonas td:last-child {
     text-align: center;
     white-space: nowrap;
     
 }
 
 /* BOTONES DE LA TABLA */
-.btn-tabla{
+.zc-btn-tabla{
     padding: 5px 10px;
     border: none;
     border-radius: 5px;
@@ -319,20 +306,20 @@ h2 {
     width: 80px;
 }
 
-.btn-editar{
+.zc-btn-editar{
     background: #778bff;
     margin-right: 8px;
 }
 
-.btn-editar:hover {
+.zc-btn-editar:hover {
     background: #4c62e0;
     transform: translateY(-1px);
 }
 
-.btn-eliminar {
+.zc-btn-eliminar {
     background: #e77676;
 }
-.btn-eliminar:hover {
+.zc-btn-eliminar:hover {
     background: #e95454;
     transform: translateY(-2px);
 }
