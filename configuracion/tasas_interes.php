@@ -541,6 +541,59 @@ function formatoTasa($valor)
 
             </div>
 
+            <div class="campos-dos">
+
+                <div class="campo">
+
+                    <label for="periodicidad">
+                        Periodicidad
+                    </label>
+
+                    <select
+                        name="periodicidad"
+                        id="periodicidad"
+                        required
+                    >
+
+                        <option value="MENSUAL">
+                            Mensual
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label for="metodo_calculo">
+                        Método de cálculo
+                    </label>
+
+                    <select
+                        name="metodo_calculo"
+                        id="metodo_calculo"
+                        required
+                    >
+
+                        <option value="MES_VENCIDO">
+                            Mes vencido
+                        </option>
+
+                        <option value="DIARIO">
+                            Diario
+                        </option>
+
+                        <option value="OTRO">
+                            Otro
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
 
             <!-- FECHAS -->
 

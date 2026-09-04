@@ -3,6 +3,46 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
+
+// ==========================================================
+// VALIDAR MÉTODO
+// ==========================================================
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+
+    header(
+        "Location: " .
+        BASE_URL .
+        "configuracion/conceptos_facturacion.php"
+    );
+
+    exit;
+}
+
+
+// ==========================================================
+// FUNCIÓN DE REDIRECCIÓN
+// ==========================================================
+
+function redireccionarConceptos(
+    $tipo,
+    $mensaje
+) {
+
+    header(
+        "Location: " .
+        BASE_URL .
+        "configuracion/conceptos_facturacion.php" .
+        "?tipo=" .
+        urlencode($tipo) .
+        "&texto=" .
+        urlencode($mensaje)
+    );
+
+    exit;
+}
+
+
 try {
 
     // ==========================================================
@@ -21,7 +61,15 @@ try {
         ? trim($_POST["tipo_calculo"])
         : "";
 
-    $id_cuenta_contable = !empty($_POST["id_cuenta_contable"])
+    $id_tipo_obligacion = !empty(
+        $_POST["id_tipo_obligacion"]
+    )
+        ? (int) $_POST["id_tipo_obligacion"]
+        : 0;
+
+    $id_cuenta_contable = !empty(
+        $_POST["id_cuenta_contable"]
+    )
         ? (int) $_POST["id_cuenta_contable"]
         : null;
 
@@ -40,17 +88,35 @@ try {
 
     if ($nombre === "") {
 
-        $mensaje = urlencode(
+        redireccionarConceptos(
+            "warning",
             "Debe ingresar el nombre del concepto."
         );
+    }
 
-        header(
-            "Location: " .
-            BASE_URL .
-            "configuracion/conceptos_facturacion.php?tipo=warning&texto=$mensaje"
+
+    if (mb_strlen($nombre) > 100) {
+
+        redireccionarConceptos(
+            "warning",
+            "El nombre del concepto no puede superar los 100 caracteres."
         );
+    }
 
-        exit;
+
+    // ==========================================================
+    // VALIDAR DESCRIPCIÓN
+    // ==========================================================
+
+    if (
+        $descripcion !== null &&
+        mb_strlen($descripcion) > 255
+    ) {
+
+        redireccionarConceptos(
+            "warning",
+            "La descripción no puede superar los 255 caracteres."
+        );
     }
 
 
@@ -65,19 +131,71 @@ try {
         "PORCENTAJE"
     ];
 
-    if (!in_array($tipo_calculo, $tiposPermitidos, true)) {
 
-        $mensaje = urlencode(
+    if (
+        !in_array(
+            $tipo_calculo,
+            $tiposPermitidos,
+            true
+        )
+    ) {
+
+        redireccionarConceptos(
+            "warning",
             "El tipo de cálculo seleccionado no es válido."
         );
+    }
 
-        header(
-            "Location: " .
-            BASE_URL .
-            "configuracion/conceptos_facturacion.php?tipo=warning&texto=$mensaje"
+
+    // ==========================================================
+    // VALIDAR TIPO DE OBLIGACIÓN
+    // ==========================================================
+
+    if ($id_tipo_obligacion <= 0) {
+
+        redireccionarConceptos(
+            "warning",
+            "Debe seleccionar un tipo de obligación."
         );
+    }
 
-        exit;
+
+    $sqlTipoObligacion = "
+        SELECT
+            id_tipo_obligacion
+
+        FROM tipos_obligacion
+
+        WHERE id_tipo_obligacion =
+            :id_tipo_obligacion
+
+        LIMIT 1
+    ";
+
+
+    $stmtTipoObligacion = $conexion->prepare(
+        $sqlTipoObligacion
+    );
+
+
+    $stmtTipoObligacion->execute([
+
+        ":id_tipo_obligacion"
+            => $id_tipo_obligacion
+
+    ]);
+
+
+    if (
+        !$stmtTipoObligacion->fetch(
+            PDO::FETCH_ASSOC
+        )
+    ) {
+
+        redireccionarConceptos(
+            "warning",
+            "El tipo de obligación seleccionado no existe."
+        );
     }
 
 
@@ -87,33 +205,44 @@ try {
 
     if ($id_cuenta_contable !== null) {
 
-        $sql = "
-            SELECT id_cuenta_contable
+        $sqlCuenta = "
+            SELECT
+                id_cuenta_contable
+
             FROM cuentas_contables
-            WHERE id_cuenta_contable = :id
+
+            WHERE id_cuenta_contable =
+                :id_cuenta_contable
+
               AND estado = 1
+
             LIMIT 1
         ";
 
-        $stmt = $conexion->prepare($sql);
 
-        $stmt->execute([
-            ":id" => $id_cuenta_contable
+        $stmtCuenta = $conexion->prepare(
+            $sqlCuenta
+        );
+
+
+        $stmtCuenta->execute([
+
+            ":id_cuenta_contable"
+                => $id_cuenta_contable
+
         ]);
 
-        if (!$stmt->fetch(PDO::FETCH_ASSOC)) {
 
-            $mensaje = urlencode(
+        if (
+            !$stmtCuenta->fetch(
+                PDO::FETCH_ASSOC
+            )
+        ) {
+
+            redireccionarConceptos(
+                "warning",
                 "La cuenta contable seleccionada no existe o está inactiva."
             );
-
-            header(
-                "Location: " .
-                BASE_URL .
-                "configuracion/conceptos_facturacion.php?tipo=warning&texto=$mensaje"
-            );
-
-            exit;
         }
     }
 
@@ -122,7 +251,14 @@ try {
     // VALIDAR ESTADO
     // ==========================================================
 
-    if ($estado !== 0 && $estado !== 1) {
+    if (
+        !in_array(
+            $estado,
+            [0, 1],
+            true
+        )
+    ) {
+
         $estado = 1;
     }
 
@@ -131,32 +267,42 @@ try {
     // VERIFICAR CONCEPTO DUPLICADO
     // ==========================================================
 
-    $sql = "
-        SELECT id_concepto
+    $sqlDuplicado = "
+        SELECT
+            id_concepto
+
         FROM conceptos_facturacion
-        WHERE LOWER(TRIM(nombre)) = LOWER(TRIM(:nombre))
+
+        WHERE LOWER(TRIM(nombre)) =
+              LOWER(TRIM(:nombre))
+
         LIMIT 1
     ";
 
-    $stmt = $conexion->prepare($sql);
 
-    $stmt->execute([
-        ":nombre" => $nombre
+    $stmtDuplicado = $conexion->prepare(
+        $sqlDuplicado
+    );
+
+
+    $stmtDuplicado->execute([
+
+        ":nombre"
+            => $nombre
+
     ]);
 
-    if ($stmt->fetch(PDO::FETCH_ASSOC)) {
 
-        $mensaje = urlencode(
+    if (
+        $stmtDuplicado->fetch(
+            PDO::FETCH_ASSOC
+        )
+    ) {
+
+        redireccionarConceptos(
+            "warning",
             "Ya existe un concepto de facturación con ese nombre."
         );
-
-        header(
-            "Location: " .
-            BASE_URL .
-            "configuracion/conceptos_facturacion.php?tipo=warning&texto=$mensaje"
-        );
-
-        exit;
     }
 
 
@@ -170,6 +316,7 @@ try {
             nombre,
             descripcion,
             tipo_calculo,
+            id_tipo_obligacion,
             id_cuenta_contable,
             obligatorio,
             estado
@@ -179,21 +326,42 @@ try {
             :nombre,
             :descripcion,
             :tipo_calculo,
+            :id_tipo_obligacion,
             :id_cuenta_contable,
             :obligatorio,
             :estado
         )
     ";
 
-    $stmt = $conexion->prepare($sql);
+
+    $stmt = $conexion->prepare(
+        $sql
+    );
+
 
     $stmt->execute([
-        ":nombre" => $nombre,
-        ":descripcion" => $descripcion,
-        ":tipo_calculo" => $tipo_calculo,
-        ":id_cuenta_contable" => $id_cuenta_contable,
-        ":obligatorio" => $obligatorio,
-        ":estado" => $estado
+
+        ":nombre"
+            => $nombre,
+
+        ":descripcion"
+            => $descripcion,
+
+        ":tipo_calculo"
+            => $tipo_calculo,
+
+        ":id_tipo_obligacion"
+            => $id_tipo_obligacion,
+
+        ":id_cuenta_contable"
+            => $id_cuenta_contable,
+
+        ":obligatorio"
+            => $obligatorio,
+
+        ":estado"
+            => $estado
+
     ]);
 
 
@@ -201,30 +369,30 @@ try {
     // MENSAJE DE ÉXITO
     // ==========================================================
 
-    $mensaje = urlencode(
+    redireccionarConceptos(
+        "success",
         "Concepto de facturación creado correctamente."
     );
-
-    header(
-        "Location: " .
-        BASE_URL .
-        "configuracion/conceptos_facturacion.php?tipo=success&texto=$mensaje"
-    );
-
-    exit;
 
 
 } catch (PDOException $e) {
 
-    $mensaje = urlencode(
-        "Error al guardar el concepto: " . $e->getMessage()
+    // ==========================================================
+    // REGISTRAR ERROR REAL
+    // ==========================================================
+
+    error_log(
+        "Error guardando concepto de facturación: " .
+        $e->getMessage()
     );
 
-    header(
-        "Location: " .
-        BASE_URL .
-        "configuracion/conceptos_facturacion.php?tipo=error&texto=$mensaje"
-    );
 
-    exit;
+    // ==========================================================
+    // MENSAJE AL USUARIO
+    // ==========================================================
+
+    redireccionarConceptos(
+        "error",
+        "No fue posible guardar el concepto de facturación."
+    );
 }

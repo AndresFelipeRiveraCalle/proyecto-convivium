@@ -20,7 +20,8 @@ if (!$idCalendario) {
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/calendario_financiero.php?tipo=error&mensaje=" .
+        "configuracion/calendario_financiero.php" .
+        "?tipo=error&mensaje=" .
         urlencode(
             "El período financiero no es válido."
         )
@@ -75,7 +76,8 @@ if (!$calendario) {
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/calendario_financiero.php?tipo=error&mensaje=" .
+        "configuracion/calendario_financiero.php" .
+        "?tipo=error&mensaje=" .
         urlencode(
             "El período financiero no existe."
         )
@@ -133,6 +135,56 @@ $periodoInput = date(
     'Y-m',
     strtotime($calendario['periodo'])
 );
+
+
+// ==========================================================
+// CONFIGURAR MENSAJE SEGÚN ESTADO
+// ==========================================================
+
+$mensajeEstado = '';
+$claseMensajeEstado = 'alerta-info';
+
+
+switch ($calendario['estado']) {
+
+    case 'ABIERTO':
+
+        $mensajeEstado =
+            "El período está abierto. Puede modificar sus fechas " .
+            "y configuración operativa.";
+
+        $claseMensajeEstado =
+            'alerta-info';
+
+        break;
+
+
+    case 'EN_CIERRE':
+
+        $mensajeEstado =
+            "Este período se encuentra en proceso de cierre. " .
+            "Verifique cuidadosamente cualquier modificación antes " .
+            "de guardar los cambios.";
+
+        $claseMensajeEstado =
+            'alerta-warning';
+
+        break;
+
+
+    case 'CERRADO':
+
+        $mensajeEstado =
+            "Este período ya está cerrado. El administrador puede " .
+            "modificarlo o reabrirlo, pero los cambios pueden afectar " .
+            "la interpretación histórica de la facturación, los " .
+            "vencimientos y los procesos financieros asociados.";
+
+        $claseMensajeEstado =
+            'alerta-warning';
+
+        break;
+}
 
 ?>
 
@@ -199,6 +251,24 @@ $periodoInput = date(
 
 
             <!-- ==================================================
+                 ADVERTENCIA SEGÚN ESTADO
+            =================================================== -->
+
+            <div class="<?= htmlspecialchars($claseMensajeEstado) ?>">
+
+                <strong>
+                    Estado del período:
+                    <?= htmlspecialchars($calendario['estado']) ?>
+                </strong>
+
+                <br>
+
+                <?= htmlspecialchars($mensajeEstado) ?>
+
+            </div>
+
+
+            <!-- ==================================================
                  FORMULARIO
             =================================================== -->
 
@@ -238,7 +308,7 @@ $periodoInput = date(
 
                     <small>
                         <?= htmlspecialchars($periodoTexto) ?>.
-                        El período no puede modificarse.
+                        El período financiero no puede modificarse.
                     </small>
 
                 </div>
@@ -356,8 +426,8 @@ $periodoInput = date(
                         >
 
                         <small>
-                            Fecha en la que el sistema realizará
-                            el proceso automático de intereses.
+                            Fecha programada para el proceso
+                            de generación de intereses.
                         </small>
 
                     </div>
@@ -411,6 +481,11 @@ $periodoInput = date(
 
                     </select>
 
+                    <small>
+                        El administrador puede cambiar el estado del período,
+                        incluso reabrir un período cerrado cuando sea necesario.
+                    </small>
+
                 </div>
 
 
@@ -441,9 +516,10 @@ $periodoInput = date(
                     </p>
 
                     <small>
-                        Las modificaciones realizadas aquí
-                        afectarán el calendario operativo
-                        de este período.
+                        Las modificaciones realizadas aquí afectan
+                        el calendario operativo del período.
+                        Verifique especialmente las fechas si ya existen
+                        procesos financieros asociados.
                     </small>
 
                 </div>
@@ -468,6 +544,11 @@ $periodoInput = date(
                     ><?= htmlspecialchars(
                         $calendario['observaciones'] ?? ''
                     ) ?></textarea>
+
+                    <small>
+                        Si modifica un período en cierre o cerrado,
+                        es recomendable registrar aquí el motivo del cambio.
+                    </small>
 
                 </div>
 

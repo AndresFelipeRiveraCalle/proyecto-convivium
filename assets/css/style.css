@@ -127,6 +127,18 @@ body {
 .icono-cartera { color: #2ecc71 !important; }
 .icono-config { color: #18bbd7 !important; }
 
+
+/*ALERTAS*/
+
+.alerta-warning {
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    border: 1px solid #d6a500;
+    border-radius: 8px;
+    background: #fff8dd;
+}
+
+
 /* ===============================
    MENU DESPLEGABLE
 =================================*/

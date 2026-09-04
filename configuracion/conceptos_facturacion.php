@@ -14,12 +14,20 @@ $sql = "
         cf.nombre,
         cf.descripcion,
         cf.tipo_calculo,
+        cf.id_tipo_obligacion,
         cf.id_cuenta_contable,
         cf.obligatorio,
         cf.estado,
+
+        tob.nombre AS tipo_obligacion,
+
         cc.codigo AS codigo_cuenta,
         cc.nombre AS nombre_cuenta
+
     FROM conceptos_facturacion cf
+
+    LEFT JOIN tipos_obligacion tob
+        ON tob.id_tipo_obligacion = cf.id_tipo_obligacion
 
     LEFT JOIN cuentas_contables cc
         ON cc.id_cuenta_contable = cf.id_cuenta_contable
@@ -49,217 +57,382 @@ $sqlCuentas = "
 
 $stmtCuentas = $conexion->query($sqlCuentas);
 
-$cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
+$cuentasContables = $stmtCuentas->fetchAll(
+    PDO::FETCH_ASSOC
+);
+
+
+// ==========================================================
+// CARGAR TIPOS DE OBLIGACIÓN
+// ==========================================================
+
+$sqlTiposObligacion = "
+    SELECT
+        id_tipo_obligacion,
+        nombre
+    FROM tipos_obligacion
+    ORDER BY nombre
+";
+
+$stmtTiposObligacion = $conexion->query(
+    $sqlTiposObligacion
+);
+
+$tiposObligacion = $stmtTiposObligacion->fetchAll(
+    PDO::FETCH_ASSOC
+);
 
 ?>
 
 <!DOCTYPE html>
+
 <html lang="es">
 
 <head>
+
     <?php include ROOT_PATH . "/includes/head.php"; ?>
+
 </head>
 
 <body>
 
 <?php include ROOT_PATH . "/includes/header.php"; ?>
+
 <?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
 
 
 <div class="contenedor">
+
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
 
+
     <main class="contenido">
-        <h2 align="center">Conceptos de facturación</h2>
+
+
+        <h2 align="center">
+            Conceptos de facturación
+        </h2>
+
         <br>
-        <p>Configura los conceptos que podrán utilizarse para generar los cobros de la copropiedad.</p>
+
+        <p>
+            Configura los conceptos que podrán utilizarse
+            para generar los cobros de la copropiedad.
+        </p>
+
         <br>
+
 
         <!-- ======================================================
              LISTADO
         ======================================================= -->
+
         <div class="bloque filtros">
+
             <div class="form-card">
-                <h3>Conceptos configurados</h3>
+
+
+                <h3>
+                    Conceptos configurados
+                </h3>
+
                 <br>
 
-                <table class="tabla">
-                    <thead>
-                        <tr>
-                            <th>Concepto</th>
-                            <th>Tipo de cálculo</th>
-                            <th>Cuenta contable</th>
-                            <th>Obligatorio</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-                    <?php if (empty($conceptos)): ?>
-                        <tr>
-                            <td colspan="6" align="center">
-                                No hay conceptos de facturación
-                                configurados.
-                            </td>
-                        </tr>
-                    <?php else: ?>
+                <div class="tabla-responsive">
+
+                    <table class="tabla">
 
 
-                        <?php foreach ($conceptos as $concepto): ?>
+                        <thead>
 
                             <tr>
 
-                                <!-- CONCEPTO -->
+                                <th>
+                                    Concepto
+                                </th>
 
-                                <td>
+                                <th>
+                                    Tipo de obligación
+                                </th>
 
-                                    <strong>
-                                        <?= htmlspecialchars(
-                                            $concepto['nombre']
-                                        ) ?>
-                                    </strong>
+                                <th>
+                                    Tipo de cálculo
+                                </th>
 
-                                    <?php if (!empty($concepto['descripcion'])): ?>
+                                <th>
+                                    Cuenta contable
+                                </th>
 
-                                        <br>
+                                <th>
+                                    Obligatorio
+                                </th>
 
-                                        <small>
-                                            <?= htmlspecialchars(
-                                                $concepto['descripcion']
-                                            ) ?>
-                                        </small>
+                                <th>
+                                    Estado
+                                </th>
 
-                                    <?php endif; ?>
+                                <th>
+                                    Acciones
+                                </th>
 
-                                </td>
+                            </tr>
 
-
-                                <!-- TIPO DE CÁLCULO -->
-
-                                <td>
-
-                                    <?php
-
-                                    switch ($concepto['tipo_calculo']) {
-
-                                        case 'FIJO':
-                                            echo 'Valor fijo';
-                                            break;
-
-                                        case 'METRO_CUADRADO':
-                                            echo 'Por metro cuadrado';
-                                            break;
-
-                                        case 'COEFICIENTE':
-                                            echo 'Por coeficiente';
-                                            break;
-
-                                        case 'PORCENTAJE':
-                                            echo 'Porcentaje';
-                                            break;
-
-                                        default:
-                                            echo htmlspecialchars(
-                                                $concepto['tipo_calculo']
-                                            );
-                                    }
-
-                                    ?>
-
-                                </td>
+                        </thead>
 
 
-                                <!-- CUENTA CONTABLE -->
-
-                                <td>
-
-                                    <?php if (
-                                        !empty($concepto['id_cuenta_contable'])
-                                    ): ?>
-
-                                        <?= htmlspecialchars(
-                                            $concepto['codigo_cuenta']
-                                        ) ?>
-
-                                        -
-                                        <?= htmlspecialchars(
-                                            $concepto['nombre_cuenta']
-                                        ) ?>
-
-                                    <?php else: ?>
-
-                                        <span class="inactivo">
-                                            Sin configurar
-                                        </span>
-
-                                    <?php endif; ?>
-
-                                </td>
+                        <tbody>
 
 
-                                <!-- OBLIGATORIO -->
-
-                                <td>
-
-                                    <?php if (
-                                        $concepto['obligatorio'] == 1
-                                    ): ?>
-
-                                        <span class="activo">
-                                            Sí
-                                        </span>
-
-                                    <?php else: ?>
-
-                                        No
-
-                                    <?php endif; ?>
-
-                                </td>
+                        <?php if (empty($conceptos)): ?>
 
 
-                                <!-- ESTADO -->
+                            <tr>
 
-                                <td>
-
-                                    <?php if (
-                                        $concepto['estado'] == 1
-                                    ): ?>
-
-                                        <span class="activo">
-                                            Activo
-                                        </span>
-
-                                    <?php else: ?>
-
-                                        <span class="inactivo">
-                                            Inactivo
-                                        </span>
-
-                                    <?php endif; ?>
-
-                                </td>
-
-
-                                <!-- ACCIONES -->
-                                <td>
-                                    <button type="button" class="btn-secondary btnEditarConcepto"
-                                        data-id="<?= $concepto['id_concepto'] ?>">
-                                        ✏ Editar
-                                    </button>
-
+                                <td
+                                    colspan="7"
+                                    align="center"
+                                >
+                                    No hay conceptos de facturación
+                                    configurados.
                                 </td>
 
                             </tr>
 
-                        <?php endforeach; ?>
 
-                    <?php endif; ?>
+                        <?php else: ?>
 
-                    </tbody>
 
-                </table>
+                            <?php foreach ($conceptos as $concepto): ?>
+
+
+                                <tr>
+
+
+                                    <!-- CONCEPTO -->
+
+                                    <td>
+
+                                        <strong>
+
+                                            <?= htmlspecialchars(
+                                                $concepto['nombre']
+                                            ) ?>
+
+                                        </strong>
+
+
+                                        <?php if (
+                                            !empty($concepto['descripcion'])
+                                        ): ?>
+
+                                            <br>
+
+                                            <small>
+
+                                                <?= htmlspecialchars(
+                                                    $concepto['descripcion']
+                                                ) ?>
+
+                                            </small>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <!-- TIPO DE OBLIGACIÓN -->
+
+                                    <td>
+
+                                        <?php if (
+                                            !empty($concepto['tipo_obligacion'])
+                                        ): ?>
+
+                                            <?= htmlspecialchars(
+                                                $concepto['tipo_obligacion']
+                                            ) ?>
+
+                                        <?php else: ?>
+
+                                            <span class="inactivo">
+
+                                                Sin configurar
+
+                                            </span>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <!-- TIPO DE CÁLCULO -->
+
+                                    <td>
+
+                                        <?php
+
+                                        switch (
+                                            $concepto['tipo_calculo']
+                                        ) {
+
+                                            case 'FIJO':
+
+                                                echo 'Valor fijo';
+
+                                                break;
+
+
+                                            case 'METRO_CUADRADO':
+
+                                                echo 'Por metro cuadrado';
+
+                                                break;
+
+
+                                            case 'COEFICIENTE':
+
+                                                echo 'Por coeficiente';
+
+                                                break;
+
+
+                                            case 'PORCENTAJE':
+
+                                                echo 'Porcentaje';
+
+                                                break;
+
+
+                                            default:
+
+                                                echo htmlspecialchars(
+                                                    $concepto['tipo_calculo']
+                                                );
+
+                                                break;
+                                        }
+
+                                        ?>
+
+                                    </td>
+
+
+                                    <!-- CUENTA CONTABLE -->
+
+                                    <td>
+
+                                        <?php if (
+                                            !empty(
+                                                $concepto[
+                                                    'id_cuenta_contable'
+                                                ]
+                                            )
+                                        ): ?>
+
+                                            <?= htmlspecialchars(
+                                                $concepto['codigo_cuenta']
+                                            ) ?>
+
+                                            -
+
+                                            <?= htmlspecialchars(
+                                                $concepto['nombre_cuenta']
+                                            ) ?>
+
+                                        <?php else: ?>
+
+                                            <span class="inactivo">
+
+                                                Sin configurar
+
+                                            </span>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <!-- OBLIGATORIO -->
+
+                                    <td>
+
+                                        <?php if (
+                                            (int)$concepto['obligatorio'] === 1
+                                        ): ?>
+
+                                            <span class="activo">
+
+                                                Sí
+
+                                            </span>
+
+                                        <?php else: ?>
+
+                                            No
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <!-- ESTADO -->
+
+                                    <td>
+
+                                        <?php if (
+                                            (int)$concepto['estado'] === 1
+                                        ): ?>
+
+                                            <span class="activo">
+
+                                                Activo
+
+                                            </span>
+
+                                        <?php else: ?>
+
+                                            <span class="inactivo">
+
+                                                Inactivo
+
+                                            </span>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <!-- ACCIONES -->
+
+                                    <td>
+
+                                        <button
+                                            type="button"
+                                            class="btn-secondary btnEditarConcepto"
+                                            data-id="<?= (int)$concepto['id_concepto'] ?>"
+                                        >
+                                            ✏ Editar
+                                        </button>
+
+                                    </td>
+
+
+                                </tr>
+
+
+                            <?php endforeach; ?>
+
+
+                        <?php endif; ?>
+
+
+                        </tbody>
+
+
+                    </table>
+
+                </div>
 
 
                 <br>
@@ -268,16 +441,16 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                 <button
                     type="button"
                     id="btnNuevoConcepto"
-                    class="btn-filtrar">
-
+                    class="btn-filtrar"
+                >
                     + Agregar concepto
-
                 </button>
 
 
             </div>
 
         </div>
+
 
     </main>
 
@@ -288,9 +461,13 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
      MODAL NUEVO CONCEPTO
 ========================================================== -->
 
-<div id="modalNuevoConcepto" class="modal">
+<div
+    id="modalNuevoConcepto"
+    class="modal"
+>
 
     <div class="modal-contenido">
+
 
         <div class="modal-header">
 
@@ -301,10 +478,9 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
             <button
                 type="button"
                 class="modal-cerrar"
-                id="cerrarNuevoConcepto">
-
+                id="cerrarNuevoConcepto"
+            >
                 &times;
-
             </button>
 
         </div>
@@ -312,7 +488,8 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
 
         <form
             action="<?= BASE_URL ?>actions/guardar_concepto_facturacion.php"
-            method="POST">
+            method="POST"
+        >
 
 
             <!-- NOMBRE -->
@@ -328,7 +505,8 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                     name="nombre"
                     maxlength="100"
                     required
-                    placeholder="Ej. Cuota de administración">
+                    placeholder="Ej. Cuota de administración"
+                >
 
             </div>
 
@@ -345,7 +523,8 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                     name="descripcion"
                     maxlength="255"
                     rows="3"
-                    placeholder="Descripción del concepto"></textarea>
+                    placeholder="Descripción del concepto"
+                ></textarea>
 
             </div>
 
@@ -360,7 +539,8 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
 
                 <select
                     name="tipo_calculo"
-                    required>
+                    required
+                >
 
                     <option value="">
                         Seleccione...
@@ -387,6 +567,47 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
 
+            <!-- TIPO DE OBLIGACIÓN -->
+
+            <div class="form-group">
+
+                <label>
+                    Tipo de obligación *
+                </label>
+
+                <select
+                    name="id_tipo_obligacion"
+                    required
+                >
+
+                    <option value="">
+                        Seleccione...
+                    </option>
+
+                    <?php foreach (
+                        $tiposObligacion
+                        as $tipo
+                    ): ?>
+
+                        <option
+                            value="<?= (int)$tipo[
+                                'id_tipo_obligacion'
+                            ] ?>"
+                        >
+
+                            <?= htmlspecialchars(
+                                $tipo['nombre']
+                            ) ?>
+
+                        </option>
+
+                    <?php endforeach; ?>
+
+                </select>
+
+            </div>
+
+
             <!-- CUENTA CONTABLE -->
 
             <div class="form-group">
@@ -396,23 +617,30 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                 </label>
 
                 <select
-                    name="id_cuenta_contable">
+                    name="id_cuenta_contable"
+                >
 
                     <option value="">
                         Seleccione una cuenta...
                     </option>
 
-
-                    <?php foreach ($cuentasContables as $cuenta): ?>
+                    <?php foreach (
+                        $cuentasContables
+                        as $cuenta
+                    ): ?>
 
                         <option
-                            value="<?= $cuenta['id_cuenta_contable'] ?>">
+                            value="<?= (int)$cuenta[
+                                'id_cuenta_contable'
+                            ] ?>"
+                        >
 
                             <?= htmlspecialchars(
                                 $cuenta['codigo']
                             ) ?>
 
                             -
+
                             <?= htmlspecialchars(
                                 $cuenta['nombre']
                             ) ?>
@@ -435,11 +663,18 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                     <input
                         type="checkbox"
                         name="obligatorio"
-                        value="1">
+                        value="1"
+                    >
 
                     Concepto obligatorio
 
                 </label>
+
+                <small>
+                    Los conceptos obligatorios serán considerados
+                    por el motor general de facturación cuando exista
+                    una tarifa vigente para la unidad.
+                </small>
 
             </div>
 
@@ -453,7 +688,8 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                 </label>
 
                 <select
-                    name="estado">
+                    name="estado"
+                >
 
                     <option value="1">
                         Activo
@@ -475,24 +711,24 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                 <button
                     type="button"
                     class="btn-limpiar"
-                    id="cancelarNuevoConcepto">
-
+                    id="cancelarNuevoConcepto"
+                >
                     Cancelar
-
                 </button>
 
 
                 <button
                     type="submit"
-                    class="btn-filtrar">
-
+                    class="btn-filtrar"
+                >
                     Guardar
-
                 </button>
 
             </div>
 
+
         </form>
+
 
     </div>
 
@@ -503,35 +739,49 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
      MODAL EDITAR CONCEPTO
 ========================================================== -->
 
-<div id="modalEditarConcepto" class="modal">
+<div
+    id="modalEditarConcepto"
+    class="modal"
+>
 
     <div class="modal-contenido">
 
+
         <div class="modal-header">
 
-            <h3>Editar concepto de facturación</h3>
+            <h3>
+                Editar concepto de facturación
+            </h3>
 
             <button
                 type="button"
                 class="modal-cerrar"
-                id="cerrarModalEditarConcepto">
+                id="cerrarModalEditarConcepto"
+            >
                 &times;
             </button>
 
         </div>
 
+
         <form
             id="formEditarConcepto"
             action="<?= BASE_URL ?>actions/actualizar_concepto_facturacion.php"
-            method="POST">
+            method="POST"
+        >
+
 
             <!-- ID -->
+
             <input
                 type="hidden"
                 name="id_concepto"
-                id="editar_id_concepto">
+                id="editar_id_concepto"
+            >
+
 
             <!-- NOMBRE -->
+
             <div class="form-group">
 
                 <label for="editar_nombre">
@@ -544,11 +794,14 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                     id="editar_nombre"
                     class="form-control"
                     maxlength="100"
-                    required>
+                    required
+                >
 
             </div>
 
+
             <!-- DESCRIPCIÓN -->
+
             <div class="form-group">
 
                 <label for="editar_descripcion">
@@ -560,11 +813,14 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                     id="editar_descripcion"
                     class="form-control"
                     maxlength="255"
-                    rows="3"></textarea>
+                    rows="3"
+                ></textarea>
 
             </div>
 
+
             <!-- TIPO DE CÁLCULO -->
+
             <div class="form-group">
 
                 <label for="editar_tipo_calculo">
@@ -575,7 +831,8 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                     name="tipo_calculo"
                     id="editar_tipo_calculo"
                     class="form-control"
-                    required>
+                    required
+                >
 
                     <option value="FIJO">
                         Valor fijo
@@ -597,46 +854,39 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
 
             </div>
 
-            <!-- CUENTA CONTABLE -->
+
+            <!-- TIPO DE OBLIGACIÓN -->
+
             <div class="form-group">
 
-                <label for="editar_id_cuenta_contable">
-                    Cuenta contable
+                <label for="editar_id_tipo_obligacion">
+                    Tipo de obligación
                 </label>
 
                 <select
-                    name="id_cuenta_contable"
-                    id="editar_id_cuenta_contable"
-                    class="form-control">
+                    name="id_tipo_obligacion"
+                    id="editar_id_tipo_obligacion"
+                    class="form-control"
+                    required
+                >
 
                     <option value="">
-                        Sin configurar
+                        Seleccione...
                     </option>
 
-                    <?php
-
-                    $stmtCuentas = $conexion->query("
-                        SELECT
-                            id_cuenta_contable,
-                            codigo,
-                            nombre
-                        FROM cuentas_contables
-                        WHERE estado = 1
-                        ORDER BY codigo
-                    ");
-
-                    $cuentasContables =
-                        $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
-
-                    ?>
-
-                    <?php foreach ($cuentasContables as $cuenta): ?>
+                    <?php foreach (
+                        $tiposObligacion
+                        as $tipo
+                    ): ?>
 
                         <option
-                            value="<?= $cuenta['id_cuenta_contable'] ?>">
+                            value="<?= (int)$tipo[
+                                'id_tipo_obligacion'
+                            ] ?>"
+                        >
 
                             <?= htmlspecialchars(
-                                $cuenta['codigo'] . ' - ' . $cuenta['nombre']
+                                $tipo['nombre']
                             ) ?>
 
                         </option>
@@ -647,7 +897,53 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
 
             </div>
 
+
+            <!-- CUENTA CONTABLE -->
+
+            <div class="form-group">
+
+                <label for="editar_id_cuenta_contable">
+                    Cuenta contable
+                </label>
+
+                <select
+                    name="id_cuenta_contable"
+                    id="editar_id_cuenta_contable"
+                    class="form-control"
+                >
+
+                    <option value="">
+                        Sin configurar
+                    </option>
+
+                    <?php foreach (
+                        $cuentasContables
+                        as $cuenta
+                    ): ?>
+
+                        <option
+                            value="<?= (int)$cuenta[
+                                'id_cuenta_contable'
+                            ] ?>"
+                        >
+
+                            <?= htmlspecialchars(
+                                $cuenta['codigo'] .
+                                ' - ' .
+                                $cuenta['nombre']
+                            ) ?>
+
+                        </option>
+
+                    <?php endforeach; ?>
+
+                </select>
+
+            </div>
+
+
             <!-- OBLIGATORIO -->
+
             <div class="form-group">
 
                 <label for="editar_obligatorio">
@@ -657,7 +953,8 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                 <select
                     name="obligatorio"
                     id="editar_obligatorio"
-                    class="form-control">
+                    class="form-control"
+                >
 
                     <option value="0">
                         No
@@ -671,7 +968,9 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
 
             </div>
 
+
             <!-- ESTADO -->
+
             <div class="form-group">
 
                 <label for="editar_estado">
@@ -681,7 +980,8 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
                 <select
                     name="estado"
                     id="editar_estado"
-                    class="form-control">
+                    class="form-control"
+                >
 
                     <option value="1">
                         Activo
@@ -695,30 +995,47 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
 
             </div>
 
+
             <!-- BOTONES -->
+
             <div class="form-actions">
 
                 <button
                     type="button"
                     class="btn-limpiar"
-                    id="cancelarModalEditarConcepto">
+                    id="cancelarModalEditarConcepto"
+                >
                     Cancelar
                 </button>
 
+
                 <button
                     type="submit"
-                    class="btn-filtrar">
+                    class="btn-filtrar"
+                >
                     Guardar cambios
                 </button>
 
             </div>
 
+
         </form>
+
 
     </div>
 
 </div>
-<div id="modalMensaje" class="modal">
+
+
+<!-- ==========================================================
+     MODAL MENSAJE
+========================================================== -->
+
+<div
+    id="modalMensaje"
+    class="modal"
+>
+
     <div class="modal-contenido modal-mensaje">
 
         <h2 id="tituloMensaje"></h2>
@@ -734,18 +1051,30 @@ $cuentasContables = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
             <button
                 type="button"
                 id="btnCerrarMensaje"
-                class="btn-filtrar">
+                class="btn-filtrar"
+            >
                 Aceptar
             </button>
 
         </div>
 
     </div>
+
 </div>
 
+
+<!-- ==========================================================
+     JAVASCRIPT
+========================================================== -->
+
+<script>
+    const BASE_URL = "<?= BASE_URL ?>";
+</script>
+
 <script src="<?= BASE_URL ?>assets/js/conceptos_facturacion.js"></script>
-<script>const BASE_URL = "<?= BASE_URL ?>";</script>
+
 <script src="<?= BASE_URL ?>assets/js/editar_concepto_facturacion.js"></script>
+
 
 </body>
 

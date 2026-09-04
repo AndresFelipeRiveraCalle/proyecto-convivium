@@ -25,25 +25,37 @@ botonesEditarConcepto.forEach(function (boton) {
 
         const id = this.dataset.id;
 
-        console.log("Editando concepto:", id);
-
         fetch(
             BASE_URL +
-            "configuracion/editar_concepto_facturacion.php?id=" +
-            id
+            "actions/obtener_concepto_facturacion.php?id=" +
+            encodeURIComponent(id)
         )
 
-        .then(response => response.json())
+        .then(response => {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Error HTTP: " + response.status
+                );
+            }
+
+            return response.json();
+
+        })
 
         .then(data => {
 
-            console.log("Respuesta:", data);
-
             if (!data.success) {
 
-                alert(data.mensaje);
+                alert(
+                    data.message ??
+                    "No fue posible consultar el concepto."
+                );
+
                 return;
             }
+
 
             const concepto = data.concepto;
 
@@ -52,33 +64,60 @@ botonesEditarConcepto.forEach(function (boton) {
             // CARGAR DATOS
             // ==================================================
 
-            document.getElementById("editar_id_concepto").value =
-                concepto.id_concepto;
+            document.getElementById(
+                "editar_id_concepto"
+            ).value =
+                concepto.id_concepto ?? "";
 
-            document.getElementById("editar_nombre").value =
-                concepto.nombre;
 
-            document.getElementById("editar_descripcion").value =
+            document.getElementById(
+                "editar_nombre"
+            ).value =
+                concepto.nombre ?? "";
+
+
+            document.getElementById(
+                "editar_descripcion"
+            ).value =
                 concepto.descripcion ?? "";
 
-            document.getElementById("editar_tipo_calculo").value =
-                concepto.tipo_calculo;
 
-            document.getElementById("editar_id_cuenta_contable").value =
+            document.getElementById(
+                "editar_tipo_calculo"
+            ).value =
+                concepto.tipo_calculo ?? "FIJO";
+
+
+            document.getElementById(
+                "editar_id_tipo_obligacion"
+            ).value =
+                concepto.id_tipo_obligacion ?? "";
+
+
+            document.getElementById(
+                "editar_id_cuenta_contable"
+            ).value =
                 concepto.id_cuenta_contable ?? "";
 
-            document.getElementById("editar_obligatorio").value =
-                concepto.obligatorio;
 
-            document.getElementById("editar_estado").value =
-                concepto.estado;
+            document.getElementById(
+                "editar_obligatorio"
+            ).value =
+                concepto.obligatorio ?? 0;
+
+
+            document.getElementById(
+                "editar_estado"
+            ).value =
+                concepto.estado ?? 1;
 
 
             // ==================================================
             // MOSTRAR MODAL
             // ==================================================
 
-            modalEditarConcepto.style.display = "flex";
+            modalEditarConcepto.style.display =
+                "flex";
 
         })
 
@@ -90,7 +129,7 @@ botonesEditarConcepto.forEach(function (boton) {
             );
 
             alert(
-                "No fue posible consultar el concepto."
+                "No fue posible consultar el concepto de facturación."
             );
 
         });
@@ -101,6 +140,20 @@ botonesEditarConcepto.forEach(function (boton) {
 
 
 // ==========================================================
+// CERRAR MODAL
+// ==========================================================
+
+function cerrarModalConcepto()
+{
+    if (modalEditarConcepto) {
+
+        modalEditarConcepto.style.display =
+            "none";
+    }
+}
+
+
+// ==========================================================
 // CERRAR CON X
 // ==========================================================
 
@@ -108,13 +161,8 @@ if (cerrarModalEditarConcepto) {
 
     cerrarModalEditarConcepto.addEventListener(
         "click",
-        function () {
-
-            modalEditarConcepto.style.display = "none";
-
-        }
+        cerrarModalConcepto
     );
-
 }
 
 
@@ -126,13 +174,8 @@ if (cancelarModalEditarConcepto) {
 
     cancelarModalEditarConcepto.addEventListener(
         "click",
-        function () {
-
-            modalEditarConcepto.style.display = "none";
-
-        }
+        cerrarModalConcepto
     );
-
 }
 
 
@@ -148,11 +191,9 @@ if (modalEditarConcepto) {
 
             if (e.target === modalEditarConcepto) {
 
-                modalEditarConcepto.style.display = "none";
-
+                cerrarModalConcepto();
             }
 
         }
     );
-
 }

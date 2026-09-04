@@ -12,6 +12,7 @@ $sql = "
     SELECT
         cf.*,
         ti.nombre AS nombre_tasa
+
     FROM configuracion_financiera cf
 
     LEFT JOIN tasas_interes ti
@@ -39,7 +40,8 @@ if (!$configuracion) {
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/calendario_financiero.php?tipo=error&mensaje=" .
+        "configuracion/calendario_financiero.php" .
+        "?tipo=error&mensaje=" .
         urlencode(
             "No existe una configuración financiera activa."
         )
@@ -50,89 +52,119 @@ if (!$configuracion) {
 
 
 // ==========================================================
+// FUNCIÓN PARA OBTENER FECHA VÁLIDA DEL MES
+// ==========================================================
+//
+// Si el día configurado supera el último día real del mes,
+// utilizamos el último día disponible.
+//
+// Ejemplo:
+//
+// Día configurado: 31
+// Febrero 2027:    28
+//
+
+function generarFechaPeriodo($anio, $mes, $dia)
+{
+    $ultimoDiaMes = (int)date(
+        't',
+        strtotime(
+            sprintf(
+                '%04d-%02d-01',
+                $anio,
+                $mes
+            )
+        )
+    );
+
+    $diaReal = min(
+        (int)$dia,
+        $ultimoDiaMes
+    );
+
+    return sprintf(
+        '%04d-%02d-%02d',
+        $anio,
+        $mes,
+        $diaReal
+    );
+}
+
+
+// ==========================================================
 // PERÍODO POR DEFECTO
 // ==========================================================
 
 $periodo = date('Y-m');
+
+$anio = (int)date('Y');
+$mes  = (int)date('m');
+
+
+// ==========================================================
+// DÍAS CONFIGURADOS
+// ==========================================================
+
+$diaInicioCierre = (int)$configuracion[
+    'dia_inicio_cierre'
+];
+
+$diaFinCierre = (int)$configuracion[
+    'dia_fin_cierre'
+];
+
+$diaFacturacion = (int)$configuracion[
+    'dia_facturacion'
+];
+
+$diaVencimiento = (int)$configuracion[
+    'dia_vencimiento'
+];
 
 
 // ==========================================================
 // GENERAR FECHAS PROPUESTAS
 // ==========================================================
 
-$anio = (int)date('Y');
-$mes  = (int)date('m');
-
-
-// ----------------------------------------------------------
-// FECHA DE INICIO DE CIERRE
-// ----------------------------------------------------------
-
-$diaInicioCierre = (int)$configuracion['dia_inicio_cierre'];
-
-$fechaInicioCierre = sprintf(
-    '%04d-%02d-%02d',
+$fechaInicioCierre = generarFechaPeriodo(
     $anio,
     $mes,
     $diaInicioCierre
 );
 
-
-// ----------------------------------------------------------
-// FECHA DE FIN DE CIERRE
-// ----------------------------------------------------------
-
-$diaFinCierre = (int)$configuracion['dia_fin_cierre'];
-
-$fechaFinCierre = sprintf(
-    '%04d-%02d-%02d',
+$fechaFinCierre = generarFechaPeriodo(
     $anio,
     $mes,
     $diaFinCierre
 );
 
-
-// ----------------------------------------------------------
-// FECHA DE FACTURACIÓN
-// ----------------------------------------------------------
-
-$diaFacturacion = (int)$configuracion['dia_facturacion'];
-
-$fechaFacturacion = sprintf(
-    '%04d-%02d-%02d',
+$fechaFacturacion = generarFechaPeriodo(
     $anio,
     $mes,
     $diaFacturacion
 );
 
-
-// ----------------------------------------------------------
-// FECHA DE VENCIMIENTO
-// ----------------------------------------------------------
-
-$diaVencimiento = (int)$configuracion['dia_vencimiento'];
-
-$fechaVencimiento = sprintf(
-    '%04d-%02d-%02d',
+$fechaVencimiento = generarFechaPeriodo(
     $anio,
     $mes,
     $diaVencimiento
 );
 
 
-// ----------------------------------------------------------
+// ==========================================================
 // FECHA GENERACIÓN INTERESES
-// ----------------------------------------------------------
+// ==========================================================
 //
-// Inicialmente proponemos el día siguiente al cierre.
+// Por ahora se propone el día siguiente al cierre.
 //
-// Posteriormente podremos hacer esta fecha totalmente
-// independiente si queremos una configuración más avanzada.
+// Esta fecha sigue siendo editable por el administrador.
 //
 
 $fechaGeneracionIntereses = date(
     'Y-m-d',
-    strtotime($fechaFinCierre . ' +1 day')
+    strtotime(
+        $fechaFinCierre . ' +1 day'
+    )
 );
 
 ?>
@@ -201,12 +233,36 @@ $fechaGeneracionIntereses = date(
 
 
             <!-- ==================================================
+                 INFORMACIÓN
+            =================================================== -->
+
+            <div class="info-box">
+
+                <strong>
+                    Creación de período financiero
+                </strong>
+
+                <p>
+                    Las fechas se proponen automáticamente según
+                    la configuración financiera general.
+                </p>
+
+                <small>
+                    Puede modificar manualmente cualquier fecha antes
+                    de guardar el período.
+                </small>
+
+            </div>
+
+
+            <!-- ==================================================
                  FORMULARIO
             =================================================== -->
 
             <form
                 action="<?= BASE_URL ?>actions/guardar_calendario_financiero.php"
                 method="POST"
+                id="formCalendarioFinanciero"
             >
 
 
@@ -229,8 +285,8 @@ $fechaGeneracionIntereses = date(
                     >
 
                     <small>
-                        Corresponde al período financiero que se
-                        administrará.
+                        Al cambiar el período, las fechas propuestas
+                        se recalcularán automáticamente.
                     </small>
 
                 </div>
@@ -255,7 +311,9 @@ $fechaGeneracionIntereses = date(
                             type="date"
                             name="fecha_facturacion"
                             id="fecha_facturacion"
-                            value="<?= htmlspecialchars($fechaFacturacion) ?>"
+                            value="<?= htmlspecialchars(
+                                $fechaFacturacion
+                            ) ?>"
                             required
                         >
 
@@ -274,7 +332,9 @@ $fechaGeneracionIntereses = date(
                             type="date"
                             name="fecha_vencimiento"
                             id="fecha_vencimiento"
-                            value="<?= htmlspecialchars($fechaVencimiento) ?>"
+                            value="<?= htmlspecialchars(
+                                $fechaVencimiento
+                            ) ?>"
                             required
                         >
 
@@ -293,7 +353,9 @@ $fechaGeneracionIntereses = date(
                             type="date"
                             name="fecha_inicio_cierre"
                             id="fecha_inicio_cierre"
-                            value="<?= htmlspecialchars($fechaInicioCierre) ?>"
+                            value="<?= htmlspecialchars(
+                                $fechaInicioCierre
+                            ) ?>"
                             required
                         >
 
@@ -312,7 +374,9 @@ $fechaGeneracionIntereses = date(
                             type="date"
                             name="fecha_fin_cierre"
                             id="fecha_fin_cierre"
-                            value="<?= htmlspecialchars($fechaFinCierre) ?>"
+                            value="<?= htmlspecialchars(
+                                $fechaFinCierre
+                            ) ?>"
                             required
                         >
 
@@ -331,7 +395,9 @@ $fechaGeneracionIntereses = date(
                             type="date"
                             name="fecha_generacion_intereses"
                             id="fecha_generacion_intereses"
-                            value="<?= htmlspecialchars($fechaGeneracionIntereses) ?>"
+                            value="<?= htmlspecialchars(
+                                $fechaGeneracionIntereses
+                            ) ?>"
                             required
                         >
 
@@ -340,7 +406,8 @@ $fechaGeneracionIntereses = date(
                         ): ?>
 
                             <small>
-                                Intereses configurados como automáticos.
+                                La generación automática de intereses
+                                está habilitada.
                             </small>
 
                         <?php else: ?>
@@ -359,34 +426,25 @@ $fechaGeneracionIntereses = date(
 
 
                 <!-- ==================================================
-                     ESTADO
+                     ESTADO INICIAL
                 =================================================== -->
 
                 <div class="form-group">
 
-                    <label for="estado">
-                        Estado
+                    <label>
+                        Estado inicial
                     </label>
 
-                    <select
-                        name="estado"
-                        id="estado"
-                        required
+                    <input
+                        type="text"
+                        value="ABIERTO"
+                        disabled
                     >
 
-                        <option value="ABIERTO">
-                            Abierto
-                        </option>
-
-                        <option value="EN_CIERRE">
-                            En cierre
-                        </option>
-
-                        <option value="CERRADO">
-                            Cerrado
-                        </option>
-
-                    </select>
+                    <small>
+                        Todo nuevo período financiero se crea
+                        inicialmente en estado abierto.
+                    </small>
 
                 </div>
 
@@ -403,9 +461,11 @@ $fechaGeneracionIntereses = date(
 
                     <p>
 
-                        Cierre:
+                        Cierre habitual:
+                        día
                         <?= (int)$configuracion['dia_inicio_cierre'] ?>
                         -
+                        día
                         <?= (int)$configuracion['dia_fin_cierre'] ?>
 
                         <br>
@@ -428,11 +488,13 @@ $fechaGeneracionIntereses = date(
                             : 'Desactivados'
                         ?>
 
-                        <?php if (!empty($configuracion['nombre_tasa'])): ?>
+                        <?php if (
+                            !empty($configuracion['nombre_tasa'])
+                        ): ?>
 
                             <br>
 
-                            Tasa:
+                            Tasa configurada:
                             <?= htmlspecialchars(
                                 $configuracion['nombre_tasa']
                             ) ?>
@@ -442,8 +504,9 @@ $fechaGeneracionIntereses = date(
                     </p>
 
                     <small>
-                        Las fechas propuestas se pueden modificar
-                        para atender situaciones especiales del período.
+                        Las fechas propuestas pueden modificarse
+                        para atender situaciones especiales
+                        del período.
                     </small>
 
                 </div>
@@ -501,6 +564,35 @@ $fechaGeneracionIntereses = date(
     </main>
 
 </div>
+
+
+<!-- ==========================================================
+     DATOS DE CONFIGURACIÓN PARA JAVASCRIPT
+=========================================================== -->
+
+<script>
+
+    window.configuracionCalendario = {
+
+        diaFacturacion:
+            <?= (int)$configuracion['dia_facturacion'] ?>,
+
+        diaVencimiento:
+            <?= (int)$configuracion['dia_vencimiento'] ?>,
+
+        diaInicioCierre:
+            <?= (int)$configuracion['dia_inicio_cierre'] ?>,
+
+        diaFinCierre:
+            <?= (int)$configuracion['dia_fin_cierre'] ?>
+
+    };
+
+</script>
+
+
+<script src="<?= BASE_URL ?>assets/js/crear_calendario_financiero.js"></script>
+
 
 </body>
 
