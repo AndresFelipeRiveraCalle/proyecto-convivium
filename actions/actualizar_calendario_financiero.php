@@ -21,6 +21,25 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 
 // ==========================================================
+// FUNCIÓN DE REDIRECCIÓN CON ERROR
+// ==========================================================
+
+function redireccionarError($idCalendario, $mensaje)
+{
+    header(
+        "Location: " .
+        BASE_URL .
+        "configuracion/editar_calendario_financiero.php?id=" .
+        (int)$idCalendario .
+        "&tipo=error&mensaje=" .
+        urlencode($mensaje)
+    );
+
+    exit;
+}
+
+
+// ==========================================================
 // DATOS DEL FORMULARIO
 // ==========================================================
 
@@ -68,7 +87,8 @@ if (!$idCalendario) {
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/calendario_financiero.php?tipo=error&mensaje=" .
+        "configuracion/calendario_financiero.php" .
+        "?tipo=error&mensaje=" .
         urlencode(
             "El período financiero no es válido."
         )
@@ -79,64 +99,105 @@ if (!$idCalendario) {
 
 
 // ==========================================================
-// VALIDAR FECHAS
+// FUNCIÓN PARA VALIDAR FECHAS
 // ==========================================================
 
-$camposFecha = [
-
-    'fecha_inicio_cierre'
-        => $fechaInicioCierre,
-
-    'fecha_fin_cierre'
-        => $fechaFinCierre,
-
-    'fecha_facturacion'
-        => $fechaFacturacion,
-
-    'fecha_generacion_intereses'
-        => $fechaGeneracionIntereses,
-
-    'fecha_vencimiento'
-        => $fechaVencimiento
-
-];
-
-
-foreach ($camposFecha as $campo => $fecha) {
+function fechaValida($fecha)
+{
+    if ($fecha === '') {
+        return false;
+    }
 
     $fechaObj = DateTime::createFromFormat(
         'Y-m-d',
         $fecha
     );
 
-    $erroresFecha = DateTime::getLastErrors();
+    $errores = DateTime::getLastErrors();
+
+    if (!$fechaObj) {
+        return false;
+    }
 
     if (
-        !$fechaObj ||
+        $errores !== false &&
         (
-            $erroresFecha !== false &&
-            (
-                $erroresFecha['warning_count'] > 0 ||
-                $erroresFecha['error_count'] > 0
-            )
+            $errores['warning_count'] > 0 ||
+            $errores['error_count'] > 0
         )
     ) {
-
-        header(
-            "Location: " .
-            BASE_URL .
-            "configuracion/editar_calendario_financiero.php?id=" .
-            $idCalendario .
-            "&tipo=error&mensaje=" .
-            urlencode(
-                "La fecha del campo " .
-                $campo .
-                " no es válida."
-            )
-        );
-
-        exit;
+        return false;
     }
+
+    return $fechaObj->format('Y-m-d') === $fecha;
+}
+
+
+// ==========================================================
+// VALIDAR FECHAS
+// ==========================================================
+
+$camposFecha = [
+
+    'Inicio de cierre'
+        => $fechaInicioCierre,
+
+    'Fin de cierre'
+        => $fechaFinCierre,
+
+    'Facturación'
+        => $fechaFacturacion,
+
+    'Generación de intereses'
+        => $fechaGeneracionIntereses,
+
+    'Vencimiento'
+        => $fechaVencimiento
+
+];
+
+
+foreach ($camposFecha as $nombreCampo => $fecha) {
+
+    if (!fechaValida($fecha)) {
+
+        redireccionarError(
+            $idCalendario,
+            "La fecha de {$nombreCampo} no es válida."
+        );
+    }
+}
+
+
+// ==========================================================
+// VALIDAR ORDEN DE FECHAS
+// ==========================================================
+
+// ----------------------------------------------------------
+// Facturación <= vencimiento
+// ----------------------------------------------------------
+
+if ($fechaFacturacion > $fechaVencimiento) {
+
+    redireccionarError(
+        $idCalendario,
+        "La fecha de vencimiento no puede ser anterior " .
+        "a la fecha de facturación."
+    );
+}
+
+
+// ----------------------------------------------------------
+// Inicio cierre <= fin cierre
+// ----------------------------------------------------------
+
+if ($fechaInicioCierre > $fechaFinCierre) {
+
+    redireccionarError(
+        $idCalendario,
+        "La fecha de inicio del cierre no puede ser posterior " .
+        "a la fecha de fin del cierre."
+    );
 }
 
 
@@ -161,18 +222,10 @@ if (
     )
 ) {
 
-    header(
-        "Location: " .
-        BASE_URL .
-        "configuracion/editar_calendario_financiero.php?id=" .
-        $idCalendario .
-        "&tipo=error&mensaje=" .
-        urlencode(
-            "El estado seleccionado no es válido."
-        )
+    redireccionarError(
+        $idCalendario,
+        "El estado seleccionado no es válido."
     );
-
-    exit;
 }
 
 
@@ -186,21 +239,17 @@ try {
     // VERIFICAR QUE EL PERÍODO EXISTA
     // ======================================================
 
-    $sqlExiste = "
-        SELECT
-            id_calendario,
-            periodo
-
+    $sqlExiste = "SELECT id_calendario,periodo,estado
         FROM calendario_financiero
-
         WHERE id_calendario = :id_calendario
-
         LIMIT 1
     ";
+
 
     $stmtExiste = $conexion->prepare(
         $sqlExiste
     );
+
 
     $stmtExiste->execute([
 
@@ -220,7 +269,8 @@ try {
         header(
             "Location: " .
             BASE_URL .
-            "configuracion/calendario_financiero.php?tipo=error&mensaje=" .
+            "configuracion/calendario_financiero.php" .
+            "?tipo=error&mensaje=" .
             urlencode(
                 "El período financiero no existe."
             )
@@ -231,37 +281,59 @@ try {
 
 
     // ======================================================
+    // VALIDAR AÑO DEL PERÍODO
+    // ==========================================================
+
+    $anioPeriodo = date(
+        'Y',
+        strtotime($calendario['periodo'])
+    );
+
+
+    $fechasPeriodo = [
+        'fecha de facturación'=> $fechaFacturacion,
+        'fecha de vencimiento' => $fechaVencimiento,
+        'fecha de inicio de cierre' => $fechaInicioCierre,
+        'fecha de fin de cierre' => $fechaFinCierre,
+        'fecha de generación de intereses'=> $fechaGeneracionIntereses
+    ];
+
+
+    foreach (
+        $fechasPeriodo as $nombreFecha => $fecha
+    ) {
+
+        $anioFecha = substr(
+            $fecha,
+            0,
+            4
+        );
+
+
+        if ($anioFecha !== $anioPeriodo) {
+
+            redireccionarError(
+                $idCalendario,
+                "La {$nombreFecha} no corresponde al año " .
+                "del período financiero."
+            );
+        }
+    }
+
+
+    // ======================================================
     // ACTUALIZAR REGISTRO
     // ======================================================
 
-    $sql = "
-        UPDATE calendario_financiero
-
-        SET
-
-            fecha_inicio_cierre =
-                :fecha_inicio_cierre,
-
-            fecha_fin_cierre =
-                :fecha_fin_cierre,
-
-            fecha_facturacion =
-                :fecha_facturacion,
-
-            fecha_generacion_intereses =
-                :fecha_generacion_intereses,
-
-            fecha_vencimiento =
-                :fecha_vencimiento,
-
-            estado =
-                :estado,
-
-            observaciones =
-                :observaciones
-
-        WHERE id_calendario =
-            :id_calendario
+    $sql = " UPDATE calendario_financiero SET
+            fecha_inicio_cierre = :fecha_inicio_cierre,
+            fecha_fin_cierre =:fecha_fin_cierre,
+            fecha_facturacion =:fecha_facturacion,
+            fecha_generacion_intereses =:fecha_generacion_intereses,
+            fecha_vencimiento =:fecha_vencimiento,
+            estado =:estado,
+            observaciones =:observaciones
+        WHERE id_calendario =:id_calendario
     ";
 
 
@@ -271,33 +343,16 @@ try {
 
 
     $stmt->execute([
-
-        ':fecha_inicio_cierre'
-            => $fechaInicioCierre,
-
-        ':fecha_fin_cierre'
-            => $fechaFinCierre,
-
-        ':fecha_facturacion'
-            => $fechaFacturacion,
-
-        ':fecha_generacion_intereses'
-            => $fechaGeneracionIntereses,
-
-        ':fecha_vencimiento'
-            => $fechaVencimiento,
-
-        ':estado'
-            => $estado,
-
-        ':observaciones'
-            => $observaciones !== ''
+        ':fecha_inicio_cierre' => $fechaInicioCierre,
+        ':fecha_fin_cierre'=> $fechaFinCierre,
+        ':fecha_facturacion'=> $fechaFacturacion,
+        ':fecha_generacion_intereses'=> $fechaGeneracionIntereses,
+        ':fecha_vencimiento'=> $fechaVencimiento,
+        ':estado'=> $estado,
+        ':observaciones'=> $observaciones !== ''
                 ? $observaciones
                 : null,
-
-        ':id_calendario'
-            => $idCalendario
-
+        ':id_calendario'=> $idCalendario
     ]);
 
 
@@ -309,8 +364,7 @@ try {
         "Location: " .
         BASE_URL .
         "configuracion/calendario_financiero.php" .
-        "?tipo=success" .
-        "&mensaje=" .
+        "?tipo=success&mensaje=" .
         urlencode(
             "El período financiero fue actualizado correctamente."
         )
@@ -322,61 +376,27 @@ try {
 } catch (PDOException $e) {
 
     // ======================================================
-    // MOSTRAR ERROR REAL
+    // REGISTRAR ERROR
     // ======================================================
 
-    echo "
-    <div style='
-        font-family:Arial;
-        max-width:900px;
-        margin:40px auto;
-        padding:25px;
-        border:1px solid #ddd;
-        border-radius:10px;
-        background:#fff;
-    '>
+    error_log(
+        "Error actualizando calendario financiero ID " .
+        $idCalendario .
+        ": " .
+        $e->getMessage()
+    );
 
-        <h2 style='color:#b91c1c;'>
-            Error al actualizar el período
-        </h2>
 
-        <p>
-            <strong>Mensaje de MySQL:</strong>
-        </p>
+    header(
+        "Location: " .
+        BASE_URL .
+        "configuracion/editar_calendario_financiero.php?id=" .
+        (int)$idCalendario .
+        "&tipo=error&mensaje=" .
+        urlencode(
+            "No fue posible actualizar el período financiero."
+        )
+    );
 
-        <pre style='
-            background:#f5f5f5;
-            padding:15px;
-            overflow:auto;
-        '>" .
-        htmlspecialchars(
-            $e->getMessage()
-        ) .
-        "</pre>
-
-        <p>
-            <strong>SQLSTATE:</strong>
-            " .
-            htmlspecialchars(
-                $e->getCode()
-            ) .
-        "
-        </p>
-
-        <hr>
-
-        <p>
-            <strong>ID del calendario:</strong>
-            " .
-            (int)$idCalendario .
-        "
-        </p>
-
-        <p>
-            <a href='javascript:history.back()'>
-                ← Regresar
-            </a>
-        </p>
-
-    </div>";
+    exit;
 }

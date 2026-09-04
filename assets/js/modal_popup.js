@@ -64,6 +64,8 @@ document.addEventListener("DOMContentLoaded", function () {
         "cancelarGrupo"
     );
 
+        // MODAL UNIDADES
+
     configurarModal(
     "btnNuevaUnidad",
     "modalUnidad",
@@ -78,7 +80,18 @@ document.addEventListener("DOMContentLoaded", function () {
     "modalParqueadero",
     "cerrarModalParqueadero",
     "cancelarParqueadero"
-);
+    );
+    // ==========================================================
+    // MODAL NUEVA TARIFA
+    // ==========================================================
+
+    configurarModal(
+        "btnNuevaTarifa",
+        "modalNuevaTarifa",
+        "cerrarNuevaTarifa",
+        "cancelarNuevaTarifa",
+        "flex"
+    );
 
 });
 
@@ -87,45 +100,110 @@ document.addEventListener("DOMContentLoaded", function () {
 =            CONFIGURAR MODALES DEL SISTEMA            =
 =====================================================*/
 
-function configurarModal(idBoton, idModal, idCerrar, idCancelar) {
-    const boton = document.getElementById(idBoton);
-    const modal = document.getElementById(idModal);
-    const cerrar = document.getElementById(idCerrar);
-    const cancelar = document.getElementById(idCancelar);
+function configurarModal(
+    idBoton,
+    idModal,
+    idCerrar,
+    idCancelar,
+    displayMode = "block"
+) {
 
-    if (!boton || !modal) {
+    const boton =
+        document.getElementById(idBoton);
+
+    const modal =
+        document.getElementById(idModal);
+
+    const cerrar =
+        document.getElementById(idCerrar);
+
+    const cancelar =
+        document.getElementById(idCancelar);
+
+
+    if (!modal) {
         return;
     }
 
-    // Abrir modal
-    boton.addEventListener("click", function () {
-        modal.style.display = "block";
-    });
 
-    // Cerrar con la X
-    if (cerrar) {
-        cerrar.addEventListener("click", function () {
-            cerrarModal(modal);
-        });
-    }
+    // ==========================================================
+    // ABRIR MODAL
+    // ==========================================================
 
-    // Botón Cancelar
-    if (cancelar) {
-        cancelar.addEventListener("click", function () {
-            const formulario = modal.querySelector("form");
-            if (formulario) {
-                formulario.reset();
+    if (boton) {
+
+        boton.addEventListener(
+            "click",
+            function () {
+
+                modal.style.display =
+                    displayMode;
+
             }
-            cerrarModal(modal);
-        });
+        );
     }
 
-    // Cerrar haciendo clic fuera
-    window.addEventListener("click", function (event) {
-        if (event.target === modal) {
-            cerrarModal(modal);
+
+    // ==========================================================
+    // CERRAR CON X
+    // ==========================================================
+
+    if (cerrar) {
+
+        cerrar.addEventListener(
+            "click",
+            function () {
+
+                cerrarModal(modal);
+
+            }
+        );
+    }
+
+
+    // ==========================================================
+    // CANCELAR
+    // ==========================================================
+
+    if (cancelar) {
+
+        cancelar.addEventListener(
+            "click",
+            function () {
+
+                const formulario =
+                    modal.querySelector("form");
+
+                if (formulario) {
+
+                    formulario.reset();
+
+                }
+
+
+                cerrarModal(modal);
+
+            }
+        );
+    }
+
+
+    // ==========================================================
+    // CERRAR HACIENDO CLICK FUERA
+    // ==========================================================
+
+    modal.addEventListener(
+        "click",
+        function (event) {
+
+            if (event.target === modal) {
+
+                cerrarModal(modal);
+
+            }
+
         }
-    });
+    );
 }
 
 
