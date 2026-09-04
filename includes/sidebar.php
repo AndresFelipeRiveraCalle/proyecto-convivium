@@ -148,14 +148,21 @@
                 </a>
             </li>
 
-            <li>
-                <a href="#"><i class="fa-solid fa-car icono"></i> Vehículos</a>
-            </li>
+            <!-- PARQUEADERO -->
+            <li class="submenu">
+                <div class="submenu-titulo">
+                    <span><i class="fa-solid fa-screwdriver-wrench icono"></i> Parqueaderos</span>
+                    <i class="fa-solid fa-chevron-down flecha"></i>
+                </div>
+                <ul class="submenu-items">
 
-            <li>
-                <a href="#"><i class="fa-solid fa-dog icono"></i> Mascotas</a>
-            </li>
-
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/parqueaderos.php"><i class="fa-solid fa-car icono"></i> Vehículos</a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/vehiculos.php"><i class="fa-solid fa-car icono"></i> Vehículos</a>
+                    </li>
+                </ul>
             <li>
                 <a href="#"><i class="fa-solid fa-envelope-open-text icono"></i> Correspondencia</a>
             </li>

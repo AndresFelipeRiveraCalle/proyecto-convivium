@@ -1256,3 +1256,229 @@ tbody td {
     }
 
 }
+
+/* ==========================================================
+MODAL PARQUEADEROS
+========================================================== */
+
+.modal-parqueadero {
+display: none;
+position: fixed;
+z-index: 9999;
+inset: 0;
+
+
+background: rgba(0, 0, 0, 0.55);
+
+align-items: center;
+justify-content: center;
+
+padding: 20px;
+
+overflow-y: auto;
+
+
+}
+
+.modal-parqueadero-contenido {
+width: 100%;
+max-width: 650px;
+
+
+background: #ffffff;
+border-radius: 12px;
+
+box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+
+overflow: hidden;
+
+animation: aparecerModalParqueadero 0.2s ease;
+
+
+}
+
+@keyframes aparecerModalParqueadero {
+
+from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.98);
+}
+
+to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+
+}
+
+/* ENCABEZADO */
+
+.modal-parqueadero-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+
+
+padding: 20px 24px;
+
+border-bottom: 1px solid #e5e7eb;
+
+
+}
+
+.modal-parqueadero-header h3 {
+margin: 0;
+
+
+font-size: 20px;
+
+
+}
+
+.modal-parqueadero-header p {
+margin: 5px 0 0;
+
+
+font-size: 13px;
+color: #6b7280;
+
+
+}
+
+.modal-parqueadero-cerrar {
+border: none;
+background: transparent;
+
+
+font-size: 28px;
+line-height: 1;
+
+cursor: pointer;
+
+color: #6b7280;
+
+padding: 4px 8px;
+
+
+}
+
+.modal-parqueadero-cerrar:hover {
+color: #111827;
+}
+
+/* CUERPO */
+
+.modal-parqueadero-body {
+padding: 24px;
+}
+
+.modal-parqueadero-body .form-group {
+margin-bottom: 18px;
+}
+
+.modal-parqueadero-body label {
+display: block;
+
+
+margin-bottom: 6px;
+
+font-weight: 600;
+font-size: 14px;
+
+
+}
+
+.modal-parqueadero-body input,
+.modal-parqueadero-body select,
+.modal-parqueadero-body textarea {
+width: 100%;
+
+
+padding: 10px 12px;
+
+border: 1px solid #d1d5db;
+border-radius: 7px;
+
+font-family: inherit;
+font-size: 14px;
+
+box-sizing: border-box;
+
+background: #ffffff;
+
+
+}
+
+.modal-parqueadero-body input:focus,
+.modal-parqueadero-body select:focus,
+.modal-parqueadero-body textarea:focus {
+
+
+outline: none;
+
+border-color: #2563eb;
+
+box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+
+
+}
+
+.modal-parqueadero-body textarea {
+resize: vertical;
+}
+
+/* DOS COLUMNAS */
+
+.modal-parqueadero-body .form-row {
+
+
+display: grid;
+
+grid-template-columns: 1fr 1fr;
+
+gap: 16px;
+
+
+}
+
+/* PIE */
+
+.modal-parqueadero-footer {
+
+
+display: flex;
+
+justify-content: flex-end;
+
+gap: 10px;
+
+padding: 16px 24px;
+
+border-top: 1px solid #e5e7eb;
+
+background: #f9fafb;
+
+
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 600px) {
+
+
+.modal-parqueadero {
+    padding: 10px;
+}
+
+.modal-parqueadero-body .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+}
+
+.modal-parqueadero-contenido {
+    max-width: 100%;
+}
+
+
+}
