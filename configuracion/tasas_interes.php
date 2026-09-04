@@ -120,15 +120,25 @@ function formatoTasa($valor)
             <div class="tasas-info">
 
                 <strong>
-                    Importante:
+                    Información importante:
                 </strong>
 
-                Las tasas utilizadas para generar intereses
-                quedan registradas históricamente. Una tasa que
-                ya haya sido utilizada no debe eliminarse.
+                La tasa de interés moratorio debe configurarse de acuerdo
+                con la normatividad vigente, el reglamento de propiedad
+                horizontal y las decisiones de la asamblea.
+
+                Las tasas utilizadas para generar intereses quedan
+                registradas históricamente y no deben eliminarse.
 
             </div>
+            <div class="tasas-info-secundaria">
 
+                La aplicación permite registrar tasas legales, tasas
+                aprobadas por asamblea o tasas ingresadas manualmente.
+                Verifique siempre su porcentaje, vigencia y método de
+                cálculo antes de generar intereses.
+
+            </div>
 
             <!-- ==================================================
                  TABLA
@@ -235,6 +245,33 @@ function formatoTasa($valor)
 
                                         </td>
 
+                                        <div class="campo">
+
+                                            <label for="tipo_tasa">
+                                                Tipo de tasa
+                                            </label>
+
+                                            <select
+                                                name="tipo_tasa"
+                                                id="tipo_tasa"
+                                                required
+                                            >
+
+                                                <option value="LEGAL">
+                                                    Legal / referencia normativa
+                                                </option>
+
+                                                <option value="ASAMBLEA">
+                                                    Definida por asamblea
+                                                </option>
+
+                                                <option value="MANUAL">
+                                                    Manual
+                                                </option>
+
+                                            </select>
+
+                                        </div>
 
                                         <!-- TASA ANUAL -->
 
@@ -483,7 +520,7 @@ function formatoTasa($valor)
                 <div class="campo">
 
                     <label for="tasa_mensual">
-                        Tasa mensual (%)
+                        Tasa mensual equivalente (%)
                     </label>
 
                     <input
@@ -492,8 +529,12 @@ function formatoTasa($valor)
                         id="tasa_mensual"
                         step="0.000001"
                         min="0"
-                        required
+                        readonly
                     >
+
+                    <small>
+                        Calculada automáticamente a partir de la tasa anual.
+                    </small>
 
                 </div>
 

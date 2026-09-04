@@ -1,57 +1,94 @@
 <?php
 
+// ==========================================================
+// MENSAJES DEL SISTEMA
+// ==========================================================
+
 $tipoMensaje = $_GET['tipo'] ?? null;
 $mensaje = $_GET['mensaje'] ?? ($_GET['texto'] ?? null);
 
 if ($tipoMensaje && $mensaje):
 
-    $titulo = 'Mensaje';
+    // ------------------------------------------------------
+    // TÍTULO SEGÚN EL TIPO
+    // ------------------------------------------------------
 
-    if ($tipoMensaje === 'success') {
-        $titulo = 'Operación exitosa';
-    } elseif ($tipoMensaje === 'error') {
-        $titulo = 'Error';
-    } elseif ($tipoMensaje === 'warning') {
-        $titulo = 'Advertencia';
-    } elseif ($tipoMensaje === 'info') {
-        $titulo = 'Información';
+    switch ($tipoMensaje) {
+
+        case 'success':
+            $titulo = 'Operación exitosa';
+            break;
+
+        case 'error':
+            $titulo = 'Error';
+            break;
+
+        case 'warning':
+            $titulo = 'Advertencia';
+            break;
+
+        case 'info':
+            $titulo = 'Información';
+            break;
+
+        default:
+            $titulo = 'Mensaje';
+            break;
     }
 
 ?>
 
-<div id="modalMensaje" class="modal">
+<!-- ======================================================
+     MODAL DE MENSAJE
+====================================================== -->
+
+<div
+    id="modalMensaje"
+    class="modal"
+    style="display: flex;"
+>
 
     <div class="modal-contenido modal-mensaje">
 
+        <!-- ENCABEZADO -->
+
         <div class="modal-header">
 
-            <h3 id="tituloMensaje">
+            <h3>
                 <?= htmlspecialchars($titulo) ?>
             </h3>
 
             <button
                 type="button"
                 class="modal-cerrar"
-                id="btnCerrarMensaje">
+                id="btnCerrarMensaje"
+            >
                 &times;
             </button>
 
         </div>
 
+
+        <!-- MENSAJE -->
+
         <div class="modal-body">
 
-            <p id="textoMensaje">
+            <p>
                 <?= htmlspecialchars($mensaje) ?>
             </p>
 
         </div>
+
+
+        <!-- BOTÓN -->
 
         <div class="form-actions">
 
             <button
                 type="button"
                 class="btn-primary"
-                id="btnAceptarMensaje">
+                id="btnAceptarMensaje"
+            >
                 Aceptar
             </button>
 
@@ -61,29 +98,40 @@ if ($tipoMensaje && $mensaje):
 
 </div>
 
+
 <script>
 
 document.addEventListener("DOMContentLoaded", function () {
 
     const modal = document.getElementById("modalMensaje");
-    const btnCerrar = document.getElementById("btnCerrarMensaje");
-    const btnAceptar = document.getElementById("btnAceptarMensaje");
 
-    if (!modal) {
-        return;
-    }
+    const btnCerrar =
+        document.getElementById("btnCerrarMensaje");
 
-    modal.style.display = "flex";
+    const btnAceptar =
+        document.getElementById("btnAceptarMensaje");
 
-    function cerrarModalMensaje() {
+
+    // ------------------------------------------------------
+    // CERRAR MODAL
+    // ------------------------------------------------------
+
+    function cerrarMensaje() {
+
+        if (!modal) {
+            return;
+        }
 
         modal.style.display = "none";
 
+
+        // Eliminar parámetros del mensaje de la URL
         const url = new URL(window.location.href);
 
         url.searchParams.delete("tipo");
         url.searchParams.delete("mensaje");
         url.searchParams.delete("texto");
+
 
         window.history.replaceState(
             {},
@@ -92,27 +140,55 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
+
+    // ------------------------------------------------------
+    // BOTÓN X
+    // ------------------------------------------------------
+
     if (btnCerrar) {
+
         btnCerrar.addEventListener(
             "click",
-            cerrarModalMensaje
+            cerrarMensaje
         );
+
     }
+
+
+    // ------------------------------------------------------
+    // BOTÓN ACEPTAR
+    // ------------------------------------------------------
 
     if (btnAceptar) {
+
         btnAceptar.addEventListener(
             "click",
-            cerrarModalMensaje
+            cerrarMensaje
         );
+
     }
 
-    modal.addEventListener("click", function (e) {
 
-        if (e.target === modal) {
-            cerrarModalMensaje();
-        }
+    // ------------------------------------------------------
+    // CLIC FUERA DEL MODAL
+    // ------------------------------------------------------
 
-    });
+    if (modal) {
+
+        modal.addEventListener(
+            "click",
+            function (e) {
+
+                if (e.target === modal) {
+
+                    cerrarMensaje();
+
+                }
+
+            }
+        );
+
+    }
 
 });
 

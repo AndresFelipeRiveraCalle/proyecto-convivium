@@ -71,10 +71,14 @@ document.addEventListener("DOMContentLoaded", function () {
     "cancelarUnidad"
     );
 
-    // ==========================
-    // MENSAJES DEL SISTEMA
-    // ==========================
-    mostrarMensaje();
+      // MODAL PARQUEADERO
+
+    configurarModal(
+    "btnNuevoParqueadero",
+    "modalParqueadero",
+    "cerrarModalParqueadero",
+    "cancelarParqueadero"
+);
 
 });
 
@@ -1007,57 +1011,6 @@ if (modalEditarGenero) {
 }
 
 
-
-
-
-function cerrarModalMensaje() {
-
-    const modal = document.getElementById("modalMensaje");
-
-    if (modal) {
-        modal.style.display = "none";
-    }
-}
-
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const btnCerrarMensaje =
-        document.getElementById("btnCerrarMensaje");
-
-    if (btnCerrarMensaje) {
-
-        btnCerrarMensaje.addEventListener(
-            "click",
-            cerrarModalMensaje
-        );
-
-    }
-
-
-    // ======================================================
-    // MENSAJE ENVIADO DESDE PHP
-    // ======================================================
-
-    const parametros = new URLSearchParams(
-        window.location.search
-    );
-
-    const tipo = parametros.get("tipo");
-    const mensaje = parametros.get("mensaje");
-
-    if (tipo && mensaje) {
-
-        mostrarMensaje(
-            tipo,
-            mensaje
-        );
-
-    }
-
-});
-
-
     // ======================================================
     // MODAL PAGOS
     // ======================================================
@@ -1098,6 +1051,267 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
         });
+
+    }
+
+});
+
+// ==========================================================
+// MODAL PARQUEADERO
+// ==========================================================
+
+const btnNuevoParqueadero = document.getElementById("btnNuevoParqueadero");
+const modalParqueadero = document.getElementById("modalParqueadero");
+const cerrarModalParqueadero = document.getElementById("cerrarModalParqueadero");
+const cancelarParqueadero = document.getElementById("cancelarParqueadero");
+
+if (btnNuevoParqueadero && modalParqueadero) {
+    btnNuevoParqueadero.addEventListener(
+        "click",
+        function () {
+            modalParqueadero.style.display = "flex";
+        }
+    );
+}
+
+if (cerrarModalParqueadero && modalParqueadero) {
+    cerrarModalParqueadero.addEventListener(
+        "click",
+        function () {
+            modalParqueadero.style.display = "none";
+        }
+    );
+}
+
+if (cancelarParqueadero && modalParqueadero) {
+    cancelarParqueadero.addEventListener(
+        "click",
+        function () {
+            modalParqueadero.style.display = "none";
+        }
+    );
+}
+
+
+if (modalParqueadero) {
+    modalParqueadero.addEventListener(
+        "click",
+        function (e) {
+            if (e.target === modalParqueadero) {
+                modalParqueadero.style.display = "none";
+            }
+        }
+    );
+}
+
+// ==========================================================
+// EDITAR PARQUEADERO
+// ==========================================================
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const modal = document.getElementById(
+        "modalEditarParqueadero"
+    );
+
+    const cerrar = document.getElementById(
+        "cerrarEditarParqueadero"
+    );
+
+    const cancelar = document.getElementById(
+        "cancelarEditarParqueadero"
+    );
+
+
+    // ======================================================
+    // BOTONES EDITAR
+    // ======================================================
+
+    document
+        .querySelectorAll(".btnEditarParqueadero")
+        .forEach(function (boton) {
+
+            boton.addEventListener("click", function () {
+
+                const id = this.dataset.id;
+
+                if (!id || !modal) {
+                    return;
+                }
+
+
+                fetch(
+                    "/proyecto-convivium/actions/obtener_parqueadero.php?id=" +
+                    encodeURIComponent(id)
+                )
+
+                .then(function (response) {
+
+                    if (!response.ok) {
+                        throw new Error(
+                            "HTTP " + response.status
+                        );
+                    }
+
+                    return response.json();
+
+                })
+
+                .then(function (resultado) {
+
+                    if (!resultado.success) {
+
+                        alert(
+                            resultado.mensaje ||
+                            "No fue posible obtener el parqueadero."
+                        );
+
+                        return;
+                    }
+
+
+                    const p = resultado.data;
+
+
+                    // ID
+
+                    document.getElementById(
+                        "editar_id_parqueadero"
+                    ).value =
+                        p.id_parqueadero;
+
+
+                    // CÓDIGO
+
+                    document.getElementById(
+                        "editar_codigo"
+                    ).value =
+                        p.codigo ?? "";
+
+
+                    // TIPO
+
+                    document.getElementById(
+                        "editar_tipo"
+                    ).value =
+                        p.tipo ?? "PRIVADO";
+
+
+                    // UNIDAD
+
+                    document.getElementById(
+                        "editar_id_unidad"
+                    ).value =
+                        p.id_unidad ?? "";
+
+
+                    // UBICACIÓN
+
+                    document.getElementById(
+                        "editar_ubicacion"
+                    ).value =
+                        p.ubicacion ?? "";
+
+
+                    // ESTADO
+
+                    document.getElementById(
+                        "editar_estado"
+                    ).value =
+                        p.estado ?? "DISPONIBLE";
+
+
+                    // OBSERVACIONES
+
+                    document.getElementById(
+                        "editar_observaciones"
+                    ).value =
+                        p.observaciones ?? "";
+
+
+                    // ACTIVO
+
+                    document.getElementById(
+                        "editar_activo"
+                    ).value =
+                        p.activo;
+
+
+                    // ABRIR MODAL
+
+                    modal.style.display = "flex";
+
+                })
+
+                .catch(function (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "No fue posible obtener los datos del parqueadero."
+                    );
+
+                });
+
+            });
+
+        });
+
+
+    // ======================================================
+    // CERRAR CON X
+    // ======================================================
+
+    if (cerrar) {
+
+        cerrar.addEventListener(
+            "click",
+            function () {
+
+                modal.style.display = "none";
+
+            }
+        );
+
+    }
+
+
+    // ======================================================
+    // CANCELAR
+    // ======================================================
+
+    if (cancelar) {
+
+        cancelar.addEventListener(
+            "click",
+            function () {
+
+                modal.style.display = "none";
+
+            }
+        );
+
+    }
+
+
+    // ======================================================
+    // CERRAR AL HACER CLIC FUERA
+    // ======================================================
+
+    if (modal) {
+
+        modal.addEventListener(
+            "click",
+            function (e) {
+
+                if (e.target === modal) {
+
+                    modal.style.display = "none";
+
+                }
+
+            }
+        );
 
     }
 
