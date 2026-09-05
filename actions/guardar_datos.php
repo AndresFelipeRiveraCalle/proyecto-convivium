@@ -1,234 +1,84 @@
 <?php
 
-require_once "../config/conexion.php";
+require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/config/conexion.php";
 
-/*
-|--------------------------------------------------------------------------
-| VALIDAR MÉTODO
-|--------------------------------------------------------------------------
-*/
+
+// ==========================================================
+// VALIDAR MÉTODO
+// ==========================================================
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
-    header("Location: ../configuracion/datos.php");
+    header(
+        "Location: " .
+        BASE_URL .
+        "configuracion/datos.php"
+    );
+
     exit;
+}
+
+
+// ==========================================================
+// FUNCIÓN REDIRECCIONAR
+// ==========================================================
+
+function redireccionarDatos(
+    string $tipo,
+    string $mensaje
+): void {
+
+    header(
+        "Location: " .
+        BASE_URL .
+        "configuracion/datos.php" .
+        "?tipo=" .
+        urlencode($tipo) .
+        "&texto=" .
+        urlencode($mensaje)
+    );
+
+    exit;
+}
+
+
+// ==========================================================
+// FUNCIÓN NORMALIZAR TEXTO OPCIONAL
+// ==========================================================
+
+function textoOpcional($valor): ?string
+{
+    $valor = trim((string)$valor);
+
+    return $valor !== ''
+        ? $valor
+        : null;
 }
 
 
 try {
 
-    /*
-    |--------------------------------------------------------------------------
-    | DATOS DEL FORMULARIO
-    |--------------------------------------------------------------------------
-    */
+    // ======================================================
+    // ID DEL REGISTRO ACTUAL
+    // ======================================================
 
-    $id = isset($_POST["id"]) && $_POST["id"] !== ""
-        ? (int) $_POST["id"]
+    $id = isset($_POST["id"]) &&
+          $_POST["id"] !== ""
+        ? (int)$_POST["id"]
         : null;
 
 
-    $nombre = trim($_POST["nombre_unidad"] ?? "");
+    // ======================================================
+    // BUSCAR VERSIÓN ACTUAL SI ES EDICIÓN
+    // ======================================================
 
-    $nit = trim($_POST["nit_unidad"] ?? "");
-
-    $representante = trim(
-        $_POST["representante_legal"] ?? ""
-    );
-
-    $correo = trim(
-        $_POST["correo_propiedad"] ?? ""
-    );
-
-    $telefono = trim(
-        $_POST["telefono_propiedad"] ?? ""
-    );
-
-$id_tipo_copropiedad = !empty($_POST["tipo_copropiedad"])
-    ? (int) $_POST["tipo_copropiedad"]
-    : null;
-
-$cantidad_unidades = !empty($_POST["cantidad_unidades"])
-    ? (int) $_POST["cantidad_unidades"]
-    : null;
-
-    // Ubicación
-
-    $id_pais = !empty($_POST["id_pais"])
-        ? (int) $_POST["id_pais"]
-        : null;
-
-    $id_departamento = !empty($_POST["id_departamento"])
-        ? (int) $_POST["id_departamento"]
-        : null;
-
-    $id_ciudad = !empty($_POST["id_ciudad"])
-        ? (int) $_POST["id_ciudad"]
-        : null;
-
-    $direccion = trim(
-        $_POST["direccion"] ?? ""
-    );
-
-    $sector = trim(
-        $_POST["sector"] ?? ""
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDACIONES
-    |--------------------------------------------------------------------------
-    */
-
-    if ($nombre === "") {
-
-        $mensaje = urlencode(
-            "Debe ingresar el nombre de la copropiedad."
-        );
-
-        header(
-            "Location: ../configuracion/datos.php" .
-            "?tipo=warning&texto=" . $mensaje
-        );
-
-        exit;
-    }
-
-
-    if (!$id_pais) {
-
-        $mensaje = urlencode(
-            "Debe seleccionar un país."
-        );
-
-        header(
-            "Location: ../configuracion/datos.php" .
-            "?tipo=warning&texto=" . $mensaje
-        );
-
-        exit;
-    }
-
-
-    if (!$id_departamento) {
-
-        $mensaje = urlencode(
-            "Debe seleccionar un departamento."
-        );
-
-        header(
-            "Location: ../configuracion/datos.php" .
-            "?tipo=warning&texto=" . $mensaje
-        );
-
-        exit;
-    }
-
-
-    if (!$id_ciudad) {
-
-        $mensaje = urlencode(
-            "Debe seleccionar una ciudad."
-        );
-
-        header(
-            "Location: ../configuracion/datos.php" .
-            "?tipo=warning&texto=" . $mensaje
-        );
-
-        exit;
-    }
-
-
-    if ($direccion === "") {
-
-        $mensaje = urlencode(
-            "Debe ingresar la dirección de la copropiedad."
-        );
-
-        header(
-            "Location: ../configuracion/datos.php" .
-            "?tipo=warning&texto=" . $mensaje
-        );
-
-        exit;
-    }
-
-    if (!$id_tipo_copropiedad) {
-        $mensaje = urlencode(
-            "Debe seleccionar un tipo de copropiedad."
-        );
-        header(
-            "Location: ../configuracion/datos.php" .
-            "?tipo=warning&texto=" . $mensaje
-        );
-        exit;
-    }
-
-
-    if (!$cantidad_unidades || $cantidad_unidades < 1) {
-        $mensaje = urlencode(
-            "Debe ingresar una cantidad válida de unidades."
-        );
-        header(
-            "Location: ../configuracion/datos.php" .
-            "?tipo=warning&texto=" . $mensaje
-        );
-        exit;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | CARPETAS
-    |--------------------------------------------------------------------------
-    */
-
-    $carpetaLogos = "../assets/logos/";
-    $carpetaDocs  = "../assets/documentos/";
-
-
-    if (!is_dir($carpetaLogos)) {
-
-        mkdir(
-            $carpetaLogos,
-            0777,
-            true
-        );
-    }
-
-
-    if (!is_dir($carpetaDocs)) {
-
-        mkdir(
-            $carpetaDocs,
-            0777,
-            true
-        );
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ARCHIVOS ACTUALES
-    |--------------------------------------------------------------------------
-    */
-
-    $logo = null;
-    $reglamento = null;
-    $manual = null;
     $versionActual = null;
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SI ES EDICIÓN
-    |--------------------------------------------------------------------------
-    */
-
     if ($id !== null) {
 
-        $sql = "
+        $sqlActual = "
             SELECT *
             FROM datos_unidad
             WHERE id = :id
@@ -236,59 +86,468 @@ $cantidad_unidades = !empty($_POST["cantidad_unidades"])
         ";
 
 
-        $stmt = $conexion->prepare($sql);
+        $stmtActual = $conexion->prepare(
+            $sqlActual
+        );
 
-        $stmt->execute([
-            ":id" => $id
+
+        $stmtActual->execute([
+            ':id' => $id
         ]);
 
 
         $versionActual =
-            $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmtActual->fetch(
+                PDO::FETCH_ASSOC
+            );
 
 
         if (!$versionActual) {
 
-            $mensaje = urlencode(
-                "No se encontró el registro que desea editar."
+            redireccionarDatos(
+                'error',
+                'No se encontró el registro que desea editar.'
             );
-
-            header(
-                "Location: ../configuracion/datos.php" .
-                "?tipo=error&texto=" . $mensaje
-            );
-
-            exit;
         }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CONSERVAR ARCHIVOS ANTERIORES
-        |--------------------------------------------------------------------------
-        */
-
-        $logo =
-            $versionActual["logo"] ?? null;
-
-        $reglamento =
-            $versionActual["reglamento"] ?? null;
-
-        $manual =
-            $versionActual["manual"] ?? null;
-
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | LOGO NUEVO
-    |--------------------------------------------------------------------------
-    */
+    // ======================================================
+    // DATOS GENERALES
+    // ======================================================
+
+    $nombre = trim(
+        $_POST["nombre_unidad"] ?? ""
+    );
+
+
+    $nit = trim(
+        $_POST["nit_unidad"] ?? ""
+    );
+
+
+    $representante = trim(
+        $_POST["representante_legal"] ?? ""
+    );
+
+
+    $correo = textoOpcional(
+        $_POST["correo_propiedad"] ?? ""
+    );
+
+
+    $telefono = textoOpcional(
+        $_POST["telefono_propiedad"] ?? ""
+    );
+
+
+    $direccion = trim(
+        $_POST["direccion"] ?? ""
+    );
+
+
+    $sector = textoOpcional(
+        $_POST["sector"] ?? ""
+    );
+
+
+    // ======================================================
+    // TIPO DE COPROPIEDAD
+    // ======================================================
+    //
+    // Si el select continúa disabled durante una edición,
+    // no llegará por POST. En ese caso conservamos el valor
+    // de la versión anterior.
+    // ======================================================
+
+    if (!empty($_POST["tipo_copropiedad"])) {
+
+        $idTipoCopropiedad =
+            (int)$_POST["tipo_copropiedad"];
+
+    } elseif ($versionActual) {
+
+        $idTipoCopropiedad =
+            !empty(
+                $versionActual["id_tipo_copropiedad"]
+            )
+                ? (int)$versionActual["id_tipo_copropiedad"]
+                : null;
+
+    } else {
+
+        $idTipoCopropiedad = null;
+    }
+
+
+    // ======================================================
+    // UBICACIÓN
+    // ======================================================
+
+    if (!empty($_POST["id_pais"])) {
+
+        $idPais =
+            (int)$_POST["id_pais"];
+
+    } elseif ($versionActual) {
+
+        $idPais =
+            !empty($versionActual["id_pais"])
+                ? (int)$versionActual["id_pais"]
+                : null;
+
+    } else {
+
+        $idPais = null;
+    }
+
+
+    if (!empty($_POST["id_departamento"])) {
+
+        $idDepartamento =
+            (int)$_POST["id_departamento"];
+
+    } elseif ($versionActual) {
+
+        $idDepartamento =
+            !empty(
+                $versionActual["id_departamento"]
+            )
+                ? (int)$versionActual["id_departamento"]
+                : null;
+
+    } else {
+
+        $idDepartamento = null;
+    }
+
+
+    if (!empty($_POST["id_ciudad"])) {
+
+        $idCiudad =
+            (int)$_POST["id_ciudad"];
+
+    } elseif ($versionActual) {
+
+        $idCiudad =
+            !empty($versionActual["id_ciudad"])
+                ? (int)$versionActual["id_ciudad"]
+                : null;
+
+    } else {
+
+        $idCiudad = null;
+    }
+
+
+    // ======================================================
+    // VALIDACIONES GENERALES
+    // ======================================================
+
+    if ($nombre === "") {
+
+        redireccionarDatos(
+            'warning',
+            'Debe ingresar el nombre de la copropiedad.'
+        );
+    }
+
+
+    if ($nit === "") {
+
+        redireccionarDatos(
+            'warning',
+            'Debe ingresar el NIT de la copropiedad.'
+        );
+    }
+
+
+    if ($representante === "") {
+
+        redireccionarDatos(
+            'warning',
+            'Debe ingresar el representante legal.'
+        );
+    }
+
+
+    if (!$idTipoCopropiedad) {
+
+        redireccionarDatos(
+            'warning',
+            'Debe seleccionar un tipo de copropiedad.'
+        );
+    }
+
+
+    if (!$idPais) {
+
+        redireccionarDatos(
+            'warning',
+            'Debe seleccionar un país.'
+        );
+    }
+
+
+    if (!$idDepartamento) {
+
+        redireccionarDatos(
+            'warning',
+            'Debe seleccionar un departamento.'
+        );
+    }
+
+
+    if (!$idCiudad) {
+
+        redireccionarDatos(
+            'warning',
+            'Debe seleccionar una ciudad.'
+        );
+    }
+
+
+    if ($direccion === "") {
+
+        redireccionarDatos(
+            'warning',
+            'Debe ingresar la dirección de la copropiedad.'
+        );
+    }
+
+
+    if (
+        $correo !== null &&
+        !filter_var(
+            $correo,
+            FILTER_VALIDATE_EMAIL
+        )
+    ) {
+
+        redireccionarDatos(
+            'warning',
+            'El correo electrónico no es válido.'
+        );
+    }
+
+
+    // ======================================================
+    // VALIDAR TIPO DE COPROPIEDAD
+    // ======================================================
+
+    $sqlTipoCopropiedad = "
+        SELECT id
+        FROM tipos_copropiedad
+        WHERE id = :id
+        LIMIT 1
+    ";
+
+
+    $stmtTipoCopropiedad =
+        $conexion->prepare(
+            $sqlTipoCopropiedad
+        );
+
+
+    $stmtTipoCopropiedad->execute([
+        ':id' => $idTipoCopropiedad
+    ]);
+
+
+    if (
+        !$stmtTipoCopropiedad->fetchColumn()
+    ) {
+
+        redireccionarDatos(
+            'warning',
+            'El tipo de copropiedad seleccionado no existe.'
+        );
+    }
+
+
+    // ======================================================
+    // VALIDAR RELACIÓN PAÍS / DEPARTAMENTO
+    // ======================================================
+
+    $sqlDepartamento = "
+        SELECT id_departamento
+        FROM departamentos
+        WHERE id_departamento = :id_departamento
+          AND id_pais = :id_pais
+        LIMIT 1
+    ";
+
+
+    $stmtDepartamento =
+        $conexion->prepare(
+            $sqlDepartamento
+        );
+
+
+    $stmtDepartamento->execute([
+
+        ':id_departamento'
+            => $idDepartamento,
+
+        ':id_pais'
+            => $idPais
+
+    ]);
+
+
+    if (!$stmtDepartamento->fetchColumn()) {
+
+        redireccionarDatos(
+            'warning',
+            'El departamento seleccionado no pertenece al país indicado.'
+        );
+    }
+
+
+    // ======================================================
+    // VALIDAR RELACIÓN DEPARTAMENTO / CIUDAD
+    // ======================================================
+
+    $sqlCiudad = "
+        SELECT id_ciudad
+        FROM ciudades
+        WHERE id_ciudad = :id_ciudad
+          AND id_departamento = :id_departamento
+        LIMIT 1
+    ";
+
+
+    $stmtCiudad =
+        $conexion->prepare(
+            $sqlCiudad
+        );
+
+
+    $stmtCiudad->execute([
+
+        ':id_ciudad'
+            => $idCiudad,
+
+        ':id_departamento'
+            => $idDepartamento
+
+    ]);
+
+
+    if (!$stmtCiudad->fetchColumn()) {
+
+        redireccionarDatos(
+            'warning',
+            'La ciudad seleccionada no pertenece al departamento indicado.'
+        );
+    }
+
+
+    // ======================================================
+    // CALCULAR CANTIDAD TOTAL DE UNIDADES
+    // ======================================================
+    //
+    // Ya NO se recibe desde datos.php.
+    //
+    // detalle_tipos_unidad pasa a ser la fuente de verdad.
+    // ======================================================
+
+    $sqlCantidad = "
+        SELECT
+            COALESCE(
+                SUM(cantidad_unidades),
+                0
+            )
+
+        FROM detalle_tipos_unidad
+
+        WHERE activo = 1
+    ";
+
+
+    $cantidadUnidades =
+        (int)$conexion
+            ->query($sqlCantidad)
+            ->fetchColumn();
+
+
+    // ======================================================
+    // CARPETAS
+    // ======================================================
+
+    $carpetaLogos =
+        ROOT_PATH .
+        "/assets/logos/";
+
+
+    $carpetaDocs =
+        ROOT_PATH .
+        "/assets/documentos/";
+
+
+    if (!is_dir($carpetaLogos)) {
+
+        if (
+            !mkdir(
+                $carpetaLogos,
+                0777,
+                true
+            ) &&
+            !is_dir($carpetaLogos)
+        ) {
+
+            throw new RuntimeException(
+                'No fue posible crear la carpeta de logos.'
+            );
+        }
+    }
+
+
+    if (!is_dir($carpetaDocs)) {
+
+        if (
+            !mkdir(
+                $carpetaDocs,
+                0777,
+                true
+            ) &&
+            !is_dir($carpetaDocs)
+        ) {
+
+            throw new RuntimeException(
+                'No fue posible crear la carpeta de documentos.'
+            );
+        }
+    }
+
+
+    // ======================================================
+    // ARCHIVOS ACTUALES
+    // ======================================================
+
+    $logo = $versionActual
+        ? ($versionActual["logo"] ?? null)
+        : null;
+
+
+    $reglamento = $versionActual
+        ? ($versionActual["reglamento"] ?? null)
+        : null;
+
+
+    $manual = $versionActual
+        ? ($versionActual["manual"] ?? null)
+        : null;
+
+
+    // ======================================================
+    // LOGO NUEVO
+    // ======================================================
 
     if (
         isset($_FILES["logo"]) &&
-        $_FILES["logo"]["error"] === UPLOAD_ERR_OK
+        $_FILES["logo"]["error"] ===
+            UPLOAD_ERR_OK
     ) {
 
         $extension = strtolower(
@@ -297,6 +556,28 @@ $cantidad_unidades = !empty($_POST["cantidad_unidades"])
                 PATHINFO_EXTENSION
             )
         );
+
+
+        $extensionesPermitidas = [
+            'jpg',
+            'jpeg',
+            'png',
+            'webp'
+        ];
+
+
+        if (
+            !in_array(
+                $extension,
+                $extensionesPermitidas,
+                true
+            )
+        ) {
+
+            throw new RuntimeException(
+                'El logo debe ser JPG, JPEG, PNG o WEBP.'
+            );
+        }
 
 
         $logo =
@@ -308,27 +589,28 @@ $cantidad_unidades = !empty($_POST["cantidad_unidades"])
             $extension;
 
 
-        if (!move_uploaded_file(
-            $_FILES["logo"]["tmp_name"],
-            $carpetaLogos . $logo
-        )) {
+        if (
+            !move_uploaded_file(
+                $_FILES["logo"]["tmp_name"],
+                $carpetaLogos . $logo
+            )
+        ) {
 
-            throw new Exception(
+            throw new RuntimeException(
                 "No fue posible guardar el logo."
             );
         }
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | REGLAMENTO NUEVO
-    |--------------------------------------------------------------------------
-    */
+    // ======================================================
+    // REGLAMENTO NUEVO
+    // ======================================================
 
     if (
         isset($_FILES["reglamento"]) &&
-        $_FILES["reglamento"]["error"] === UPLOAD_ERR_OK
+        $_FILES["reglamento"]["error"] ===
+            UPLOAD_ERR_OK
     ) {
 
         $extension = strtolower(
@@ -339,36 +621,44 @@ $cantidad_unidades = !empty($_POST["cantidad_unidades"])
         );
 
 
+        if ($extension !== 'pdf') {
+
+            throw new RuntimeException(
+                'El reglamento debe estar en formato PDF.'
+            );
+        }
+
+
         $reglamento =
             "reglamento_" .
             time() .
             "_" .
             uniqid() .
-            "." .
-            $extension;
+            ".pdf";
 
 
-        if (!move_uploaded_file(
-            $_FILES["reglamento"]["tmp_name"],
-            $carpetaDocs . $reglamento
-        )) {
+        if (
+            !move_uploaded_file(
+                $_FILES["reglamento"]["tmp_name"],
+                $carpetaDocs . $reglamento
+            )
+        ) {
 
-            throw new Exception(
+            throw new RuntimeException(
                 "No fue posible guardar el reglamento."
             );
         }
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | MANUAL NUEVO
-    |--------------------------------------------------------------------------
-    */
+    // ======================================================
+    // MANUAL NUEVO
+    // ======================================================
 
     if (
         isset($_FILES["manual"]) &&
-        $_FILES["manual"]["error"] === UPLOAD_ERR_OK
+        $_FILES["manual"]["error"] ===
+            UPLOAD_ERR_OK
     ) {
 
         $extension = strtolower(
@@ -379,37 +669,44 @@ $cantidad_unidades = !empty($_POST["cantidad_unidades"])
         );
 
 
+        if ($extension !== 'pdf') {
+
+            throw new RuntimeException(
+                'El manual debe estar en formato PDF.'
+            );
+        }
+
+
         $manual =
             "manual_" .
             time() .
             "_" .
             uniqid() .
-            "." .
-            $extension;
+            ".pdf";
 
 
-        if (!move_uploaded_file(
-            $_FILES["manual"]["tmp_name"],
-            $carpetaDocs . $manual
-        )) {
+        if (
+            !move_uploaded_file(
+                $_FILES["manual"]["tmp_name"],
+                $carpetaDocs . $manual
+            )
+        ) {
 
-            throw new Exception(
+            throw new RuntimeException(
                 "No fue posible guardar el manual."
             );
         }
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | DETERMINAR VERSIÓN
-    |--------------------------------------------------------------------------
-    */
+    // ======================================================
+    // DETERMINAR VERSIÓN
+    // ======================================================
 
     if ($versionActual) {
 
         $version =
-            ((int) $versionActual["version"]) + 1;
+            ((int)$versionActual["version"]) + 1;
 
     } else {
 
@@ -417,45 +714,50 @@ $cantidad_unidades = !empty($_POST["cantidad_unidades"])
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | INICIAR TRANSACCIÓN
-    |--------------------------------------------------------------------------
-    */
+    // ======================================================
+    // INICIAR TRANSACCIÓN
+    // ======================================================
 
     $conexion->beginTransaction();
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | MARCAR VERSIÓN ANTERIOR COMO NO ACTUAL
-    |--------------------------------------------------------------------------
-    */
+    // ======================================================
+    // DESACTIVAR VERSIÓN ANTERIOR COMO ACTUAL
+    // ======================================================
 
     if ($versionActual) {
 
-        $sql = "
+        $sqlAnterior = "
             UPDATE datos_unidad
             SET es_actual = 0
             WHERE id = :id
         ";
 
 
-        $stmt = $conexion->prepare($sql);
+        $stmtAnterior =
+            $conexion->prepare(
+                $sqlAnterior
+            );
 
-        $stmt->execute([
-            ":id" => $id
+
+        $stmtAnterior->execute([
+            ':id' => $id
         ]);
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREAR NUEVA VERSIÓN
-    |--------------------------------------------------------------------------
-    */
+    // ======================================================
+    // CREAR NUEVA VERSIÓN
+    // ======================================================
+    //
+    // IMPORTANTE:
+    // Conservamos "cantidad_unidades" porque ese es el nombre
+    // que utiliza actualmente tu tabla/código.
+    //
+    // Ahora su valor es CALCULADO.
+    // ======================================================
 
-    $sql = "
+    $sqlInsert = "
         INSERT INTO datos_unidad
         (
             version,
@@ -480,10 +782,10 @@ $cantidad_unidades = !empty($_POST["cantidad_unidades"])
         VALUES
         (
             :version,
-            :es_actual,
+            1,
             :nombre,
             :nit,
-            :representante,
+            :representante_legal,
             :id_pais,
             :id_departamento,
             :id_ciudad,
@@ -496,119 +798,104 @@ $cantidad_unidades = !empty($_POST["cantidad_unidades"])
             :logo,
             :reglamento,
             :manual,
-            :activo
+            1
         )
     ";
 
 
-    $stmt = $conexion->prepare($sql);
+    $stmtInsert =
+        $conexion->prepare(
+            $sqlInsert
+        );
 
 
-    $stmt->execute([
+    $stmtInsert->execute([
 
-        ":version" =>
-            $version,
+        ':version'
+            => $version,
 
-        ":es_actual" =>
-            1,
+        ':nombre'
+            => $nombre,
 
-        ":nombre" =>
-            $nombre,
+        ':nit'
+            => $nit,
 
-        ":nit" =>
-            $nit,
+        ':representante_legal'
+            => $representante,
 
-        ":representante" =>
-            $representante,
+        ':id_pais'
+            => $idPais,
 
-        ":id_pais" =>
-            $id_pais,
+        ':id_departamento'
+            => $idDepartamento,
 
-        ":id_departamento" =>
-            $id_departamento,
+        ':id_ciudad'
+            => $idCiudad,
 
-        ":id_ciudad" =>
-            $id_ciudad,
+        ':direccion'
+            => $direccion,
 
-        ":direccion" =>
-            $direccion,
+        ':sector'
+            => $sector,
 
-        ":sector" =>
-            $sector,
+        ':id_tipo_copropiedad'
+            => $idTipoCopropiedad,
 
-        ":id_tipo_copropiedad" =>
-            $id_tipo_copropiedad,
+        ':cantidad_unidades'
+            => $cantidadUnidades,
 
-        ":cantidad_unidades" =>
-            $cantidad_unidades,
-            
-        ":correo" =>
-            $correo,
+        ':correo'
+            => $correo,
 
-        ":telefono" =>
-            $telefono,
+        ':telefono'
+            => $telefono,
 
-        ":logo" =>
-            $logo,
+        ':logo'
+            => $logo,
 
-        ":reglamento" =>
-            $reglamento,
+        ':reglamento'
+            => $reglamento,
 
-        ":manual" =>
-            $manual,
-
-        ":activo" =>
-            1
+        ':manual'
+            => $manual
 
     ]);
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | CONFIRMAR
-    |--------------------------------------------------------------------------
-    */
+    // ======================================================
+    // CONFIRMAR
+    // ======================================================
 
     $conexion->commit();
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | MENSAJE
-    |--------------------------------------------------------------------------
-    */
+    // ======================================================
+    // MENSAJE
+    // ======================================================
 
     if ($versionActual) {
 
-        $mensaje = urlencode(
-            "La información fue actualizada correctamente. " .
-            "Se creó la versión " . $version . "."
-        );
-
-    } else {
-
-        $mensaje = urlencode(
-            "La información de la copropiedad fue guardada correctamente."
+        redireccionarDatos(
+            'success',
+            'La información fue actualizada correctamente. ' .
+            'Se creó la versión ' .
+            $version .
+            '.'
         );
     }
 
 
-    header(
-        "Location: ../configuracion/datos.php" .
-        "?tipo=success&texto=" . $mensaje
+    redireccionarDatos(
+        'success',
+        'La información de la copropiedad fue guardada correctamente.'
     );
 
-    exit;
 
+} catch (Throwable $e) {
 
-} catch (Exception $e) {
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ROLLBACK
-    |--------------------------------------------------------------------------
-    */
+    // ======================================================
+    // ROLLBACK
+    // ======================================================
 
     if ($conexion->inTransaction()) {
 
@@ -616,16 +903,31 @@ $cantidad_unidades = !empty($_POST["cantidad_unidades"])
     }
 
 
-    $mensaje = urlencode(
-        "Error al guardar la información: " .
+    // ======================================================
+    // REGISTRAR ERROR REAL
+    // ======================================================
+
+    error_log(
+        "Error guardando datos de copropiedad: " .
         $e->getMessage()
     );
 
 
-    header(
-        "Location: ../configuracion/datos.php" .
-        "?tipo=error&texto=" . $mensaje
-    );
+    // ======================================================
+    // MENSAJE
+    // ======================================================
 
-    exit;
+    if ($e instanceof RuntimeException) {
+
+        redireccionarDatos(
+            'warning',
+            $e->getMessage()
+        );
+    }
+
+
+    redireccionarDatos(
+        'error',
+        'No fue posible guardar la información de la copropiedad.'
+    );
 }

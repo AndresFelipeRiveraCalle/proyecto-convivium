@@ -67,7 +67,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="<?= BASE_URL ?>configuracion/generar_obligacion.php">
+                        <a href="<?= BASE_URL ?>configuracion/factura.php">
                             Crear facturas
                         </a>
                     </li>
