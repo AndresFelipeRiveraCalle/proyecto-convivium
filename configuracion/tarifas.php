@@ -16,6 +16,7 @@ require_once ROOT_PATH . "/config/conexion.php";
 // sea inactivado.
 // ==========================================================
 
+
 $sql = "
     SELECT
         t.id_tarifa,
@@ -51,13 +52,11 @@ $sql = "
 
 $stmt = $conexion->query($sql);
 
-$tarifas = $stmt->fetchAll(
-    PDO::FETCH_ASSOC
-);
+$tarifas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 // ==========================================================
-// CARGAR CONCEPTOS DE FACTURACIÓN ACTIVOS
+// CARGAR CONCEPTOS ACTIVOS
 // ==========================================================
 
 $sqlConceptos = "
@@ -74,13 +73,9 @@ $sqlConceptos = "
 ";
 
 
-$stmtConceptos = $conexion->query(
-    $sqlConceptos
-);
+$stmtConceptos = $conexion->query($sqlConceptos);
 
-$conceptos = $stmtConceptos->fetchAll(
-    PDO::FETCH_ASSOC
-);
+$conceptos = $stmtConceptos->fetchAll(PDO::FETCH_ASSOC);
 
 
 // ==========================================================
@@ -101,17 +96,13 @@ $sqlTiposUnidad = "
 ";
 
 
-$stmtTiposUnidad = $conexion->query(
-    $sqlTiposUnidad
-);
+$stmtTiposUnidad = $conexion->query($sqlTiposUnidad);
 
-$tiposUnidad = $stmtTiposUnidad->fetchAll(
-    PDO::FETCH_ASSOC
-);
+$tiposUnidad = $stmtTiposUnidad->fetchAll(PDO::FETCH_ASSOC);
 
 
 // ==========================================================
-// FUNCIÓN PARA MOSTRAR TIPO DE CÁLCULO
+// FUNCIÓN TIPO DE CÁLCULO
 // ==========================================================
 
 function nombreTipoCalculo($tipo)
@@ -137,16 +128,12 @@ function nombreTipoCalculo($tipo)
 
 
 // ==========================================================
-// FUNCIÓN PARA MOSTRAR VALOR
+// FORMATO VALOR TARIFA
 // ==========================================================
 
-function formatoValorTarifa(
-    $valor,
-    $tipoCalculo
-) {
-
+function formatoValorTarifa($valor, $tipoCalculo)
+{
     $valor = (float)$valor;
-
 
     switch ($tipoCalculo) {
 
@@ -272,9 +259,9 @@ function formatoValorTarifa(
 
             <small>
 
-                Cuando un valor cambie, se recomienda finalizar la
-                vigencia de la tarifa anterior y crear una nueva,
-                conservando así el histórico de facturación.
+                Si una tarifa aplica con el mismo valor a todos los
+                tipos de unidad, puede seleccionar
+                <strong>Todas las unidades</strong> al crearla.
 
             </small>
 
@@ -387,9 +374,7 @@ function formatoValorTarifa(
                                 <tr>
 
 
-                                    <!-- ==========================
-                                         CONCEPTO
-                                    =========================== -->
+                                    <!-- CONCEPTO -->
 
                                     <td>
 
@@ -403,9 +388,7 @@ function formatoValorTarifa(
                                         </strong>
 
 
-                                        <?php if (
-                                            !empty($tarifa['nombre'])
-                                        ): ?>
+                                        <?php if (!empty($tarifa['nombre'])): ?>
 
 
                                             <br>
@@ -426,9 +409,7 @@ function formatoValorTarifa(
                                     </td>
 
 
-                                    <!-- ==========================
-                                         TIPO DE UNIDAD
-                                    =========================== -->
+                                    <!-- TIPO UNIDAD -->
 
                                     <td>
 
@@ -441,9 +422,7 @@ function formatoValorTarifa(
                                     </td>
 
 
-                                    <!-- ==========================
-                                         TIPO DE CÁLCULO
-                                    =========================== -->
+                                    <!-- TIPO CÁLCULO -->
 
                                     <td>
 
@@ -458,9 +437,7 @@ function formatoValorTarifa(
                                     </td>
 
 
-                                    <!-- ==========================
-                                         VALOR
-                                    =========================== -->
+                                    <!-- VALOR -->
 
                                     <td>
 
@@ -480,9 +457,7 @@ function formatoValorTarifa(
                                     </td>
 
 
-                                    <!-- ==========================
-                                         VIGENCIA
-                                    =========================== -->
+                                    <!-- VIGENCIA -->
 
                                     <td>
 
@@ -498,9 +473,7 @@ function formatoValorTarifa(
                                         ) ?>
 
 
-                                        <?php if (
-                                            !empty($tarifa['fecha_fin'])
-                                        ): ?>
+                                        <?php if (!empty($tarifa['fecha_fin'])): ?>
 
 
                                             <br>
@@ -534,16 +507,12 @@ function formatoValorTarifa(
                                     </td>
 
 
-                                    <!-- ==========================
-                                         ESTADO
-                                    =========================== -->
+                                    <!-- ESTADO -->
 
                                     <td>
 
 
-                                        <?php if (
-                                            (int)$tarifa['estado'] === 1
-                                        ): ?>
+                                        <?php if ((int)$tarifa['estado'] === 1): ?>
 
 
                                             <span class="activo">
@@ -565,9 +534,7 @@ function formatoValorTarifa(
                                     </td>
 
 
-                                    <!-- ==========================
-                                         ACCIONES
-                                    =========================== -->
+                                    <!-- ACCIONES -->
 
                                     <td>
 
@@ -672,9 +639,7 @@ function formatoValorTarifa(
         >
 
 
-            <!-- ==================================================
-                 CONCEPTO
-            =================================================== -->
+            <!-- CONCEPTO -->
 
             <div class="form-group">
 
@@ -722,9 +687,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 TIPO DE CÁLCULO
-            =================================================== -->
+            <!-- TIPO DE CÁLCULO -->
 
             <div class="form-group">
 
@@ -787,7 +750,7 @@ function formatoValorTarifa(
 
 
                 <label for="nuevo_id_tipo_config">
-                    Tipo de unidad *
+                    Aplicar tarifa a *
                 </label>
 
 
@@ -803,13 +766,23 @@ function formatoValorTarifa(
                     </option>
 
 
+                    <!-- ==========================================
+                         NUEVA OPCIÓN
+                    =========================================== -->
+
+                    <option value="TODAS">
+
+                        Todas las unidades
+
+                    </option>
+
+
                     <?php foreach ($tiposUnidad as $tipo): ?>
 
 
                         <option
                             value="<?= (int)$tipo['id_tipo_config'] ?>"
                         >
-
 
                             <?= htmlspecialchars(
                                 $tipo['nombre_grupo']
@@ -834,12 +807,19 @@ function formatoValorTarifa(
                 </select>
 
 
+                <small>
+
+                    Seleccione <strong>Todas las unidades</strong>
+                    para crear esta misma tarifa en todos los tipos
+                    de unidad activos.
+
+                </small>
+
+
             </div>
 
 
-            <!-- ==================================================
-                 NOMBRE
-            =================================================== -->
+            <!-- NOMBRE -->
 
             <div class="form-group">
 
@@ -854,7 +834,7 @@ function formatoValorTarifa(
                     name="nombre"
                     id="nuevo_nombre"
                     maxlength="150"
-                    placeholder="Ej. Administración Torre A"
+                    placeholder="Ej. Administración general"
                 >
 
 
@@ -869,9 +849,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 VALOR
-            =================================================== -->
+            <!-- VALOR -->
 
             <div class="form-group">
 
@@ -907,9 +885,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 FECHA INICIO
-            =================================================== -->
+            <!-- FECHA INICIO -->
 
             <div class="form-group">
 
@@ -927,20 +903,10 @@ function formatoValorTarifa(
                 >
 
 
-                <small>
-
-                    Fecha a partir de la cual esta tarifa podrá
-                    utilizarse en la facturación.
-
-                </small>
-
-
             </div>
 
 
-            <!-- ==================================================
-                 FECHA FIN
-            =================================================== -->
+            <!-- FECHA FIN -->
 
             <div class="form-group">
 
@@ -959,7 +925,7 @@ function formatoValorTarifa(
 
                 <small>
 
-                    Deje este campo vacío si la tarifa continúa vigente.
+                    Déjela vacía si la tarifa continúa vigente.
 
                 </small>
 
@@ -967,9 +933,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 OBSERVACIONES
-            =================================================== -->
+            <!-- OBSERVACIONES -->
 
             <div class="form-group">
 
@@ -991,9 +955,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 ESTADO
-            =================================================== -->
+            <!-- ESTADO -->
 
             <div class="form-group">
 
@@ -1025,9 +987,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 BOTONES
-            =================================================== -->
+            <!-- BOTONES -->
 
             <div class="form-actions">
 
@@ -1107,10 +1067,6 @@ function formatoValorTarifa(
         >
 
 
-            <!-- ==================================================
-                 ID
-            =================================================== -->
-
             <input
                 type="hidden"
                 name="id_tarifa"
@@ -1118,9 +1074,7 @@ function formatoValorTarifa(
             >
 
 
-            <!-- ==================================================
-                 CONCEPTO
-            =================================================== -->
+            <!-- CONCEPTO -->
 
             <div class="form-group">
 
@@ -1168,9 +1122,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 TIPO DE CÁLCULO
-            =================================================== -->
+            <!-- TIPO DE CÁLCULO -->
 
             <div class="form-group">
 
@@ -1225,9 +1177,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 TIPO DE UNIDAD
-            =================================================== -->
+            <!-- TIPO UNIDAD -->
 
             <div class="form-group">
 
@@ -1269,12 +1219,18 @@ function formatoValorTarifa(
                 </select>
 
 
+                <small>
+
+                    La edición se realiza individualmente por tipo
+                    de unidad.
+
+                </small>
+
+
             </div>
 
 
-            <!-- ==================================================
-                 NOMBRE
-            =================================================== -->
+            <!-- NOMBRE -->
 
             <div class="form-group">
 
@@ -1295,9 +1251,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 VALOR
-            =================================================== -->
+            <!-- VALOR -->
 
             <div class="form-group">
 
@@ -1332,9 +1286,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 FECHA INICIO
-            =================================================== -->
+            <!-- FECHA INICIO -->
 
             <div class="form-group">
 
@@ -1355,9 +1307,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 FECHA FIN
-            =================================================== -->
+            <!-- FECHA FIN -->
 
             <div class="form-group">
 
@@ -1374,17 +1324,10 @@ function formatoValorTarifa(
                 >
 
 
-                <small>
-                    Deje vacío si la tarifa continúa vigente.
-                </small>
-
-
             </div>
 
 
-            <!-- ==================================================
-                 OBSERVACIONES
-            =================================================== -->
+            <!-- OBSERVACIONES -->
 
             <div class="form-group">
 
@@ -1405,9 +1348,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 ESTADO
-            =================================================== -->
+            <!-- ESTADO -->
 
             <div class="form-group">
 
@@ -1439,9 +1380,7 @@ function formatoValorTarifa(
             </div>
 
 
-            <!-- ==================================================
-                 BOTONES
-            =================================================== -->
+            <!-- BOTONES -->
 
             <div class="form-actions">
 

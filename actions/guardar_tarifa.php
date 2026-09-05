@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 
 // ==========================================================
-// FUNCIÓN DE REDIRECCIÓN
+// REDIRECCIÓN
 // ==========================================================
 
 function redireccionarTarifas(
@@ -44,248 +44,232 @@ function redireccionarTarifas(
 
 
 // ==========================================================
-// FUNCIÓN PARA VALIDAR FECHAS
+// VALIDAR FECHA
 // ==========================================================
 
 function fechaValida($fecha)
 {
     if ($fecha === null || $fecha === '') {
-        return false;
+        return true;
     }
 
-    $fechaObj = DateTime::createFromFormat(
+    $obj = DateTime::createFromFormat(
         'Y-m-d',
         $fecha
     );
 
-    $errores = DateTime::getLastErrors();
+    return $obj &&
+        $obj->format('Y-m-d') === $fecha;
+}
 
-    if (!$fechaObj) {
-        return false;
-    }
 
-    if (
-        $errores !== false &&
-        (
-            $errores['warning_count'] > 0 ||
-            $errores['error_count'] > 0
-        )
-    ) {
-        return false;
-    }
+// ==========================================================
+// DATOS RECIBIDOS
+// ==========================================================
 
-    return $fechaObj->format('Y-m-d') === $fecha;
+$idConcepto = isset($_POST['id_concepto'])
+    ? (int)$_POST['id_concepto']
+    : 0;
+
+
+$tipoConfigRecibido =
+    isset($_POST['id_tipo_config'])
+        ? trim((string)$_POST['id_tipo_config'])
+        : '';
+
+
+$aplicarATodas =
+    strtoupper($tipoConfigRecibido) === 'TODAS';
+
+
+$idTipoConfig =
+    $aplicarATodas
+        ? 0
+        : (int)$tipoConfigRecibido;
+
+
+$nombre = isset($_POST['nombre'])
+    ? trim($_POST['nombre'])
+    : '';
+
+
+$valor = isset($_POST['valor'])
+    ? trim($_POST['valor'])
+    : '';
+
+
+$fechaInicio = isset($_POST['fecha_inicio'])
+    ? trim($_POST['fecha_inicio'])
+    : '';
+
+
+$fechaFin = isset($_POST['fecha_fin'])
+    ? trim($_POST['fecha_fin'])
+    : '';
+
+
+$estado = isset($_POST['estado'])
+    ? (int)$_POST['estado']
+    : 1;
+
+
+$observaciones = isset($_POST['observaciones'])
+    ? trim($_POST['observaciones'])
+    : '';
+
+
+// ==========================================================
+// NORMALIZAR OPCIONALES
+// ==========================================================
+
+$nombre =
+    $nombre !== ''
+        ? $nombre
+        : null;
+
+
+$fechaFin =
+    $fechaFin !== ''
+        ? $fechaFin
+        : null;
+
+
+$observaciones =
+    $observaciones !== ''
+        ? $observaciones
+        : null;
+
+
+// ==========================================================
+// VALIDACIONES BÁSICAS
+// ==========================================================
+
+if ($idConcepto <= 0) {
+
+    redireccionarTarifas(
+        'warning',
+        'Debe seleccionar un concepto.'
+    );
+}
+
+
+if (
+    !$aplicarATodas &&
+    $idTipoConfig <= 0
+) {
+
+    redireccionarTarifas(
+        'warning',
+        'Debe seleccionar un tipo de unidad.'
+    );
+}
+
+
+if (
+    $nombre !== null &&
+    mb_strlen($nombre) > 150
+) {
+
+    redireccionarTarifas(
+        'warning',
+        'El nombre de la tarifa no puede superar los 150 caracteres.'
+    );
+}
+
+
+if (
+    $valor === '' ||
+    !is_numeric($valor)
+) {
+
+    redireccionarTarifas(
+        'warning',
+        'Debe ingresar un valor válido.'
+    );
+}
+
+
+$valor = (float)$valor;
+
+
+if ($valor < 0) {
+
+    redireccionarTarifas(
+        'warning',
+        'El valor de la tarifa no puede ser negativo.'
+    );
+}
+
+
+if (
+    $fechaInicio === '' ||
+    !fechaValida($fechaInicio)
+) {
+
+    redireccionarTarifas(
+        'warning',
+        'Debe ingresar una fecha de inicio válida.'
+    );
+}
+
+
+if (
+    $fechaFin !== null &&
+    !fechaValida($fechaFin)
+) {
+
+    redireccionarTarifas(
+        'warning',
+        'La fecha de finalización no es válida.'
+    );
+}
+
+
+if (
+    $fechaFin !== null &&
+    $fechaFin < $fechaInicio
+) {
+
+    redireccionarTarifas(
+        'warning',
+        'La fecha de finalización no puede ser anterior a la fecha de inicio.'
+    );
+}
+
+
+if (!in_array($estado, [0, 1], true)) {
+
+    redireccionarTarifas(
+        'warning',
+        'El estado seleccionado no es válido.'
+    );
+}
+
+
+if (
+    $observaciones !== null &&
+    mb_strlen($observaciones) > 255
+) {
+
+    redireccionarTarifas(
+        'warning',
+        'Las observaciones no pueden superar los 255 caracteres.'
+    );
 }
 
 
 try {
 
-    // ==========================================================
-    // DATOS DEL FORMULARIO
-    // ==========================================================
+    // ======================================================
+    // INICIAR TRANSACCIÓN
+    // ======================================================
 
-    $id_concepto = !empty(
-        $_POST["id_concepto"]
-    )
-        ? (int) $_POST["id_concepto"]
-        : 0;
+    $conexion->beginTransaction();
 
 
-    $id_tipo_config = !empty(
-        $_POST["id_tipo_config"]
-    )
-        ? (int) $_POST["id_tipo_config"]
-        : 0;
-
-
-    $nombre = !empty(
-        $_POST["nombre"]
-    )
-        ? trim($_POST["nombre"])
-        : null;
-
-
-    $valorTexto = isset(
-        $_POST["valor"]
-    )
-        ? trim($_POST["valor"])
-        : "";
-
-
-    $fecha_inicio = !empty(
-        $_POST["fecha_inicio"]
-    )
-        ? trim($_POST["fecha_inicio"])
-        : null;
-
-
-    $fecha_fin = !empty(
-        $_POST["fecha_fin"]
-    )
-        ? trim($_POST["fecha_fin"])
-        : null;
-
-
-    $estado = isset(
-        $_POST["estado"]
-    )
-        ? (int) $_POST["estado"]
-        : 1;
-
-
-    $observaciones = !empty(
-        $_POST["observaciones"]
-    )
-        ? trim($_POST["observaciones"])
-        : null;
-
-
-    // ==========================================================
+    // ======================================================
     // VALIDAR CONCEPTO
-    // ==========================================================
-
-    if ($id_concepto <= 0) {
-
-        redireccionarTarifas(
-            "warning",
-            "Debe seleccionar un concepto de facturación."
-        );
-    }
-
-
-    // ==========================================================
-    // VALIDAR TIPO DE UNIDAD
-    // ==========================================================
-
-    if ($id_tipo_config <= 0) {
-
-        redireccionarTarifas(
-            "warning",
-            "Debe seleccionar un tipo de unidad."
-        );
-    }
-
-
-    // ==========================================================
-    // VALIDAR NOMBRE
-    // ==========================================================
-
-    if (
-        $nombre !== null &&
-        mb_strlen($nombre) > 150
-    ) {
-
-        redireccionarTarifas(
-            "warning",
-            "El nombre de la tarifa no puede superar los 150 caracteres."
-        );
-    }
-
-
-    // ==========================================================
-    // VALIDAR VALOR
-    // ==========================================================
-
-    if (
-        $valorTexto === '' ||
-        !is_numeric($valorTexto)
-    ) {
-
-        redireccionarTarifas(
-            "warning",
-            "Debe ingresar un valor válido para la tarifa."
-        );
-    }
-
-
-    $valor = (float)$valorTexto;
-
-
-    if ($valor < 0) {
-
-        redireccionarTarifas(
-            "warning",
-            "El valor de la tarifa no puede ser negativo."
-        );
-    }
-
-
-    // ==========================================================
-    // VALIDAR FECHA DE INICIO
-    // ==========================================================
-
-    if (
-        $fecha_inicio === null ||
-        !fechaValida($fecha_inicio)
-    ) {
-
-        redireccionarTarifas(
-            "warning",
-            "La fecha de inicio de la tarifa no es válida."
-        );
-    }
-
-
-    // ==========================================================
-    // VALIDAR FECHA DE FINALIZACIÓN
-    // ==========================================================
-
-    if ($fecha_fin !== null) {
-
-        if (!fechaValida($fecha_fin)) {
-
-            redireccionarTarifas(
-                "warning",
-                "La fecha de finalización de la tarifa no es válida."
-            );
-        }
-
-
-        if ($fecha_fin < $fecha_inicio) {
-
-            redireccionarTarifas(
-                "warning",
-                "La fecha de finalización no puede ser anterior a la fecha de inicio."
-            );
-        }
-    }
-
-
-    // ==========================================================
-    // VALIDAR ESTADO
-    // ==========================================================
-
-    if (
-        !in_array(
-            $estado,
-            [0, 1],
-            true
-        )
-    ) {
-
-        $estado = 1;
-    }
-
-
-    // ==========================================================
-    // VALIDAR OBSERVACIONES
-    // ==========================================================
-
-    if (
-        $observaciones !== null &&
-        mb_strlen($observaciones) > 255
-    ) {
-
-        redireccionarTarifas(
-            "warning",
-            "Las observaciones no pueden superar los 255 caracteres."
-        );
-    }
-
-
-    // ==========================================================
-    // VALIDAR QUE EL CONCEPTO EXISTA Y ESTÉ ACTIVO
-    // ==========================================================
+    // ======================================================
 
     $sqlConcepto = "
         SELECT
@@ -310,7 +294,7 @@ try {
     $stmtConcepto->execute([
 
         ':id_concepto'
-            => $id_concepto
+            => $idConcepto
 
     ]);
 
@@ -322,75 +306,112 @@ try {
 
     if (!$concepto) {
 
-        redireccionarTarifas(
-            "warning",
-            "El concepto seleccionado no existe o está inactivo."
+        throw new RuntimeException(
+            'El concepto seleccionado no existe o se encuentra inactivo.'
         );
     }
 
 
-    // ==========================================================
-    // VALIDAR TIPO DE UNIDAD
-    // ==========================================================
+    // ======================================================
+    // DETERMINAR TIPOS DE UNIDAD DESTINO
+    // ======================================================
 
-    $sqlTipoUnidad = "
-        SELECT
-            id_tipo_config,
-            nombre_grupo
-
-        FROM detalle_tipos_unidad
-
-        WHERE id_tipo_config = :id_tipo_config
-        AND activo = 1
-
-        LIMIT 1
-    ";
+    $tiposDestino = [];
 
 
-    $stmtTipoUnidad = $conexion->prepare(
-        $sqlTipoUnidad
-    );
+    if ($aplicarATodas) {
+
+        $sqlTipos = "
+            SELECT
+                id_tipo_config,
+                nombre_grupo
+
+            FROM detalle_tipos_unidad
+
+            WHERE activo = 1
+
+            ORDER BY id_tipo_config
+        ";
 
 
-    $stmtTipoUnidad->execute([
-
-        ':id_tipo_config'
-            => $id_tipo_config
-
-    ]);
-
-
-    $tipoUnidad = $stmtTipoUnidad->fetch(
-        PDO::FETCH_ASSOC
-    );
-
-
-    if (!$tipoUnidad) {
-
-        redireccionarTarifas(
-            "warning",
-            "El tipo de unidad seleccionado no existe o está inactivo."
+        $stmtTipos = $conexion->query(
+            $sqlTipos
         );
+
+
+        $tiposDestino = $stmtTipos->fetchAll(
+            PDO::FETCH_ASSOC
+        );
+
+
+        if (empty($tiposDestino)) {
+
+            throw new RuntimeException(
+                'No existen tipos de unidad activos para asignar la tarifa.'
+            );
+        }
+
+    } else {
+
+        // ==================================================
+        // VALIDAR TIPO DE UNIDAD INDIVIDUAL
+        // ==================================================
+
+        $sqlTipo = "
+            SELECT
+                id_tipo_config,
+                nombre_grupo
+
+            FROM detalle_tipos_unidad
+
+            WHERE id_tipo_config =
+                :id_tipo_config
+
+            AND activo = 1
+
+            LIMIT 1
+        ";
+
+
+        $stmtTipo = $conexion->prepare(
+            $sqlTipo
+        );
+
+
+        $stmtTipo->execute([
+
+            ':id_tipo_config'
+                => $idTipoConfig
+
+        ]);
+
+
+        $tipoUnidad = $stmtTipo->fetch(
+            PDO::FETCH_ASSOC
+        );
+
+
+        if (!$tipoUnidad) {
+
+            throw new RuntimeException(
+                'El tipo de unidad seleccionado no existe o se encuentra inactivo.'
+            );
+        }
+
+
+        $tiposDestino[] =
+            $tipoUnidad;
     }
 
 
-    // ==========================================================
-    // VALIDAR VIGENCIAS SUPERPUESTAS
-    // ==========================================================
+    // ======================================================
+    // PREPARAR CONSULTA DE SOLAPAMIENTO
+    // ======================================================
     //
-    // Se considera superposición cuando:
-    //
-    // tarifa existente.fecha_inicio <= nueva.fecha_fin
-    //
-    // Y
-    //
-    // tarifa existente.fecha_fin >= nueva.fecha_inicio
-    //
-    // Los NULL se interpretan como vigencia abierta.
-    //
-    // ==========================================================
+    // Usamos parámetros diferentes para evitar HY093.
+    // ======================================================
 
-    $sqlSolapamiento = "
+    $sqlSolape = "
         SELECT
             id_tarifa,
             fecha_inicio,
@@ -398,66 +419,37 @@ try {
 
         FROM tarifas_facturacion
 
-        WHERE id_concepto = :id_concepto
-        AND id_tipo_config = :id_tipo_config
+        WHERE id_concepto =
+            :id_concepto
+
+        AND id_tipo_config =
+            :id_tipo_config
+
         AND estado = 1
 
         AND fecha_inicio <=
-            COALESCE(
-                :fecha_fin,
-                '9999-12-31'
-            )
+            :fecha_fin_comparacion
 
         AND (
             fecha_fin IS NULL
-            OR fecha_fin >= :fecha_inicio
+            OR fecha_fin >=
+               :fecha_inicio_comparacion
         )
 
         LIMIT 1
     ";
 
 
-    $stmtSolapamiento = $conexion->prepare(
-        $sqlSolapamiento
+    $stmtSolape = $conexion->prepare(
+        $sqlSolape
     );
 
 
-    $stmtSolapamiento->execute([
+    // ======================================================
+    // PREPARAR INSERT
+    // ======================================================
 
-        ':id_concepto'
-            => $id_concepto,
-
-        ':id_tipo_config'
-            => $id_tipo_config,
-
-        ':fecha_fin'
-            => $fecha_fin,
-
-        ':fecha_inicio'
-            => $fecha_inicio
-
-    ]);
-
-
-    $tarifaExistente = $stmtSolapamiento->fetch(
-        PDO::FETCH_ASSOC
-    );
-
-
-    if ($tarifaExistente) {
-
-        redireccionarTarifas(
-            "warning",
-            "Ya existe una tarifa activa para este concepto y tipo de unidad cuya vigencia se cruza con las fechas seleccionadas."
-        );
-    }
-
-
-    // ==========================================================
-    // INSERTAR TARIFA
-    // ==========================================================
-
-    $sqlInsertar = "
+    $sqlInsert = "
         INSERT INTO tarifas_facturacion
         (
             id_concepto,
@@ -483,68 +475,236 @@ try {
     ";
 
 
-    $stmtInsertar = $conexion->prepare(
-        $sqlInsertar
+    $stmtInsert = $conexion->prepare(
+        $sqlInsert
     );
 
 
-    $stmtInsertar->execute([
+    // ======================================================
+    // FECHA FINAL PARA COMPARACIÓN
+    // ======================================================
 
-        ':id_concepto'
-            => $id_concepto,
-
-        ':id_tipo_config'
-            => $id_tipo_config,
-
-        ':nombre'
-            => $nombre,
-
-        ':valor'
-            => $valor,
-
-        ':fecha_inicio'
-            => $fecha_inicio,
-
-        ':fecha_fin'
-            => $fecha_fin,
-
-        ':estado'
-            => $estado,
-
-        ':observaciones'
-            => $observaciones
-
-    ]);
+    $fechaFinComparacion =
+        $fechaFin !== null
+            ? $fechaFin
+            : '9999-12-31';
 
 
-    // ==========================================================
-    // CONFIRMACIÓN
-    // ==========================================================
+    // ======================================================
+    // PRIMER RECORRIDO:
+    // VALIDAR TODAS ANTES DE INSERTAR
+    // ======================================================
+
+    foreach ($tiposDestino as $tipoDestino) {
+
+        $idTipoDestino =
+            (int)$tipoDestino['id_tipo_config'];
+
+
+        // ==================================================
+        // SOLO VALIDAR SOLAPE SI LA NUEVA QUEDA ACTIVA
+        // ==================================================
+
+        if ($estado === 1) {
+
+            $stmtSolape->execute([
+
+                ':id_concepto'
+                    => $idConcepto,
+
+                ':id_tipo_config'
+                    => $idTipoDestino,
+
+                ':fecha_fin_comparacion'
+                    => $fechaFinComparacion,
+
+                ':fecha_inicio_comparacion'
+                    => $fechaInicio
+
+            ]);
+
+
+            $solape = $stmtSolape->fetch(
+                PDO::FETCH_ASSOC
+            );
+
+
+            if ($solape) {
+
+                $nombreGrupo =
+                    $tipoDestino['nombre_grupo']
+                    ?? 'tipo de unidad';
+
+
+                $vigencia =
+                    $solape['fecha_inicio'];
+
+
+                if (!empty($solape['fecha_fin'])) {
+
+                    $vigencia .=
+                        ' hasta ' .
+                        $solape['fecha_fin'];
+
+                } else {
+
+                    $vigencia .=
+                        ' en adelante';
+                }
+
+
+                throw new RuntimeException(
+                    'No se puede crear la tarifa. ' .
+                    'El grupo "' .
+                    $nombreGrupo .
+                    '" ya tiene una tarifa activa para "' .
+                    $concepto['nombre'] .
+                    '" cuya vigencia se superpone (' .
+                    $vigencia .
+                    ').'
+                );
+            }
+        }
+    }
+
+
+    // ======================================================
+    // SEGUNDO RECORRIDO:
+    // INSERTAR
+    // ======================================================
+
+    $cantidadCreadas = 0;
+
+
+    foreach ($tiposDestino as $tipoDestino) {
+
+        $idTipoDestino =
+            (int)$tipoDestino['id_tipo_config'];
+
+
+        $stmtInsert->execute([
+
+            ':id_concepto'
+                => $idConcepto,
+
+            ':id_tipo_config'
+                => $idTipoDestino,
+
+            ':nombre'
+                => $nombre,
+
+            ':valor'
+                => $valor,
+
+            ':fecha_inicio'
+                => $fechaInicio,
+
+            ':fecha_fin'
+                => $fechaFin,
+
+            ':estado'
+                => $estado,
+
+            ':observaciones'
+                => $observaciones
+
+        ]);
+
+
+        $cantidadCreadas++;
+    }
+
+
+    // ======================================================
+    // CONFIRMAR
+    // ======================================================
+
+    $conexion->commit();
+
+
+    // ======================================================
+    // MENSAJE
+    // ======================================================
+
+    if ($aplicarATodas) {
+
+        redireccionarTarifas(
+            'success',
+            'La tarifa fue creada correctamente para ' .
+            $cantidadCreadas .
+            ' tipos de unidad.'
+        );
+    }
+
 
     redireccionarTarifas(
-        "success",
-        "La tarifa de facturación fue creada correctamente."
+        'success',
+        'La tarifa fue creada correctamente.'
+    );
+
+
+} catch (RuntimeException $e) {
+
+    // ======================================================
+    // ROLLBACK ERROR DE NEGOCIO
+    // ======================================================
+
+    if ($conexion->inTransaction()) {
+
+        $conexion->rollBack();
+    }
+
+
+    redireccionarTarifas(
+        'warning',
+        $e->getMessage()
     );
 
 
 } catch (PDOException $e) {
 
-    // ==========================================================
-    // REGISTRAR ERROR REAL
-    // ==========================================================
+    // ======================================================
+    // ROLLBACK ERROR BD
+    // ======================================================
+
+    if ($conexion->inTransaction()) {
+
+        $conexion->rollBack();
+    }
+
 
     error_log(
-        "Error guardando tarifa de facturación: " .
+        'Error guardando tarifa: ' .
         $e->getMessage()
     );
 
 
-    // ==========================================================
-    // MENSAJE AL USUARIO
-    // ==========================================================
+    redireccionarTarifas(
+        'error',
+        'No fue posible guardar la tarifa.'
+    );
+
+
+} catch (Throwable $e) {
+
+    // ======================================================
+    // OTRO ERROR
+    // ======================================================
+
+    if ($conexion->inTransaction()) {
+
+        $conexion->rollBack();
+    }
+
+
+    error_log(
+        'Error inesperado guardando tarifa: ' .
+        $e->getMessage()
+    );
+
 
     redireccionarTarifas(
-        "error",
-        "No fue posible guardar la tarifa de facturación."
+        'error',
+        'Ocurrió un error inesperado al guardar la tarifa.'
     );
 }
