@@ -5,20 +5,25 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 
 // ==========================================================
-// CARGAR GRUPOS DE UNIDADES ACTIVOS
+// CARGAR GRUPOS DE UNIDADES
 // ==========================================================
 
 $sqlGrupos = "
     SELECT
-        id_tipo_config,
-        nombre_grupo,
-        cantidad_unidades
+        dt.id_tipo_config,
+        dt.id_tipo_vivienda,
+        dt.nombre_grupo,
+        dt.cantidad_unidades,
+        tv.nombre AS tipo_unidad
 
-    FROM detalle_tipos_unidad
+    FROM detalle_tipos_unidad dt
 
-    WHERE activo = 1
+    INNER JOIN tipos_vivienda tv
+        ON tv.id_tipo_vivienda = dt.id_tipo_vivienda
 
-    ORDER BY id_tipo_config
+    WHERE dt.activo = 1
+
+    ORDER BY dt.id_tipo_config
 ";
 
 
@@ -33,14 +38,14 @@ $grupos = $stmtGrupos->fetchAll(
 // GRUPO SELECCIONADO
 // ==========================================================
 
-$idGrupoSeleccionado = isset($_GET['id'])
-    ? (int)$_GET['id']
-    : 0;
+$idGrupoSeleccionado =
+    isset($_GET['id'])
+        ? (int)$_GET['id']
+        : 0;
 
 
 // ==========================================================
-// SI NO HAY GRUPO SELECCIONADO,
-// TOMAR EL PRIMERO
+// SI NO HAY GRUPO, TOMAR EL PRIMERO
 // ==========================================================
 
 if (
@@ -54,56 +59,7 @@ if (
 
 
 // ==========================================================
-// CARGAR UNIDADES DEL GRUPO
-// ==========================================================
-
-$unidades = [];
-
-
-if ($idGrupoSeleccionado > 0) {
-
-    $sqlUnidades = "
-        SELECT
-            id_unidad,
-            id_tipo_config,
-            codigo,
-            nombre,
-            piso,
-            area,
-            coeficiente,
-            estado,
-            observaciones,
-            activo
-
-        FROM unidades
-
-        WHERE id_tipo_config = :id_tipo_config
-
-        ORDER BY codigo
-    ";
-
-
-    $stmtUnidades = $conexion->prepare(
-        $sqlUnidades
-    );
-
-
-    $stmtUnidades->execute([
-
-        ':id_tipo_config'
-            => $idGrupoSeleccionado
-
-    ]);
-
-
-    $unidades = $stmtUnidades->fetchAll(
-        PDO::FETCH_ASSOC
-    );
-}
-
-
-// ==========================================================
-// BUSCAR DATOS DEL GRUPO SELECCIONADO
+// BUSCAR GRUPO SELECCIONADO
 // ==========================================================
 
 $grupoSeleccionado = null;
@@ -121,6 +77,117 @@ foreach ($grupos as $grupo) {
         break;
     }
 }
+
+
+// ==========================================================
+// CARGAR UNIDADES
+// ==========================================================
+//
+// También calculamos:
+//
+// - personas relacionadas actualmente
+// - espacios asociados actualmente
+//
+// ==========================================================
+
+$unidades = [];
+
+
+if ($idGrupoSeleccionado > 0) {
+
+    $sqlUnidades = "
+        SELECT
+
+            u.id_unidad,
+            u.id_tipo_config,
+            u.codigo,
+            u.nombre,
+            u.piso,
+            u.area,
+            u.coeficiente,
+            u.estado,
+            u.observaciones,
+            u.activo,
+
+            (
+                SELECT COUNT(*)
+
+                FROM residente r
+
+                WHERE
+                    r.unidad_id = u.id_unidad
+                    AND r.activo = 1
+                    AND r.fecha_hasta IS NULL
+
+            ) AS cantidad_personas,
+
+            (
+                SELECT COUNT(*)
+
+                FROM espacios_unidad eu
+
+                WHERE
+                    eu.id_unidad = u.id_unidad
+                    AND eu.activo = 1
+                    AND eu.fecha_hasta IS NULL
+
+            ) AS cantidad_espacios
+
+        FROM unidades u
+
+        WHERE
+            u.id_tipo_config = :id_tipo_config
+
+        ORDER BY u.codigo
+    ";
+
+
+    $stmtUnidades =
+        $conexion->prepare(
+            $sqlUnidades
+        );
+
+
+    $stmtUnidades->execute([
+
+        ':id_tipo_config'
+            => $idGrupoSeleccionado
+
+    ]);
+
+
+    $unidades =
+        $stmtUnidades->fetchAll(
+            PDO::FETCH_ASSOC
+        );
+}
+
+
+// ==========================================================
+// CANTIDADES DEL GRUPO
+// ==========================================================
+
+$cantidadConfigurada =
+    $grupoSeleccionado
+        ? (int)$grupoSeleccionado['cantidad_unidades']
+        : 0;
+
+
+$cantidadCreadas =
+    count($unidades);
+
+
+$cantidadPendientes =
+    max(
+        0,
+        $cantidadConfigurada -
+        $cantidadCreadas
+    );
+
+
+$puedeCrearUnidad =
+    $grupoSeleccionado &&
+    $cantidadCreadas < $cantidadConfigurada;
 
 ?>
 
@@ -166,13 +233,163 @@ foreach ($grupos as $grupo) {
 
         <p>
 
-            Configura las unidades de la copropiedad,
-            su área, coeficiente y estado actual.
+            Administra las unidades de la copropiedad
+            y las personas y espacios asociados a cada una.
 
         </p>
 
 
         <br>
+
+
+        <!-- ======================================================
+             TABS
+        ======================================================= -->
+
+        <?php if (!empty($grupos)): ?>
+
+
+            <div class="tabs-container">
+
+
+                <?php foreach ($grupos as $grupo): ?>
+
+
+                    <a
+                        href="unidades.php?id=<?= (int)$grupo['id_tipo_config'] ?>"
+                        class="tab-button <?= (
+                            (int)$grupo['id_tipo_config'] ===
+                            $idGrupoSeleccionado
+                        )
+                            ? 'active'
+                            : ''
+                        ?>"
+                    >
+
+                        <?= htmlspecialchars(
+                            $grupo['nombre_grupo']
+                        ) ?>
+
+                    </a>
+
+
+                <?php endforeach; ?>
+
+
+            </div>
+
+
+            <br>
+
+
+        <?php endif; ?>
+
+
+        <!-- ======================================================
+             INFORMACIÓN SIMPLE DEL GRUPO
+        ======================================================= -->
+
+        <?php if ($grupoSeleccionado): ?>
+
+
+            <div class="bloque filtros">
+
+
+                <div class="card">
+
+
+                    <label>
+                        Grupo
+                    </label>
+
+
+                    <strong>
+
+                        <?= htmlspecialchars(
+                            $grupoSeleccionado['nombre_grupo']
+                        ) ?>
+
+                    </strong>
+
+
+                </div>
+
+
+                <div class="card">
+
+
+                    <label>
+                        Tipo
+                    </label>
+
+
+                    <strong>
+
+                        <?= htmlspecialchars(
+                            $grupoSeleccionado['tipo_unidad']
+                        ) ?>
+
+                    </strong>
+
+
+                </div>
+
+
+                <div class="card">
+
+
+                    <label>
+                        Configuradas
+                    </label>
+
+
+                    <strong>
+                        <?= $cantidadConfigurada ?>
+                    </strong>
+
+
+                </div>
+
+
+                <div class="card">
+
+
+                    <label>
+                        Creadas
+                    </label>
+
+
+                    <strong>
+                        <?= $cantidadCreadas ?>
+                    </strong>
+
+
+                </div>
+
+
+                <div class="card">
+
+
+                    <label>
+                        Pendientes
+                    </label>
+
+
+                    <strong>
+                        <?= $cantidadPendientes ?>
+                    </strong>
+
+
+                </div>
+
+
+            </div>
+
+
+            <br>
+
+
+        <?php endif; ?>
 
 
         <!-- ======================================================
@@ -182,13 +399,17 @@ foreach ($grupos as $grupo) {
         <div class="acciones-superior">
 
 
-            <?php if ($idGrupoSeleccionado > 0): ?>
+            <?php if ($grupoSeleccionado): ?>
 
 
                 <button
                     type="button"
                     class="btn-filtrar btn-derecha"
                     id="btnNuevaUnidad"
+                    <?= !$puedeCrearUnidad
+                        ? 'disabled'
+                        : ''
+                    ?>
                 >
 
                     + Nueva unidad
@@ -202,87 +423,11 @@ foreach ($grupos as $grupo) {
         </div>
 
 
-        <!-- ======================================================
-             TABS DE GRUPOS
-        ======================================================= -->
-
-        <div class="tabs-container">
-
-
-            <?php foreach ($grupos as $grupo): ?>
-
-
-                <a
-                    href="unidades.php?id=<?= (int)$grupo['id_tipo_config'] ?>"
-                    class="tab-button
-                    <?= (
-                        (int)$grupo['id_tipo_config'] ===
-                        $idGrupoSeleccionado
-                    )
-                        ? 'active'
-                        : ''
-                    ?>"
-                >
-
-                    <?= htmlspecialchars(
-                        $grupo['nombre_grupo']
-                    ) ?>
-
-                </a>
-
-
-            <?php endforeach; ?>
-
-
-        </div>
-
-
         <br>
 
 
         <!-- ======================================================
-             INFORMACIÓN DEL GRUPO
-        ======================================================= -->
-
-        <?php if ($grupoSeleccionado): ?>
-
-
-            <div class="info-box">
-
-
-                <strong>
-
-                    <?= htmlspecialchars(
-                        $grupoSeleccionado['nombre_grupo']
-                    ) ?>
-
-                </strong>
-
-
-                <p>
-
-                    Unidades configuradas para este grupo:
-
-                    <strong>
-
-                        <?= (int)$grupoSeleccionado['cantidad_unidades'] ?>
-
-                    </strong>
-
-                </p>
-
-
-            </div>
-
-
-            <br>
-
-
-        <?php endif; ?>
-
-
-        <!-- ======================================================
-             TABLA
+             TABLA DE UNIDADES
         ======================================================= -->
 
         <div class="bloque filtros">
@@ -342,6 +487,16 @@ foreach ($grupos as $grupo) {
 
 
                                 <th>
+                                    Personas
+                                </th>
+
+
+                                <th>
+                                    Espacios
+                                </th>
+
+
+                                <th>
                                     Registro
                                 </th>
 
@@ -367,7 +522,7 @@ foreach ($grupos as $grupo) {
 
 
                                 <td
-                                    colspan="8"
+                                    colspan="10"
                                     style="text-align:center;"
                                 >
 
@@ -389,7 +544,9 @@ foreach ($grupos as $grupo) {
                                 <tr>
 
 
-                                    <!-- CÓDIGO -->
+                                    <!-- ==========================
+                                         CÓDIGO
+                                    =========================== -->
 
                                     <td>
 
@@ -406,7 +563,9 @@ foreach ($grupos as $grupo) {
                                     </td>
 
 
-                                    <!-- NOMBRE -->
+                                    <!-- ==========================
+                                         NOMBRE
+                                    =========================== -->
 
                                     <td>
 
@@ -419,20 +578,27 @@ foreach ($grupos as $grupo) {
                                     </td>
 
 
-                                    <!-- PISO -->
+                                    <!-- ==========================
+                                         PISO
+                                    =========================== -->
 
                                     <td>
 
 
-                                        <?= htmlspecialchars(
-                                            $u['piso'] ?? ''
-                                        ) ?>
+                                        <?= $u['piso'] !== null
+                                            ? htmlspecialchars(
+                                                $u['piso']
+                                            )
+                                            : '-'
+                                        ?>
 
 
                                     </td>
 
 
-                                    <!-- ÁREA -->
+                                    <!-- ==========================
+                                         ÁREA
+                                    =========================== -->
 
                                     <td>
 
@@ -465,7 +631,9 @@ foreach ($grupos as $grupo) {
                                     </td>
 
 
-                                    <!-- COEFICIENTE -->
+                                    <!-- ==========================
+                                         COEFICIENTE
+                                    =========================== -->
 
                                     <td>
 
@@ -478,9 +646,9 @@ foreach ($grupos as $grupo) {
 
                                             <?= number_format(
                                                 (float)$u['coeficiente'],
-                                                5,
-                                                ',',
-                                                '.'
+                                                8,
+                                                '.',
+                                                ''
                                             ) ?>
 
 
@@ -496,7 +664,9 @@ foreach ($grupos as $grupo) {
                                     </td>
 
 
-                                    <!-- ESTADO DE LA UNIDAD -->
+                                    <!-- ==========================
+                                         ESTADO
+                                    =========================== -->
 
                                     <td>
 
@@ -509,7 +679,43 @@ foreach ($grupos as $grupo) {
                                     </td>
 
 
-                                    <!-- ACTIVO / INACTIVO -->
+                                    <!-- ==========================
+                                         PERSONAS
+                                    =========================== -->
+
+                                    <td style="text-align:center;">
+
+
+                                        <strong>
+
+                                            <?= (int)$u['cantidad_personas'] ?>
+
+                                        </strong>
+
+
+                                    </td>
+
+
+                                    <!-- ==========================
+                                         ESPACIOS
+                                    =========================== -->
+
+                                    <td style="text-align:center;">
+
+
+                                        <strong>
+
+                                            <?= (int)$u['cantidad_espacios'] ?>
+
+                                        </strong>
+
+
+                                    </td>
+
+
+                                    <!-- ==========================
+                                         REGISTRO
+                                    =========================== -->
 
                                     <td>
 
@@ -538,30 +744,86 @@ foreach ($grupos as $grupo) {
                                     </td>
 
 
-                                    <!-- ACCIONES -->
+                                    <!-- ==========================
+                                         ACCIONES
+                                    =========================== -->
 
                                     <td>
 
 
+                                        <!-- PERSONAS -->
+
+                                        <a
+                                            href="<?= BASE_URL ?>configuracion/personas_unidad.php?id_unidad=<?= (int)$u['id_unidad'] ?>"
+                                            class="btn-secondary"
+                                        >
+
+                                            Personas
+
+                                        </a>
+
+
+                                        <!-- ESPACIOS -->
+
+                                        <a
+                                            href="<?= BASE_URL ?>configuracion/espacios_unidad.php?id_unidad=<?= (int)$u['id_unidad'] ?>"
+                                            class="btn-secondary"
+                                        >
+
+                                            Espacios
+
+                                        </a>
+
+
+                                        <!-- EDITAR -->
+
                                         <button
                                             type="button"
                                             class="btn-secondary btnEditarUnidad"
+
                                             data-id="<?= (int)$u['id_unidad'] ?>"
+
+                                            data-codigo="<?= htmlspecialchars(
+                                                $u['codigo'],
+                                                ENT_QUOTES
+                                            ) ?>"
+
+                                            data-nombre="<?= htmlspecialchars(
+                                                $u['nombre'] ?? '',
+                                                ENT_QUOTES
+                                            ) ?>"
+
+                                            data-piso="<?= htmlspecialchars(
+                                                $u['piso'] ?? '',
+                                                ENT_QUOTES
+                                            ) ?>"
+
+                                            data-area="<?= htmlspecialchars(
+                                                $u['area'] ?? '',
+                                                ENT_QUOTES
+                                            ) ?>"
+
+                                            data-coeficiente="<?= htmlspecialchars(
+                                                $u['coeficiente'] ?? '',
+                                                ENT_QUOTES
+                                            ) ?>"
+
+                                            data-estado="<?= htmlspecialchars(
+                                                $u['estado'],
+                                                ENT_QUOTES
+                                            ) ?>"
+
+                                            data-activo="<?= (int)$u['activo'] ?>"
+
+                                            data-observaciones="<?= htmlspecialchars(
+                                                $u['observaciones'] ?? '',
+                                                ENT_QUOTES
+                                            ) ?>"
                                         >
 
                                             Editar
 
                                         </button>
-
-
-                                        <a
-                                            href="personas_unidad.php?id_unidad=<?= (int)$u['id_unidad'] ?>"
-                                            class="btn-secondary"
-                                        >
-
-                                            Residentes
-
-                                        </a>
 
 
                                     </td>
@@ -598,9 +860,315 @@ foreach ($grupos as $grupo) {
          MODAL NUEVA UNIDAD
     ========================================================== -->
 
+    <?php if ($grupoSeleccionado): ?>
+
+
+        <div
+            id="modalUnidad"
+            class="modal"
+        >
+
+
+            <div class="modal-contenido">
+
+
+                <div class="modal-header">
+
+
+                    <h3>
+                        Nueva unidad
+                    </h3>
+
+
+                    <button
+                        type="button"
+                        id="cerrarUnidad"
+                        class="modal-cerrar"
+                    >
+
+                        &times;
+
+                    </button>
+
+
+                </div>
+
+
+                <form
+                    id="formNuevaUnidad"
+                    action="<?= BASE_URL ?>actions/guardar_unidad.php"
+                    method="POST"
+                >
+
+
+                    <!-- ==============================
+                         GRUPO
+                    =============================== -->
+
+                    <input
+                        type="hidden"
+                        name="id_tipo_config"
+                        value="<?= (int)$idGrupoSeleccionado ?>"
+                    >
+
+
+                    <div class="form-group">
+
+
+                        <label>
+                            Grupo
+                        </label>
+
+
+                        <input
+                            type="text"
+                            value="<?= htmlspecialchars(
+                                $grupoSeleccionado['nombre_grupo']
+                            ) ?>"
+                            readonly
+                        >
+
+
+                    </div>
+
+
+                    <!-- ==============================
+                         CÓDIGO
+                    =============================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="nuevo_codigo">
+                            Código *
+                        </label>
+
+
+                        <input
+                            type="text"
+                            name="codigo"
+                            id="nuevo_codigo"
+                            maxlength="20"
+                            required
+                        >
+
+
+                    </div>
+
+
+                    <!-- ==============================
+                         NOMBRE
+                    =============================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="nuevo_nombre">
+                            Nombre
+                        </label>
+
+
+                        <input
+                            type="text"
+                            name="nombre"
+                            id="nuevo_nombre"
+                            maxlength="100"
+                        >
+
+
+                    </div>
+
+
+                    <!-- ==============================
+                         PISO
+                    =============================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="nuevo_piso">
+                            Piso
+                        </label>
+
+
+                        <input
+                            type="number"
+                            name="piso"
+                            id="nuevo_piso"
+                            min="0"
+                        >
+
+
+                    </div>
+
+
+                    <!-- ==============================
+                         ÁREA
+                    =============================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="nuevo_area">
+                            Área (m²)
+                        </label>
+
+
+                        <input
+                            type="number"
+                            name="area"
+                            id="nuevo_area"
+                            step="0.01"
+                            min="0"
+                        >
+
+
+                    </div>
+
+
+                    <!-- ==============================
+                         COEFICIENTE
+                    =============================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="nuevo_coeficiente">
+                            Coeficiente
+                        </label>
+
+
+                        <input
+                            type="number"
+                            name="coeficiente"
+                            id="nuevo_coeficiente"
+                            step="0.00000001"
+                            min="0"
+                        >
+
+
+                    </div>
+
+
+                    <!-- ==============================
+                         ESTADO
+                    =============================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="nuevo_estado">
+                            Estado *
+                        </label>
+
+
+                        <select
+                            name="estado"
+                            id="nuevo_estado"
+                            required
+                        >
+
+
+                            <option value="Disponible" selected>
+                                Disponible
+                            </option>
+
+
+                            <option value="Habitada">
+                                Habitada
+                            </option>
+
+
+                            <option value="Desocupada">
+                                Desocupada
+                            </option>
+
+
+                            <option value="En mantenimiento">
+                                En mantenimiento
+                            </option>
+
+
+                        </select>
+
+
+                    </div>
+
+
+                    <!-- ==============================
+                         OBSERVACIONES
+                    =============================== -->
+
+                    <div class="form-group">
+
+
+                        <label for="nuevo_observaciones">
+                            Observaciones
+                        </label>
+
+
+                        <textarea
+                            name="observaciones"
+                            id="nuevo_observaciones"
+                            rows="3"
+                            maxlength="255"
+                        ></textarea>
+
+
+                    </div>
+
+
+                    <!-- ==============================
+                         BOTONES
+                    =============================== -->
+
+                    <div class="form-actions">
+
+
+                        <button
+                            type="reset"
+                            class="btn-limpiar"
+                            id="cancelarUnidad"
+                        >
+
+                            Cancelar
+
+                        </button>
+
+
+                        <button
+                            type="submit"
+                            class="btn-filtrar"
+                        >
+
+                            Guardar
+
+                        </button>
+
+
+                    </div>
+
+
+                </form>
+
+
+            </div>
+
+
+        </div>
+
+
+    <?php endif; ?>
+
+
+    <!-- ==========================================================
+         MODAL EDITAR UNIDAD
+    ========================================================== -->
+
     <div
-        id="modalUnidad"
+        id="modalEditarUnidad"
         class="modal"
+        style="display:none;"
     >
 
 
@@ -611,13 +1179,13 @@ foreach ($grupos as $grupo) {
 
 
                 <h3>
-                    Nueva unidad
+                    Editar unidad
                 </h3>
 
 
                 <button
                     type="button"
-                    id="cerrarUnidad"
+                    id="cerrarEditarUnidad"
                     class="modal-cerrar"
                 >
 
@@ -630,51 +1198,29 @@ foreach ($grupos as $grupo) {
 
 
             <form
-                id="formNuevaUnidad"
-                action="<?= BASE_URL ?>actions/guardar_unidad.php"
+                id="formEditarUnidad"
+                action="<?= BASE_URL ?>actions/editar_unidad.php"
                 method="POST"
             >
 
 
-                <!-- ==========================================
-                     GRUPO
-                =========================================== -->
+                <!-- ID -->
 
                 <input
                     type="hidden"
-                    name="id_tipo_config"
-                    value="<?= (int)$idGrupoSeleccionado ?>"
+                    name="id_unidad"
+                    id="editar_id_unidad"
                 >
 
 
-                <div class="form-group">
-
-
-                    <label>
-                        Grupo
-                    </label>
-
-
-                    <input
-                        type="text"
-                        value="<?= htmlspecialchars(
-                            $grupoSeleccionado['nombre_grupo'] ?? ''
-                        ) ?>"
-                        readonly
-                    >
-
-
-                </div>
-
-
-                <!-- ==========================================
+                <!-- ==============================
                      CÓDIGO
-                =========================================== -->
+                =============================== -->
 
                 <div class="form-group">
 
 
-                    <label for="nuevo_codigo">
+                    <label for="editar_codigo">
                         Código *
                     </label>
 
@@ -682,30 +1228,23 @@ foreach ($grupos as $grupo) {
                     <input
                         type="text"
                         name="codigo"
-                        id="nuevo_codigo"
+                        id="editar_codigo"
                         maxlength="20"
                         required
                     >
 
 
-                    <small>
-
-                        Ejemplo: 101, A-101, Local 01.
-
-                    </small>
-
-
                 </div>
 
 
-                <!-- ==========================================
+                <!-- ==============================
                      NOMBRE
-                =========================================== -->
+                =============================== -->
 
                 <div class="form-group">
 
 
-                    <label for="nuevo_nombre">
+                    <label for="editar_nombre">
                         Nombre
                     </label>
 
@@ -713,7 +1252,7 @@ foreach ($grupos as $grupo) {
                     <input
                         type="text"
                         name="nombre"
-                        id="nuevo_nombre"
+                        id="editar_nombre"
                         maxlength="100"
                     >
 
@@ -721,14 +1260,14 @@ foreach ($grupos as $grupo) {
                 </div>
 
 
-                <!-- ==========================================
+                <!-- ==============================
                      PISO
-                =========================================== -->
+                =============================== -->
 
                 <div class="form-group">
 
 
-                    <label for="nuevo_piso">
+                    <label for="editar_piso">
                         Piso
                     </label>
 
@@ -736,7 +1275,7 @@ foreach ($grupos as $grupo) {
                     <input
                         type="number"
                         name="piso"
-                        id="nuevo_piso"
+                        id="editar_piso"
                         min="0"
                     >
 
@@ -744,26 +1283,74 @@ foreach ($grupos as $grupo) {
                 </div>
 
 
-                <!-- ==========================================
-                     ESTADO
-                =========================================== -->
+                <!-- ==============================
+                     ÁREA
+                =============================== -->
 
                 <div class="form-group">
 
 
-                    <label for="nuevo_estado">
-                        Estado de la unidad *
+                    <label for="editar_area">
+                        Área (m²)
+                    </label>
+
+
+                    <input
+                        type="number"
+                        name="area"
+                        id="editar_area"
+                        step="0.01"
+                        min="0"
+                    >
+
+
+                </div>
+
+
+                <!-- ==============================
+                     COEFICIENTE
+                =============================== -->
+
+                <div class="form-group">
+
+
+                    <label for="editar_coeficiente">
+                        Coeficiente
+                    </label>
+
+
+                    <input
+                        type="number"
+                        name="coeficiente"
+                        id="editar_coeficiente"
+                        step="0.00000001"
+                        min="0"
+                    >
+
+
+                </div>
+
+
+                <!-- ==============================
+                     ESTADO
+                =============================== -->
+
+                <div class="form-group">
+
+
+                    <label for="editar_estado">
+                        Estado
                     </label>
 
 
                     <select
                         name="estado"
-                        id="nuevo_estado"
+                        id="editar_estado"
                         required
                     >
 
 
-                        <option value="Disponible" selected>
+                        <option value="Disponible">
                             Disponible
                         </option>
 
@@ -786,97 +1373,59 @@ foreach ($grupos as $grupo) {
                     </select>
 
 
-                    <small>
-
-                        Este estado describe la situación actual
-                        de la unidad y no determina por sí solo
-                        si debe facturarse.
-
-                    </small>
-
-
                 </div>
 
 
-                <!-- ==========================================
-                     ÁREA
-                =========================================== -->
+                <!-- ==============================
+                     REGISTRO
+                =============================== -->
 
                 <div class="form-group">
 
 
-                    <label for="nuevo_area">
-                        Área (m²)
+                    <label for="editar_activo">
+                        Registro
                     </label>
 
 
-                    <input
-                        type="number"
-                        name="area"
-                        id="nuevo_area"
-                        step="0.01"
-                        min="0"
+                    <select
+                        name="activo"
+                        id="editar_activo"
+                        required
                     >
 
 
-                    <small>
+                        <option value="1">
+                            Activa
+                        </option>
 
-                        Se utiliza cuando un concepto se calcula
-                        por metro cuadrado.
 
-                    </small>
+                        <option value="0">
+                            Inactiva
+                        </option>
+
+
+                    </select>
 
 
                 </div>
 
 
-                <!-- ==========================================
-                     COEFICIENTE
-                =========================================== -->
-
-                <div class="form-group">
-
-
-                    <label for="nuevo_coeficiente">
-                        Coeficiente
-                    </label>
-
-
-                    <input
-                        type="number"
-                        name="coeficiente"
-                        id="nuevo_coeficiente"
-                        step="0.00000001"
-                        min="0"
-                    >
-
-
-                    <small>
-
-                        Se utiliza para conceptos calculados
-                        por coeficiente.
-
-                    </small>
-
-
-                </div>
-
-
-                <!-- ==========================================
+                <!-- ==============================
                      OBSERVACIONES
-                =========================================== -->
+                =============================== -->
 
                 <div class="form-group">
 
 
-                    <label for="nuevo_observaciones">
+                    <label for="editar_observaciones">
                         Observaciones
                     </label>
 
 
                     <textarea
                         name="observaciones"
-                        id="nuevo_observaciones"
+                        id="editar_observaciones"
                         rows="3"
                         maxlength="255"
                     ></textarea>
@@ -885,17 +1434,17 @@ foreach ($grupos as $grupo) {
                 </div>
 
 
-                <!-- ==========================================
+                <!-- ==============================
                      BOTONES
-                =========================================== -->
+                =============================== -->
 
                 <div class="form-actions">
 
 
                     <button
-                        type="reset"
+                        type="button"
                         class="btn-limpiar"
-                        id="cancelarUnidad"
+                        id="cancelarEditarUnidad"
                     >
 
                         Cancelar
@@ -908,7 +1457,7 @@ foreach ($grupos as $grupo) {
                         class="btn-filtrar"
                     >
 
-                        Guardar
+                        Guardar cambios
 
                     </button>
 
@@ -938,20 +1487,27 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
+        // ======================================================
+        // NUEVA UNIDAD
+        // ======================================================
+
         const btnNuevaUnidad =
             document.getElementById(
                 "btnNuevaUnidad"
             );
+
 
         const modalUnidad =
             document.getElementById(
                 "modalUnidad"
             );
 
+
         const cerrarUnidad =
             document.getElementById(
                 "cerrarUnidad"
             );
+
 
         const cancelarUnidad =
             document.getElementById(
@@ -959,13 +1515,23 @@ document.addEventListener(
             );
 
 
-        // ==================================================
-        // ABRIR
-        // ==================================================
+        function cerrarModalNuevaUnidad()
+        {
+
+            if (modalUnidad) {
+
+                modalUnidad.style.display =
+                    "none";
+
+            }
+
+        }
+
 
         if (
             btnNuevaUnidad &&
-            modalUnidad
+            modalUnidad &&
+            !btnNuevaUnidad.disabled
         ) {
 
             btnNuevaUnidad.addEventListener(
@@ -977,20 +1543,7 @@ document.addEventListener(
 
                 }
             );
-        }
 
-
-        // ==================================================
-        // CERRAR
-        // ==================================================
-
-        function cerrarModalUnidad()
-        {
-            if (modalUnidad) {
-
-                modalUnidad.style.display =
-                    "none";
-            }
         }
 
 
@@ -998,8 +1551,9 @@ document.addEventListener(
 
             cerrarUnidad.addEventListener(
                 "click",
-                cerrarModalUnidad
+                cerrarModalNuevaUnidad
             );
+
         }
 
 
@@ -1007,14 +1561,11 @@ document.addEventListener(
 
             cancelarUnidad.addEventListener(
                 "click",
-                cerrarModalUnidad
+                cerrarModalNuevaUnidad
             );
+
         }
 
-
-        // ==================================================
-        // CLIC FUERA
-        // ==================================================
 
         if (modalUnidad) {
 
@@ -1027,10 +1578,211 @@ document.addEventListener(
                         modalUnidad
                     ) {
 
-                        cerrarModalUnidad();
+                        cerrarModalNuevaUnidad();
+
                     }
+
                 }
             );
+
+        }
+
+
+        // ======================================================
+        // EDITAR UNIDAD
+        // ======================================================
+
+        const modalEditar =
+            document.getElementById(
+                "modalEditarUnidad"
+            );
+
+
+        const cerrarEditar =
+            document.getElementById(
+                "cerrarEditarUnidad"
+            );
+
+
+        const cancelarEditar =
+            document.getElementById(
+                "cancelarEditarUnidad"
+            );
+
+
+        function cerrarModalEditarUnidad()
+        {
+
+            if (modalEditar) {
+
+                modalEditar.style.display =
+                    "none";
+
+            }
+
+        }
+
+
+        document
+            .querySelectorAll(
+                ".btnEditarUnidad"
+            )
+            .forEach(
+                function (boton) {
+
+                    boton.addEventListener(
+                        "click",
+                        function () {
+
+                            // ==============================
+                            // ID
+                            // ==============================
+
+                            document.getElementById(
+                                "editar_id_unidad"
+                            ).value =
+                                this.dataset.id || "";
+
+
+                            // ==============================
+                            // CÓDIGO
+                            // ==============================
+
+                            document.getElementById(
+                                "editar_codigo"
+                            ).value =
+                                this.dataset.codigo || "";
+
+
+                            // ==============================
+                            // NOMBRE
+                            // ==============================
+
+                            document.getElementById(
+                                "editar_nombre"
+                            ).value =
+                                this.dataset.nombre || "";
+
+
+                            // ==============================
+                            // PISO
+                            // ==============================
+
+                            document.getElementById(
+                                "editar_piso"
+                            ).value =
+                                this.dataset.piso || "";
+
+
+                            // ==============================
+                            // ÁREA
+                            // ==============================
+
+                            document.getElementById(
+                                "editar_area"
+                            ).value =
+                                this.dataset.area || "";
+
+
+                            // ==============================
+                            // COEFICIENTE
+                            // ==============================
+
+                            document.getElementById(
+                                "editar_coeficiente"
+                            ).value =
+                                this.dataset.coeficiente || "";
+
+
+                            // ==============================
+                            // ESTADO
+                            // ==============================
+
+                            document.getElementById(
+                                "editar_estado"
+                            ).value =
+                                this.dataset.estado ||
+                                "Disponible";
+
+
+                            // ==============================
+                            // ACTIVO
+                            // ==============================
+
+                            document.getElementById(
+                                "editar_activo"
+                            ).value =
+                                this.dataset.activo ||
+                                "1";
+
+
+                            // ==============================
+                            // OBSERVACIONES
+                            // ==============================
+
+                            document.getElementById(
+                                "editar_observaciones"
+                            ).value =
+                                this.dataset.observaciones ||
+                                "";
+
+
+                            // ==============================
+                            // MOSTRAR
+                            // ==============================
+
+                            if (modalEditar) {
+
+                                modalEditar.style.display =
+                                    "flex";
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+        if (cerrarEditar) {
+
+            cerrarEditar.addEventListener(
+                "click",
+                cerrarModalEditarUnidad
+            );
+
+        }
+
+
+        if (cancelarEditar) {
+
+            cancelarEditar.addEventListener(
+                "click",
+                cerrarModalEditarUnidad
+            );
+
+        }
+
+
+        if (modalEditar) {
+
+            modalEditar.addEventListener(
+                "click",
+                function (event) {
+
+                    if (
+                        event.target ===
+                        modalEditar
+                    ) {
+
+                        cerrarModalEditarUnidad();
+
+                    }
+
+                }
+            );
+
         }
 
     }

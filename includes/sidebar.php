@@ -36,6 +36,11 @@
                             Unidades
                         </a>
                     </li>
+                                        <li>
+                        <a href="<?= BASE_URL ?>configuracion/espacios.php">
+                            Espacios
+                        </a>
+                    </li>
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/tablas_maestras.php">
                             Tablas Maestras
