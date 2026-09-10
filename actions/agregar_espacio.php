@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/unidades.php"
+        "configuracion/espacios.php"
     );
 
     exit;
@@ -23,11 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // ==========================================================
 // DATOS
 // ==========================================================
-
-$idUnidad = isset($_POST['id_unidad'])
-    ? (int)$_POST['id_unidad']
-    : 0;
-
 
 $numeroDocumento = isset($_POST['numero_documento'])
     ? trim($_POST['numero_documento'])
@@ -50,6 +45,12 @@ $area = isset($_POST['area']) &&
     : null;
 
 
+$idUnidad = isset($_POST['id_unidad']) &&
+            $_POST['id_unidad'] !== ''
+    ? (int)$_POST['id_unidad']
+    : null;
+
+
 $fechaDesde = isset($_POST['fecha_desde'])
     ? trim($_POST['fecha_desde'])
     : '';
@@ -60,27 +61,9 @@ $observaciones = isset($_POST['observaciones'])
     : null;
 
 
-// ==========================================================
-// RETORNO
-// ==========================================================
-
-if ($idUnidad <= 0) {
-
-    header(
-        "Location: " .
-        BASE_URL .
-        "configuracion/unidades.php?tipo=error&texto=" .
-        urlencode("Unidad no válida.")
-    );
-
-    exit;
-}
-
-
 $urlRetorno =
     BASE_URL .
-    "configuracion/personas_unidad.php?id_unidad=" .
-    $idUnidad;
+    "configuracion/espacios.php";
 
 
 // ==========================================================
@@ -101,7 +84,7 @@ if ($numeroDocumento === '') {
     header(
         "Location: " .
         $urlRetorno .
-        "&tipo=warning&texto=" .
+        "?tipo=warning&texto=" .
         urlencode(
             "Debe indicar el documento del propietario."
         )
@@ -122,7 +105,7 @@ if (
     header(
         "Location: " .
         $urlRetorno .
-        "&tipo=warning&texto=" .
+        "?tipo=warning&texto=" .
         urlencode(
             "Tipo de espacio no válido."
         )
@@ -137,7 +120,7 @@ if ($codigo === '') {
     header(
         "Location: " .
         $urlRetorno .
-        "&tipo=warning&texto=" .
+        "?tipo=warning&texto=" .
         urlencode(
             "Debe indicar el código del espacio."
         )
@@ -155,7 +138,7 @@ if (
     header(
         "Location: " .
         $urlRetorno .
-        "&tipo=warning&texto=" .
+        "?tipo=warning&texto=" .
         urlencode(
             "El área no puede ser negativa."
         )
@@ -180,7 +163,7 @@ if (
     header(
         "Location: " .
         $urlRetorno .
-        "&tipo=warning&texto=" .
+        "?tipo=warning&texto=" .
         urlencode(
             "Fecha no válida."
         )
@@ -200,61 +183,7 @@ try {
 
 
     // ======================================================
-    // VALIDAR UNIDAD
-    // ======================================================
-
-    $sqlUnidad = "
-        SELECT
-            id_unidad,
-            activo
-
-        FROM unidades
-
-        WHERE id_unidad = :id_unidad
-
-        LIMIT 1
-
-        FOR UPDATE
-    ";
-
-
-    $stmtUnidad =
-        $conexion->prepare($sqlUnidad);
-
-
-    $stmtUnidad->execute([
-        ':id_unidad' => $idUnidad
-    ]);
-
-
-    $unidad =
-        $stmtUnidad->fetch(
-            PDO::FETCH_ASSOC
-        );
-
-
-    if (
-        !$unidad ||
-        (int)$unidad['activo'] !== 1
-    ) {
-
-        $conexion->rollBack();
-
-        header(
-            "Location: " .
-            BASE_URL .
-            "configuracion/unidades.php?tipo=warning&texto=" .
-            urlencode(
-                "La unidad no existe o está inactiva."
-            )
-        );
-
-        exit;
-    }
-
-
-    // ======================================================
-    // BUSCAR PROPIETARIO
+    // PROPIETARIO OBLIGATORIO
     // ======================================================
 
     $sqlUsuario = "
@@ -297,7 +226,7 @@ try {
         header(
             "Location: " .
             $urlRetorno .
-            "&tipo=warning&texto=" .
+            "?tipo=warning&texto=" .
             urlencode(
                 "No existe un usuario con ese documento."
             )
@@ -314,7 +243,7 @@ try {
         header(
             "Location: " .
             $urlRetorno .
-            "&tipo=warning&texto=" .
+            "?tipo=warning&texto=" .
             urlencode(
                 "El propietario está inactivo."
             )
@@ -329,13 +258,84 @@ try {
 
 
     // ======================================================
-    // VALIDAR QUE NO EXISTA OTRO REGISTRO VIGENTE
+    // VALIDAR UNIDAD OPCIONAL
     // ======================================================
-    //
-    // IMPORTANTE:
-    // Un mismo espacio físico solo puede tener
-    // UN registro con fecha_hasta NULL.
-    //
+
+    if ($idUnidad !== null) {
+
+        if ($idUnidad <= 0) {
+
+            $conexion->rollBack();
+
+            header(
+                "Location: " .
+                $urlRetorno .
+                "?tipo=warning&texto=" .
+                urlencode(
+                    "Unidad no válida."
+                )
+            );
+
+            exit;
+        }
+
+
+        $sqlUnidad = "
+            SELECT
+                id_unidad,
+                activo
+
+            FROM unidades
+
+            WHERE id_unidad = :id_unidad
+
+            LIMIT 1
+
+            FOR UPDATE
+        ";
+
+
+        $stmtUnidad =
+            $conexion->prepare(
+                $sqlUnidad
+            );
+
+
+        $stmtUnidad->execute([
+            ':id_unidad' =>
+                $idUnidad
+        ]);
+
+
+        $unidad =
+            $stmtUnidad->fetch(
+                PDO::FETCH_ASSOC
+            );
+
+
+        if (
+            !$unidad ||
+            (int)$unidad['activo'] !== 1
+        ) {
+
+            $conexion->rollBack();
+
+            header(
+                "Location: " .
+                $urlRetorno .
+                "?tipo=warning&texto=" .
+                urlencode(
+                    "La unidad seleccionada no existe o está inactiva."
+                )
+            );
+
+            exit;
+        }
+    }
+
+
+    // ======================================================
+    // VALIDAR ESPACIO VIGENTE
     // ======================================================
 
     $sqlVigente = "
@@ -390,12 +390,12 @@ try {
         header(
             "Location: " .
             $urlRetorno .
-            "&tipo=warning&texto=" .
+            "?tipo=warning&texto=" .
             urlencode(
                 "El espacio " .
                 $codigo .
                 " ya tiene un registro vigente. " .
-                "Si cambió de propietario o unidad, debe usar la opción Transferir."
+                "Utilice Transferir para cambiar su propietario o unidad."
             )
         );
 
@@ -475,7 +475,7 @@ try {
     header(
         "Location: " .
         $urlRetorno .
-        "&tipo=success&texto=" .
+        "?tipo=success&texto=" .
         urlencode(
             "Espacio agregado correctamente."
         )
@@ -496,7 +496,7 @@ try {
     header(
         "Location: " .
         $urlRetorno .
-        "&tipo=error&texto=" .
+        "?tipo=error&texto=" .
         urlencode(
             "No fue posible agregar el espacio."
         )

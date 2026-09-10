@@ -58,44 +58,6 @@ $tiposUnidad = $stmtTipos->fetchAll(
 );
 
 
-// ==========================================================
-// CARGAR CONCEPTOS DE FACTURACIÓN ACTIVOS
-// ==========================================================
-
-$sqlConceptos = "
-    SELECT
-        cf.id_concepto,
-        cf.nombre,
-        cf.descripcion,
-        cf.tipo_calculo,
-        cf.obligatorio,
-        cf.estado,
-        cf.id_tipo_obligacion,
-
-        cc.codigo AS codigo_cuenta,
-        cc.nombre AS nombre_cuenta
-
-    FROM conceptos_facturacion cf
-
-    LEFT JOIN cuentas_contables cc
-        ON cc.id_cuenta_contable =
-           cf.id_cuenta_contable
-
-    WHERE cf.estado = 1
-
-    ORDER BY
-        cf.obligatorio DESC,
-        cf.nombre
-";
-
-
-$stmtConceptos = $conexion->query(
-    $sqlConceptos
-);
-
-$conceptos = $stmtConceptos->fetchAll(
-    PDO::FETCH_ASSOC
-);
 
 
 // ==========================================================
@@ -166,10 +128,9 @@ function nombreTipoCalculo($tipo)
 
 
         <p>
-
-            Seleccione el período financiero y los conceptos
-            que desea incluir para preparar la facturación.
-
+            Seleccione el período financiero que desea
+            preparar. El sistema determinará automáticamente
+            los conceptos que corresponden a cada inmueble.
         </p>
 
 
@@ -422,135 +383,49 @@ function nombreTipoCalculo($tipo)
 
 
                     <!-- ==========================================
-                         CONCEPTOS
+                        CONCEPTOS AUTOMÁTICOS
                     =========================================== -->
 
                     <div class="form-group">
 
-
                         <label>
-                            Conceptos a facturar
+                            Conceptos de la facturación
                         </label>
 
+                        <div class="info-box">
 
-                        <br>
-
-
-                        <?php if (empty($conceptos)): ?>
-
-
-                            <p class="inactivo">
-
-                                No hay conceptos de facturación
-                                activos.
-
+                            <p>
+                                Los conceptos correspondientes al período
+                                serán determinados automáticamente por
+                                el sistema.
                             </p>
 
+                            <small>
 
-                        <?php else: ?>
+                                Se incluirán:
 
+                                <br><br>
 
-                            <?php foreach ($conceptos as $concepto): ?>
+                                • Administración de cada inmueble activo.
 
+                                <br>
 
-                                <?php
+                                • Cuotas de cargos activos correspondientes
+                                al período seleccionado.
 
-                                $esObligatorio =
-                                    (int)$concepto['obligatorio'] === 1;
+                                <br>
 
-                                ?>
+                                • Conceptos asociados a espacios vigentes,
+                                cuando corresponda.
 
+                                <br>
 
-                                <label
-                                    style="
-                                        display:block;
-                                        margin-bottom:10px;
-                                    "
-                                >
+                                • Intereses de mora cuando exista cartera
+                                vencida susceptible de generar intereses.
 
+                            </small>
 
-                                    <?php if ($esObligatorio): ?>
-
-
-                                        <input
-                                            type="checkbox"
-                                            checked
-                                            disabled
-                                        >
-
-
-                                    <?php else: ?>
-
-
-                                        <input
-                                            type="checkbox"
-                                            name="conceptos[]"
-                                            value="<?= (int)$concepto['id_concepto'] ?>"
-                                        >
-
-
-                                    <?php endif; ?>
-
-
-                                    <strong>
-
-                                        <?= htmlspecialchars(
-                                            $concepto['nombre']
-                                        ) ?>
-
-                                    </strong>
-
-
-                                    <?php if (
-                                        !empty(
-                                            $concepto['descripcion']
-                                        )
-                                    ): ?>
-
-
-                                        <small>
-
-                                            -
-
-                                            <?= htmlspecialchars(
-                                                $concepto['descripcion']
-                                            ) ?>
-
-                                        </small>
-
-
-                                    <?php endif; ?>
-
-
-                                    <?php if ($esObligatorio): ?>
-
-
-                                        <span class="activo">
-
-                                            Obligatorio
-
-                                        </span>
-
-
-                                    <?php endif; ?>
-
-
-                                </label>
-
-
-                            <?php endforeach; ?>
-
-
-                        <?php endif; ?>
-
-
-                        <small>
-
-                            Los conceptos obligatorios serán
-                            incluidos automáticamente por el sistema.
-
-                        </small>
-
+                        </div>
 
                     </div>
 

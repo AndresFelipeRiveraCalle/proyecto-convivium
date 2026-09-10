@@ -35,7 +35,7 @@ $fechaHasta = isset($_POST['fecha_hasta'])
 
 
 // ==========================================================
-// VALIDAR
+// VALIDAR ID
 // ==========================================================
 
 if ($idRelacion <= 0) {
@@ -51,11 +51,14 @@ if ($idRelacion <= 0) {
 }
 
 
-$fechaObj =
-    DateTime::createFromFormat(
-        'Y-m-d',
-        $fechaHasta
-    );
+// ==========================================================
+// VALIDAR FECHA
+// ==========================================================
+
+$fechaObj = DateTime::createFromFormat(
+    'Y-m-d',
+    $fechaHasta
+);
 
 
 if (
@@ -77,6 +80,13 @@ if (
 try {
 
     // ======================================================
+    // INICIAR TRANSACCIÓN
+    // ======================================================
+
+    $conexion->beginTransaction();
+
+
+    // ======================================================
     // CONSULTAR RELACIÓN
     // ======================================================
 
@@ -84,6 +94,9 @@ try {
         SELECT
             id,
             unidad_id,
+            usuario_id,
+            tipo,
+            recibe_factura,
             fecha_desde,
             fecha_hasta,
             activo
@@ -93,6 +106,8 @@ try {
         WHERE id = :id
 
         LIMIT 1
+
+        FOR UPDATE
     ";
 
 
@@ -114,6 +129,8 @@ try {
 
 
     if (!$relacion) {
+
+        $conexion->rollBack();
 
         header(
             "Location: " .
@@ -137,13 +154,15 @@ try {
 
 
     // ======================================================
-    // YA RETIRADA
+    // VALIDAR SI YA ESTÁ RETIRADA
     // ======================================================
 
     if (
         (int)$relacion['activo'] !== 1 ||
         $relacion['fecha_hasta'] !== null
     ) {
+
+        $conexion->rollBack();
 
         header(
             "Location: " .
@@ -159,7 +178,7 @@ try {
 
 
     // ======================================================
-    // VALIDAR FECHA
+    // VALIDAR FECHA DESDE
     // ======================================================
 
     $fechaDesde =
@@ -172,6 +191,8 @@ try {
 
 
     if ($fechaHasta < $fechaDesde) {
+
+        $conexion->rollBack();
 
         header(
             "Location: " .
@@ -187,7 +208,73 @@ try {
 
 
     // ======================================================
-    // RETIRAR
+    // VALIDAR ÚLTIMO RECEPTOR DE FACTURA
+    // ======================================================
+
+    if (
+        (int)$relacion['recibe_factura'] === 1
+    ) {
+
+        $sqlOtroReceptor = "
+            SELECT
+                id
+
+            FROM residente
+
+            WHERE
+                unidad_id = :unidad_id
+                AND id <> :id_actual
+                AND recibe_factura = 1
+                AND activo = 1
+                AND fecha_hasta IS NULL
+
+            LIMIT 1
+        ";
+
+
+        $stmtOtroReceptor =
+            $conexion->prepare(
+                $sqlOtroReceptor
+            );
+
+
+        $stmtOtroReceptor->execute([
+
+            ':unidad_id' =>
+                $idUnidad,
+
+            ':id_actual' =>
+                $idRelacion
+
+        ]);
+
+
+        $otroReceptor =
+            $stmtOtroReceptor->fetch(
+                PDO::FETCH_ASSOC
+            );
+
+
+        if (!$otroReceptor) {
+
+            $conexion->rollBack();
+
+            header(
+                "Location: " .
+                $urlRetorno .
+                "&tipo=warning&texto=" .
+                urlencode(
+                    "No puede retirar esta persona porque la unidad quedaría sin alguien marcado para recibir la factura."
+                )
+            );
+
+            exit;
+        }
+    }
+
+
+    // ======================================================
+    // RETIRAR RELACIÓN
     // ======================================================
 
     $sqlRetirar = "
@@ -221,6 +308,21 @@ try {
     ]);
 
 
+    if ($stmtRetirar->rowCount() !== 1) {
+
+        throw new Exception(
+            "No fue posible cerrar la relación."
+        );
+    }
+
+
+    // ======================================================
+    // CONFIRMAR
+    // ======================================================
+
+    $conexion->commit();
+
+
     header(
         "Location: " .
         $urlRetorno .
@@ -233,17 +335,27 @@ try {
     exit;
 
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
+
+
+    if ($conexion->inTransaction()) {
+
+        $conexion->rollBack();
+    }
+
+
+    $urlError =
+        isset($urlRetorno)
+            ? $urlRetorno
+            : BASE_URL .
+              "configuracion/unidades.php";
+
 
     header(
         "Location: " .
+        $urlError .
         (
-            isset($urlRetorno)
-                ? $urlRetorno
-                : BASE_URL . "configuracion/unidades.php"
-        ) .
-        (
-            isset($urlRetorno)
+            strpos($urlError, '?') !== false
                 ? '&'
                 : '?'
         ) .

@@ -36,7 +36,7 @@
                             Unidades
                         </a>
                     </li>
-                                        <li>
+                    <li>
                         <a href="<?= BASE_URL ?>configuracion/espacios.php">
                             Espacios
                         </a>
@@ -77,7 +77,17 @@
                         </a>
                     </li>
                     <li>
-                        <a href="<?= BASE_URL ?>configuracion/obligaciones.php">
+                        <a href="<?= BASE_URL ?>configuracion/cargos.php">
+                            Cobros adicionales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/cargo_detalle.php">
+                            Detalle cobros adicionales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/facturas_generadas.php">
                             Ver facturas
                         </a>
                     </li>                    
@@ -120,7 +130,7 @@
                     </li>
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/pagos.php">
-                            Pagoss
+                            Pagos
                         </a>
                     </li>
                 </ul>
@@ -162,7 +172,7 @@
                 <ul class="submenu-items">
 
                     <li>
-                        <a href="<?= BASE_URL ?>configuracion/parqueaderos.php"><i class="fa-solid fa-car icono"></i> Vehículos</a>
+                        <a href="<?= BASE_URL ?>configuracion/parqueaderos.php"><i class="fa-solid fa-car icono"></i> Parqueaderos</a>
                     </li>
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/vehiculos.php"><i class="fa-solid fa-car icono"></i> Vehículos</a>

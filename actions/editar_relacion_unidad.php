@@ -5,7 +5,7 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 
 // ==========================================================
-// VALIDAR MÉTODO
+// SOLO POST
 // ==========================================================
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -45,7 +45,7 @@ $fechaDesde = isset($_POST['fecha_desde'])
 
 
 // ==========================================================
-// VALIDACIONES
+// VALIDACIONES BÁSICAS
 // ==========================================================
 
 if ($idRelacion <= 0) {
@@ -139,22 +139,35 @@ if (
 try {
 
     // ======================================================
-    // CONSULTAR RELACIÓN
+    // INICIAR TRANSACCIÓN
+    // ======================================================
+
+    $conexion->beginTransaction();
+
+
+    // ======================================================
+    // CONSULTAR RELACIÓN ACTUAL
     // ======================================================
 
     $sqlRelacion = "
         SELECT
+
             id,
             unidad_id,
             usuario_id,
-            activo,
-            fecha_hasta
+            tipo,
+            recibe_factura,
+            fecha_desde,
+            fecha_hasta,
+            activo
 
         FROM residente
 
         WHERE id = :id
 
         LIMIT 1
+
+        FOR UPDATE
     ";
 
 
@@ -176,6 +189,8 @@ try {
 
 
     if (!$relacion) {
+
+        $conexion->rollBack();
 
         header(
             "Location: " .
@@ -207,6 +222,8 @@ try {
         $relacion['fecha_hasta'] !== null
     ) {
 
+        $conexion->rollBack();
+
         header(
             "Location: " .
             $urlRetorno .
@@ -221,7 +238,81 @@ try {
 
 
     // ======================================================
-    // ACTUALIZAR
+    // VALIDAR ÚLTIMO RECEPTOR DE FACTURA
+    // ======================================================
+    //
+    // Solo aplica cuando:
+    //
+    // Antes: recibe_factura = 1
+    // Ahora: recibe_factura = 0
+    //
+    // ======================================================
+
+    if (
+        (int)$relacion['recibe_factura'] === 1 &&
+        $recibeFactura === 0
+    ) {
+
+        $sqlOtroReceptor = "
+            SELECT
+                id
+
+            FROM residente
+
+            WHERE
+                unidad_id = :unidad_id
+                AND id <> :id_actual
+                AND recibe_factura = 1
+                AND activo = 1
+                AND fecha_hasta IS NULL
+
+            LIMIT 1
+        ";
+
+
+        $stmtOtroReceptor =
+            $conexion->prepare(
+                $sqlOtroReceptor
+            );
+
+
+        $stmtOtroReceptor->execute([
+
+            ':unidad_id' =>
+                $idUnidad,
+
+            ':id_actual' =>
+                $idRelacion
+
+        ]);
+
+
+        $otroReceptor =
+            $stmtOtroReceptor->fetch(
+                PDO::FETCH_ASSOC
+            );
+
+
+        if (!$otroReceptor) {
+
+            $conexion->rollBack();
+
+            header(
+                "Location: " .
+                $urlRetorno .
+                "&tipo=warning&texto=" .
+                urlencode(
+                    "No puede quitar la opción de recibir factura porque esta persona es actualmente el único receptor de facturación de la unidad."
+                )
+            );
+
+            exit;
+        }
+    }
+
+
+    // ======================================================
+    // ACTUALIZAR RELACIÓN
     // ======================================================
 
     $sqlActualizar = "
@@ -232,7 +323,10 @@ try {
             recibe_factura = :recibe_factura,
             fecha_desde = :fecha_desde
 
-        WHERE id = :id
+        WHERE
+            id = :id
+            AND activo = 1
+            AND fecha_hasta IS NULL
     ";
 
 
@@ -259,6 +353,13 @@ try {
     ]);
 
 
+    // ======================================================
+    // CONFIRMAR
+    // ======================================================
+
+    $conexion->commit();
+
+
     header(
         "Location: " .
         $urlRetorno .
@@ -271,18 +372,28 @@ try {
     exit;
 
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
+
+
+    // ======================================================
+    // ROLLBACK
+    // ======================================================
+
+    if ($conexion->inTransaction()) {
+
+        $conexion->rollBack();
+    }
+
+
+    // ======================================================
+    // RETORNO ERROR
+    // ======================================================
 
     $urlError =
-        BASE_URL .
-        "configuracion/unidades.php";
-
-
-    if (isset($urlRetorno)) {
-
-        $urlError =
-            $urlRetorno;
-    }
+        isset($urlRetorno)
+            ? $urlRetorno
+            : BASE_URL .
+              "configuracion/unidades.php";
 
 
     header(
