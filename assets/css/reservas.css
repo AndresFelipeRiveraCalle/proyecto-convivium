@@ -1,0 +1,31 @@
+/**
+ * =========================================================================
+ * MÓDULO: Reservas de Zonas Comunes - Convivium
+ * ARCHIVO: reservas.css
+ * DESCRIPCIÓN: Hoja de estilos del módulo de Reservas de Zonas Comunes.
+ * AUTOR: Andrés Felipe Rivera Calle
+ * FECHA: 2026-09-11
+ * =========================================================================
+ */
+
+/* TÍTULO DEL MÓDULO */
+.rz-contenido h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #242424;
+    margin-bottom: 20px;
+}
+
+/* CONTENIDO DEL MÓDULO */
+.rz-contenido {
+    flex: 1;
+    padding: 20px;
+}
+
+/* CARD PRINCIPAL */
+.rz-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+}
