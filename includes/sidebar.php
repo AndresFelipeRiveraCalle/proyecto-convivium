@@ -172,8 +172,23 @@
                 <a href="#"><i class="fa-solid fa-envelope-open-text icono"></i> Correspondencia</a>
             </li>
 
-            <li>
-                <a href="#"><i class="fa-solid fa-calendar-check icono"></i> Reservas</a>
+            <!-- ZONAS COMUNES -->
+            <li class="submenu">
+                <div class="submenu-titulo">
+                    <span><i class="fa-solid fa-calendar-check icono"></i> Zonas comunes</span>
+                    <i class="fa-solid fa-chevron-down flecha"></i>
+                </div>
+
+                <ul class="submenu-items">
+                    <li>
+                        <a href="<?= BASE_URL ?>zonas/index.php">
+                        Zonas comunes</a>
+                    </li>
+                        
+                    <li><a href="<?= BASE_URL ?>reservas/index.php">
+                        Reservas</a>
+                    </li>
+                </ul>
             </li>
 
             <li>
