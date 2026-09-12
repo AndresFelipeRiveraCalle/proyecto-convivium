@@ -718,7 +718,7 @@ try {
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/detalle_cartera.php" .
+        "configuracion/cartera_detalle.php" .
         "?id_unidad=" .
         $idUnidad .
         "&tipo=success&mensaje=" .

@@ -128,6 +128,8 @@ $facturasOmitidas = 0;
 
 $detallesGenerados = 0;
 
+$carterasGeneradas = 0;
+
 $conceptosSinTarifa = 0;
 
 $cargosFacturados = 0;
@@ -845,6 +847,50 @@ try {
 
 
     // ======================================================
+    // INSERTAR CARTERA DESDE DETALLE DE FACTURA
+    // ======================================================
+
+    $sqlInsertCartera = "
+        INSERT INTO cartera
+        (
+            id_factura,
+            id_detalle,
+            id_unidad,
+            id_tipo_obligacion,
+            periodo,
+            descripcion,
+            valor_original,
+            valor_pagado,
+            saldo,
+            fecha_vencimiento,
+            estado,
+            observaciones
+        )
+        VALUES
+        (
+            :id_factura,
+            :id_detalle,
+            :id_unidad,
+            :id_tipo_obligacion,
+            :periodo,
+            :descripcion,
+            :valor_original,
+            0,
+            :saldo,
+            :fecha_vencimiento,
+            'PENDIENTE',
+            :observaciones
+        )
+    ";
+
+
+    $stmtInsertCartera =
+        $conexion->prepare(
+            $sqlInsertCartera
+        );
+
+
+    // ======================================================
     // MARCAR CUOTA COMO FACTURADA
     // ======================================================
 
@@ -1155,6 +1201,71 @@ try {
                         '".'
                     );
                 }
+
+
+                // ==========================================
+                // CREAR CARTERA DEL CARGO NUEVO
+                // ==========================================
+
+                if (
+                    empty(
+                        $cargo[
+                            'id_tipo_obligacion'
+                        ]
+                    )
+                ) {
+
+                    throw new Exception(
+                        'El concepto del cargo "' .
+                        $cargo['cargo_nombre'] .
+                        '" no tiene tipo de obligación configurado.'
+                    );
+                }
+
+
+                $stmtInsertCartera->execute([
+
+                    ':id_factura'
+                        => $idFactura,
+
+                    ':id_detalle'
+                        => $idDetalle,
+
+                    ':id_unidad'
+                        => $idUnidad,
+
+                    ':id_tipo_obligacion'
+                        => (int)$cargo[
+                            'id_tipo_obligacion'
+                        ],
+
+                    ':periodo'
+                        => $periodoCargo,
+
+                    ':descripcion'
+                        => $descripcionCargo,
+
+                    ':valor_original'
+                        => $valorCargo,
+
+                    ':saldo'
+                        => $valorCargo,
+
+                    ':fecha_vencimiento'
+                        => $fechaVencimiento,
+
+                    ':observaciones'
+                        => 'Generado desde factura ' .
+                           (
+                               !empty($facturaExistente['numero_factura'])
+                                   ? $facturaExistente['numero_factura']
+                                   : '#' . $idFactura
+                           )
+
+                ]);
+
+
+                $carterasGeneradas++;
 
 
                 // ==========================================
@@ -1496,6 +1607,11 @@ try {
                 'id_tarifa'
                     => $idTarifa,
 
+                'id_tipo_obligacion'
+                    => (int)$concepto[
+                        'id_tipo_obligacion'
+                    ],
+
                 'descripcion'
                     => $concepto[
                         'nombre'
@@ -1590,6 +1706,11 @@ try {
 
                 'id_tarifa'
                     => null,
+
+                'id_tipo_obligacion'
+                    => (int)$cargo[
+                        'id_tipo_obligacion'
+                    ],
 
                 'descripcion'
                     => $descripcionCargo,
@@ -1872,6 +1993,11 @@ try {
                 'id_tarifa'
                     => $idTarifaEspacio,
 
+                'id_tipo_obligacion'
+                    => (int)$espacio[
+                        'id_tipo_obligacion'
+                    ],
+
                 'descripcion'
                     => $espacio[
                         'concepto'
@@ -2101,6 +2227,72 @@ try {
             }
 
 
+            // ==============================================
+            // CREAR CARTERA DEL DETALLE
+            // ==============================================
+
+            if (
+                empty(
+                    $detalle[
+                        'id_tipo_obligacion'
+                    ]
+                )
+            ) {
+
+                throw new Exception(
+                    'El detalle "' .
+                    $detalle['descripcion'] .
+                    '" no tiene tipo de obligación configurado.'
+                );
+            }
+
+
+            $stmtInsertCartera->execute([
+
+                ':id_factura'
+                    => $idFactura,
+
+                ':id_detalle'
+                    => $idDetalle,
+
+                ':id_unidad'
+                    => $idUnidad,
+
+                ':id_tipo_obligacion'
+                    => (int)$detalle[
+                        'id_tipo_obligacion'
+                    ],
+
+                ':periodo'
+                    => $periodoCargo,
+
+                ':descripcion'
+                    => $detalle[
+                        'descripcion'
+                    ],
+
+                ':valor_original'
+                    => $detalle[
+                        'subtotal'
+                    ],
+
+                ':saldo'
+                    => $detalle[
+                        'subtotal'
+                    ],
+
+                ':fecha_vencimiento'
+                    => $fechaVencimiento,
+
+                ':observaciones'
+                    => 'Generado desde factura ' .
+                       $numeroFactura
+
+            ]);
+
+
+            $carterasGeneradas++;
+
             $detallesGenerados++;
 
 
@@ -2188,6 +2380,8 @@ try {
         $facturasOmitidas .
         '. Detalles nuevos: ' .
         $detallesGenerados .
+        '. Registros de cartera generados: ' .
+        $carterasGeneradas .
         '. Cargos facturados: ' .
         $cargosFacturados .
         '. Espacios facturados: ' .

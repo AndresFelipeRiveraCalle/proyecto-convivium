@@ -196,32 +196,70 @@ $resumen =
 
 $sqlCartera = "
     SELECT
-        c.id_cartera,
         c.id_factura,
-        c.id_detalle,
-        c.periodo,
-        c.descripcion,
-        c.valor_original,
-        c.valor_pagado,
-        c.saldo,
-        c.fecha_vencimiento,
-        c.estado,
+        c.id_unidad,
+
+        MIN(c.periodo) AS periodo,
+        MIN(c.fecha_vencimiento) AS fecha_vencimiento,
+
+        SUM(c.valor_original) AS valor_original,
+        SUM(c.valor_pagado) AS valor_pagado,
+        SUM(c.saldo) AS saldo,
 
         f.numero_factura,
         f.estado AS estado_factura,
 
-        cf.nombre AS concepto,
+        COUNT(c.id_cartera) AS cantidad_conceptos,
 
-        tobl.nombre AS tipo_obligacion,
+        GROUP_CONCAT(
+            DISTINCT COALESCE(
+                cf.nombre,
+                tobl.nombre,
+                c.descripcion
+            )
+            ORDER BY c.id_cartera
+            SEPARATOR ' | '
+        ) AS conceptos,
+
+        GROUP_CONCAT(
+            DISTINCT c.descripcion
+            ORDER BY c.id_cartera
+            SEPARATOR ' | '
+        ) AS descripciones,
 
         CASE
             WHEN
-                c.estado = 'PENDIENTE'
-                AND c.saldo > 0
-                AND c.fecha_vencimiento < CURDATE()
+                SUM(
+                    CASE
+                        WHEN
+                            c.estado = 'PENDIENTE'
+                            AND c.saldo > 0
+                            AND c.fecha_vencimiento < CURDATE()
+                        THEN c.saldo
+                        ELSE 0
+                    END
+                ) > 0
             THEN 1
             ELSE 0
-        END AS vencida
+        END AS vencida,
+
+        CASE
+            WHEN
+                SUM(
+                    CASE
+                        WHEN c.estado = 'ANULADA'
+                        THEN 1
+                        ELSE 0
+                    END
+                ) = COUNT(c.id_cartera)
+            THEN 'ANULADA'
+
+            WHEN
+                SUM(c.saldo) <= 0.009
+            THEN 'PAGADA'
+
+            ELSE 'PENDIENTE'
+        END AS estado
 
     FROM cartera c
 
@@ -245,10 +283,16 @@ $sqlCartera = "
         c.id_unidad =
             :id_unidad
 
+    GROUP BY
+        c.id_factura,
+        c.id_unidad,
+        f.numero_factura,
+        f.estado
+
     ORDER BY
-        c.periodo DESC,
-        c.fecha_vencimiento DESC,
-        c.id_cartera DESC
+        periodo DESC,
+        fecha_vencimiento DESC,
+        c.id_factura DESC
 ";
 
 
@@ -779,26 +823,24 @@ $aplicaciones =
                                     <td>
 
                                         <strong>
-
-                                            <?= e(
-                                                $fila['concepto']
-                                                ?? $fila['tipo_obligacion']
-                                                ?? 'Obligación'
-                                            ) ?>
-
+                                            <?= (int)$fila['cantidad_conceptos'] ?>
+                                            concepto<?= (int)$fila['cantidad_conceptos'] === 1 ? '' : 's' ?>
                                         </strong>
 
+                                        <br>
+
+                                        <small>
+                                            <?= e($fila['conceptos'] ?? '') ?>
+                                        </small>
 
                                         <?php if (
-                                            !empty(
-                                                $fila['descripcion']
-                                            )
+                                            !empty($fila['descripciones'])
                                         ): ?>
 
                                             <br>
 
                                             <small>
-                                                <?= e($fila['descripcion']) ?>
+                                                <?= e($fila['descripciones']) ?>
                                             </small>
 
                                         <?php endif; ?>
@@ -896,7 +938,7 @@ $aplicaciones =
                                         ): ?>
 
                                             <a
-                                                href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>"
+                                                href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>&origen=cartera&id_unidad=<?= (int)$idUnidad ?>"
                                                 class="btn-secondary"
                                             >
                                                 Ver factura
@@ -962,6 +1004,7 @@ $aplicaciones =
                                 <th>Disponible</th>
                                 <th>Conciliación</th>
                                 <th>Estado</th>
+                                <th>Acción</th>
 
                             </tr>
 
@@ -975,7 +1018,7 @@ $aplicaciones =
                             <tr>
 
                                 <td
-                                    colspan="8"
+                                    colspan="9"
                                     align="center"
                                 >
                                     No existen pagos registrados para esta unidad.
@@ -1057,6 +1100,28 @@ $aplicaciones =
                                         <?= e(
                                             $pago['estado']
                                         ) ?>
+                                    </td>
+
+                                    <td>
+
+                                        <?php if (
+                                            $pago['estado'] === 'REGISTRADO' &&
+                                            (float)$pago['valor_disponible'] > 0
+                                        ): ?>
+
+                                            <a
+                                                href="<?= BASE_URL ?>configuracion/aplicar_pago.php?id_pago=<?= (int)$pago['id_pago'] ?>"
+                                                class="btn-secondary"
+                                            >
+                                                Aplicar pago
+                                            </a>
+
+                                        <?php else: ?>
+
+                                            -
+
+                                        <?php endif; ?>
+
                                     </td>
 
                                 </tr>

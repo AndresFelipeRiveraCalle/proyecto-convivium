@@ -117,12 +117,7 @@
                         <a href="<?= BASE_URL ?>configuracion/cartera.php">
                             Estado de cartera
                         </a>
-                    </li>
-                    <li>
-                        <a href="<?= BASE_URL ?>configuracion/detalle_cartera.php">
-                            Detalle de cartera
-                        </a>
-                    </li>                    
+                    </li>               
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/tasas_interes.php">
                             Tasas de interes

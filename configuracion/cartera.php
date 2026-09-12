@@ -5,125 +5,112 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 
 // ==========================================================
+// FUNCIONES
+// ==========================================================
+
+function e($valor)
+{
+    return htmlspecialchars(
+        (string)$valor,
+        ENT_QUOTES,
+        'UTF-8'
+    );
+}
+
+function dinero($valor)
+{
+    return '$' . number_format(
+        (float)$valor,
+        2,
+        ',',
+        '.'
+    );
+}
+
+
+// ==========================================================
 // FILTROS
 // ==========================================================
 
-$idUnidad = filter_input(
-    INPUT_GET,
-    'id_unidad',
-    FILTER_VALIDATE_INT
-);
+$buscar =
+    trim(
+        $_GET['buscar'] ?? ''
+    );
 
-$idTipoObligacion = filter_input(
-    INPUT_GET,
-    'id_tipo_obligacion',
-    FILTER_VALIDATE_INT
-);
+$estado =
+    trim(
+        $_GET['estado'] ?? ''
+    );
 
-$estado = trim($_GET['estado'] ?? '');
-
-
-// ==========================================================
-// CONSULTAR UNIDADES
-// ==========================================================
-
-$sqlUnidades = "
-    SELECT
-        u.id_unidad,
-        u.codigo,
-        u.nombre
-    FROM unidades u
-    WHERE u.activo = 1
-    ORDER BY u.codigo ASC
-";
-
-$stmtUnidades = $conexion->prepare($sqlUnidades);
-$stmtUnidades->execute();
-
-$unidades = $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
+$periodo =
+    trim(
+        $_GET['periodo'] ?? ''
+    );
 
 
 // ==========================================================
-// CONSULTAR TIPOS DE OBLIGACIÓN
+// WHERE DINÁMICO
 // ==========================================================
 
-$sqlTipos = "
-    SELECT
-        id_tipo_obligacion,
-        nombre
-    FROM tipos_obligacion
-    WHERE activo = 1
-    ORDER BY orden_defecto ASC, nombre ASC
-";
+$where = [
+    "1 = 1"
+];
 
-$stmtTipos = $conexion->prepare($sqlTipos);
-$stmtTipos->execute();
-
-$tiposObligacion = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
-
-
-// ==========================================================
-// CONSTRUIR FILTROS
-// ==========================================================
-
-$where = [];
 $params = [];
 
-$where[] = "c.estado <> 'ANULADA'";
 
-
-// ----------------------------------------------------------
-// FILTRO UNIDAD
-// ----------------------------------------------------------
-
-if ($idUnidad) {
-
-    $where[] = "c.id_unidad = :id_unidad";
-
-    $params[':id_unidad'] = $idUnidad;
-}
-
-
-// ----------------------------------------------------------
-// FILTRO TIPO OBLIGACIÓN
-// ----------------------------------------------------------
-
-if ($idTipoObligacion) {
+if ($buscar !== '') {
 
     $where[] = "
-        c.id_tipo_obligacion = :id_tipo_obligacion
+        (
+            u.codigo LIKE :buscar
+            OR f.numero_factura LIKE :buscar
+            OR c.descripcion LIKE :buscar
+            OR cf.nombre LIKE :buscar
+        )
     ";
 
-    $params[':id_tipo_obligacion'] = $idTipoObligacion;
+    $params[':buscar'] =
+        '%' . $buscar . '%';
 }
 
-
-// ----------------------------------------------------------
-// FILTRO ESTADO
-// ----------------------------------------------------------
 
 if (
     in_array(
         $estado,
-        ['PENDIENTE', 'PAGADA'],
+        ['PENDIENTE', 'PAGADA', 'ANULADA'],
         true
     )
 ) {
 
-    $where[] = "c.estado = :estado";
+    $where[] = "
+        c.estado = :estado
+    ";
 
-    $params[':estado'] = $estado;
+    $params[':estado'] =
+        $estado;
 }
 
 
-// ==========================================================
-// WHERE FINAL
-// ==========================================================
+if ($periodo !== '') {
 
-$whereSQL = implode(
-    " AND ",
-    $where
-);
+    $where[] = "
+        DATE_FORMAT(
+            c.periodo,
+            '%Y-%m'
+        ) = :periodo
+    ";
+
+    $params[':periodo'] =
+        $periodo;
+}
+
+
+$whereSql =
+    implode(
+        ' AND ',
+        $where
+    );
 
 
 // ==========================================================
@@ -132,396 +119,404 @@ $whereSQL = implode(
 
 $sqlResumen = "
     SELECT
-
-        COALESCE(
-            SUM(c.saldo),
-            0
-        ) AS cartera_total,
-
-        COALESCE(
-            SUM(
-                CASE
-                    WHEN c.fecha_vencimiento < CURDATE()
-                    THEN c.saldo
-                    ELSE 0
-                END
-            ),
-            0
-        ) AS cartera_vencida,
-
-        COUNT(
-            CASE
-                WHEN c.saldo > 0
-                THEN 1
-            END
-        ) AS obligaciones_pendientes,
-
-        COUNT(
-            CASE
-                WHEN c.estado = 'PAGADA'
-                THEN 1
-            END
-        ) AS obligaciones_pagadas
-
-    FROM cartera c
-
-    WHERE
-        $whereSQL
-";
-
-$stmtResumen = $conexion->prepare($sqlResumen);
-$stmtResumen->execute($params);
-
-$resumen = $stmtResumen->fetch(PDO::FETCH_ASSOC);
-
-
-// ==========================================================
-// CARTERA AGRUPADA POR UNIDAD
-// ==========================================================
-
-$sqlCartera = "
-    SELECT
-
-        u.id_unidad,
-        u.codigo AS codigo_unidad,
-        u.nombre AS nombre_unidad,
+        COUNT(*) AS total_registros,
 
         COALESCE(
             SUM(c.valor_original),
             0
-        ) AS valor_original,
+        ) AS total_original,
 
         COALESCE(
             SUM(c.valor_pagado),
             0
-        ) AS valor_pagado,
+        ) AS total_pagado,
 
         COALESCE(
             SUM(c.saldo),
             0
-        ) AS saldo,
+        ) AS total_saldo,
 
         COALESCE(
             SUM(
                 CASE
-                    WHEN c.fecha_vencimiento < CURDATE()
+                    WHEN
+                        c.estado = 'PENDIENTE'
+                        AND c.saldo > 0
+                        AND c.fecha_vencimiento < CURDATE()
                     THEN c.saldo
                     ELSE 0
                 END
             ),
             0
-        ) AS saldo_vencido,
-
-        COUNT(
-            CASE
-                WHEN c.saldo > 0
-                THEN 1
-            END
-        ) AS obligaciones_pendientes
+        ) AS total_vencido
 
     FROM cartera c
 
     INNER JOIN unidades u
-        ON u.id_unidad = c.id_unidad
+        ON u.id_unidad =
+           c.id_unidad
+
+    LEFT JOIN facturas f
+        ON f.id_factura =
+           c.id_factura
+
+    LEFT JOIN facturas_detalle fd
+        ON fd.id_detalle =
+           c.id_detalle
+
+    LEFT JOIN conceptos_facturacion cf
+        ON cf.id_concepto =
+           fd.id_concepto
 
     WHERE
-        $whereSQL
-
-    GROUP BY
-        u.id_unidad,
-        u.codigo,
-        u.nombre
-
-    ORDER BY
-        u.codigo ASC
+        $whereSql
 ";
 
-$stmtCartera = $conexion->prepare($sqlCartera);
-$stmtCartera->execute($params);
 
-$cartera = $stmtCartera->fetchAll(PDO::FETCH_ASSOC);
-
-
-// ==========================================================
-// FORMATO MONEDA
-// ==========================================================
-
-function formatoMoneda($valor)
-{
-    return '$ ' . number_format(
-        (float)$valor,
-        0,
-        ',',
-        '.'
+$stmtResumen =
+    $conexion->prepare(
+        $sqlResumen
     );
-}
+
+
+$stmtResumen->execute(
+    $params
+);
+
+
+$resumen =
+    $stmtResumen->fetch(
+        PDO::FETCH_ASSOC
+    );
+
+
+// ==========================================================
+// LISTADO
+// ==========================================================
+
+$sql = "
+    SELECT
+        c.id_factura,
+        c.id_unidad,
+        MIN(c.periodo) AS periodo,
+        MIN(c.fecha_vencimiento) AS fecha_vencimiento,
+
+        SUM(c.valor_original) AS valor_original,
+        SUM(c.valor_pagado) AS valor_pagado,
+        SUM(c.saldo) AS saldo,
+
+        u.codigo AS unidad_codigo,
+        u.nombre AS unidad_nombre,
+
+        dtu.nombre_grupo,
+
+        f.numero_factura,
+        f.estado AS estado_factura,
+
+        COUNT(c.id_cartera) AS cantidad_conceptos,
+
+        GROUP_CONCAT(
+            DISTINCT COALESCE(
+                cf.nombre,
+                tobl.nombre,
+                c.descripcion
+            )
+            ORDER BY c.id_cartera
+            SEPARATOR ' | '
+        ) AS conceptos,
+
+        CASE
+            WHEN
+                SUM(
+                    CASE
+                        WHEN
+                            c.estado = 'PENDIENTE'
+                            AND c.saldo > 0
+                            AND c.fecha_vencimiento < CURDATE()
+                        THEN c.saldo
+                        ELSE 0
+                    END
+                ) > 0
+            THEN 1
+            ELSE 0
+        END AS vencida,
+
+        CASE
+            WHEN
+                SUM(CASE WHEN c.estado = 'ANULADA' THEN 1 ELSE 0 END)
+                    = COUNT(c.id_cartera)
+            THEN 'ANULADA'
+
+            WHEN
+                SUM(c.saldo) <= 0.009
+            THEN 'PAGADA'
+
+            ELSE 'PENDIENTE'
+        END AS estado
+
+    FROM cartera c
+
+    INNER JOIN unidades u
+        ON u.id_unidad =
+           c.id_unidad
+
+    LEFT JOIN detalle_tipos_unidad dtu
+        ON dtu.id_tipo_config =
+           u.id_tipo_config
+
+    LEFT JOIN facturas f
+        ON f.id_factura =
+           c.id_factura
+
+    LEFT JOIN facturas_detalle fd
+        ON fd.id_detalle =
+           c.id_detalle
+
+    LEFT JOIN conceptos_facturacion cf
+        ON cf.id_concepto =
+           fd.id_concepto
+
+    LEFT JOIN tipos_obligacion tobl
+        ON tobl.id_tipo_obligacion =
+           c.id_tipo_obligacion
+
+    WHERE
+        $whereSql
+
+    GROUP BY
+        c.id_factura,
+        c.id_unidad,
+        u.codigo,
+        u.nombre,
+        dtu.nombre_grupo,
+        f.numero_factura,
+        f.estado
+
+    ORDER BY
+        vencida DESC,
+        fecha_vencimiento,
+        u.codigo,
+        c.id_factura
+";
+
+
+$stmt =
+    $conexion->prepare(
+        $sql
+    );
+
+
+$stmt->execute(
+    $params
+);
+
+
+$registros =
+    $stmt->fetchAll(
+        PDO::FETCH_ASSOC
+    );
 
 ?>
 
 <!DOCTYPE html>
+
 <html lang="es">
 
 <head>
+
     <?php include ROOT_PATH . "/includes/head.php"; ?>
+
 </head>
 
+
 <body>
+
+
 <?php include ROOT_PATH . "/includes/header.php"; ?>
-<?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
+
 
 <div class="contenedor">
+
+
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
+
 
     <main class="contenido">
 
-        <div class="cartera-container">
+
+        <!-- ======================================================
+             TÍTULO
+        ======================================================= -->
+
+        <h2 align="center">
+            Estado de cartera
+        </h2>
 
 
-            <!-- =====================================================
-                ENCABEZADO
-            ====================================================== -->
+        <p align="center">
+            Consulta de obligaciones, pagos y saldos pendientes.
+        </p>
 
-            <div class="cartera-header">
 
-                <div>
+        <br>
 
-                    <h1>
-                        Cartera y Resumen General
-                    </h1>
 
-                    <p>
-                        Consulta general de obligaciones pendientes,
-                        pagos y cartera de las unidades.
-                    </p>
+        <!-- ======================================================
+             RESUMEN
+        ======================================================= -->
 
-                </div>
+        <div class="bloque filtros">
 
-                <div>
+            <div class="form-card">
 
-                    <a
-                        href="<?= BASE_URL ?>configuracion/facturacion.php"
-                        class="btn-primary"
-                    >
-                        Facturación mensual
-                    </a>
+                <h3>
+                    Resumen
+                </h3>
+
+                <br>
+
+                <div class="tabla-responsive">
+
+                    <table class="tabla">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Registros
+                                </th>
+
+                                <th>
+                                    Valor original
+                                </th>
+
+                                <th>
+                                    Pagado
+                                </th>
+
+                                <th>
+                                    Saldo pendiente
+                                </th>
+
+                                <th>
+                                    Saldo vencido
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>
+                                    <?= (int)($resumen['total_registros'] ?? 0) ?>
+                                </td>
+
+                                <td>
+                                    <?= dinero($resumen['total_original'] ?? 0) ?>
+                                </td>
+
+                                <td>
+                                    <?= dinero($resumen['total_pagado'] ?? 0) ?>
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        <?= dinero($resumen['total_saldo'] ?? 0) ?>
+                                    </strong>
+                                </td>
+
+                                <td>
+
+                                    <?php if (
+                                        (float)($resumen['total_vencido'] ?? 0) > 0
+                                    ): ?>
+
+                                        <span class="inactivo">
+                                            <?= dinero($resumen['total_vencido']) ?>
+                                        </span>
+
+                                    <?php else: ?>
+
+                                        <?= dinero(0) ?>
+
+                                    <?php endif; ?>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
             </div>
 
-
-            <!-- =====================================================
-                RESUMEN
-            ====================================================== -->
-
-            <div class="resumen-grid">
+        </div>
 
 
-                <!-- CARTERA -->
-
-                <div class="resumen-card">
-
-                    <div class="titulo">
-                        Cartera total
-                    </div>
-
-                    <div class="valor">
-                        <?= formatoMoneda(
-                            $resumen['cartera_total'] ?? 0
-                        ) ?>
-                    </div>
-
-                </div>
+        <br>
 
 
-                <!-- VENCIDA -->
+        <!-- ======================================================
+             FILTROS
+        ======================================================= -->
 
-                <div class="resumen-card">
+        <div class="bloque filtros">
 
-                    <div class="titulo">
-                        Cartera vencida
-                    </div>
+            <div class="form-card">
 
-                    <div class="valor">
-                        <?= formatoMoneda(
-                            $resumen['cartera_vencida'] ?? 0
-                        ) ?>
-                    </div>
+                <h3>
+                    Filtros
+                </h3>
 
-                </div>
-
-
-                <!-- PENDIENTES -->
-
-                <div class="resumen-card">
-
-                    <div class="titulo">
-                        Obligaciones pendientes
-                    </div>
-
-                    <div class="valor">
-
-                        <?= number_format(
-                            (int)(
-                                $resumen['obligaciones_pendientes']
-                                ?? 0
-                            )
-                        ) ?>
-
-                    </div>
-
-                </div>
-
-
-                <!-- PAGADAS -->
-
-                <div class="resumen-card">
-
-                    <div class="titulo">
-                        Obligaciones pagadas
-                    </div>
-
-                    <div class="valor">
-
-                        <?= number_format(
-                            (int)(
-                                $resumen['obligaciones_pagadas']
-                                ?? 0
-                            )
-                        ) ?>
-
-                    </div>
-
-                </div>
-
-
-            </div>
-
-
-            <!-- =====================================================
-                FILTROS
-            ====================================================== -->
-
-            <div class="filtros-card">
+                <br>
 
                 <form
                     method="GET"
                     action=""
                 >
 
-                    <div class="filtros-grid">
+                    <div
+                        style="
+                            display:grid;
+                            grid-template-columns:
+                                repeat(
+                                    auto-fit,
+                                    minmax(210px, 1fr)
+                                );
+                            gap:15px;
+                        "
+                    >
 
+                        <div>
 
-                        <!-- UNIDAD -->
-
-                        <div class="campo">
-
-                            <label for="id_unidad">
-                                Unidad
+                            <label>
+                                Buscar
                             </label>
 
-                            <select
-                                name="id_unidad"
-                                id="id_unidad"
+                            <input
+                                type="text"
+                                name="buscar"
+                                value="<?= e($buscar) ?>"
+                                placeholder="Unidad, factura, concepto..."
                             >
-
-                                <option value="">
-                                    Todas las unidades
-                                </option>
-
-                                <?php foreach ($unidades as $unidad): ?>
-
-                                    <option
-                                        value="<?= (int)$unidad['id_unidad'] ?>"
-                                        <?= (
-                                            $idUnidad ==
-                                            $unidad['id_unidad']
-                                        )
-                                            ? 'selected'
-                                            : ''
-                                        ?>
-                                    >
-
-                                        <?= htmlspecialchars(
-                                            $unidad['codigo']
-                                        ) ?>
-
-                                        <?php if (!empty($unidad['nombre'])): ?>
-
-                                            -
-                                            <?= htmlspecialchars(
-                                                $unidad['nombre']
-                                            ) ?>
-
-                                        <?php endif; ?>
-
-                                    </option>
-
-                                <?php endforeach; ?>
-
-                            </select>
 
                         </div>
 
 
-                        <!-- TIPO OBLIGACIÓN -->
+                        <div>
 
-                        <div class="campo">
-
-                            <label for="id_tipo_obligacion">
-                                Tipo de obligación
-                            </label>
-
-                            <select
-                                name="id_tipo_obligacion"
-                                id="id_tipo_obligacion"
-                            >
-
-                                <option value="">
-                                    Todos
-                                </option>
-
-                                <?php foreach (
-                                    $tiposObligacion
-                                    as $tipo
-                                ): ?>
-
-                                    <option
-                                        value="<?= (int)$tipo['id_tipo_obligacion'] ?>"
-                                        <?= (
-                                            $idTipoObligacion ==
-                                            $tipo['id_tipo_obligacion']
-                                        )
-                                            ? 'selected'
-                                            : ''
-                                        ?>
-                                    >
-
-                                        <?= htmlspecialchars(
-                                            $tipo['nombre']
-                                        ) ?>
-
-                                    </option>
-
-                                <?php endforeach; ?>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- ESTADO -->
-
-                        <div class="campo">
-
-                            <label for="estado">
+                            <label>
                                 Estado
                             </label>
 
-                            <select
-                                name="estado"
-                                id="estado"
-                            >
+                            <select name="estado">
 
                                 <option value="">
                                     Todos
@@ -547,31 +542,57 @@ function formatoMoneda($valor)
                                     Pagada
                                 </option>
 
+                                <option
+                                    value="ANULADA"
+                                    <?= $estado === 'ANULADA'
+                                        ? 'selected'
+                                        : ''
+                                    ?>
+                                >
+                                    Anulada
+                                </option>
+
                             </select>
 
                         </div>
 
 
-                        <!-- BOTONES -->
+                        <div>
 
-                        <div class="botones-filtro">
+                            <label>
+                                Período
+                            </label>
 
-                            <button
-                                type="submit"
-                                class="btn-primary"
+                            <input
+                                type="month"
+                                name="periodo"
+                                value="<?= e($periodo) ?>"
                             >
-                                Buscar
-                            </button>
-
-                            <a
-                                href="<?= BASE_URL ?>configuracion/cartera.php"
-                                class="btn-secondary"
-                            >
-                                Limpiar
-                            </a>
 
                         </div>
 
+                    </div>
+
+
+                    <br>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="btn-filtrar"
+                        >
+                            Filtrar
+                        </button>
+
+
+                        <a
+                            href="<?= BASE_URL ?>configuracion/cartera.php"
+                            class="btn-limpiar"
+                        >
+                            Limpiar
+                        </a>
 
                     </div>
 
@@ -579,31 +600,29 @@ function formatoMoneda($valor)
 
             </div>
 
-
-            <!-- =====================================================
-                TABLA
-            ====================================================== -->
-
-            <div class="tabla-card">
-
-                <h2>
-                    Cartera por unidad
-                </h2>
+        </div>
 
 
-                <?php if (empty($cartera)): ?>
-
-                    <div class="sin-datos">
-
-                        No existen registros de cartera
-                        para los filtros seleccionados.
-
-                    </div>
-
-                <?php else: ?>
+        <br>
 
 
-                    <table class="tabla-cartera">
+        <!-- ======================================================
+             TABLA CARTERA
+        ======================================================= -->
+
+        <div class="bloque filtros">
+
+            <div class="form-card">
+
+                <h3>
+                    Obligaciones
+                </h3>
+
+                <br>
+
+                <div class="tabla-responsive">
+
+                    <table class="tabla">
 
                         <thead>
 
@@ -614,23 +633,39 @@ function formatoMoneda($valor)
                                 </th>
 
                                 <th>
-                                    Obligaciones
+                                    Grupo
                                 </th>
 
-                                <th class="text-right">
+                                <th>
+                                    Factura
+                                </th>
+
+                                <th>
+                                    Período
+                                </th>
+
+                                <th>
+                                    Conceptos
+                                </th>
+
+                                <th>
                                     Valor original
                                 </th>
 
-                                <th class="text-right">
+                                <th>
                                     Pagado
                                 </th>
 
-                                <th class="text-right">
+                                <th>
                                     Saldo
                                 </th>
 
-                                <th class="text-right">
-                                    Vencido
+                                <th>
+                                    Vencimiento
+                                </th>
+
+                                <th>
+                                    Estado
                                 </th>
 
                                 <th>
@@ -644,34 +679,55 @@ function formatoMoneda($valor)
 
                         <tbody>
 
-                            <?php foreach (
-                                $cartera
-                                as $fila
-                            ): ?>
+
+                        <?php if (empty($registros)): ?>
+
+                            <tr>
+
+                                <td
+                                    colspan="11"
+                                    align="center"
+                                >
+                                    No existen registros de cartera.
+                                </td>
+
+                            </tr>
+
+                        <?php else: ?>
+
+
+                            <?php foreach ($registros as $fila): ?>
 
                                 <tr>
 
-                                    <td>
 
+                                    <td>
                                         <strong>
-                                            <?= htmlspecialchars(
-                                                $fila['codigo_unidad']
-                                            ) ?>
+                                            <?= e($fila['unidad_codigo']) ?>
                                         </strong>
+                                    </td>
+
+
+                                    <td>
+                                        <?= e($fila['nombre_grupo'] ?? '') ?>
+                                    </td>
+
+
+                                    <td>
 
                                         <?php if (
                                             !empty(
-                                                $fila['nombre_unidad']
+                                                $fila['numero_factura']
                                             )
                                         ): ?>
 
-                                            <br>
+                                            <?= e(
+                                                $fila['numero_factura']
+                                            ) ?>
 
-                                            <small>
-                                                <?= htmlspecialchars(
-                                                    $fila['nombre_unidad']
-                                                ) ?>
-                                            </small>
+                                        <?php else: ?>
+
+                                            -
 
                                         <?php endif; ?>
 
@@ -680,46 +736,13 @@ function formatoMoneda($valor)
 
                                     <td>
 
-                                        <?= number_format(
-                                            (int)$fila[
-                                                'obligaciones_pendientes'
-                                            ]
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td class="text-right">
-
-                                        <?= formatoMoneda(
-                                            $fila['valor_original']
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td class="text-right">
-
-                                        <?= formatoMoneda(
-                                            $fila['valor_pagado']
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td class="text-right saldo">
-
-                                        <?= formatoMoneda(
-                                            $fila['saldo']
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td class="text-right saldo-vencido">
-
-                                        <?= formatoMoneda(
-                                            $fila['saldo_vencido']
+                                        <?= e(
+                                            date(
+                                                'm/Y',
+                                                strtotime(
+                                                    $fila['periodo']
+                                                )
+                                            )
                                         ) ?>
 
                                     </td>
@@ -727,30 +750,165 @@ function formatoMoneda($valor)
 
                                     <td>
 
-                                        <a
-                                            href="<?= BASE_URL ?>configuracion/detalle_cartera.php?id_unidad=<?= (int)$fila['id_unidad'] ?>"
-                                            class="btn-secondary btn-ver"
-                                        >
-                                            Ver detalle
-                                        </a>
+                                        <strong>
+                                            <?= (int)$fila['cantidad_conceptos'] ?>
+                                            concepto<?= (int)$fila['cantidad_conceptos'] === 1 ? '' : 's' ?>
+                                        </strong>
+
+                                        <br>
+
+                                        <small>
+                                            <?= e($fila['conceptos'] ?? '') ?>
+                                        </small>
 
                                     </td>
+
+
+                                    <td class="numero">
+
+                                        <?= dinero(
+                                            $fila['valor_original']
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <td class="numero">
+
+                                        <?= dinero(
+                                            $fila['valor_pagado']
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <td class="numero">
+
+                                        <strong>
+
+                                            <?= dinero(
+                                                $fila['saldo']
+                                            ) ?>
+
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <?= e(
+                                            date(
+                                                'd/m/Y',
+                                                strtotime(
+                                                    $fila['fecha_vencimiento']
+                                                )
+                                            )
+                                        ) ?>
+
+
+                                        <?php if (
+                                            (int)$fila['vencida'] === 1
+                                        ): ?>
+
+                                            <br>
+
+                                            <span class="inactivo">
+                                                VENCIDA
+                                            </span>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <?php if (
+                                            $fila['estado'] === 'PAGADA'
+                                        ): ?>
+
+                                            <span class="activo">
+                                                PAGADA
+                                            </span>
+
+                                        <?php elseif (
+                                            $fila['estado'] === 'ANULADA'
+                                        ): ?>
+
+                                            <span class="inactivo">
+                                                ANULADA
+                                            </span>
+
+                                        <?php else: ?>
+
+                                            <strong>
+                                                PENDIENTE
+                                            </strong>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div
+                                            style="
+                                                display:flex;
+                                                gap:6px;
+                                                flex-wrap:wrap;
+                                            "
+                                        >
+
+                                            <a
+                                                href="<?= BASE_URL ?>configuracion/cartera_detalle.php?id_unidad=<?= (int)$fila['id_unidad'] ?>"
+                                                class="btn-secondary"
+                                            >
+                                                Ver cartera
+                                            </a>
+
+                                            <?php if (
+                                                !empty(
+                                                    $fila['id_factura']
+                                                )
+                                            ): ?>
+
+                                                <a
+                                                    href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>&origen=cartera&id_unidad=<?= (int)$fila['id_unidad'] ?>"
+                                                    class="btn-secondary"
+                                                >
+                                                    Ver factura
+                                                </a>
+
+                                            <?php endif; ?>
+
+                                        </div>
+
+                                    </td>
+
 
                                 </tr>
 
                             <?php endforeach; ?>
 
+
+                        <?php endif; ?>
+
+
                         </tbody>
 
                     </table>
 
-
-                <?php endif; ?>
-
+                </div>
 
             </div>
+
         </div>
+
+
     </main>
+
 
 </div>
 
