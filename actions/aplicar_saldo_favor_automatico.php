@@ -5,19 +5,19 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 
 // ==========================================================
-// REDIRECCIONAR
+// REDIRECCIÓN
 // ==========================================================
 
-function redireccionarPago($idPago, $tipo, $texto)
+function redireccionarSaldo($idSaldoFavor, $tipo, $texto)
 {
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/aplicar_pagos.php?" .
+        "configuracion/aplicar_saldo_favor.php?" .
         http_build_query([
-            'id_pago' => $idPago,
-            'tipo'    => $tipo,
-            'texto'   => $texto
+            'id_saldo_favor' => $idSaldoFavor,
+            'tipo'           => $tipo,
+            'texto'          => $texto
         ])
     );
 
@@ -47,6 +47,7 @@ function actualizarEstadoFactura(PDO $conexion, int $idFactura): void
     ";
 
     $stmt = $conexion->prepare($sql);
+
     $stmt->execute([
         ':id_factura' => $idFactura
     ]);
@@ -103,16 +104,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 
 // ==========================================================
-// ID PAGO
+// ID SALDO FAVOR
 // ==========================================================
 
-$idPago =
-    isset($_POST['id_pago'])
-        ? (int)$_POST['id_pago']
+$idSaldoFavor =
+    isset($_POST['id_saldo_favor'])
+        ? (int)$_POST['id_saldo_favor']
         : 0;
 
 
-if ($idPago <= 0) {
+if ($idSaldoFavor <= 0) {
 
     header(
         "Location: " .
@@ -120,7 +121,7 @@ if ($idPago <= 0) {
         "configuracion/cartera.php?" .
         http_build_query([
             'tipo'  => 'warning',
-            'texto' => 'Debe seleccionar un pago válido.'
+            'texto' => 'Debe seleccionar un saldo a favor válido.'
         ])
     );
 
@@ -130,105 +131,67 @@ if ($idPago <= 0) {
 
 try {
 
-    // ======================================================
-    // TRANSACCIÓN
-    // ======================================================
-
     $conexion->beginTransaction();
 
 
     // ======================================================
-    // BLOQUEAR PAGO
+    // BLOQUEAR SALDO A FAVOR
     // ======================================================
 
-    $sqlPago = "
+    $sqlSaldo = "
         SELECT
-            id_pago,
+            id_saldo_favor,
             id_unidad,
-            fecha_pago,
-            valor,
-            referencia,
-            estado,
-            estado_conciliacion
-        FROM pagos
-        WHERE id_pago = :id_pago
+            id_pago,
+            valor_original,
+            valor_utilizado,
+            saldo_disponible,
+            estado
+        FROM saldo_favor
+        WHERE id_saldo_favor = :id_saldo_favor
         LIMIT 1
         FOR UPDATE
     ";
 
-    $stmtPago = $conexion->prepare($sqlPago);
+    $stmtSaldo = $conexion->prepare($sqlSaldo);
 
-    $stmtPago->execute([
-        ':id_pago' => $idPago
+    $stmtSaldo->execute([
+        ':id_saldo_favor' => $idSaldoFavor
     ]);
 
-    $pago = $stmtPago->fetch(PDO::FETCH_ASSOC);
+    $saldoFavor = $stmtSaldo->fetch(PDO::FETCH_ASSOC);
 
-    if (!$pago) {
+    if (!$saldoFavor) {
         throw new Exception(
-            'El pago seleccionado no existe.'
+            'El saldo a favor seleccionado no existe.'
         );
     }
 
-    if ($pago['estado'] !== 'REGISTRADO') {
+    if (
+        $saldoFavor['estado'] !== 'DISPONIBLE' ||
+        (float)$saldoFavor['saldo_disponible'] <= 0
+    ) {
         throw new Exception(
-            'El pago no está disponible para aplicación porque su estado es ' .
-            $pago['estado'] . '.'
+            'El saldo a favor seleccionado no tiene valor disponible.'
         );
     }
 
-
-    // ======================================================
-    // VALOR YA APLICADO
-    // ======================================================
-
-    $sqlAplicado = "
-        SELECT
-            COALESCE(SUM(valor_aplicado), 0)
-        FROM aplicaciones_pagos
-        WHERE id_pago = :id_pago
-    ";
-
-    $stmtAplicado = $conexion->prepare($sqlAplicado);
-
-    $stmtAplicado->execute([
-        ':id_pago' => $idPago
-    ]);
-
-    $valorAplicadoActual =
-        (float)$stmtAplicado->fetchColumn();
-
-    $valorPago =
-        (float)$pago['valor'];
 
     $disponible =
         round(
-            $valorPago - $valorAplicadoActual,
+            (float)$saldoFavor['saldo_disponible'],
             2
         );
 
 
-    if ($disponible <= 0) {
-        throw new Exception(
-            'El pago ya se encuentra completamente aplicado.'
-        );
-    }
-
-
     // ======================================================
-    // CARTERA PENDIENTE DE LA UNIDAD
-    // ======================================================
-    //
-    // Regla automática:
-    // primero la deuda con vencimiento más antiguo.
-    //
+    // CARTERA PENDIENTE
     // ======================================================
 
     $sqlCartera = "
         SELECT
             id_cartera,
             id_factura,
-            descripcion,
             saldo,
             fecha_vencimiento,
             periodo
@@ -247,7 +210,7 @@ try {
     $stmtCartera = $conexion->prepare($sqlCartera);
 
     $stmtCartera->execute([
-        ':id_unidad' => (int)$pago['id_unidad']
+        ':id_unidad' => (int)$saldoFavor['id_unidad']
     ]);
 
     $obligaciones =
@@ -256,19 +219,19 @@ try {
 
     if (empty($obligaciones)) {
         throw new Exception(
-            'La unidad no tiene obligaciones pendientes para aplicar este pago.'
+            'La unidad no tiene obligaciones pendientes para aplicar el saldo a favor.'
         );
     }
 
 
     // ======================================================
-    // INSERT APLICACIÓN
+    // PREPARAR INSERT APLICACIÓN
     // ======================================================
 
-    $sqlInsertAplicacion = "
-        INSERT INTO aplicaciones_pagos
+    $sqlInsert = "
+        INSERT INTO aplicaciones_saldo_favor
         (
-            id_pago,
+            id_saldo_favor,
             id_cartera,
             valor_aplicado,
             fecha_aplicacion,
@@ -277,7 +240,7 @@ try {
         )
         VALUES
         (
-            :id_pago,
+            :id_saldo_favor,
             :id_cartera,
             :valor_aplicado,
             NOW(),
@@ -286,12 +249,11 @@ try {
         )
     ";
 
-    $stmtInsertAplicacion =
-        $conexion->prepare($sqlInsertAplicacion);
+    $stmtInsert = $conexion->prepare($sqlInsert);
 
 
     // ======================================================
-    // ACTUALIZAR CARTERA
+    // PREPARAR UPDATE CARTERA
     // ======================================================
 
     $sqlUpdateCartera = "
@@ -330,7 +292,7 @@ try {
     // APLICAR
     // ======================================================
 
-    $totalAplicadoAhora = 0;
+    $totalAplicado = 0;
     $cantidadAplicaciones = 0;
     $facturasAfectadas = [];
 
@@ -365,10 +327,10 @@ try {
         }
 
 
-        $stmtInsertAplicacion->execute([
+        $stmtInsert->execute([
 
-            ':id_pago'
-                => $idPago,
+            ':id_saldo_favor'
+                => $idSaldoFavor,
 
             ':id_cartera'
                 => (int)$obligacion['id_cartera'],
@@ -377,7 +339,7 @@ try {
                 => $valorAplicar,
 
             ':observaciones'
-                => 'Aplicación automática por antigüedad de vencimiento.'
+                => 'Aplicación automática de saldo a favor por antigüedad de vencimiento.'
         ]);
 
 
@@ -398,7 +360,6 @@ try {
 
 
         if ($stmtUpdateCartera->rowCount() !== 1) {
-
             throw new Exception(
                 'No fue posible actualizar la obligación de cartera #' .
                 $obligacion['id_cartera'] .
@@ -413,9 +374,7 @@ try {
                 2
             );
 
-        $totalAplicadoAhora +=
-            $valorAplicar;
-
+        $totalAplicado += $valorAplicar;
         $cantidadAplicaciones++;
 
 
@@ -429,7 +388,60 @@ try {
 
 
     // ======================================================
-    // ACTUALIZAR ESTADOS DE FACTURAS
+    // ACTUALIZAR SALDO A FAVOR
+    // ======================================================
+
+    $nuevoUtilizado =
+        round(
+            (float)$saldoFavor['valor_utilizado'] +
+            $totalAplicado,
+            2
+        );
+
+    $nuevoDisponible =
+        round(
+            (float)$saldoFavor['saldo_disponible'] -
+            $totalAplicado,
+            2
+        );
+
+    $nuevoEstado =
+        $nuevoDisponible <= 0.009
+            ? 'UTILIZADO'
+            : 'DISPONIBLE';
+
+
+    $sqlUpdateSaldo = "
+        UPDATE saldo_favor
+        SET
+            valor_utilizado = :valor_utilizado,
+            saldo_disponible = :saldo_disponible,
+            estado = :estado,
+            fecha_ultimo_uso = NOW()
+        WHERE id_saldo_favor = :id_saldo_favor
+    ";
+
+    $stmtUpdateSaldo =
+        $conexion->prepare($sqlUpdateSaldo);
+
+    $stmtUpdateSaldo->execute([
+
+        ':valor_utilizado'
+            => $nuevoUtilizado,
+
+        ':saldo_disponible'
+            => max($nuevoDisponible, 0),
+
+        ':estado'
+            => $nuevoEstado,
+
+        ':id_saldo_favor'
+            => $idSaldoFavor
+    ]);
+
+
+    // ======================================================
+    // ACTUALIZAR ESTADO FACTURAS
     // ======================================================
 
     foreach (
@@ -444,38 +456,30 @@ try {
     }
 
 
-    // ======================================================
-    // COMMIT
-    // ======================================================
-
     $conexion->commit();
 
 
-    $mensaje =
-        'Aplicación automática realizada. ' .
+    redireccionarSaldo(
+        $idSaldoFavor,
+        'success',
+        'Saldo a favor aplicado automáticamente. ' .
         'Valor aplicado: $' .
         number_format(
-            $totalAplicadoAhora,
+            $totalAplicado,
             2,
             ',',
             '.'
         ) .
         '. Aplicaciones creadas: ' .
         $cantidadAplicaciones .
-        '. Saldo disponible del pago: $' .
+        '. Saldo disponible restante: $' .
         number_format(
-            $disponible,
+            max($nuevoDisponible, 0),
             2,
             ',',
             '.'
         ) .
-        '.';
-
-
-    redireccionarPago(
-        $idPago,
-        'success',
-        $mensaje
+        '.'
     );
 
 
@@ -485,8 +489,8 @@ try {
         $conexion->rollBack();
     }
 
-    redireccionarPago(
-        $idPago,
+    redireccionarSaldo(
+        $idSaldoFavor,
         'error',
         $e->getMessage()
     );

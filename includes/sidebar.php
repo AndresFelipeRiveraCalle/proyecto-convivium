@@ -107,20 +107,40 @@
 
             <!-- CARTERA -->
             <li class="submenu">
+
                 <div class="submenu-titulo">
-                    <span><i class="fa-solid fa-wallet icono"></i> Cartera</span>
+
+                    <span>
+                        <i class="fa-solid fa-wallet icono"></i>
+                        Cartera
+                    </span>
+
                     <i class="fa-solid fa-chevron-down flecha"></i>
+
                 </div>
 
+
                 <ul class="submenu-items">
+
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/cartera.php">
                             Estado de cartera
                         </a>
-                    </li>               
+                    </li>
+
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/tasas_interes.php">
-                            Tasas de interes
+                            Tasas de interés
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/configuracion_mora.php">
+                            Configuración de mora
+                        </a>
+                    </li>   
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/configuracion_mora.php">
+                            Configuración de mora
                         </a>
                     </li>
                     <li>
@@ -128,8 +148,55 @@
                             Pagos
                         </a>
                     </li>
+
                 </ul>
+
             </li>
+
+            <!-- PAGOS -->
+            <li class="submenu">
+
+                <div class="submenu-titulo">
+
+                    <span>
+                        <i class="fa-solid fa-money-bill-transfer icono"></i>
+                        Pagos
+                    </span>
+
+                    <i class="fa-solid fa-chevron-down flecha"></i>
+
+                </div>
+
+                <ul class="submenu-items">
+
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/pagos.php">
+                            Pagos registrados
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/conciliacion.php">
+                            Conciliación bancaria
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/aplicaciones_pagos.php">
+                            Aplicaciones de pagos
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/saldos_favor.php">
+                            Saldos a favor
+                        </a>
+                    </li>
+
+                </ul>
+
+            </li>
+
 
             <!-- MANTENIMIENTO -->
             <li class="submenu">

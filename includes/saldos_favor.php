@@ -37,11 +37,6 @@ $buscar =
         $_GET['buscar'] ?? ''
     );
 
-$estadoConciliacion =
-    trim(
-        $_GET['estado_conciliacion'] ?? ''
-    );
-
 $estado =
     trim(
         $_GET['estado'] ?? ''
@@ -75,8 +70,7 @@ if ($buscar !== '') {
         (
             u.codigo LIKE :buscar
             OR p.referencia LIKE :buscar
-            OR p.referencia_externa LIKE :buscar
-            OR p.id_externo LIKE :buscar
+            OR sf.observaciones LIKE :buscar
         )
     ";
 
@@ -87,32 +81,10 @@ if ($buscar !== '') {
 
 if (
     in_array(
-        $estadoConciliacion,
-        [
-            'PENDIENTE',
-            'CONCILIADO',
-            'RECHAZADO',
-            'CON_DIFERENCIA'
-        ],
-        true
-    )
-) {
-
-    $where[] = "
-        p.estado_conciliacion =
-            :estado_conciliacion
-    ";
-
-    $params[':estado_conciliacion'] =
-        $estadoConciliacion;
-}
-
-
-if (
-    in_array(
         $estado,
         [
-            'REGISTRADO',
+            'DISPONIBLE',
+            'UTILIZADO',
             'ANULADO'
         ],
         true
@@ -120,8 +92,7 @@ if (
 ) {
 
     $where[] = "
-        p.estado =
-            :estado
+        sf.estado = :estado
     ";
 
     $params[':estado'] =
@@ -132,7 +103,7 @@ if (
 if ($fechaDesde !== '') {
 
     $where[] = "
-        p.fecha_pago >= :fecha_desde
+        DATE(sf.fecha_generacion) >= :fecha_desde
     ";
 
     $params[':fecha_desde'] =
@@ -143,7 +114,7 @@ if ($fechaDesde !== '') {
 if ($fechaHasta !== '') {
 
     $where[] = "
-        p.fecha_pago <= :fecha_hasta
+        DATE(sf.fecha_generacion) <= :fecha_hasta
     ";
 
     $params[':fecha_hasta'] =
@@ -164,51 +135,43 @@ $whereSql =
 
 $sqlResumen = "
     SELECT
-        COUNT(*) AS total_pagos,
+        COUNT(*) AS total_registros,
 
         COALESCE(
-            SUM(p.valor),
+            SUM(sf.valor_original),
             0
-        ) AS total_recibido,
+        ) AS total_original,
 
         COALESCE(
-            SUM(
-                CASE
-                    WHEN p.estado = 'REGISTRADO'
-                    THEN p.valor
-                    ELSE 0
-                END
-            ),
+            SUM(sf.valor_utilizado),
             0
-        ) AS total_registrado,
+        ) AS total_utilizado,
 
         COALESCE(
-            SUM(
-                CASE
-                    WHEN p.estado = 'ANULADO'
-                    THEN p.valor
-                    ELSE 0
-                END
-            ),
+            SUM(sf.saldo_disponible),
             0
-        ) AS total_anulado,
+        ) AS total_disponible,
 
         COALESCE(
             SUM(
                 CASE
-                    WHEN p.estado_conciliacion = 'CONCILIADO'
-                    THEN p.valor
+                    WHEN sf.estado = 'DISPONIBLE'
+                    THEN sf.saldo_disponible
                     ELSE 0
                 END
             ),
             0
-        ) AS total_conciliado
+        ) AS disponible_activo
 
-    FROM pagos p
+    FROM saldo_favor sf
 
     INNER JOIN unidades u
         ON u.id_unidad =
-           p.id_unidad
+           sf.id_unidad
+
+    INNER JOIN pagos p
+        ON p.id_pago =
+           sf.id_pago
 
     WHERE
         $whereSql
@@ -233,87 +196,94 @@ $resumen =
 
 
 // ==========================================================
-// LISTADO DE PAGOS
+// LISTADO
 // ==========================================================
 
 $sql = "
     SELECT
-        p.id_pago,
-        p.id_unidad,
-        p.id_extracto,
-        p.fecha_pago,
-        p.valor,
-        p.medio_pago,
-        p.origen_pago,
-        p.estado_conciliacion,
-        p.fecha_conciliacion,
-        p.referencia,
-        p.referencia_externa,
-        p.id_externo,
-        p.observaciones,
-        p.estado,
-        p.fecha_creacion,
+        sf.id_saldo_favor,
+        sf.id_unidad,
+        sf.id_pago,
+        sf.valor_original,
+        sf.valor_utilizado,
+        sf.saldo_disponible,
+        sf.estado,
+        sf.fecha_generacion,
+        sf.fecha_ultimo_uso,
+        sf.observaciones,
 
         u.codigo AS unidad_codigo,
         u.nombre AS unidad_nombre,
 
         dtu.nombre_grupo,
 
+        p.fecha_pago,
+        p.valor AS valor_pago,
+        p.referencia,
+        p.medio_pago,
+        p.origen_pago,
+        p.estado AS estado_pago,
+
         COALESCE(
-            SUM(ap.valor_aplicado),
+            COUNT(asf.id_aplicacion_saldo),
             0
-        ) AS valor_aplicado,
+        ) AS cantidad_aplicaciones,
 
-        (
-            p.valor -
-            COALESCE(
-                SUM(ap.valor_aplicado),
-                0
-            )
-        ) AS valor_disponible,
+        COALESCE(
+            SUM(asf.valor_aplicado),
+            0
+        ) AS total_aplicado_registrado
 
-        COUNT(ap.id_aplicacion) AS cantidad_aplicaciones
-
-    FROM pagos p
+    FROM saldo_favor sf
 
     INNER JOIN unidades u
         ON u.id_unidad =
-           p.id_unidad
+           sf.id_unidad
 
     LEFT JOIN detalle_tipos_unidad dtu
         ON dtu.id_tipo_config =
            u.id_tipo_config
 
-    LEFT JOIN aplicaciones_pagos ap
-        ON ap.id_pago =
-           p.id_pago
+    INNER JOIN pagos p
+        ON p.id_pago =
+           sf.id_pago
+
+    LEFT JOIN aplicaciones_saldo_favor asf
+        ON asf.id_saldo_favor =
+           sf.id_saldo_favor
 
     WHERE
         $whereSql
 
     GROUP BY
-        p.id_pago,
-        p.id_unidad,
-        p.id_extracto,
-        p.fecha_pago,
-        p.valor,
-        p.medio_pago,
-        p.origen_pago,
-        p.estado_conciliacion,
-        p.fecha_conciliacion,
-        p.referencia,
-        p.referencia_externa,
-        p.id_externo,
-        p.observaciones,
-        p.estado,
-        p.fecha_creacion,
+        sf.id_saldo_favor,
+        sf.id_unidad,
+        sf.id_pago,
+        sf.valor_original,
+        sf.valor_utilizado,
+        sf.saldo_disponible,
+        sf.estado,
+        sf.fecha_generacion,
+        sf.fecha_ultimo_uso,
+        sf.observaciones,
         u.codigo,
         u.nombre,
-        dtu.nombre_grupo
+        dtu.nombre_grupo,
+        p.fecha_pago,
+        p.valor,
+        p.referencia,
+        p.medio_pago,
+        p.origen_pago,
+        p.estado
 
     ORDER BY
-        p.fecha_pago DESC,
-        p.id_pago DESC
+        CASE
+            WHEN sf.estado = 'DISPONIBLE'
+            THEN 0
+            ELSE 1
+        END,
+        sf.fecha_generacion DESC,
+        sf.id_saldo_favor DESC
 ";
 
 
@@ -328,7 +298,7 @@ $stmt->execute(
 );
 
 
-$pagos =
+$saldosFavor =
     $stmt->fetchAll(
         PDO::FETCH_ASSOC
     );
@@ -378,11 +348,11 @@ $pagos =
             <div>
 
                 <h2>
-                    Pagos registrados
+                    Saldos a favor
                 </h2>
 
                 <p>
-                    Consulta y seguimiento de pagos recibidos.
+                    Consulta y seguimiento de excedentes disponibles por unidad.
                 </p>
 
             </div>
@@ -415,25 +385,11 @@ $pagos =
 
                             <tr>
 
-                                <th>
-                                    Pagos
-                                </th>
-
-                                <th>
-                                    Total recibido
-                                </th>
-
-                                <th>
-                                    Registrado
-                                </th>
-
-                                <th>
-                                    Conciliado
-                                </th>
-
-                                <th>
-                                    Anulado
-                                </th>
+                                <th>Registros</th>
+                                <th>Valor original</th>
+                                <th>Utilizado</th>
+                                <th>Saldo disponible</th>
+                                <th>Disponible activo</th>
 
                             </tr>
 
@@ -444,33 +400,35 @@ $pagos =
                             <tr>
 
                                 <td>
-                                    <?= (int)($resumen['total_pagos'] ?? 0) ?>
+                                    <?= (int)($resumen['total_registros'] ?? 0) ?>
+                                </td>
+
+                                <td>
+                                    <?= dinero(
+                                        $resumen['total_original'] ?? 0
+                                    ) ?>
+                                </td>
+
+                                <td>
+                                    <?= dinero(
+                                        $resumen['total_utilizado'] ?? 0
+                                    ) ?>
                                 </td>
 
                                 <td>
                                     <strong>
                                         <?= dinero(
-                                            $resumen['total_recibido'] ?? 0
+                                            $resumen['total_disponible'] ?? 0
                                         ) ?>
                                     </strong>
                                 </td>
 
                                 <td>
-                                    <?= dinero(
-                                        $resumen['total_registrado'] ?? 0
-                                    ) ?>
-                                </td>
-
-                                <td>
-                                    <?= dinero(
-                                        $resumen['total_conciliado'] ?? 0
-                                    ) ?>
-                                </td>
-
-                                <td>
-                                    <?= dinero(
-                                        $resumen['total_anulado'] ?? 0
-                                    ) ?>
+                                    <strong>
+                                        <?= dinero(
+                                            $resumen['disponible_activo'] ?? 0
+                                        ) ?>
+                                    </strong>
                                 </td>
 
                             </tr>
@@ -514,7 +472,7 @@ $pagos =
                             grid-template-columns:
                                 repeat(
                                     auto-fit,
-                                    minmax(200px, 1fr)
+                                    minmax(210px, 1fr)
                                 );
                             gap:15px;
                         "
@@ -539,65 +497,6 @@ $pagos =
                         <div>
 
                             <label>
-                                Conciliación
-                            </label>
-
-                            <select
-                                name="estado_conciliacion"
-                            >
-
-                                <option value="">
-                                    Todos
-                                </option>
-
-                                <option
-                                    value="PENDIENTE"
-                                    <?= $estadoConciliacion === 'PENDIENTE'
-                                        ? 'selected'
-                                        : ''
-                                    ?>
-                                >
-                                    Pendiente
-                                </option>
-
-                                <option
-                                    value="CONCILIADO"
-                                    <?= $estadoConciliacion === 'CONCILIADO'
-                                        ? 'selected'
-                                        : ''
-                                    ?>
-                                >
-                                    Conciliado
-                                </option>
-
-                                <option
-                                    value="RECHAZADO"
-                                    <?= $estadoConciliacion === 'RECHAZADO'
-                                        ? 'selected'
-                                        : ''
-                                    ?>
-                                >
-                                    Rechazado
-                                </option>
-
-                                <option
-                                    value="CON_DIFERENCIA"
-                                    <?= $estadoConciliacion === 'CON_DIFERENCIA'
-                                        ? 'selected'
-                                        : ''
-                                    ?>
-                                >
-                                    Con diferencia
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div>
-
-                            <label>
                                 Estado
                             </label>
 
@@ -608,13 +507,23 @@ $pagos =
                                 </option>
 
                                 <option
-                                    value="REGISTRADO"
-                                    <?= $estado === 'REGISTRADO'
+                                    value="DISPONIBLE"
+                                    <?= $estado === 'DISPONIBLE'
                                         ? 'selected'
                                         : ''
                                     ?>
                                 >
-                                    Registrado
+                                    Disponible
+                                </option>
+
+                                <option
+                                    value="UTILIZADO"
+                                    <?= $estado === 'UTILIZADO'
+                                        ? 'selected'
+                                        : ''
+                                    ?>
+                                >
+                                    Utilizado
                                 </option>
 
                                 <option
@@ -678,7 +587,7 @@ $pagos =
 
 
                         <a
-                            href="<?= BASE_URL ?>configuracion/pagos.php"
+                            href="<?= BASE_URL ?>configuracion/saldos_favor.php"
                             class="btn-limpiar"
                         >
                             Limpiar
@@ -705,7 +614,7 @@ $pagos =
             <div class="form-card">
 
                 <h3>
-                    Pagos
+                    Saldos registrados
                 </h3>
 
                 <br>
@@ -719,15 +628,13 @@ $pagos =
                             <tr>
 
                                 <th>ID</th>
-                                <th>Fecha</th>
                                 <th>Unidad</th>
-                                <th>Referencia</th>
-                                <th>Medio</th>
-                                <th>Origen</th>
-                                <th>Valor</th>
-                                <th>Aplicado</th>
+                                <th>Pago origen</th>
+                                <th>Fecha generación</th>
+                                <th>Valor original</th>
+                                <th>Utilizado</th>
                                 <th>Disponible</th>
-                                <th>Conciliación</th>
+                                <th>Aplicaciones</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
 
@@ -738,15 +645,15 @@ $pagos =
                         <tbody>
 
 
-                        <?php if (empty($pagos)): ?>
+                        <?php if (empty($saldosFavor)): ?>
 
                             <tr>
 
                                 <td
-                                    colspan="12"
+                                    colspan="10"
                                     align="center"
                                 >
-                                    No existen pagos registrados.
+                                    No existen saldos a favor registrados.
                                 </td>
 
                             </tr>
@@ -754,13 +661,63 @@ $pagos =
                         <?php else: ?>
 
 
-                            <?php foreach ($pagos as $pago): ?>
+                            <?php foreach ($saldosFavor as $fila): ?>
 
                                 <tr>
 
 
                                     <td>
-                                        #<?= (int)$pago['id_pago'] ?>
+                                        #<?= (int)$fila['id_saldo_favor'] ?>
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            <?= e($fila['unidad_codigo']) ?>
+                                        </strong>
+
+                                        <?php if (
+                                            !empty(
+                                                $fila['nombre_grupo']
+                                            )
+                                        ): ?>
+
+                                            <br>
+
+                                            <small>
+                                                <?= e(
+                                                    $fila['nombre_grupo']
+                                                ) ?>
+                                            </small>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            Pago #<?= (int)$fila['id_pago'] ?>
+                                        </strong>
+
+                                        <?php if (
+                                            !empty(
+                                                $fila['referencia']
+                                            )
+                                        ): ?>
+
+                                            <br>
+
+                                            <small>
+                                                <?= e(
+                                                    $fila['referencia']
+                                                ) ?>
+                                            </small>
+
+                                        <?php endif; ?>
+
                                     </td>
 
 
@@ -768,9 +725,9 @@ $pagos =
 
                                         <?= e(
                                             date(
-                                                'd/m/Y',
+                                                'd/m/Y H:i',
                                                 strtotime(
-                                                    $pago['fecha_pago']
+                                                    $fila['fecha_generacion']
                                                 )
                                             )
                                         ) ?>
@@ -779,94 +736,44 @@ $pagos =
 
 
                                     <td>
-
-                                        <strong>
-                                            <?= e($pago['unidad_codigo']) ?>
-                                        </strong>
-
-                                        <?php if (
-                                            !empty(
-                                                $pago['nombre_grupo']
-                                            )
-                                        ): ?>
-
-                                            <br>
-
-                                            <small>
-                                                <?= e(
-                                                    $pago['nombre_grupo']
-                                                ) ?>
-                                            </small>
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <?= e(
-                                            $pago['referencia']
-                                            ?? '-'
-                                        ) ?>
-
-                                        <?php if (
-                                            !empty(
-                                                $pago['referencia_externa']
-                                            )
-                                        ): ?>
-
-                                            <br>
-
-                                            <small>
-                                                <?= e(
-                                                    $pago['referencia_externa']
-                                                ) ?>
-                                            </small>
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-
-                                    <td>
-                                        <?= e(
-                                            $pago['medio_pago']
-                                        ) ?>
-                                    </td>
-
-
-                                    <td>
-                                        <?= e(
-                                            $pago['origen_pago']
-                                        ) ?>
-                                    </td>
-
-
-                                    <td>
-                                        <strong>
-                                            <?= dinero(
-                                                $pago['valor']
-                                            ) ?>
-                                        </strong>
-                                    </td>
-
-
-                                    <td>
-
                                         <?= dinero(
-                                            $pago['valor_aplicado']
+                                            $fila['valor_original']
                                         ) ?>
+                                    </td>
+
+
+                                    <td>
+                                        <?= dinero(
+                                            $fila['valor_utilizado']
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            <?= dinero(
+                                                $fila['saldo_disponible']
+                                            ) ?>
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <?= (int)$fila['cantidad_aplicaciones'] ?>
 
                                         <?php if (
-                                            (int)$pago['cantidad_aplicaciones'] > 0
+                                            (int)$fila['cantidad_aplicaciones'] > 0
                                         ): ?>
 
                                             <br>
 
                                             <small>
-                                                <?= (int)$pago['cantidad_aplicaciones'] ?>
-                                                aplicación<?= (int)$pago['cantidad_aplicaciones'] === 1 ? '' : 'es' ?>
+                                                <?= dinero(
+                                                    $fila['total_aplicado_registrado']
+                                                ) ?>
                                             </small>
 
                                         <?php endif; ?>
@@ -876,28 +783,16 @@ $pagos =
 
                                     <td>
 
-                                        <strong>
-                                            <?= dinero(
-                                                $pago['valor_disponible']
-                                            ) ?>
-                                        </strong>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <?= e(
-                                            $pago['estado_conciliacion']
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td>
-
                                         <?php if (
-                                            $pago['estado'] === 'ANULADO'
+                                            $fila['estado'] === 'DISPONIBLE'
+                                        ): ?>
+
+                                            <span class="activo">
+                                                DISPONIBLE
+                                            </span>
+
+                                        <?php elseif (
+                                            $fila['estado'] === 'ANULADO'
                                         ): ?>
 
                                             <span class="inactivo">
@@ -906,9 +801,7 @@ $pagos =
 
                                         <?php else: ?>
 
-                                            <span class="activo">
-                                                REGISTRADO
-                                            </span>
+                                            UTILIZADO
 
                                         <?php endif; ?>
 
@@ -926,7 +819,7 @@ $pagos =
                                         >
 
                                             <a
-                                                href="<?= BASE_URL ?>configuracion/cartera_detalle.php?id_unidad=<?= (int)$pago['id_unidad'] ?>"
+                                                href="<?= BASE_URL ?>configuracion/cartera_detalle.php?id_unidad=<?= (int)$fila['id_unidad'] ?>"
                                                 class="btn-secondary"
                                             >
                                                 Ver cartera
@@ -934,15 +827,15 @@ $pagos =
 
 
                                             <?php if (
-                                                $pago['estado'] === 'REGISTRADO' &&
-                                                (float)$pago['valor_disponible'] > 0
+                                                $fila['estado'] === 'DISPONIBLE' &&
+                                                (float)$fila['saldo_disponible'] > 0
                                             ): ?>
 
                                                 <a
-                                                    href="<?= BASE_URL ?>configuracion/aplicar_pagos.php?id_pago=<?= (int)$pago['id_pago'] ?>"
+                                                    href="<?= BASE_URL ?>configuracion/aplicar_saldo_favor.php?id_saldo_favor=<?= (int)$fila['id_saldo_favor'] ?>"
                                                     class="btn-secondary"
                                                 >
-                                                    Aplicar pago
+                                                    Aplicar saldo
                                                 </a>
 
                                             <?php endif; ?>

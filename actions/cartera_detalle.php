@@ -461,6 +461,65 @@ $aplicaciones =
         PDO::FETCH_ASSOC
     );
 
+
+// ==========================================================
+// SALDOS A FAVOR DE LA UNIDAD
+// ==========================================================
+
+$sqlSaldosFavor = "
+    SELECT
+        sf.id_saldo_favor,
+        sf.id_pago,
+        sf.valor_original,
+        sf.valor_utilizado,
+        sf.saldo_disponible,
+        sf.estado,
+        sf.fecha_generacion,
+        sf.fecha_ultimo_uso,
+        sf.observaciones,
+
+        p.referencia,
+        p.fecha_pago
+
+    FROM saldo_favor sf
+
+    INNER JOIN pagos p
+        ON p.id_pago =
+           sf.id_pago
+
+    WHERE
+        sf.id_unidad =
+            :id_unidad
+
+    ORDER BY
+        CASE
+            WHEN sf.estado = 'DISPONIBLE'
+            THEN 0
+            ELSE 1
+        END,
+        sf.fecha_generacion DESC,
+        sf.id_saldo_favor DESC
+";
+
+
+$stmtSaldosFavor =
+    $conexion->prepare(
+        $sqlSaldosFavor
+    );
+
+
+$stmtSaldosFavor->execute([
+    ':id_unidad'
+        => $idUnidad
+]);
+
+
+$saldosFavor =
+    $stmtSaldosFavor->fetchAll(
+        PDO::FETCH_ASSOC
+    );
+
+
 ?>
 
 <!DOCTYPE html>
@@ -975,6 +1034,172 @@ $aplicaciones =
 
 
         <!-- ======================================================
+             SALDOS A FAVOR
+        ======================================================= -->
+
+        <div class="bloque filtros">
+
+            <div class="form-card">
+
+                <h3>
+                    Saldos a favor
+                </h3>
+
+                <br>
+
+                <div class="tabla-responsive">
+
+                    <table class="tabla">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Fecha</th>
+                                <th>Pago origen</th>
+                                <th>Valor original</th>
+                                <th>Utilizado</th>
+                                <th>Disponible</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+
+                        <?php if (empty($saldosFavor)): ?>
+
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    align="center"
+                                >
+                                    La unidad no tiene saldos a favor registrados.
+                                </td>
+
+                            </tr>
+
+                        <?php else: ?>
+
+
+                            <?php foreach ($saldosFavor as $saldoFavor): ?>
+
+                                <tr>
+
+                                    <td>
+                                        <?= e(
+                                            date(
+                                                'd/m/Y',
+                                                strtotime(
+                                                    $saldoFavor['fecha_generacion']
+                                                )
+                                            )
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+
+                                        #<?= (int)$saldoFavor['id_pago'] ?>
+
+                                        <?php if (
+                                            !empty(
+                                                $saldoFavor['referencia']
+                                            )
+                                        ): ?>
+
+                                            <br>
+
+                                            <small>
+                                                <?= e(
+                                                    $saldoFavor['referencia']
+                                                ) ?>
+                                            </small>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <td>
+                                        <?= dinero(
+                                            $saldoFavor['valor_original']
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+                                        <?= dinero(
+                                            $saldoFavor['valor_utilizado']
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+                                        <strong>
+                                            <?= dinero(
+                                                $saldoFavor['saldo_disponible']
+                                            ) ?>
+                                        </strong>
+                                    </td>
+
+
+                                    <td>
+                                        <?= e(
+                                            $saldoFavor['estado']
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+
+                                        <?php if (
+                                            $saldoFavor['estado'] === 'DISPONIBLE' &&
+                                            (float)$saldoFavor['saldo_disponible'] > 0
+                                        ): ?>
+
+                                            <a
+                                                href="<?= BASE_URL ?>configuracion/aplicar_saldo_favor.php?id_saldo_favor=<?= (int)$saldoFavor['id_saldo_favor'] ?>"
+                                                class="btn-secondary"
+                                            >
+                                                Aplicar saldo
+                                            </a>
+
+                                        <?php else: ?>
+
+                                            -
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+
+                        <?php endif; ?>
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <br>
+
+
+        <!-- ======================================================
              PAGOS
         ======================================================= -->
 
@@ -1110,7 +1335,7 @@ $aplicaciones =
                                         ): ?>
 
                                             <a
-                                                href="<?= BASE_URL ?>configuracion/aplicar_pago.php?id_pago=<?= (int)$pago['id_pago'] ?>"
+                                                href="<?= BASE_URL ?>configuracion/aplicar_pagos.php?id_pago=<?= (int)$pago['id_pago'] ?>"
                                                 class="btn-secondary"
                                             >
                                                 Aplicar pago
