@@ -5,24 +5,48 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 
 // ==========================================================
-// RECIBIR ID
+// FUNCIONES
 // ==========================================================
 
-$idCargo =
-    isset($_GET['id'])
-        ? (int)$_GET['id']
+function e($valor)
+{
+    return htmlspecialchars(
+        (string)$valor,
+        ENT_QUOTES,
+        'UTF-8'
+    );
+}
+
+function dinero($valor)
+{
+    return '$' . number_format(
+        (float)$valor,
+        2,
+        ',',
+        '.'
+    );
+}
+
+
+// ==========================================================
+// VALIDAR UNIDAD
+// ==========================================================
+
+$idUnidad =
+    isset($_GET['id_unidad'])
+        ? (int)$_GET['id_unidad']
         : 0;
 
 
-if ($idCargo <= 0) {
+if ($idUnidad <= 0) {
 
     header(
-        "Location: "
-        . BASE_URL
-        . "configuracion/cargos.php?"
-        . http_build_query([
-            'tipo' => 'error',
-            'texto' => 'El cargo seleccionado no es válido.'
+        "Location: " .
+        BASE_URL .
+        "configuracion/cartera.php?" .
+        http_build_query([
+            'tipo'  => 'warning',
+            'texto' => 'Debe seleccionar una unidad válida.'
         ])
     );
 
@@ -31,80 +55,68 @@ if ($idCargo <= 0) {
 
 
 // ==========================================================
-// CARGAR CABECERA DEL CARGO
+// DATOS DE LA UNIDAD
 // ==========================================================
 
-$sqlCargo = "
+$sqlUnidad = "
     SELECT
-        cf.id_cargo,
-        cf.id_concepto,
-        cf.nombre,
-        cf.descripcion,
-        cf.tipo_aplicacion,
-        cf.id_tipo_config,
-        cf.id_unidad,
-        cf.tipo_distribucion,
-        cf.valor_total,
-        cf.numero_cuotas,
-        cf.periodo_inicio,
-        cf.estado,
-        cf.observaciones,
-        cf.fecha_creacion,
-        cf.fecha_actualizacion,
-
-        c.nombre AS concepto,
-        c.tipo_calculo,
+        u.id_unidad,
+        u.codigo,
+        u.nombre,
+        u.piso,
+        u.area,
+        u.coeficiente,
+        u.estado,
 
         dtu.nombre_grupo,
 
-        u.codigo AS unidad_codigo,
-        u.nombre AS unidad_nombre
+        tv.nombre AS tipo_unidad
 
-    FROM cargos_facturacion cf
-
-    INNER JOIN conceptos_facturacion c
-        ON c.id_concepto = cf.id_concepto
+    FROM unidades u
 
     LEFT JOIN detalle_tipos_unidad dtu
-        ON dtu.id_tipo_config = cf.id_tipo_config
+        ON dtu.id_tipo_config =
+           u.id_tipo_config
 
-    LEFT JOIN unidades u
-        ON u.id_unidad = cf.id_unidad
+    LEFT JOIN tipos_vivienda tv
+        ON tv.id_tipo_vivienda =
+           dtu.id_tipo_vivienda
 
     WHERE
-        cf.id_cargo = :id_cargo
+        u.id_unidad =
+            :id_unidad
 
     LIMIT 1
 ";
 
 
-$stmtCargo =
+$stmtUnidad =
     $conexion->prepare(
-        $sqlCargo
+        $sqlUnidad
     );
 
 
-$stmtCargo->execute([
-    ':id_cargo' =>
-        $idCargo
+$stmtUnidad->execute([
+    ':id_unidad'
+        => $idUnidad
 ]);
 
 
-$cargo =
-    $stmtCargo->fetch(
+$unidad =
+    $stmtUnidad->fetch(
         PDO::FETCH_ASSOC
     );
 
 
-if (!$cargo) {
+if (!$unidad) {
 
     header(
-        "Location: "
-        . BASE_URL
-        . "configuracion/cargos.php?"
-        . http_build_query([
-            'tipo' => 'error',
-            'texto' => 'El cargo no existe.'
+        "Location: " .
+        BASE_URL .
+        "configuracion/cartera.php?" .
+        http_build_query([
+            'tipo'  => 'error',
+            'texto' => 'La unidad seleccionada no existe.'
         ])
     );
 
@@ -113,291 +125,297 @@ if (!$cargo) {
 
 
 // ==========================================================
-// CARGAR UNIDADES DEL CARGO
+// RESUMEN DE CARTERA
 // ==========================================================
 
-$sqlUnidades = "
+$sqlResumen = "
     SELECT
-        cfu.id_cargo_unidad,
-        cfu.id_unidad,
-        cfu.valor_asignado,
-        cfu.cantidad_cuotas,
-        cfu.estado,
-        cfu.observaciones,
+        COUNT(*) AS obligaciones,
 
-        u.codigo,
-        u.nombre,
-        u.area,
-        u.coeficiente,
+        COALESCE(
+            SUM(valor_original),
+            0
+        ) AS valor_original,
 
-        dtu.nombre_grupo,
+        COALESCE(
+            SUM(valor_pagado),
+            0
+        ) AS valor_pagado,
+
+        COALESCE(
+            SUM(saldo),
+            0
+        ) AS saldo,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN
+                        estado = 'PENDIENTE'
+                        AND saldo > 0
+                        AND fecha_vencimiento < CURDATE()
+                    THEN saldo
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS saldo_vencido
+
+    FROM cartera
+
+    WHERE
+        id_unidad =
+            :id_unidad
+
+        AND estado <>
+            'ANULADA'
+";
+
+
+$stmtResumen =
+    $conexion->prepare(
+        $sqlResumen
+    );
+
+
+$stmtResumen->execute([
+    ':id_unidad'
+        => $idUnidad
+]);
+
+
+$resumen =
+    $stmtResumen->fetch(
+        PDO::FETCH_ASSOC
+    );
+
+
+// ==========================================================
+// OBLIGACIONES DE CARTERA
+// ==========================================================
+
+$sqlCartera = "
+    SELECT
+        c.id_cartera,
+        c.id_factura,
+        c.id_detalle,
+        c.periodo,
+        c.descripcion,
+        c.valor_original,
+        c.valor_pagado,
+        c.saldo,
+        c.fecha_vencimiento,
+        c.estado,
+
+        f.numero_factura,
+        f.estado AS estado_factura,
+
+        cf.nombre AS concepto,
+
+        tobl.nombre AS tipo_obligacion,
+
+        CASE
+            WHEN
+                c.estado = 'PENDIENTE'
+                AND c.saldo > 0
+                AND c.fecha_vencimiento < CURDATE()
+            THEN 1
+            ELSE 0
+        END AS vencida
+
+    FROM cartera c
+
+    LEFT JOIN facturas f
+        ON f.id_factura =
+           c.id_factura
+
+    LEFT JOIN facturas_detalle fd
+        ON fd.id_detalle =
+           c.id_detalle
+
+    LEFT JOIN conceptos_facturacion cf
+        ON cf.id_concepto =
+           fd.id_concepto
+
+    LEFT JOIN tipos_obligacion tobl
+        ON tobl.id_tipo_obligacion =
+           c.id_tipo_obligacion
+
+    WHERE
+        c.id_unidad =
+            :id_unidad
+
+    ORDER BY
+        c.periodo DESC,
+        c.fecha_vencimiento DESC,
+        c.id_cartera DESC
+";
+
+
+$stmtCartera =
+    $conexion->prepare(
+        $sqlCartera
+    );
+
+
+$stmtCartera->execute([
+    ':id_unidad'
+        => $idUnidad
+]);
+
+
+$obligaciones =
+    $stmtCartera->fetchAll(
+        PDO::FETCH_ASSOC
+    );
+
+
+// ==========================================================
+// PAGOS DE LA UNIDAD
+// ==========================================================
+
+$sqlPagos = "
+    SELECT
+        p.id_pago,
+        p.fecha_pago,
+        p.valor,
+        p.medio_pago,
+        p.origen_pago,
+        p.estado_conciliacion,
+        p.referencia,
+        p.referencia_externa,
+        p.estado,
+
+        COALESCE(
+            SUM(ap.valor_aplicado),
+            0
+        ) AS valor_aplicado,
 
         (
-            SELECT COUNT(*)
-
-            FROM cargos_facturacion_cuotas cfc
-
-            WHERE
-                cfc.id_cargo_unidad =
-                    cfu.id_cargo_unidad
-                AND cfc.estado <> 'ANULADA'
-
-        ) AS total_cuotas,
-
-        (
-            SELECT COUNT(*)
-
-            FROM cargos_facturacion_cuotas cfc
-
-            WHERE
-                cfc.id_cargo_unidad =
-                    cfu.id_cargo_unidad
-                AND cfc.estado = 'FACTURADA'
-
-        ) AS cuotas_facturadas,
-
-        (
-            SELECT COUNT(*)
-
-            FROM cargos_facturacion_cuotas cfc
-
-            WHERE
-                cfc.id_cargo_unidad =
-                    cfu.id_cargo_unidad
-                AND cfc.estado = 'PENDIENTE'
-
-        ) AS cuotas_pendientes,
-
-        (
-            SELECT COALESCE(
-                SUM(cfc.valor),
+            p.valor -
+            COALESCE(
+                SUM(ap.valor_aplicado),
                 0
             )
+        ) AS valor_disponible
 
-            FROM cargos_facturacion_cuotas cfc
+    FROM pagos p
 
-            WHERE
-                cfc.id_cargo_unidad =
-                    cfu.id_cargo_unidad
-                AND cfc.estado <> 'ANULADA'
-
-        ) AS valor_cuotas
-
-    FROM cargos_facturacion_unidades cfu
-
-    INNER JOIN unidades u
-        ON u.id_unidad = cfu.id_unidad
-
-    INNER JOIN detalle_tipos_unidad dtu
-        ON dtu.id_tipo_config = u.id_tipo_config
+    LEFT JOIN aplicaciones_pagos ap
+        ON ap.id_pago =
+           p.id_pago
 
     WHERE
-        cfu.id_cargo = :id_cargo
+        p.id_unidad =
+            :id_unidad
+
+    GROUP BY
+        p.id_pago,
+        p.fecha_pago,
+        p.valor,
+        p.medio_pago,
+        p.origen_pago,
+        p.estado_conciliacion,
+        p.referencia,
+        p.referencia_externa,
+        p.estado
 
     ORDER BY
-        dtu.nombre_grupo,
-        u.codigo
+        p.fecha_pago DESC,
+        p.id_pago DESC
 ";
 
 
-$stmtUnidades =
+$stmtPagos =
     $conexion->prepare(
-        $sqlUnidades
+        $sqlPagos
     );
 
 
-$stmtUnidades->execute([
-    ':id_cargo' =>
-        $idCargo
+$stmtPagos->execute([
+    ':id_unidad'
+        => $idUnidad
 ]);
 
 
-$unidadesCargo =
-    $stmtUnidades->fetchAll(
+$pagos =
+    $stmtPagos->fetchAll(
         PDO::FETCH_ASSOC
     );
 
 
 // ==========================================================
-// CARGAR TODAS LAS CUOTAS
+// APLICACIONES DE PAGOS
 // ==========================================================
 
-$sqlCuotas = "
+$sqlAplicaciones = "
     SELECT
-        cfc.id_cuota,
-        cfc.id_cargo_unidad,
-        cfc.numero_cuota,
-        cfc.periodo,
-        cfc.valor,
-        cfc.estado,
-        cfc.fecha_facturacion,
-        cfc.observaciones
+        ap.id_aplicacion,
+        ap.id_pago,
+        ap.id_cartera,
+        ap.valor_aplicado,
+        ap.fecha_aplicacion,
+        ap.tipo_aplicacion,
+        ap.observaciones,
 
-    FROM cargos_facturacion_cuotas cfc
+        p.fecha_pago,
+        p.referencia,
 
-    INNER JOIN cargos_facturacion_unidades cfu
-        ON cfu.id_cargo_unidad =
-           cfc.id_cargo_unidad
+        c.descripcion AS cartera_descripcion,
+        c.periodo,
+
+        f.numero_factura,
+
+        cf.nombre AS concepto
+
+    FROM aplicaciones_pagos ap
+
+    INNER JOIN pagos p
+        ON p.id_pago =
+           ap.id_pago
+
+    INNER JOIN cartera c
+        ON c.id_cartera =
+           ap.id_cartera
+
+    LEFT JOIN facturas f
+        ON f.id_factura =
+           c.id_factura
+
+    LEFT JOIN facturas_detalle fd
+        ON fd.id_detalle =
+           c.id_detalle
+
+    LEFT JOIN conceptos_facturacion cf
+        ON cf.id_concepto =
+           fd.id_concepto
 
     WHERE
-        cfu.id_cargo = :id_cargo
+        c.id_unidad =
+            :id_unidad
 
     ORDER BY
-        cfu.id_unidad,
-        cfc.numero_cuota
+        ap.fecha_aplicacion DESC,
+        ap.id_aplicacion DESC
 ";
 
 
-$stmtCuotas =
+$stmtAplicaciones =
     $conexion->prepare(
-        $sqlCuotas
+        $sqlAplicaciones
     );
 
 
-$stmtCuotas->execute([
-    ':id_cargo' =>
-        $idCargo
+$stmtAplicaciones->execute([
+    ':id_unidad'
+        => $idUnidad
 ]);
 
 
-$cuotas =
-    $stmtCuotas->fetchAll(
+$aplicaciones =
+    $stmtAplicaciones->fetchAll(
         PDO::FETCH_ASSOC
     );
-
-
-// ==========================================================
-// AGRUPAR CUOTAS POR CARGO-UNIDAD
-// ==========================================================
-
-$cuotasPorUnidad = [];
-
-
-foreach ($cuotas as $cuota) {
-
-    $idCargoUnidad =
-        (int)$cuota[
-            'id_cargo_unidad'
-        ];
-
-
-    if (
-        !isset(
-            $cuotasPorUnidad[
-                $idCargoUnidad
-            ]
-        )
-    ) {
-
-        $cuotasPorUnidad[
-            $idCargoUnidad
-        ] = [];
-    }
-
-
-    $cuotasPorUnidad[
-        $idCargoUnidad
-    ][] = $cuota;
-}
-
-
-// ==========================================================
-// RESUMEN
-// ==========================================================
-
-$totalAsignado = 0;
-
-$totalCuotas = 0;
-
-$cuotasFacturadas = 0;
-
-$cuotasPendientes = 0;
-
-$cuotasAnuladas = 0;
-
-
-foreach ($unidadesCargo as $unidad) {
-
-    if (
-        $unidad['estado']
-        === 'ACTIVO'
-    ) {
-
-        $totalAsignado +=
-            (float)$unidad[
-                'valor_asignado'
-            ];
-    }
-}
-
-
-foreach ($cuotas as $cuota) {
-
-    $totalCuotas++;
-
-    switch ($cuota['estado']) {
-
-        case 'FACTURADA':
-
-            $cuotasFacturadas++;
-
-            break;
-
-        case 'PENDIENTE':
-
-            $cuotasPendientes++;
-
-            break;
-
-        case 'ANULADA':
-
-            $cuotasAnuladas++;
-
-            break;
-    }
-}
-
-
-// ==========================================================
-// FUNCIONES
-// ==========================================================
-
-function nombreTipoAplicacion($tipo)
-{
-    switch ($tipo) {
-
-        case 'TODAS_UNIDADES':
-            return 'Todas las unidades';
-
-        case 'TIPO_UNIDAD':
-            return 'Grupo de unidades';
-
-        case 'UNIDAD':
-            return 'Unidad específica';
-
-        default:
-            return $tipo;
-    }
-}
-
-
-function nombreTipoDistribucion($tipo)
-{
-    switch ($tipo) {
-
-        case 'VALOR_FIJO':
-            return 'Valor fijo';
-
-        case 'METRO_CUADRADO':
-            return 'Por metro cuadrado';
-
-        case 'COEFICIENTE':
-            return 'Por coeficiente';
-
-        default:
-            return $tipo;
-    }
-}
 
 ?>
 
@@ -417,8 +435,6 @@ function nombreTipoDistribucion($tipo)
 
 <?php include ROOT_PATH . "/includes/header.php"; ?>
 
-<?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
-
 
 <div class="contenedor">
 
@@ -433,22 +449,39 @@ function nombreTipoDistribucion($tipo)
              ENCABEZADO
         ======================================================= -->
 
-        <h2 align="center">
-            Detalle del cargo
-        </h2>
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:15px;
+                flex-wrap:wrap;
+            "
+        >
+
+            <div>
+
+                <h2>
+                    Detalle de cartera
+                </h2>
+
+                <p>
+                    Unidad <?= e($unidad['codigo']) ?>
+                </p>
+
+            </div>
 
 
-        <br>
+            <div>
 
+                <a
+                    href="<?= BASE_URL ?>configuracion/cartera.php"
+                    class="btn-limpiar"
+                >
+                    ← Volver a cartera
+                </a>
 
-        <div class="form-actions">
-
-            <a
-                href="<?= BASE_URL ?>configuracion/cargos.php"
-                class="btn-limpiar"
-            >
-                Volver
-            </a>
+            </div>
 
         </div>
 
@@ -457,261 +490,92 @@ function nombreTipoDistribucion($tipo)
 
 
         <!-- ======================================================
-             INFORMACIÓN DEL CARGO
+             DATOS UNIDAD
         ======================================================= -->
 
-        <div class="bloque">
-
+        <div class="bloque filtros">
 
             <div class="form-card">
 
-
                 <h3>
-
-                    <?= htmlspecialchars(
-                        $cargo['nombre']
-                    ) ?>
-
+                    Unidad
                 </h3>
-
 
                 <br>
 
+                <div
+                    style="
+                        display:grid;
+                        grid-template-columns:
+                            repeat(
+                                auto-fit,
+                                minmax(170px,1fr)
+                            );
+                        gap:15px;
+                    "
+                >
 
-                <p>
-
-                    <strong>
-                        Concepto:
-                    </strong>
-
-                    <?= htmlspecialchars(
-                        $cargo['concepto']
-                    ) ?>
-
-                </p>
-
-
-                <?php if (
-                    !empty(
-                        $cargo['descripcion']
-                    )
-                ): ?>
-
-                    <p>
-
+                    <div>
+                        <small>Código</small>
+                        <br>
                         <strong>
-                            Descripción:
+                            <?= e($unidad['codigo']) ?>
                         </strong>
+                    </div>
 
-                        <?= htmlspecialchars(
-                            $cargo['descripcion']
-                        ) ?>
-
-                    </p>
-
-                <?php endif; ?>
-
-
-                <p>
-
-                    <strong>
-                        Aplicación:
-                    </strong>
-
-                    <?= htmlspecialchars(
-                        nombreTipoAplicacion(
-                            $cargo[
-                                'tipo_aplicacion'
-                            ]
-                        )
-                    ) ?>
-
-                </p>
-
-
-                <?php if (
-                    $cargo['tipo_aplicacion']
-                    === 'TIPO_UNIDAD'
-                ): ?>
-
-                    <p>
-
+                    <div>
+                        <small>Grupo</small>
+                        <br>
                         <strong>
-                            Grupo:
+                            <?= e($unidad['nombre_grupo'] ?? '-') ?>
                         </strong>
+                    </div>
 
-                        <?= htmlspecialchars(
-                            $cargo[
-                                'nombre_grupo'
-                            ] ?? ''
-                        ) ?>
-
-                    </p>
-
-                <?php endif; ?>
-
-
-                <?php if (
-                    $cargo['tipo_aplicacion']
-                    === 'UNIDAD'
-                ): ?>
-
-                    <p>
-
+                    <div>
+                        <small>Tipo</small>
+                        <br>
                         <strong>
-                            Unidad:
+                            <?= e($unidad['tipo_unidad'] ?? '-') ?>
                         </strong>
+                    </div>
 
-                        <?= htmlspecialchars(
-                            $cargo[
-                                'unidad_codigo'
-                            ] ?? ''
-                        ) ?>
-
-                    </p>
-
-                <?php endif; ?>
-
-
-                <p>
-
-                    <strong>
-                        Distribución:
-                    </strong>
-
-                    <?= htmlspecialchars(
-                        nombreTipoDistribucion(
-                            $cargo[
-                                'tipo_distribucion'
-                            ]
-                        )
-                    ) ?>
-
-                </p>
-
-
-                <p>
-
-                    <strong>
-                        Valor total:
-                    </strong>
-
-                    $
-
-                    <?= number_format(
-                        (float)$cargo[
-                            'valor_total'
-                        ],
-                        2,
-                        ',',
-                        '.'
-                    ) ?>
-
-                </p>
-
-
-                <p>
-
-                    <strong>
-                        Número de cuotas:
-                    </strong>
-
-                    <?= (int)$cargo[
-                        'numero_cuotas'
-                    ] ?>
-
-                </p>
-
-
-                <p>
-
-                    <strong>
-                        Primera cuota:
-                    </strong>
-
-                    <?= date(
-                        'm/Y',
-                        strtotime(
-                            $cargo[
-                                'periodo_inicio'
-                            ]
-                        )
-                    ) ?>
-
-                </p>
-
-
-                <p>
-
-                    <strong>
-                        Estado:
-                    </strong>
-
-                    <?php if (
-                        $cargo['estado']
-                        === 'ACTIVO'
-                    ): ?>
-
-                        <span class="activo">
-
-                            Activo
-
-                        </span>
-
-                    <?php elseif (
-                        $cargo['estado']
-                        === 'BORRADOR'
-                    ): ?>
-
-                        Borrador
-
-                    <?php elseif (
-                        $cargo['estado']
-                        === 'FINALIZADO'
-                    ): ?>
-
-                        <span class="inactivo">
-
-                            Finalizado
-
-                        </span>
-
-                    <?php else: ?>
-
-                        <span class="inactivo">
-
-                            Anulado
-
-                        </span>
-
-                    <?php endif; ?>
-
-                </p>
-
-
-                <?php if (
-                    !empty(
-                        $cargo['observaciones']
-                    )
-                ): ?>
-
-                    <p>
-
+                    <div>
+                        <small>Área</small>
+                        <br>
                         <strong>
-                            Observaciones:
+                            <?= number_format(
+                                (float)$unidad['area'],
+                                2,
+                                ',',
+                                '.'
+                            ) ?>
                         </strong>
+                    </div>
 
-                        <?= htmlspecialchars(
-                            $cargo['observaciones']
-                        ) ?>
+                    <div>
+                        <small>Coeficiente</small>
+                        <br>
+                        <strong>
+                            <?= number_format(
+                                (float)$unidad['coeficiente'],
+                                8,
+                                ',',
+                                '.'
+                            ) ?>
+                        </strong>
+                    </div>
 
-                    </p>
+                    <div>
+                        <small>Estado unidad</small>
+                        <br>
+                        <strong>
+                            <?= e($unidad['estado']) ?>
+                        </strong>
+                    </div>
 
-                <?php endif; ?>
-
+                </div>
 
             </div>
-
 
         </div>
 
@@ -723,141 +587,105 @@ function nombreTipoDistribucion($tipo)
              RESUMEN
         ======================================================= -->
 
-        <div class="bloque">
+        <div class="bloque filtros">
 
+            <div class="form-card">
 
-            <div class="tabla-responsive">
+                <h3>
+                    Resumen financiero
+                </h3>
 
+                <br>
 
-                <table class="tabla">
+                <div class="tabla-responsive">
 
+                    <table class="tabla">
 
-                    <thead>
+                        <thead>
 
-                        <tr>
+                            <tr>
 
-                            <th>
-                                Unidades
-                            </th>
+                                <th>
+                                    Obligaciones
+                                </th>
 
-                            <th>
-                                Valor cargo
-                            </th>
+                                <th>
+                                    Valor original
+                                </th>
 
-                            <th>
-                                Valor distribuido
-                            </th>
+                                <th>
+                                    Valor pagado
+                                </th>
 
-                            <th>
-                                Cuotas
-                            </th>
+                                <th>
+                                    Saldo pendiente
+                                </th>
 
-                            <th>
-                                Facturadas
-                            </th>
+                                <th>
+                                    Saldo vencido
+                                </th>
 
-                            <th>
-                                Pendientes
-                            </th>
+                            </tr>
 
-                            <th>
-                                Anuladas
-                            </th>
+                        </thead>
 
-                        </tr>
+                        <tbody>
 
-                    </thead>
+                            <tr>
 
+                                <td>
+                                    <?= (int)($resumen['obligaciones'] ?? 0) ?>
+                                </td>
 
-                    <tbody>
-
-                        <tr>
-
-                            <td>
-
-                                <?= count(
-                                    $unidadesCargo
-                                ) ?>
-
-                            </td>
-
-
-                            <td>
-
-                                <strong>
-
-                                    $
-
-                                    <?= number_format(
-                                        (float)$cargo[
-                                            'valor_total'
-                                        ],
-                                        2,
-                                        ',',
-                                        '.'
+                                <td>
+                                    <?= dinero(
+                                        $resumen['valor_original'] ?? 0
                                     ) ?>
+                                </td>
 
-                                </strong>
-
-                            </td>
-
-
-                            <td>
-
-                                <strong>
-
-                                    $
-
-                                    <?= number_format(
-                                        $totalAsignado,
-                                        2,
-                                        ',',
-                                        '.'
+                                <td>
+                                    <?= dinero(
+                                        $resumen['valor_pagado'] ?? 0
                                     ) ?>
+                                </td>
 
-                                </strong>
+                                <td>
+                                    <strong>
+                                        <?= dinero(
+                                            $resumen['saldo'] ?? 0
+                                        ) ?>
+                                    </strong>
+                                </td>
 
-                            </td>
+                                <td>
 
+                                    <?php if (
+                                        (float)($resumen['saldo_vencido'] ?? 0) > 0
+                                    ): ?>
 
-                            <td>
+                                        <span class="inactivo">
+                                            <?= dinero(
+                                                $resumen['saldo_vencido']
+                                            ) ?>
+                                        </span>
 
-                                <?= $totalCuotas ?>
+                                    <?php else: ?>
 
-                            </td>
+                                        <?= dinero(0) ?>
 
+                                    <?php endif; ?>
 
-                            <td>
+                                </td>
 
-                                <?= $cuotasFacturadas ?>
+                            </tr>
 
-                            </td>
+                        </tbody>
 
+                    </table>
 
-                            <td>
-
-                                <?= $cuotasPendientes ?>
-
-                            </td>
-
-
-                            <td>
-
-                                <?= $cuotasAnuladas ?>
-
-                            </td>
-
-
-                        </tr>
-
-                    </tbody>
-
-
-                </table>
-
+                </div>
 
             </div>
-
 
         </div>
 
@@ -866,575 +694,556 @@ function nombreTipoDistribucion($tipo)
 
 
         <!-- ======================================================
-             DISTRIBUCIÓN POR UNIDAD
+             CARTERA
         ======================================================= -->
 
-        <div class="bloque">
+        <div class="bloque filtros">
 
+            <div class="form-card">
 
-            <h3>
-                Distribución por inmueble
-            </h3>
+                <h3>
+                    Obligaciones
+                </h3>
 
+                <br>
 
-            <br>
+                <div class="tabla-responsive">
 
+                    <table class="tabla">
 
-            <div class="tabla-responsive">
-
-
-                <table class="tabla">
-
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Unidad
-                            </th>
-
-                            <th>
-                                Grupo
-                            </th>
-
-                            <th>
-                                Área
-                            </th>
-
-                            <th>
-                                Coeficiente
-                            </th>
-
-                            <th>
-                                Valor asignado
-                            </th>
-
-                            <th>
-                                Cuotas
-                            </th>
-
-                            <th>
-                                Estado
-                            </th>
-
-                            <th>
-                                Acciones
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-
-                    <?php if (
-                        empty(
-                            $unidadesCargo
-                        )
-                    ): ?>
-
-
-                        <tr>
-
-                            <td
-                                colspan="8"
-                                align="center"
-                            >
-
-                                No existen unidades
-                                asignadas a este cargo.
-
-                            </td>
-
-                        </tr>
-
-
-                    <?php else: ?>
-
-
-                        <?php foreach (
-                            $unidadesCargo
-                            as $unidad
-                        ): ?>
-
-
-                            <?php
-
-                            $idCargoUnidad =
-                                (int)$unidad[
-                                    'id_cargo_unidad'
-                                ];
-
-                            $listaCuotas =
-                                $cuotasPorUnidad[
-                                    $idCargoUnidad
-                                ] ?? [];
-
-                            ?>
-
+                        <thead>
 
                             <tr>
 
-
-                                <!-- UNIDAD -->
-
-                                <td>
-
-                                    <strong>
-
-                                        <?= htmlspecialchars(
-                                            $unidad[
-                                                'codigo'
-                                            ]
-                                        ) ?>
-
-                                    </strong>
-
-
-                                    <?php if (
-                                        !empty(
-                                            $unidad[
-                                                'nombre'
-                                            ]
-                                        )
-                                    ): ?>
-
-                                        <br>
-
-                                        <small>
-
-                                            <?= htmlspecialchars(
-                                                $unidad[
-                                                    'nombre'
-                                                ]
-                                            ) ?>
-
-                                        </small>
-
-                                    <?php endif; ?>
-
-                                </td>
-
-
-                                <!-- GRUPO -->
-
-                                <td>
-
-                                    <?= htmlspecialchars(
-                                        $unidad[
-                                            'nombre_grupo'
-                                        ]
-                                    ) ?>
-
-                                </td>
-
-
-                                <!-- ÁREA -->
-
-                                <td>
-
-                                    <?= number_format(
-                                        (float)$unidad[
-                                            'area'
-                                        ],
-                                        2,
-                                        ',',
-                                        '.'
-                                    ) ?>
-
-                                    m²
-
-                                </td>
-
-
-                                <!-- COEFICIENTE -->
-
-                                <td>
-
-                                    <?= number_format(
-                                        (float)$unidad[
-                                            'coeficiente'
-                                        ],
-                                        8,
-                                        ',',
-                                        '.'
-                                    ) ?>
-
-                                </td>
-
-
-                                <!-- VALOR ASIGNADO -->
-
-                                <td>
-
-                                    <strong>
-
-                                        $
-
-                                        <?= number_format(
-                                            (float)$unidad[
-                                                'valor_asignado'
-                                            ],
-                                            2,
-                                            ',',
-                                            '.'
-                                        ) ?>
-
-                                    </strong>
-
-                                </td>
-
-
-                                <!-- CUOTAS -->
-
-                                <td>
-
-                                    <?= (int)$unidad[
-                                        'cuotas_facturadas'
-                                    ] ?>
-
-                                    facturadas
-
-                                    <br>
-
-                                    <?= (int)$unidad[
-                                        'cuotas_pendientes'
-                                    ] ?>
-
-                                    pendientes
-
-                                    <br>
-
-                                    <small>
-
-                                        Total:
-
-                                        <?= (int)$unidad[
-                                            'total_cuotas'
-                                        ] ?>
-
-                                    </small>
-
-                                </td>
-
-
-                                <!-- ESTADO -->
-
-                                <td>
-
-                                    <?php if (
-                                        $unidad[
-                                            'estado'
-                                        ]
-                                        === 'ACTIVO'
-                                    ): ?>
-
-                                        <span class="activo">
-
-                                            Activo
-
-                                        </span>
-
-                                    <?php else: ?>
-
-                                        <span class="inactivo">
-
-                                            Anulado
-
-                                        </span>
-
-                                    <?php endif; ?>
-
-                                </td>
-
-
-                                <!-- ACCIONES -->
-
-                                <td>
-
-                                    <button
-                                        type="button"
-                                        class="btn-editar btn-ver-cuotas"
-                                        data-id="<?= $idCargoUnidad ?>"
-                                    >
-                                        Ver cuotas
-                                    </button>
-
-                                </td>
-
+                                <th>Período</th>
+                                <th>Factura</th>
+                                <th>Concepto</th>
+                                <th>Valor original</th>
+                                <th>Pagado</th>
+                                <th>Saldo</th>
+                                <th>Vencimiento</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
 
                             </tr>
 
+                        </thead>
 
-                            <!-- ==================================
-                                 FILA DE CUOTAS
-                            =================================== -->
+                        <tbody>
 
-                            <tr
-                                id="cuotas-<?= $idCargoUnidad ?>"
-                                style="display:none;"
-                            >
 
+                        <?php if (empty($obligaciones)): ?>
+
+                            <tr>
 
                                 <td
-                                    colspan="8"
+                                    colspan="9"
+                                    align="center"
                                 >
+                                    La unidad no tiene obligaciones registradas.
+                                </td>
+
+                            </tr>
+
+                        <?php else: ?>
 
 
-                                    <div
-                                        style="
-                                            padding:15px;
-                                        "
-                                    >
+                            <?php foreach ($obligaciones as $fila): ?>
 
+                                <tr>
+
+                                    <td>
+
+                                        <?= e(
+                                            date(
+                                                'm/Y',
+                                                strtotime(
+                                                    $fila['periodo']
+                                                )
+                                            )
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <?= e(
+                                            $fila['numero_factura']
+                                            ?? '-'
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <td>
 
                                         <strong>
 
-                                            Cuotas de la unidad
-
-                                            <?= htmlspecialchars(
-                                                $unidad[
-                                                    'codigo'
-                                                ]
+                                            <?= e(
+                                                $fila['concepto']
+                                                ?? $fila['tipo_obligacion']
+                                                ?? 'Obligación'
                                             ) ?>
 
                                         </strong>
 
 
-                                        <br><br>
+                                        <?php if (
+                                            !empty(
+                                                $fila['descripcion']
+                                            )
+                                        ): ?>
 
+                                            <br>
 
-                                        <div class="tabla-responsive">
+                                            <small>
+                                                <?= e($fila['descripcion']) ?>
+                                            </small>
 
+                                        <?php endif; ?>
 
-                                            <table class="tabla">
+                                    </td>
 
 
-                                                <thead>
+                                    <td>
+                                        <?= dinero(
+                                            $fila['valor_original']
+                                        ) ?>
+                                    </td>
 
-                                                    <tr>
 
-                                                        <th>
-                                                            Cuota
-                                                        </th>
+                                    <td>
+                                        <?= dinero(
+                                            $fila['valor_pagado']
+                                        ) ?>
+                                    </td>
 
-                                                        <th>
-                                                            Período
-                                                        </th>
 
-                                                        <th>
-                                                            Valor
-                                                        </th>
+                                    <td>
 
-                                                        <th>
-                                                            Estado
-                                                        </th>
+                                        <strong>
 
-                                                        <th>
-                                                            Fecha facturación
-                                                        </th>
+                                            <?= dinero(
+                                                $fila['saldo']
+                                            ) ?>
 
-                                                    </tr>
+                                        </strong>
 
-                                                </thead>
+                                    </td>
 
 
-                                                <tbody>
+                                    <td>
 
+                                        <?= e(
+                                            date(
+                                                'd/m/Y',
+                                                strtotime(
+                                                    $fila['fecha_vencimiento']
+                                                )
+                                            )
+                                        ) ?>
 
-                                                <?php if (
-                                                    empty(
-                                                        $listaCuotas
-                                                    )
-                                                ): ?>
 
+                                        <?php if (
+                                            (int)$fila['vencida'] === 1
+                                        ): ?>
 
-                                                    <tr>
+                                            <br>
 
-                                                        <td
-                                                            colspan="5"
-                                                            align="center"
-                                                        >
+                                            <span class="inactivo">
+                                                VENCIDA
+                                            </span>
 
-                                                            No existen cuotas.
+                                        <?php endif; ?>
 
-                                                        </td>
+                                    </td>
 
-                                                    </tr>
 
+                                    <td>
 
-                                                <?php else: ?>
+                                        <?php if (
+                                            $fila['estado'] === 'PAGADA'
+                                        ): ?>
 
+                                            <span class="activo">
+                                                PAGADA
+                                            </span>
 
-                                                    <?php foreach (
-                                                        $listaCuotas
-                                                        as $cuota
-                                                    ): ?>
+                                        <?php elseif (
+                                            $fila['estado'] === 'ANULADA'
+                                        ): ?>
 
+                                            <span class="inactivo">
+                                                ANULADA
+                                            </span>
 
-                                                        <tr>
+                                        <?php else: ?>
 
+                                            PENDIENTE
 
-                                                            <td>
+                                        <?php endif; ?>
 
-                                                                <?= (int)$cuota[
-                                                                    'numero_cuota'
-                                                                ] ?>
+                                    </td>
 
-                                                                /
 
-                                                                <?= (int)$unidad[
-                                                                    'cantidad_cuotas'
-                                                                ] ?>
+                                    <td>
 
-                                                            </td>
+                                        <?php if (
+                                            !empty(
+                                                $fila['id_factura']
+                                            )
+                                        ): ?>
 
+                                            <a
+                                                href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>"
+                                                class="btn-secondary"
+                                            >
+                                                Ver factura
+                                            </a>
 
-                                                            <td>
+                                        <?php else: ?>
 
-                                                                <?= date(
-                                                                    'm/Y',
-                                                                    strtotime(
-                                                                        $cuota[
-                                                                            'periodo'
-                                                                        ]
-                                                                    )
-                                                                ) ?>
+                                            -
 
-                                                            </td>
+                                        <?php endif; ?>
 
+                                    </td>
 
-                                                            <td>
+                                </tr>
 
-                                                                <strong>
+                            <?php endforeach; ?>
 
-                                                                    $
 
-                                                                    <?= number_format(
-                                                                        (float)$cuota[
-                                                                            'valor'
-                                                                        ],
-                                                                        2,
-                                                                        ',',
-                                                                        '.'
-                                                                    ) ?>
+                        <?php endif; ?>
 
-                                                                </strong>
 
-                                                            </td>
+                        </tbody>
 
+                    </table>
 
-                                                            <td>
-
-                                                                <?php if (
-                                                                    $cuota[
-                                                                        'estado'
-                                                                    ]
-                                                                    === 'FACTURADA'
-                                                                ): ?>
-
-                                                                    <span class="activo">
-
-                                                                        Facturada
-
-                                                                    </span>
-
-
-                                                                <?php elseif (
-                                                                    $cuota[
-                                                                        'estado'
-                                                                    ]
-                                                                    === 'PENDIENTE'
-                                                                ): ?>
-
-                                                                    Pendiente
-
-
-                                                                <?php else: ?>
-
-                                                                    <span class="inactivo">
-
-                                                                        Anulada
-
-                                                                    </span>
-
-                                                                <?php endif; ?>
-
-                                                            </td>
-
-
-                                                            <td>
-
-                                                                <?php if (
-                                                                    !empty(
-                                                                        $cuota[
-                                                                            'fecha_facturacion'
-                                                                        ]
-                                                                    )
-                                                                ): ?>
-
-                                                                    <?= date(
-                                                                        'd/m/Y',
-                                                                        strtotime(
-                                                                            $cuota[
-                                                                                'fecha_facturacion'
-                                                                            ]
-                                                                        )
-                                                                    ) ?>
-
-                                                                <?php else: ?>
-
-                                                                    -
-
-                                                                <?php endif; ?>
-
-                                                            </td>
-
-
-                                                        </tr>
-
-
-                                                    <?php endforeach; ?>
-
-
-                                                <?php endif; ?>
-
-
-                                                </tbody>
-
-
-                                            </table>
-
-
-                                        </div>
-
-
-                                    </div>
-
-
-                                </td>
-
-
-                            </tr>
-
-
-                        <?php endforeach; ?>
-
-
-                    <?php endif; ?>
-
-
-                    </tbody>
-
-
-                </table>
-
+                </div>
 
             </div>
 
+        </div>
+
+
+        <br>
+
+
+        <!-- ======================================================
+             PAGOS
+        ======================================================= -->
+
+        <div class="bloque filtros">
+
+            <div class="form-card">
+
+                <h3>
+                    Pagos registrados
+                </h3>
+
+                <br>
+
+                <div class="tabla-responsive">
+
+                    <table class="tabla">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Fecha</th>
+                                <th>Referencia</th>
+                                <th>Medio</th>
+                                <th>Valor</th>
+                                <th>Aplicado</th>
+                                <th>Disponible</th>
+                                <th>Conciliación</th>
+                                <th>Estado</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+
+                        <?php if (empty($pagos)): ?>
+
+                            <tr>
+
+                                <td
+                                    colspan="8"
+                                    align="center"
+                                >
+                                    No existen pagos registrados para esta unidad.
+                                </td>
+
+                            </tr>
+
+                        <?php else: ?>
+
+
+                            <?php foreach ($pagos as $pago): ?>
+
+                                <tr>
+
+                                    <td>
+
+                                        <?= e(
+                                            date(
+                                                'd/m/Y',
+                                                strtotime(
+                                                    $pago['fecha_pago']
+                                                )
+                                            )
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <td>
+                                        <?= e(
+                                            $pago['referencia']
+                                            ?? '-'
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+                                        <?= e(
+                                            $pago['medio_pago']
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+                                        <?= dinero(
+                                            $pago['valor']
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+                                        <?= dinero(
+                                            $pago['valor_aplicado']
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+
+                                            <?= dinero(
+                                                $pago['valor_disponible']
+                                            ) ?>
+
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        <?= e(
+                                            $pago['estado_conciliacion']
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+                                        <?= e(
+                                            $pago['estado']
+                                        ) ?>
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+
+                        <?php endif; ?>
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <br>
+
+
+        <!-- ======================================================
+             APLICACIONES
+        ======================================================= -->
+
+        <div class="bloque filtros">
+
+            <div class="form-card">
+
+                <h3>
+                    Aplicaciones de pagos
+                </h3>
+
+                <br>
+
+                <div class="tabla-responsive">
+
+                    <table class="tabla">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>Fecha aplicación</th>
+                                <th>Pago</th>
+                                <th>Factura</th>
+                                <th>Período</th>
+                                <th>Concepto</th>
+                                <th>Valor aplicado</th>
+                                <th>Tipo</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+
+                        <?php if (empty($aplicaciones)): ?>
+
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    align="center"
+                                >
+                                    Todavía no existen aplicaciones de pago.
+                                </td>
+
+                            </tr>
+
+                        <?php else: ?>
+
+
+                            <?php foreach ($aplicaciones as $aplicacion): ?>
+
+                                <tr>
+
+                                    <td>
+
+                                        <?= e(
+                                            date(
+                                                'd/m/Y H:i',
+                                                strtotime(
+                                                    $aplicacion[
+                                                        'fecha_aplicacion'
+                                                    ]
+                                                )
+                                            )
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        #<?= (int)$aplicacion['id_pago'] ?>
+
+                                        <?php if (
+                                            !empty(
+                                                $aplicacion['referencia']
+                                            )
+                                        ): ?>
+
+                                            <br>
+
+                                            <small>
+                                                <?= e(
+                                                    $aplicacion['referencia']
+                                                ) ?>
+                                            </small>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <td>
+                                        <?= e(
+                                            $aplicacion['numero_factura']
+                                            ?? '-'
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+
+                                        <?= e(
+                                            date(
+                                                'm/Y',
+                                                strtotime(
+                                                    $aplicacion['periodo']
+                                                )
+                                            )
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <?= e(
+                                            $aplicacion['concepto']
+                                            ?? $aplicacion['cartera_descripcion']
+                                            ?? 'Obligación'
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+
+                                            <?= dinero(
+                                                $aplicacion['valor_aplicado']
+                                            ) ?>
+
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+                                        <?= e(
+                                            $aplicacion['tipo_aplicacion']
+                                        ) ?>
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+
+                        <?php endif; ?>
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
 
         </div>
 
@@ -1443,103 +1252,6 @@ function nombreTipoDistribucion($tipo)
 
 
 </div>
-
-
-<!-- ==========================================================
-     JAVASCRIPT
-=========================================================== -->
-
-<script>
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-
-        const botones =
-            document.querySelectorAll(
-                ".btn-ver-cuotas"
-            );
-
-
-        botones.forEach(
-            function (boton) {
-
-
-                boton.addEventListener(
-                    "click",
-                    function () {
-
-
-                        const id =
-                            this.dataset.id;
-
-
-                        const fila =
-                            document.getElementById(
-                                "cuotas-" + id
-                            );
-
-
-                        if (!fila) {
-
-                            return;
-                        }
-
-
-                        const visible =
-                            fila.style.display
-                            !== "none";
-
-
-                        document
-                            .querySelectorAll(
-                                '[id^="cuotas-"]'
-                            )
-                            .forEach(
-                                function (otraFila) {
-
-                                    otraFila.style.display =
-                                        "none";
-
-                                }
-                            );
-
-
-                        document
-                            .querySelectorAll(
-                                ".btn-ver-cuotas"
-                            )
-                            .forEach(
-                                function (otroBoton) {
-
-                                    otroBoton.textContent =
-                                        "Ver cuotas";
-
-                                }
-                            );
-
-
-                        if (!visible) {
-
-                            fila.style.display =
-                                "table-row";
-
-                            this.textContent =
-                                "Ocultar cuotas";
-                        }
-
-                    }
-                );
-
-            }
-        );
-
-
-    }
-);
-
-</script>
 
 
 </body>
