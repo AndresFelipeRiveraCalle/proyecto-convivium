@@ -13,7 +13,7 @@ function redireccionarPago($idPago, $tipo, $texto)
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/aplicar_pago.php?" .
+        "configuracion/aplicar_pagos.php?" .
         http_build_query([
             'id_pago' => $idPago,
             'tipo'    => $tipo,

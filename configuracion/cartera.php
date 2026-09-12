@@ -875,7 +875,7 @@ $registros =
                                             ): ?>
 
                                                 <a
-                                                    href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>&origen=cartera&id_unidad=<?= (int)$fila['id_unidad'] ?>"
+                                                    href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>&origen=cartera_general"
                                                     class="btn-secondary"
                                                 >
                                                     Ver factura

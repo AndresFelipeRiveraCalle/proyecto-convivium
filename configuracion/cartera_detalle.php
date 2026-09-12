@@ -938,7 +938,7 @@ $aplicaciones =
                                         ): ?>
 
                                             <a
-                                                href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>&origen=cartera&id_unidad=<?= (int)$idUnidad ?>"
+                                                href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>&origen=cartera_detalle&id_unidad=<?= (int)$idUnidad ?>"
                                                 class="btn-secondary"
                                             >
                                                 Ver factura

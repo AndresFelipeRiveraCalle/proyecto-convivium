@@ -5,7 +5,7 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 
 // ==========================================================
-// FUNCIONES
+// FUNCIÓN ESCAPAR
 // ==========================================================
 
 function e($valor)
@@ -17,37 +17,83 @@ function e($valor)
     );
 }
 
-function dinero($valor)
-{
-    return '$' . number_format(
-        (float)$valor,
-        2,
-        ',',
-        '.'
-    );
-}
-
-function fechaEs($fecha)
-{
-    if (empty($fecha)) {
-        return '-';
-    }
-
-    return date(
-        'd/m/Y',
-        strtotime($fecha)
-    );
-}
-
 
 // ==========================================================
-// VALIDAR FACTURA
+// VALIDAR ID FACTURA
 // ==========================================================
 
 $idFactura =
     isset($_GET['id'])
         ? (int)$_GET['id']
         : 0;
+
+
+// ==========================================================
+// URL DE RETORNO SEGÚN ORIGEN
+// ==========================================================
+
+$origen =
+    trim(
+        $_GET['origen']
+        ?? ''
+    );
+
+$idUnidadRetorno =
+    isset($_GET['id_unidad'])
+        ? (int)$_GET['id_unidad']
+        : 0;
+
+
+switch ($origen) {
+
+    case 'cartera_general':
+
+        $urlVolver =
+            BASE_URL .
+            'configuracion/cartera.php';
+
+        $textoVolver =
+            '← Volver a cartera';
+
+        break;
+
+
+    case 'cartera_detalle':
+
+        if ($idUnidadRetorno > 0) {
+
+            $urlVolver =
+                BASE_URL .
+                'configuracion/cartera_detalle.php?id_unidad=' .
+                $idUnidadRetorno;
+
+            $textoVolver =
+                '← Volver a cartera';
+
+        } else {
+
+            $urlVolver =
+                BASE_URL .
+                'configuracion/cartera.php';
+
+            $textoVolver =
+                '← Volver a cartera';
+        }
+
+        break;
+
+
+    default:
+
+        $urlVolver =
+            BASE_URL .
+            'configuracion/facturas_generadas.php';
+
+        $textoVolver =
+            '← Volver a facturas';
+
+        break;
+}
 
 
 if ($idFactura <= 0) {
@@ -67,7 +113,7 @@ if ($idFactura <= 0) {
 
 
 // ==========================================================
-// FACTURA
+// BUSCAR FACTURA
 // ==========================================================
 
 $sqlFactura = "
@@ -92,23 +138,21 @@ $sqlFactura = "
         u.nombre AS unidad_nombre,
         u.area,
         u.coeficiente,
-        u.piso,
 
-        dtu.nombre_grupo,
-        tv.nombre AS tipo_unidad
+        dtu.nombre_grupo
 
     FROM facturas f
 
     INNER JOIN unidades u
-        ON u.id_unidad = f.id_unidad
+        ON u.id_unidad =
+           f.id_unidad
 
     LEFT JOIN detalle_tipos_unidad dtu
-        ON dtu.id_tipo_config = u.id_tipo_config
+        ON dtu.id_tipo_config =
+           u.id_tipo_config
 
-    LEFT JOIN tipos_vivienda tv
-        ON tv.id_tipo_vivienda = dtu.id_tipo_vivienda
-
-    WHERE f.id_factura = :id_factura
+    WHERE f.id_factura =
+        :id_factura
 
     LIMIT 1
 ";
@@ -121,7 +165,10 @@ $stmtFactura =
 
 
 $stmtFactura->execute([
-    ':id_factura' => $idFactura
+
+    ':id_factura'
+        => $idFactura
+
 ]);
 
 
@@ -146,239 +193,17 @@ if (!$factura) {
     exit;
 }
 
-// ==========================================================
-// URL DE RETORNO
-// ==========================================================
-
-$origen = $_GET['origen'] ?? '';
-$idUnidadRetorno = isset($_GET['id_unidad'])
-    ? (int)$_GET['id_unidad']
-    : 0;
-
-
-if (
-    $origen === 'cartera' &&
-    $idUnidadRetorno > 0
-) {
-
-    $urlVolver =
-        BASE_URL .
-        'configuracion/cartera_detalle.php?id_unidad=' .
-        $idUnidadRetorno;
-
-} else {
-
-    $urlVolver =
-        BASE_URL .
-        'configuracion/facturas_generadas.php';
-}
-
 
 // ==========================================================
-// DATOS DE LA COPROPIEDAD
+// BUSCAR DETALLES DE FACTURA
 // ==========================================================
-
-$sqlCopropiedad = "
-    SELECT
-        id,
-        nombre,
-        nit,
-        representante_legal,
-        correo,
-        telefono,
-        direccion,
-        sector,
-        logo
-
-    FROM datos_unidad
-
-    WHERE es_actual = 1
-
-    ORDER BY id DESC
-
-    LIMIT 1
-";
-
-
-$stmtCopropiedad =
-    $conexion->query(
-        $sqlCopropiedad
-    );
-
-
-$copropiedad =
-    $stmtCopropiedad->fetch(
-        PDO::FETCH_ASSOC
-    );
-
-
-if (!$copropiedad) {
-
-    $copropiedad = [
-        'nombre' => 'Copropiedad',
-        'nit' => '',
-        'representante_legal' => '',
-        'correo' => '',
-        'telefono' => '',
-        'direccion' => '',
-        'sector' => '',
-        'logo' => ''
-    ];
-}
-
-
-// ==========================================================
-// PERSONA PRINCIPAL DE FACTURACIÓN
-// ==========================================================
-
-$sqlPersona = "
-    SELECT
-        r.tipo,
-        r.recibe_factura,
-
-        u.id,
-        u.nombres,
-        u.apellidos,
-        u.numero_documento,
-        u.correo,
-        u.telefono,
-        u.celular,
-
-        td.codigo AS tipo_documento_codigo,
-        td.nombre AS tipo_documento
-
-    FROM residente r
-
-    INNER JOIN usuario u
-        ON u.id = r.usuario_id
-
-    LEFT JOIN tipos_documento td
-        ON td.id_tipo_documento = u.id_tipo_documento
-
-    WHERE
-        r.unidad_id = :id_unidad
-        AND r.activo = 1
-        AND r.fecha_hasta IS NULL
-
-    ORDER BY
-        r.recibe_factura DESC,
-        CASE r.tipo
-            WHEN 'propietario' THEN 1
-            WHEN 'inquilino' THEN 2
-            ELSE 3
-        END,
-        u.apellidos,
-        u.nombres
-
-    LIMIT 1
-";
-
-
-$stmtPersona =
-    $conexion->prepare(
-        $sqlPersona
-    );
-
-
-$stmtPersona->execute([
-    ':id_unidad'
-        => (int)$factura['id_unidad']
-]);
-
-
-$persona =
-    $stmtPersona->fetch(
-        PDO::FETCH_ASSOC
-    );
-
-
-if (!$persona) {
-
-    $persona = [
-        'nombres' => '',
-        'apellidos' => '',
-        'numero_documento' => '',
-        'correo' => '',
-        'telefono' => '',
-        'celular' => '',
-        'tipo_documento_codigo' => '',
-        'tipo_documento' => ''
-    ];
-}
-
-
-// ==========================================================
-// ESPACIOS VIGENTES DE LA UNIDAD
-// ==========================================================
-
-$sqlEspacios = "
-    SELECT
-        tipo_espacio,
-        codigo
-
-    FROM espacios_unidad
-
-    WHERE
-        id_unidad = :id_unidad
-        AND activo = 1
-        AND fecha_desde <= :fecha
-        AND (
-            fecha_hasta IS NULL
-            OR fecha_hasta >= :fecha2
-        )
-
-    ORDER BY
-        tipo_espacio,
-        codigo
-";
-
-
-$stmtEspacios =
-    $conexion->prepare(
-        $sqlEspacios
-    );
-
-
-$stmtEspacios->execute([
-    ':id_unidad'
-        => (int)$factura['id_unidad'],
-
-    ':fecha'
-        => $factura['fecha_generacion'],
-
-    ':fecha2'
-        => $factura['fecha_generacion']
-]);
-
-
-$espacios =
-    $stmtEspacios->fetchAll(
-        PDO::FETCH_ASSOC
-    );
-
-
-$parqueaderos = [];
-
-$otrosEspacios = [];
-
-
-foreach ($espacios as $espacio) {
-
-    if ($espacio['tipo_espacio'] === 'PARQUEADERO') {
-
-        $parqueaderos[] =
-            $espacio['codigo'];
-
-    } else {
-
-        $otrosEspacios[] =
-            $espacio['codigo'];
-    }
-}
-
-
-// ==========================================================
-// DETALLES DE FACTURA
+//
+// Si el detalle proviene de un CARGO, la cuota queda ligada
+// mediante cargos_facturacion_cuotas.id_detalle.
+//
+// Eso nos permite mostrar el concepto como enlace al detalle
+// explicativo del cargo.
+//
 // ==========================================================
 
 $sqlDetalles = "
@@ -414,23 +239,30 @@ $sqlDetalles = "
     FROM facturas_detalle fd
 
     INNER JOIN conceptos_facturacion cf
-        ON cf.id_concepto = fd.id_concepto
+        ON cf.id_concepto =
+           fd.id_concepto
 
     LEFT JOIN tarifas_facturacion tf
-        ON tf.id_tarifa = fd.id_tarifa
+        ON tf.id_tarifa =
+           fd.id_tarifa
 
     LEFT JOIN cargos_facturacion_cuotas cfc
-        ON cfc.id_detalle = fd.id_detalle
+        ON cfc.id_detalle =
+           fd.id_detalle
 
     LEFT JOIN cargos_facturacion_unidades cfu
-        ON cfu.id_cargo_unidad = cfc.id_cargo_unidad
+        ON cfu.id_cargo_unidad =
+           cfc.id_cargo_unidad
 
     LEFT JOIN cargos_facturacion c
-        ON c.id_cargo = cfu.id_cargo
+        ON c.id_cargo =
+           cfu.id_cargo
 
-    WHERE fd.id_factura = :id_factura
+    WHERE fd.id_factura =
+        :id_factura
 
-    ORDER BY fd.id_detalle
+    ORDER BY
+        fd.id_detalle
 ";
 
 
@@ -441,8 +273,10 @@ $stmtDetalles =
 
 
 $stmtDetalles->execute([
+
     ':id_factura'
         => $idFactura
+
 ]);
 
 
@@ -453,87 +287,18 @@ $detalles =
 
 
 // ==========================================================
-// TEXTOS
+// TEXTO PERÍODO
 // ==========================================================
-
-$meses = [
-    1 => 'ENERO',
-    2 => 'FEBRERO',
-    3 => 'MARZO',
-    4 => 'ABRIL',
-    5 => 'MAYO',
-    6 => 'JUNIO',
-    7 => 'JULIO',
-    8 => 'AGOSTO',
-    9 => 'SEPTIEMBRE',
-    10 => 'OCTUBRE',
-    11 => 'NOVIEMBRE',
-    12 => 'DICIEMBRE'
-];
-
 
 $periodoTexto =
-    ($meses[(int)$factura['mes']] ?? '') .
-    ' ' .
-    $factura['periodo'];
-
-
-$nombrePersona =
-    trim(
-        $persona['nombres'] .
-        ' ' .
-        $persona['apellidos']
-    );
-
-
-$telefonoPersona =
-    !empty($persona['celular'])
-        ? $persona['celular']
-        : $persona['telefono'];
-
-
-$documentoPersona =
-    trim(
-        ($persona['tipo_documento_codigo'] ?? '') .
-        ' ' .
-        ($persona['numero_documento'] ?? '')
-    );
-
-
-// ==========================================================
-// LOGO
-// ==========================================================
-
-$logoUrl = '';
-
-if (!empty($copropiedad['logo'])) {
-
-    $logoGuardado =
-        ltrim(
-            $copropiedad['logo'],
-            '/'
-        );
-
-
-    if (
-        strpos(
-            $logoGuardado,
-            'assets/'
-        ) === 0
-    ) {
-
-        $logoUrl =
-            BASE_URL .
-            $logoGuardado;
-
-    } else {
-
-        $logoUrl =
-            BASE_URL .
-            'assets/logos/' .
-            $logoGuardado;
-    }
-}
+    str_pad(
+        (string)$factura['mes'],
+        2,
+        '0',
+        STR_PAD_LEFT
+    )
+    . '/'
+    . $factura['periodo'];
 
 ?>
 
@@ -544,413 +309,6 @@ if (!empty($copropiedad['logo'])) {
 <head>
 
     <?php include ROOT_PATH . "/includes/head.php"; ?>
-
-
-    <style>
-
-        /* ======================================================
-           PÁGINA DE DETALLE
-        ======================================================= */
-
-        .factura-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 18px;
-        }
-
-        .factura-toolbar-acciones {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .factura-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            text-decoration: none;
-            border: 1px solid #cbd5e1;
-            background: #fff;
-            color: #0f172a;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .factura-btn:hover {
-            background: #f8fafc;
-        }
-
-
-        /* ======================================================
-           DOCUMENTO
-        ======================================================= */
-
-        .factura-documento {
-            max-width: 1050px;
-            margin: 0 auto 30px auto;
-            background: #fff;
-            border: 1px solid #dbe3ec;
-            border-radius: 14px;
-            padding: 28px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-            color: #132238;
-        }
-
-        .factura-cabecera {
-            display: grid;
-            grid-template-columns: 210px 1fr 260px;
-            gap: 22px;
-            align-items: center;
-        }
-
-        .factura-logo {
-            text-align: center;
-        }
-
-        .factura-logo img {
-            max-width: 180px;
-            max-height: 95px;
-            object-fit: contain;
-        }
-
-        .factura-logo-placeholder {
-            font-size: 28px;
-            font-weight: 800;
-            color: #153b5c;
-        }
-
-        .factura-empresa {
-            text-align: center;
-        }
-
-        .factura-empresa h2 {
-            margin: 0 0 6px 0;
-            font-size: 23px;
-            color: #10243e;
-        }
-
-        .factura-empresa p {
-            margin: 3px 0;
-            font-size: 14px;
-        }
-
-        .factura-periodo {
-            background: #eaf4fb;
-            border-radius: 10px;
-            text-align: center;
-            padding: 18px 14px;
-        }
-
-        .factura-periodo small {
-            display: block;
-            font-weight: 700;
-            margin-bottom: 7px;
-        }
-
-        .factura-periodo strong {
-            display: block;
-            font-size: 22px;
-        }
-
-
-        /* ======================================================
-           DATOS PRINCIPALES
-        ======================================================= */
-
-        .factura-meta {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            margin-top: 22px;
-            border: 1px solid #d4dee9;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .factura-meta-item {
-            padding: 12px;
-            text-align: center;
-            border-right: 1px solid #d4dee9;
-            background: #fbfdff;
-        }
-
-        .factura-meta-item:last-child {
-            border-right: none;
-        }
-
-        .factura-meta-item span {
-            display: block;
-            font-size: 12px;
-            margin-bottom: 4px;
-            color: #64748b;
-        }
-
-        .factura-meta-item strong {
-            font-size: 17px;
-        }
-
-
-        /* ======================================================
-           PERSONA / UNIDAD
-        ======================================================= */
-
-        .factura-cliente {
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            margin-top: 12px;
-            border: 1px solid #d4dee9;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .factura-cliente-bloque {
-            padding: 15px;
-        }
-
-        .factura-cliente-bloque + .factura-cliente-bloque {
-            border-left: 1px solid #d4dee9;
-        }
-
-        .factura-titulo-campo {
-            color: #64748b;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        .factura-persona-nombre {
-            font-size: 19px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .factura-datos-unidad {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0;
-            margin-top: 12px;
-        }
-
-        .factura-unidad-item {
-            border-top: 1px solid #e2e8f0;
-            padding: 10px 8px 0 8px;
-        }
-
-        .factura-unidad-item:first-child {
-            padding-left: 0;
-        }
-
-
-        /* ======================================================
-           TABLA DE CONCEPTOS
-        ======================================================= */
-
-        .factura-tabla {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 18px;
-        }
-
-        .factura-tabla th {
-            background: #dceefb;
-            color: #10243e;
-            padding: 11px 10px;
-            border: 1px solid #c5d9e8;
-            text-align: left;
-        }
-
-        .factura-tabla td {
-            padding: 10px;
-            border: 1px solid #d8e2ec;
-            vertical-align: top;
-        }
-
-        .factura-tabla .numero {
-            text-align: right;
-            white-space: nowrap;
-        }
-
-        .factura-tabla .total-row th,
-        .factura-tabla .total-row td {
-            background: #dceefb;
-            font-size: 17px;
-            font-weight: 800;
-        }
-
-        .factura-concepto-link {
-            color: #0f4d7a;
-            font-weight: 700;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-        }
-
-        .factura-concepto-link:hover {
-            color: #0b6ca8;
-        }
-
-        .factura-concepto-aclaracion {
-            display: block;
-            margin-top: 4px;
-            font-size: 11px;
-            color: #64748b;
-        }
-
-
-        /* ======================================================
-           BLOQUES INFERIORES
-        ======================================================= */
-
-        .factura-inferior {
-            display: grid;
-            grid-template-columns: 1fr 1.15fr 1fr;
-            gap: 14px;
-            margin-top: 18px;
-        }
-
-        .factura-panel {
-            border: 1px solid #d8e2ec;
-            border-radius: 8px;
-            padding: 15px;
-            min-height: 115px;
-            background: #fbfdff;
-        }
-
-        .factura-panel h4 {
-            margin: 0 0 10px 0;
-            color: #174f7a;
-        }
-
-        .factura-estado {
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 8px;
-            background: #d8f5dc;
-            color: #176c2b;
-            font-weight: 800;
-        }
-
-        .factura-fecha-limite {
-            font-size: 23px;
-            font-weight: 800;
-            margin-top: 9px;
-        }
-
-        .factura-qr-placeholder {
-            height: 120px;
-            border: 2px dashed #b9c6d3;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #64748b;
-            padding: 15px;
-        }
-
-        .factura-nota {
-            margin-top: 18px;
-            padding: 13px;
-            background: #e8f7ea;
-            color: #256b2e;
-            text-align: center;
-            border-radius: 7px;
-            font-weight: 700;
-        }
-
-        .factura-observaciones {
-            margin-top: 18px;
-            border-top: 1px solid #dbe3ec;
-            padding-top: 14px;
-            color: #475569;
-        }
-
-
-        /* ======================================================
-           RESPONSIVE
-        ======================================================= */
-
-        @media (max-width: 900px) {
-
-            .factura-cabecera {
-                grid-template-columns: 1fr;
-            }
-
-            .factura-meta {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .factura-meta-item {
-                border-bottom: 1px solid #d4dee9;
-            }
-
-            .factura-cliente {
-                grid-template-columns: 1fr;
-            }
-
-            .factura-cliente-bloque + .factura-cliente-bloque {
-                border-left: none;
-                border-top: 1px solid #d4dee9;
-            }
-
-            .factura-inferior {
-                grid-template-columns: 1fr;
-            }
-        }
-
-
-        /* ======================================================
-           IMPRESIÓN
-        ======================================================= */
-
-        @media print {
-
-            body {
-                background: #fff !important;
-            }
-
-            header,
-            .sidebar,
-            .factura-toolbar,
-            .no-print {
-                display: none !important;
-            }
-
-            .contenedor {
-                display: block !important;
-            }
-
-            .contenido {
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-            }
-
-            .factura-documento {
-                max-width: none;
-                width: 100%;
-                margin: 0;
-                border: none;
-                border-radius: 0;
-                box-shadow: none;
-                padding: 8mm;
-            }
-
-            .factura-concepto-link {
-                color: #000;
-                text-decoration: none;
-            }
-
-            @page {
-                size: A4 portrait;
-                margin: 8mm;
-            }
-        }
-
-    </style>
 
 </head>
 
@@ -971,371 +329,239 @@ if (!empty($copropiedad['logo'])) {
 
 
         <!-- ======================================================
-             BARRA SUPERIOR
+             ENCABEZADO
         ======================================================= -->
 
-        <div class="factura-toolbar">
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:15px;
+                flex-wrap:wrap;
+            "
+        >
 
             <div>
 
-                <h2 style="margin-bottom:4px;">
+                <h2>
                     Detalle de factura
                 </h2>
 
-                <div style="color:#64748b;">
-                    Visualización de la cuenta de cobro generada.
-                </div>
+                <p>
+                    Información general y conceptos cobrados.
+                </p>
 
             </div>
 
 
-            <div class="factura-toolbar-acciones">
+            <div>
 
                 <a
                     href="<?= e($urlVolver) ?>"
-                    class="btn-secondary"
+                    class="btn-limpiar"
                 >
-                    ← Volver
+                    <?= e($textoVolver) ?>
                 </a>
-
-
-                <button
-                    type="button"
-                    class="factura-btn"
-                    onclick="window.print()"
-                >
-                    🖨 Imprimir / Guardar PDF
-                </button>
 
             </div>
 
         </div>
 
 
+        <br>
+
+
         <!-- ======================================================
-             DOCUMENTO
+             INFORMACIÓN GENERAL
         ======================================================= -->
 
-        <section class="factura-documento">
+        <div class="bloque filtros">
 
 
-            <!-- ==================================================
-                 CABECERA
-            =================================================== -->
-
-            <div class="factura-cabecera">
+            <div class="form-card">
 
 
-                <div class="factura-logo">
-
-                    <?php if ($logoUrl !== ''): ?>
-
-                        <img
-                            src="<?= e($logoUrl) ?>"
-                            alt="Logo copropiedad"
-                        >
-
-                    <?php else: ?>
-
-                        <div class="factura-logo-placeholder">
-                            Convivium
-                        </div>
-
-                        <small>
-                            Propiedad Horizontal
-                        </small>
-
-                    <?php endif; ?>
-
-                </div>
+                <h3>
+                    Datos de la factura
+                </h3>
 
 
-                <div class="factura-empresa">
-
-                    <h2>
-                        <?= e($copropiedad['nombre']) ?>
-                    </h2>
+                <br>
 
 
-                    <?php if (!empty($copropiedad['nit'])): ?>
+                <div
+                    style="
+                        display:grid;
+                        grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+                        gap:18px;
+                    "
+                >
+
+
+                    <div>
+
+                        <strong>
+                            Número de factura
+                        </strong>
 
                         <p>
-                            NIT. <?= e($copropiedad['nit']) ?>
+                            <?= e($factura['numero_factura']) ?>
                         </p>
-
-                    <?php endif; ?>
-
-
-                    <?php if (!empty($copropiedad['direccion'])): ?>
-
-                        <p>
-                            <?= e($copropiedad['direccion']) ?>
-                        </p>
-
-                    <?php endif; ?>
-
-
-                    <?php if (
-                        !empty($copropiedad['telefono']) ||
-                        !empty($copropiedad['correo'])
-                    ): ?>
-
-                        <p>
-
-                            <?php if (!empty($copropiedad['telefono'])): ?>
-
-                                Tel.
-                                <?= e($copropiedad['telefono']) ?>
-
-                            <?php endif; ?>
-
-
-                            <?php if (
-                                !empty($copropiedad['telefono']) &&
-                                !empty($copropiedad['correo'])
-                            ): ?>
-
-                                &nbsp; · &nbsp;
-
-                            <?php endif; ?>
-
-
-                            <?php if (!empty($copropiedad['correo'])): ?>
-
-                                <?= e($copropiedad['correo']) ?>
-
-                            <?php endif; ?>
-
-                        </p>
-
-                    <?php endif; ?>
-
-                </div>
-
-
-                <div class="factura-periodo">
-
-                    <small>
-                        CUENTA DE COBRO
-                    </small>
-
-                    <strong>
-                        <?= e($periodoTexto) ?>
-                    </strong>
-
-                </div>
-
-
-            </div>
-
-
-            <!-- ==================================================
-                 META
-            =================================================== -->
-
-            <div class="factura-meta">
-
-
-                <div class="factura-meta-item">
-
-                    <span>
-                        Número de factura
-                    </span>
-
-                    <strong>
-                        <?= e($factura['numero_factura']) ?>
-                    </strong>
-
-                </div>
-
-
-                <div class="factura-meta-item">
-
-                    <span>
-                        Referencia de pago
-                    </span>
-
-                    <strong>
-                        <?= str_pad(
-                            (string)$factura['id_factura'],
-                            10,
-                            '0',
-                            STR_PAD_LEFT
-                        ) ?>
-                    </strong>
-
-                </div>
-
-
-                <div class="factura-meta-item">
-
-                    <span>
-                        Fecha de emisión
-                    </span>
-
-                    <strong>
-                        <?= e(
-                            fechaEs(
-                                $factura['fecha_generacion']
-                            )
-                        ) ?>
-                    </strong>
-
-                </div>
-
-
-                <div class="factura-meta-item">
-
-                    <span>
-                        Fecha de vencimiento
-                    </span>
-
-                    <strong>
-                        <?= e(
-                            fechaEs(
-                                $factura['fecha_vencimiento']
-                            )
-                        ) ?>
-                    </strong>
-
-                </div>
-
-
-            </div>
-
-
-            <!-- ==================================================
-                 PERSONA + UNIDAD
-            =================================================== -->
-
-            <div class="factura-cliente">
-
-
-                <div class="factura-cliente-bloque">
-
-                    <div class="factura-titulo-campo">
-                        Propietario(s) / Residente(s)
-                    </div>
-
-
-                    <div class="factura-persona-nombre">
-
-                        <?= $nombrePersona !== ''
-                            ? e($nombrePersona)
-                            : 'Sin persona de facturación asignada'
-                        ?>
 
                     </div>
 
 
-                    <?php if (!empty($persona['correo'])): ?>
+                    <div>
 
-                        <div>
-                            Correo:
-                            <?= e($persona['correo']) ?>
-                        </div>
+                        <strong>
+                            Unidad
+                        </strong>
 
-                    <?php endif; ?>
+                        <p>
+                            <?= e($factura['unidad_codigo']) ?>
+                        </p>
 
-
-                    <?php if (!empty($telefonoPersona)): ?>
-
-                        <div>
-                            Teléfono:
-                            <?= e($telefonoPersona) ?>
-                        </div>
-
-                    <?php endif; ?>
-
-                </div>
-
-
-                <div class="factura-cliente-bloque">
-
-
-                    <div class="factura-titulo-campo">
-                        Identificación
                     </div>
 
 
-                    <strong>
-                        <?= $documentoPersona !== ''
-                            ? e($documentoPersona)
-                            : '-'
-                        ?>
-                    </strong>
+                    <div>
+
+                        <strong>
+                            Grupo
+                        </strong>
+
+                        <p>
+                            <?= e($factura['nombre_grupo'] ?? '') ?>
+                        </p>
+
+                    </div>
 
 
-                    <div class="factura-datos-unidad">
+                    <div>
+
+                        <strong>
+                            Período
+                        </strong>
+
+                        <p>
+                            <?= e($periodoTexto) ?>
+                        </p>
+
+                    </div>
 
 
-                        <div class="factura-unidad-item">
+                    <div>
 
-                            <div class="factura-titulo-campo">
-                                Unidad
-                            </div>
+                        <strong>
+                            Estado
+                        </strong>
 
-                            <strong>
-                                <?= e($factura['unidad_codigo']) ?>
-                            </strong>
+                        <p>
 
-                        </div>
+                            <?php if ($factura['estado'] === 'GENERADA'): ?>
 
+                                <span class="activo">
+                                    GENERADA
+                                </span>
 
-                        <div class="factura-unidad-item">
+                            <?php elseif ($factura['estado'] === 'PAGADA'): ?>
 
-                            <div class="factura-titulo-campo">
-                                Tipo
-                            </div>
+                                <span class="activo">
+                                    PAGADA
+                                </span>
 
-                            <strong>
-                                <?= e(
-                                    $factura['tipo_unidad']
-                                    ?? '-'
-                                ) ?>
-                            </strong>
+                            <?php else: ?>
 
-                        </div>
+                                <?= e($factura['estado']) ?>
 
+                            <?php endif; ?>
 
-                        <div class="factura-unidad-item">
+                        </p>
 
-                            <div class="factura-titulo-campo">
-                                Grupo
-                            </div>
-
-                            <strong>
-                                <?= e(
-                                    $factura['nombre_grupo']
-                                    ?? '-'
-                                ) ?>
-                            </strong>
-
-                        </div>
+                    </div>
 
 
-                        <div class="factura-unidad-item">
+                    <div>
 
-                            <div class="factura-titulo-campo">
-                                Parqueadero(s)
-                            </div>
+                        <strong>
+                            Fecha generación
+                        </strong>
 
-                            <strong>
+                        <p>
 
-                                <?= !empty($parqueaderos)
-                                    ? e(
-                                        implode(
-                                            ', ',
-                                            $parqueaderos
-                                        )
+                            <?= e(
+                                date(
+                                    'd/m/Y',
+                                    strtotime(
+                                        $factura['fecha_generacion']
                                     )
-                                    : '-'
-                                ?>
+                                )
+                            ) ?>
 
-                            </strong>
+                        </p>
 
-                        </div>
+                    </div>
 
+
+                    <div>
+
+                        <strong>
+                            Fecha vencimiento
+                        </strong>
+
+                        <p>
+
+                            <?= e(
+                                date(
+                                    'd/m/Y',
+                                    strtotime(
+                                        $factura['fecha_vencimiento']
+                                    )
+                                )
+                            ) ?>
+
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+                            Área
+                        </strong>
+
+                        <p>
+
+                            <?= number_format(
+                                (float)$factura['area'],
+                                2,
+                                ',',
+                                '.'
+                            ) ?>
+
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+                            Coeficiente
+                        </strong>
+
+                        <p>
+
+                            <?= number_format(
+                                (float)$factura['coeficiente'],
+                                8,
+                                ',',
+                                '.'
+                            ) ?>
+
+                        </p>
 
                     </div>
 
@@ -1346,364 +572,332 @@ if (!empty($copropiedad['logo'])) {
             </div>
 
 
-            <!-- ==================================================
-                 CONCEPTOS
-            =================================================== -->
-
-            <table class="factura-tabla">
+        </div>
 
 
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Concepto
-                        </th>
-
-                        <th class="numero">
-                            Saldo anterior
-                        </th>
-
-                        <th class="numero">
-                            Este mes
-                        </th>
-
-                        <th class="numero">
-                            Total a pagar
-                        </th>
-
-                    </tr>
-
-                </thead>
+        <br>
 
 
-                <tbody>
+        <!-- ======================================================
+             CONCEPTOS FACTURADOS
+        ======================================================= -->
+
+        <div class="bloque filtros">
 
 
-                <?php if (empty($detalles)): ?>
+            <div class="form-card">
 
 
-                    <tr>
-
-                        <td colspan="4">
-                            No existen conceptos registrados.
-                        </td>
-
-                    </tr>
+                <h3>
+                    Conceptos facturados
+                </h3>
 
 
-                <?php else: ?>
+                <p>
+                    Los conceptos que provienen de un cargo permiten consultar
+                    la explicación y trazabilidad del cobro directamente desde
+                    el nombre del concepto.
+                </p>
 
 
-                    <?php foreach ($detalles as $detalle): ?>
+                <br>
 
 
-                        <tr>
+                <div class="tabla-responsive">
 
 
-                            <td>
+                    <table class="tabla">
 
 
-                                <?php if (
-                                    !empty(
-                                        $detalle['id_cargo']
-                                    )
-                                ): ?>
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Concepto
+                                </th>
+
+                                <th>
+                                    Descripción
+                                </th>
+
+                                <th>
+                                    Tipo cálculo
+                                </th>
+
+                                <th>
+                                    Cantidad
+                                </th>
+
+                                <th>
+                                    Base
+                                </th>
+
+                                <th>
+                                    Valor unitario
+                                </th>
+
+                                <th>
+                                    Subtotal
+                                </th>
+
+                            </tr>
+
+                        </thead>
 
 
-                                    <a
-                                        href="<?= BASE_URL ?>configuracion/cargo_detalle.php?id=<?= (int)$detalle['id_cargo'] ?>"
-                                        class="factura-concepto-link"
-                                        title="Ver explicación del cobro"
-                                    >
-
-                                        <?= e(
-                                            $detalle[
-                                                'concepto_nombre'
-                                            ]
-                                        ) ?>
-
-                                    </a>
+                        <tbody>
 
 
-                                    <span class="factura-concepto-aclaracion">
+                        <?php if (empty($detalles)): ?>
+
+
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    align="center"
+                                >
+                                    La factura no tiene detalles registrados.
+                                </td>
+
+                            </tr>
+
+
+                        <?php else: ?>
+
+
+                            <?php foreach ($detalles as $detalle): ?>
+
+
+                                <tr>
+
+
+                                    <!-- ==================================
+                                         CONCEPTO
+                                    =================================== -->
+
+                                    <td>
+
+
+                                        <?php if (
+                                            !empty(
+                                                $detalle['id_cargo']
+                                            )
+                                        ): ?>
+
+
+                                            <a
+                                                href="<?= BASE_URL ?>configuracion/cargo_detalle.php?id=<?= (int)$detalle['id_cargo'] ?>"
+                                                title="Ver explicación del cobro"
+                                            >
+
+                                                <strong>
+
+                                                    <?= e(
+                                                        $detalle[
+                                                            'concepto_nombre'
+                                                        ]
+                                                    ) ?>
+
+                                                </strong>
+
+                                            </a>
+
+
+                                            <br>
+
+
+                                            <small>
+
+                                                Cargo:
+                                                <?= e(
+                                                    $detalle[
+                                                        'cargo_nombre'
+                                                    ]
+                                                ) ?>
+
+                                            </small>
+
+
+                                        <?php else: ?>
+
+
+                                            <strong>
+
+                                                <?= e(
+                                                    $detalle[
+                                                        'concepto_nombre'
+                                                    ]
+                                                ) ?>
+
+                                            </strong>
+
+
+                                        <?php endif; ?>
+
+
+                                    </td>
+
+
+                                    <!-- ==================================
+                                         DESCRIPCIÓN
+                                    =================================== -->
+
+                                    <td>
 
                                         <?= e(
                                             $detalle['descripcion']
                                         ) ?>
 
-                                    </span>
+
+                                        <?php if (
+                                            !empty(
+                                                $detalle['id_cargo']
+                                            )
+                                        ): ?>
 
 
-                                <?php else: ?>
+                                            <br>
 
 
-                                    <strong>
+                                            <small>
+
+                                                Cuota
+                                                <?= (int)$detalle[
+                                                    'numero_cuota'
+                                                ] ?>
+                                                /
+                                                <?= (int)$detalle[
+                                                    'cargo_numero_cuotas'
+                                                ] ?>
+
+                                            </small>
+
+
+                                        <?php endif; ?>
+
+
+                                    </td>
+
+
+                                    <!-- ==================================
+                                         TIPO CÁLCULO
+                                    =================================== -->
+
+                                    <td>
 
                                         <?= e(
                                             $detalle[
-                                                'concepto_nombre'
+                                                'tipo_calculo'
                                             ]
                                         ) ?>
 
-                                    </strong>
+                                    </td>
 
 
-                                    <?php if (
-                                        !empty(
-                                            $detalle['tarifa_nombre']
-                                        )
-                                    ): ?>
+                                    <!-- ==================================
+                                         CANTIDAD
+                                    =================================== -->
 
-                                        <span class="factura-concepto-aclaracion">
+                                    <td>
 
-                                            Tarifa:
-                                            <?= e(
-                                                $detalle[
-                                                    'tarifa_nombre'
-                                                ]
+                                        <?= number_format(
+                                            (float)$detalle[
+                                                'cantidad'
+                                            ],
+                                            4,
+                                            ',',
+                                            '.'
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <!-- ==================================
+                                         BASE
+                                    =================================== -->
+
+                                    <td>
+
+                                        <?php if (
+                                            $detalle[
+                                                'base_calculo'
+                                            ] !== null
+                                        ): ?>
+
+                                            <?= number_format(
+                                                (float)$detalle[
+                                                    'base_calculo'
+                                                ],
+                                                4,
+                                                ',',
+                                                '.'
                                             ) ?>
 
-                                        </span>
+                                        <?php else: ?>
 
-                                    <?php endif; ?>
+                                            -
 
+                                        <?php endif; ?>
 
-                                <?php endif; ?>
+                                    </td>
 
 
-                            </td>
+                                    <!-- ==================================
+                                         VALOR UNITARIO
+                                    =================================== -->
 
+                                    <td>
 
-                            <td class="numero">
+                                        $<?= number_format(
+                                            (float)$detalle[
+                                                'valor_unitario'
+                                            ],
+                                            2,
+                                            ',',
+                                            '.'
+                                        ) ?>
 
-                                <?php
-                                    /*
-                                     * Todavía no estamos trayendo cartera histórica
-                                     * por concepto. Por ahora queda en cero.
-                                     */
-                                ?>
+                                    </td>
 
-                                $0,00
 
-                            </td>
+                                    <!-- ==================================
+                                         SUBTOTAL
+                                    =================================== -->
 
+                                    <td>
 
-                            <td class="numero">
+                                        <strong>
 
-                                <?= dinero(
-                                    $detalle['subtotal']
-                                ) ?>
+                                            $<?= number_format(
+                                                (float)$detalle[
+                                                    'subtotal'
+                                                ],
+                                                2,
+                                                ',',
+                                                '.'
+                                            ) ?>
 
-                            </td>
+                                        </strong>
 
+                                    </td>
 
-                            <td class="numero">
 
-                                <strong>
+                                </tr>
 
-                                    <?= dinero(
-                                        $detalle['subtotal']
-                                    ) ?>
 
-                                </strong>
+                            <?php endforeach; ?>
 
-                            </td>
 
+                        <?php endif; ?>
 
-                        </tr>
 
+                        </tbody>
 
-                    <?php endforeach; ?>
 
+                    </table>
 
-                <?php endif; ?>
-
-
-                    <tr class="total-row">
-
-                        <th>
-                            TOTAL A PAGAR
-                        </th>
-
-                        <td class="numero">
-
-                            <?= dinero(
-                                $factura[
-                                    'saldos_anteriores'
-                                ]
-                            ) ?>
-
-                        </td>
-
-                        <td class="numero">
-
-                            <?= dinero(
-                                $factura[
-                                    'subtotal'
-                                ] +
-                                $factura[
-                                    'intereses'
-                                ]
-                            ) ?>
-
-                        </td>
-
-                        <td class="numero">
-
-                            <?= dinero(
-                                $factura['total']
-                            ) ?>
-
-                        </td>
-
-                    </tr>
-
-
-                </tbody>
-
-
-            </table>
-
-
-            <!-- ==================================================
-                 MENSAJE
-            =================================================== -->
-
-            <?php if (
-                in_array(
-                    $factura['estado'],
-                    ['PAGADA'],
-                    true
-                )
-            ): ?>
-
-                <div class="factura-nota">
-
-                    ¡Gracias por su pago oportuno!
-                    Su cuenta se encuentra al día.
-
-                </div>
-
-            <?php endif; ?>
-
-
-            <!-- ==================================================
-                 PARTE INFERIOR
-            =================================================== -->
-
-            <div class="factura-inferior">
-
-
-                <div>
-
-
-                    <div class="factura-panel">
-
-                        <h4>
-                            Estado de la factura
-                        </h4>
-
-                        <span class="factura-estado">
-
-                            <?= e(
-                                $factura['estado']
-                            ) ?>
-
-                        </span>
-
-                    </div>
-
-
-                    <div
-                        class="factura-panel"
-                        style="margin-top:14px;"
-                    >
-
-                        <h4>
-                            Fecha límite de pago
-                        </h4>
-
-                        <div class="factura-fecha-limite">
-
-                            <?= e(
-                                fechaEs(
-                                    $factura[
-                                        'fecha_vencimiento'
-                                    ]
-                                )
-                            ) ?>
-
-                        </div>
-
-                    </div>
-
-
-                </div>
-
-
-                <div class="factura-panel">
-
-                    <h4 style="text-align:center;">
-                        Pago electrónico
-                    </h4>
-
-                    <div class="factura-qr-placeholder">
-
-                        El código QR de pago se incorporará
-                        cuando conectemos la factura con el
-                        módulo de pagos / cuenta bancaria.
-
-                    </div>
-
-                </div>
-
-
-                <div class="factura-panel">
-
-                    <h4>
-                        Información de pago
-                    </h4>
-
-                    <p>
-
-                        Esta sección quedará conectada con
-                        <strong>cuentas_bancarias</strong>
-                        cuando integremos el módulo de pagos.
-
-                    </p>
-
-
-                    <p>
-
-                        <strong>
-                            Referencia:
-                        </strong>
-
-                        <?= str_pad(
-                            (string)$factura[
-                                'id_factura'
-                            ],
-                            10,
-                            '0',
-                            STR_PAD_LEFT
-                        ) ?>
-
-                    </p>
-
-
-                    <p>
-
-                        <strong>
-                            Total:
-                        </strong>
-
-                        <?= dinero(
-                            $factura['total']
-                        ) ?>
-
-                    </p>
 
                 </div>
 
@@ -1711,38 +905,184 @@ if (!empty($copropiedad['logo'])) {
             </div>
 
 
-            <!-- ==================================================
-                 OBSERVACIONES
-            =================================================== -->
+        </div>
 
-            <?php if (
-                !empty(
-                    $factura['observaciones']
-                )
-            ): ?>
 
-                <div class="factura-observaciones">
+        <br>
 
-                    <strong>
-                        Observaciones:
-                    </strong>
 
-                    <br>
+        <!-- ======================================================
+             TOTALES
+        ======================================================= -->
 
-                    <?= nl2br(
-                        e(
-                            $factura[
-                                'observaciones'
-                            ]
-                        )
-                    ) ?>
+        <div class="bloque filtros">
+
+
+            <div class="form-card">
+
+
+                <h3>
+                    Totales
+                </h3>
+
+
+                <br>
+
+
+                <div
+                    style="
+                        max-width:520px;
+                        margin-left:auto;
+                    "
+                >
+
+
+                    <table class="tabla">
+
+
+                        <tbody>
+
+
+                            <tr>
+
+                                <th>
+                                    Subtotal
+                                </th>
+
+                                <td>
+
+                                    $<?= number_format(
+                                        (float)$factura['subtotal'],
+                                        2,
+                                        ',',
+                                        '.'
+                                    ) ?>
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <th>
+                                    Intereses
+                                </th>
+
+                                <td>
+
+                                    $<?= number_format(
+                                        (float)$factura['intereses'],
+                                        2,
+                                        ',',
+                                        '.'
+                                    ) ?>
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <th>
+                                    Saldos anteriores
+                                </th>
+
+                                <td>
+
+                                    $<?= number_format(
+                                        (float)$factura['saldos_anteriores'],
+                                        2,
+                                        ',',
+                                        '.'
+                                    ) ?>
+
+                                </td>
+
+                            </tr>
+
+
+                            <tr>
+
+                                <th>
+                                    Total
+                                </th>
+
+                                <td>
+
+                                    <strong>
+
+                                        $<?= number_format(
+                                            (float)$factura['total'],
+                                            2,
+                                            ',',
+                                            '.'
+                                        ) ?>
+
+                                    </strong>
+
+                                </td>
+
+                            </tr>
+
+
+                        </tbody>
+
+
+                    </table>
+
 
                 </div>
 
-            <?php endif; ?>
+
+            </div>
 
 
-        </section>
+        </div>
+
+
+        <?php if (
+            !empty(
+                $factura['observaciones']
+            )
+        ): ?>
+
+
+            <br>
+
+
+            <div class="bloque filtros">
+
+
+                <div class="form-card">
+
+
+                    <h3>
+                        Observaciones
+                    </h3>
+
+
+                    <p>
+
+                        <?= nl2br(
+                            e(
+                                $factura[
+                                    'observaciones'
+                                ]
+                            )
+                        ) ?>
+
+                    </p>
+
+
+                </div>
+
+
+            </div>
+
+
+        <?php endif; ?>
 
 
     </main>

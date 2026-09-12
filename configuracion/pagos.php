@@ -3,547 +3,978 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
-try {
 
-    // ==========================================================
-    // CONSULTAR PAGOS
-    // ==========================================================
+// ==========================================================
+// FUNCIONES
+// ==========================================================
 
-    $sql = " SELECT p.id_pago,p.id_unidad,p.fecha_pago,p.valor,p.medio_pago,p.origen_pago,p.estado_conciliacion,
-            p.referencia,p.observaciones,p.estado,u.codigo AS codigo_unidad
-        FROM pagos p
-        INNER JOIN unidades u ON u.id_unidad = p.id_unidad
-        WHERE p.estado = 'REGISTRADO'
-        ORDER BY p.fecha_pago DESC, p.id_pago DESC
-    ";
-
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute();
-
-    $pagos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // ==========================================================
-    // CONSULTAR UNIDADES
-    // ==========================================================
-
-    $sqlUnidades = " SELECT id_unidad, codigo FROM unidades
-        WHERE activo = 1 ORDER BY codigo ASC
-    ";
-
-    $stmtUnidades = $conexion->prepare($sqlUnidades);
-    $stmtUnidades->execute();
-
-    $unidades = $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
-
-
-} catch (PDOException $e) {
-
-    die(
-        "Error al consultar pagos: " .
-        $e->getMessage()
+function e($valor)
+{
+    return htmlspecialchars(
+        (string)$valor,
+        ENT_QUOTES,
+        'UTF-8'
     );
 }
+
+function dinero($valor)
+{
+    return '$' . number_format(
+        (float)$valor,
+        2,
+        ',',
+        '.'
+    );
+}
+
+
+// ==========================================================
+// FILTROS
+// ==========================================================
+
+$buscar =
+    trim(
+        $_GET['buscar'] ?? ''
+    );
+
+$estadoConciliacion =
+    trim(
+        $_GET['estado_conciliacion'] ?? ''
+    );
+
+$estado =
+    trim(
+        $_GET['estado'] ?? ''
+    );
+
+$fechaDesde =
+    trim(
+        $_GET['fecha_desde'] ?? ''
+    );
+
+$fechaHasta =
+    trim(
+        $_GET['fecha_hasta'] ?? ''
+    );
+
+
+// ==========================================================
+// WHERE DINÁMICO
+// ==========================================================
+
+$where = [
+    "1 = 1"
+];
+
+$params = [];
+
+
+if ($buscar !== '') {
+
+    $where[] = "
+        (
+            u.codigo LIKE :buscar
+            OR p.referencia LIKE :buscar
+            OR p.referencia_externa LIKE :buscar
+            OR p.id_externo LIKE :buscar
+        )
+    ";
+
+    $params[':buscar'] =
+        '%' . $buscar . '%';
+}
+
+
+if (
+    in_array(
+        $estadoConciliacion,
+        [
+            'PENDIENTE',
+            'CONCILIADO',
+            'RECHAZADO',
+            'CON_DIFERENCIA'
+        ],
+        true
+    )
+) {
+
+    $where[] = "
+        p.estado_conciliacion =
+            :estado_conciliacion
+    ";
+
+    $params[':estado_conciliacion'] =
+        $estadoConciliacion;
+}
+
+
+if (
+    in_array(
+        $estado,
+        [
+            'REGISTRADO',
+            'ANULADO'
+        ],
+        true
+    )
+) {
+
+    $where[] = "
+        p.estado =
+            :estado
+    ";
+
+    $params[':estado'] =
+        $estado;
+}
+
+
+if ($fechaDesde !== '') {
+
+    $where[] = "
+        p.fecha_pago >= :fecha_desde
+    ";
+
+    $params[':fecha_desde'] =
+        $fechaDesde;
+}
+
+
+if ($fechaHasta !== '') {
+
+    $where[] = "
+        p.fecha_pago <= :fecha_hasta
+    ";
+
+    $params[':fecha_hasta'] =
+        $fechaHasta;
+}
+
+
+$whereSql =
+    implode(
+        ' AND ',
+        $where
+    );
+
+
+// ==========================================================
+// RESUMEN
+// ==========================================================
+
+$sqlResumen = "
+    SELECT
+        COUNT(*) AS total_pagos,
+
+        COALESCE(
+            SUM(p.valor),
+            0
+        ) AS total_recibido,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN p.estado = 'REGISTRADO'
+                    THEN p.valor
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS total_registrado,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN p.estado = 'ANULADO'
+                    THEN p.valor
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS total_anulado,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN p.estado_conciliacion = 'CONCILIADO'
+                    THEN p.valor
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS total_conciliado
+
+    FROM pagos p
+
+    INNER JOIN unidades u
+        ON u.id_unidad =
+           p.id_unidad
+
+    WHERE
+        $whereSql
+";
+
+
+$stmtResumen =
+    $conexion->prepare(
+        $sqlResumen
+    );
+
+
+$stmtResumen->execute(
+    $params
+);
+
+
+$resumen =
+    $stmtResumen->fetch(
+        PDO::FETCH_ASSOC
+    );
+
+
+// ==========================================================
+// LISTADO DE PAGOS
+// ==========================================================
+
+$sql = "
+    SELECT
+        p.id_pago,
+        p.id_unidad,
+        p.id_extracto,
+        p.fecha_pago,
+        p.valor,
+        p.medio_pago,
+        p.origen_pago,
+        p.estado_conciliacion,
+        p.fecha_conciliacion,
+        p.referencia,
+        p.referencia_externa,
+        p.id_externo,
+        p.observaciones,
+        p.estado,
+        p.fecha_creacion,
+
+        u.codigo AS unidad_codigo,
+        u.nombre AS unidad_nombre,
+
+        dtu.nombre_grupo,
+
+        COALESCE(
+            SUM(ap.valor_aplicado),
+            0
+        ) AS valor_aplicado,
+
+        (
+            p.valor -
+            COALESCE(
+                SUM(ap.valor_aplicado),
+                0
+            )
+        ) AS valor_disponible,
+
+        COUNT(ap.id_aplicacion) AS cantidad_aplicaciones
+
+    FROM pagos p
+
+    INNER JOIN unidades u
+        ON u.id_unidad =
+           p.id_unidad
+
+    LEFT JOIN detalle_tipos_unidad dtu
+        ON dtu.id_tipo_config =
+           u.id_tipo_config
+
+    LEFT JOIN aplicaciones_pagos ap
+        ON ap.id_pago =
+           p.id_pago
+
+    WHERE
+        $whereSql
+
+    GROUP BY
+        p.id_pago,
+        p.id_unidad,
+        p.id_extracto,
+        p.fecha_pago,
+        p.valor,
+        p.medio_pago,
+        p.origen_pago,
+        p.estado_conciliacion,
+        p.fecha_conciliacion,
+        p.referencia,
+        p.referencia_externa,
+        p.id_externo,
+        p.observaciones,
+        p.estado,
+        p.fecha_creacion,
+        u.codigo,
+        u.nombre,
+        dtu.nombre_grupo
+
+    ORDER BY
+        p.fecha_pago DESC,
+        p.id_pago DESC
+";
+
+
+$stmt =
+    $conexion->prepare(
+        $sql
+    );
+
+
+$stmt->execute(
+    $params
+);
+
+
+$pagos =
+    $stmt->fetchAll(
+        PDO::FETCH_ASSOC
+    );
 
 ?>
 
 <!DOCTYPE html>
+
 <html lang="es">
 
 <head>
+
     <?php include ROOT_PATH . "/includes/head.php"; ?>
+
 </head>
 
+
 <body>
-    <?php include ROOT_PATH . "/includes/header.php"; ?>
-    <?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
 
-    <div class="contenedor">
-        <!-- ======================================================
-             SIDEBAR
-        ======================================================= -->
-        <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
 
-        <!-- ======================================================
-             CONTENIDO
-        ======================================================= -->
+<?php include ROOT_PATH . "/includes/header.php"; ?>
 
-        <main class="contenido">
-            <!-- =================================================
-                 ENCABEZADO
-            =================================================== -->
 
-            <div class="contenido-header">
-                <div>
-                    <h1>Pagos</h1>
-                    <p>Registro de ingresos recibidos por las unidades </p>
-                </div>
+<div class="contenedor">
 
-                <button type="button" class="btn-filtrar" id="btnNuevoPago">
-                    Nuevo pago
-                </button>
-            </div>
 
-            <!-- ==================================================
-                 TABLA DE PAGOS
-            =================================================== -->
-            <div class="form-card">
-                <table class="tabla">
-                    <thead>
-                        <tr>
-                            <th>Unidad</th>
-                            <th>Fecha</th>
-                            <th>Valor</th>
-                            <th>Medio</th>
-                            <th>Origen</th>
-                            <th>Conciliación</th>
-                            <th>Referencia</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
+    <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
 
-                    <tbody>
-                        <?php if (empty($pagos)): ?>
-                            <tr>
-                                <td colspan="8" style="text-align:center;">
-                                    No existen pagos registrados.
-                                </td>
-                            </tr>
 
-                        <?php else: ?>
-                            <?php foreach ($pagos as $p): ?>
-                                <tr>
-                                    <!-- UNIDAD -->
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $p['codigo_unidad']
-                                        ) ?>
-                                    </td>
+    <main class="contenido">
 
-                                    <!-- FECHA -->
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $p['fecha_pago']
-                                        ) ?>
-                                    </td>
-
-                                    <!-- VALOR -->
-                                    <td>
-                                        $<?= number_format(
-                                            $p['valor'],
-                                            0,
-                                            ',',
-                                            '.'
-                                        ) ?>
-                                    </td>
-
-                                    <!-- MEDIO -->
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $p['medio_pago']
-                                        ) ?>
-                                    </td>
-
-                                    <!-- ORIGEN -->
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $p['origen_pago']
-                                        ) ?>
-                                    </td>
-
-                                    <!-- CONCILIACIÓN -->
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $p['estado_conciliacion']
-                                        ) ?>
-                                    </td>
-
-                                    <!-- REFERENCIA -->
-                                    <td>
-                                        <?= htmlspecialchars(
-                                            $p['referencia'] ?? ''
-                                        ) ?>
-                                    </td>
-
-                                    <!-- ACCIONES -->
-                                    <td>
-                                        <button
-                                            type="button"
-                                            class="btn-secondary btnEditarPago"
-                                            data-id="<?= $p['id_pago'] ?>">
-                                            Editar
-                                        </button>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </main>
 
         <!-- ======================================================
-             MODAL PAGO
+             ENCABEZADO
         ======================================================= -->
-        <div class="modal" id="modalPago">
-            <div class="modal-contenido modal-mensaje">
-                <!-- ==================================================
-                     HEADER MODAL
-                =================================================== -->
 
-                <div class="modal-header">
-
-
-                    <h2>
-                        Registrar pago
-                    </h2>
-
-
-                    <button
-                        type="button"
-                        class="modal-close"
-                        id="cerrarModalPago">
-                        &times;
-                    </button>
-
-
-                </div>
-
-
-                <!-- ==================================================
-                     FORMULARIO
-                =================================================== -->
-
-                <form
-                    id="formPago"
-                    method="POST"
-                    action="<?= BASE_URL ?>actions/guardar_pago.php">
-
-
-                    <!-- ID DEL PAGO -->
-
-                    <input
-                        type="hidden"
-                        name="id_pago"
-                        id="id_pago"
-                        value="">
-
-
-                    <div class="form-grid">
-
-
-                        <!-- ==================================================
-                             UNIDAD
-                        =================================================== -->
-
-                        <div class="form-group">
-
-
-                            <label for="id_unidad">
-
-                                Unidad
-
-                            </label>
-
-
-                            <select
-                                name="id_unidad"
-                                id="id_unidad"
-                                required>
-
-
-                                <option value="">
-
-                                    Seleccione una unidad
-
-                                </option>
-
-
-                                <?php foreach ($unidades as $u): ?>
-
-
-                                    <option
-                                        value="<?= $u['id_unidad'] ?>">
-
-                                        <?= htmlspecialchars(
-                                            $u['codigo']
-                                        ) ?>
-
-                                    </option>
-
-
-                                <?php endforeach; ?>
-
-
-                            </select>
-
-
-                        </div>
-
-
-                        <!-- ==================================================
-                             FECHA
-                        =================================================== -->
-
-                        <div class="form-group">
-
-
-                            <label for="fecha_pago">
-
-                                Fecha de pago
-
-                            </label>
-
-
-                            <input
-                                type="date"
-                                name="fecha_pago"
-                                id="fecha_pago"
-                                value="<?= date('Y-m-d') ?>"
-                                required>
-
-
-                        </div>
-
-
-                        <!-- ==================================================
-                             VALOR
-                        =================================================== -->
-
-                        <div class="form-group">
-
-
-                            <label for="valor">
-
-                                Valor
-
-                            </label>
-
-
-                            <input
-                                type="number"
-                                name="valor"
-                                id="valor"
-                                min="0"
-                                step="0.01"
-                                required>
-
-
-                        </div>
-
-
-                        <!-- ==================================================
-                             MEDIO DE PAGO
-                        =================================================== -->
-
-                        <div class="form-group">
-
-
-                            <label for="medio_pago">
-
-                                Medio de pago
-
-                            </label>
-
-
-                            <select
-                                name="medio_pago"
-                                id="medio_pago"
-                                required>
-
-
-                                <option value="TRANSFERENCIA">
-
-                                    Transferencia
-
-                                </option>
-
-
-                                <option value="EFECTIVO">
-
-                                    Efectivo
-
-                                </option>
-
-
-                                <option value="CONSIGNACION">
-
-                                    Consignación
-
-                                </option>
-
-
-                                <option value="PSE">
-
-                                    PSE
-
-                                </option>
-
-
-                                <option value="TARJETA">
-
-                                    Tarjeta
-
-                                </option>
-
-
-                                <option value="OTRO">
-
-                                    Otro
-
-                                </option>
-
-
-                            </select>
-
-
-                        </div>
-
-
-                        <!-- ==================================================
-                             ORIGEN
-                        =================================================== -->
-
-                        <div class="form-group">
-
-
-                            <label for="origen_pago">
-
-                                Origen del pago
-
-                            </label>
-
-
-                            <select
-                                name="origen_pago"
-                                id="origen_pago"
-                                required>
-
-
-                                <option value="MANUAL">
-
-                                    Manual
-
-                                </option>
-
-
-                                <option value="BANCO">
-
-                                    Banco
-
-                                </option>
-
-
-                                <option value="PASARELA">
-
-                                    Pasarela
-
-                                </option>
-
-
-                            </select>
-
-
-                        </div>
-
-
-                        <!-- ==================================================
-                             REFERENCIA
-                        =================================================== -->
-
-                        <div class="form-group">
-
-
-                            <label for="referencia">
-
-                                Referencia
-
-                            </label>
-
-
-                            <input
-                                type="text"
-                                name="referencia"
-                                id="referencia"
-                                maxlength="100">
-
-
-                        </div>
-
-
-                        <!-- ==================================================
-                             OBSERVACIONES
-                        =================================================== -->
-
-                        <div
-                            class="form-group form-group-full">
-
-
-                            <label for="observaciones">
-
-                                Observaciones
-
-                            </label>
-
-
-                            <textarea
-                                name="observaciones"
-                                id="observaciones"
-                                maxlength="255"
-                                rows="3"></textarea>
-
-
-                        </div>
-
-
-                    </div>
-
-
-                    <!-- ==================================================
-                         FOOTER MODAL
-                    =================================================== -->
-
-                    <div class="modal-footer">
-
-
-                        <button
-                            type="button"
-                            class="btn-secondary"
-                            id="cancelarPago">
-
-                            Cancelar
-
-                        </button>
-
-
-                        <button
-                            type="submit"
-                            class="btn-primary">
-
-                            Guardar pago
-
-                        </button>
-
-
-                    </div>
-
-
-                </form>
-
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:15px;
+                flex-wrap:wrap;
+            "
+        >
+
+            <div>
+
+                <h2>
+                    Pagos registrados
+                </h2>
+
+                <p>
+                    Consulta y seguimiento de pagos recibidos.
+                </p>
 
             </div>
 
         </div>
 
 
-    </div>
+        <br>
 
 
-    <!-- ==========================================================
-         JAVASCRIPT
-    =========================================================== -->
+        <!-- ======================================================
+             RESUMEN
+        ======================================================= -->
 
-<script src="<?= BASE_URL ?>assets/js/modal_popup.js"></script>
-<script src="<?= BASE_URL ?>assets/js/editar_pago.js"></script>
+        <div class="bloque filtros">
+
+            <div class="form-card">
+
+                <h3>
+                    Resumen
+                </h3>
+
+                <br>
+
+                <div class="tabla-responsive">
+
+                    <table class="tabla">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Pagos
+                                </th>
+
+                                <th>
+                                    Total recibido
+                                </th>
+
+                                <th>
+                                    Registrado
+                                </th>
+
+                                <th>
+                                    Conciliado
+                                </th>
+
+                                <th>
+                                    Anulado
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+
+                                <td>
+                                    <?= (int)($resumen['total_pagos'] ?? 0) ?>
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        <?= dinero(
+                                            $resumen['total_recibido'] ?? 0
+                                        ) ?>
+                                    </strong>
+                                </td>
+
+                                <td>
+                                    <?= dinero(
+                                        $resumen['total_registrado'] ?? 0
+                                    ) ?>
+                                </td>
+
+                                <td>
+                                    <?= dinero(
+                                        $resumen['total_conciliado'] ?? 0
+                                    ) ?>
+                                </td>
+
+                                <td>
+                                    <?= dinero(
+                                        $resumen['total_anulado'] ?? 0
+                                    ) ?>
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <br>
+
+
+        <!-- ======================================================
+             FILTROS
+        ======================================================= -->
+
+        <div class="bloque filtros">
+
+            <div class="form-card">
+
+                <h3>
+                    Filtros
+                </h3>
+
+                <br>
+
+                <form
+                    method="GET"
+                    action=""
+                >
+
+                    <div
+                        style="
+                            display:grid;
+                            grid-template-columns:
+                                repeat(
+                                    auto-fit,
+                                    minmax(200px, 1fr)
+                                );
+                            gap:15px;
+                        "
+                    >
+
+                        <div>
+
+                            <label>
+                                Buscar
+                            </label>
+
+                            <input
+                                type="text"
+                                name="buscar"
+                                value="<?= e($buscar) ?>"
+                                placeholder="Unidad, referencia..."
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Conciliación
+                            </label>
+
+                            <select
+                                name="estado_conciliacion"
+                            >
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                                <option
+                                    value="PENDIENTE"
+                                    <?= $estadoConciliacion === 'PENDIENTE'
+                                        ? 'selected'
+                                        : ''
+                                    ?>
+                                >
+                                    Pendiente
+                                </option>
+
+                                <option
+                                    value="CONCILIADO"
+                                    <?= $estadoConciliacion === 'CONCILIADO'
+                                        ? 'selected'
+                                        : ''
+                                    ?>
+                                >
+                                    Conciliado
+                                </option>
+
+                                <option
+                                    value="RECHAZADO"
+                                    <?= $estadoConciliacion === 'RECHAZADO'
+                                        ? 'selected'
+                                        : ''
+                                    ?>
+                                >
+                                    Rechazado
+                                </option>
+
+                                <option
+                                    value="CON_DIFERENCIA"
+                                    <?= $estadoConciliacion === 'CON_DIFERENCIA'
+                                        ? 'selected'
+                                        : ''
+                                    ?>
+                                >
+                                    Con diferencia
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Estado
+                            </label>
+
+                            <select name="estado">
+
+                                <option value="">
+                                    Todos
+                                </option>
+
+                                <option
+                                    value="REGISTRADO"
+                                    <?= $estado === 'REGISTRADO'
+                                        ? 'selected'
+                                        : ''
+                                    ?>
+                                >
+                                    Registrado
+                                </option>
+
+                                <option
+                                    value="ANULADO"
+                                    <?= $estado === 'ANULADO'
+                                        ? 'selected'
+                                        : ''
+                                    ?>
+                                >
+                                    Anulado
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Desde
+                            </label>
+
+                            <input
+                                type="date"
+                                name="fecha_desde"
+                                value="<?= e($fechaDesde) ?>"
+                            >
+
+                        </div>
+
+
+                        <div>
+
+                            <label>
+                                Hasta
+                            </label>
+
+                            <input
+                                type="date"
+                                name="fecha_hasta"
+                                value="<?= e($fechaHasta) ?>"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <br>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="btn-filtrar"
+                        >
+                            Filtrar
+                        </button>
+
+
+                        <a
+                            href="<?= BASE_URL ?>configuracion/pagos.php"
+                            class="btn-limpiar"
+                        >
+                            Limpiar
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <br>
+
+
+        <!-- ======================================================
+             LISTADO
+        ======================================================= -->
+
+        <div class="bloque filtros">
+
+            <div class="form-card">
+
+                <h3>
+                    Pagos
+                </h3>
+
+                <br>
+
+                <div class="tabla-responsive">
+
+                    <table class="tabla">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Unidad</th>
+                                <th>Referencia</th>
+                                <th>Medio</th>
+                                <th>Origen</th>
+                                <th>Valor</th>
+                                <th>Aplicado</th>
+                                <th>Disponible</th>
+                                <th>Conciliación</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+
+                        <?php if (empty($pagos)): ?>
+
+                            <tr>
+
+                                <td
+                                    colspan="12"
+                                    align="center"
+                                >
+                                    No existen pagos registrados.
+                                </td>
+
+                            </tr>
+
+                        <?php else: ?>
+
+
+                            <?php foreach ($pagos as $pago): ?>
+
+                                <tr>
+
+
+                                    <td>
+                                        #<?= (int)$pago['id_pago'] ?>
+                                    </td>
+
+
+                                    <td>
+
+                                        <?= e(
+                                            date(
+                                                'd/m/Y',
+                                                strtotime(
+                                                    $pago['fecha_pago']
+                                                )
+                                            )
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            <?= e($pago['unidad_codigo']) ?>
+                                        </strong>
+
+                                        <?php if (
+                                            !empty(
+                                                $pago['nombre_grupo']
+                                            )
+                                        ): ?>
+
+                                            <br>
+
+                                            <small>
+                                                <?= e(
+                                                    $pago['nombre_grupo']
+                                                ) ?>
+                                            </small>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <?= e(
+                                            $pago['referencia']
+                                            ?? '-'
+                                        ) ?>
+
+                                        <?php if (
+                                            !empty(
+                                                $pago['referencia_externa']
+                                            )
+                                        ): ?>
+
+                                            <br>
+
+                                            <small>
+                                                <?= e(
+                                                    $pago['referencia_externa']
+                                                ) ?>
+                                            </small>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <td>
+                                        <?= e(
+                                            $pago['medio_pago']
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+                                        <?= e(
+                                            $pago['origen_pago']
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+                                        <strong>
+                                            <?= dinero(
+                                                $pago['valor']
+                                            ) ?>
+                                        </strong>
+                                    </td>
+
+
+                                    <td>
+
+                                        <?= dinero(
+                                            $pago['valor_aplicado']
+                                        ) ?>
+
+                                        <?php if (
+                                            (int)$pago['cantidad_aplicaciones'] > 0
+                                        ): ?>
+
+                                            <br>
+
+                                            <small>
+                                                <?= (int)$pago['cantidad_aplicaciones'] ?>
+                                                aplicación<?= (int)$pago['cantidad_aplicaciones'] === 1 ? '' : 'es' ?>
+                                            </small>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <strong>
+                                            <?= dinero(
+                                                $pago['valor_disponible']
+                                            ) ?>
+                                        </strong>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <?= e(
+                                            $pago['estado_conciliacion']
+                                        ) ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <?php if (
+                                            $pago['estado'] === 'ANULADO'
+                                        ): ?>
+
+                                            <span class="inactivo">
+                                                ANULADO
+                                            </span>
+
+                                        <?php else: ?>
+
+                                            <span class="activo">
+                                                REGISTRADO
+                                            </span>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div
+                                            style="
+                                                display:flex;
+                                                gap:6px;
+                                                flex-wrap:wrap;
+                                            "
+                                        >
+
+                                            <a
+                                                href="<?= BASE_URL ?>configuracion/cartera_detalle.php?id_unidad=<?= (int)$pago['id_unidad'] ?>"
+                                                class="btn-secondary"
+                                            >
+                                                Ver cartera
+                                            </a>
+
+
+                                            <?php if (
+                                                $pago['estado'] === 'REGISTRADO' &&
+                                                (float)$pago['valor_disponible'] > 0
+                                            ): ?>
+
+                                                <a
+                                                    href="<?= BASE_URL ?>configuracion/aplicar_pagos.php?id_pago=<?= (int)$pago['id_pago'] ?>"
+                                                    class="btn-secondary"
+                                                >
+                                                    Aplicar pago
+                                                </a>
+
+                                            <?php endif; ?>
+
+                                        </div>
+
+                                    </td>
+
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+
+                        <?php endif; ?>
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </main>
+
+
+</div>
 
 
 </body>

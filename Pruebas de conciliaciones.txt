@@ -1,0 +1,28 @@
+Para actualizar conciliaciones
+
+UPDATE pagos
+SET
+    fecha_pago = '2026-04-21',
+    valor = 644303.00,
+    referencia = 'PRUEBA-CONCILIACION-95',
+    referencia_externa = 'EXTRACTO-95',
+    id_extracto = NULL,
+    estado_conciliacion = 'PENDIENTE',
+    fecha_conciliacion = NULL,
+    estado = 'REGISTRADO'
+WHERE id_pago = 3;
+
+-----------------------------------------------
+UPDATE pagos
+SET
+    fecha_pago = '2026-04-23',
+    valor = 644303.00,
+    referencia = 'PRUEBA-PROBABLE-96',
+    referencia_externa = 'EXTRACTO-96',
+    id_extracto = NULL,
+    estado_conciliacion = 'PENDIENTE',
+    fecha_conciliacion = NULL,
+    estado = 'REGISTRADO'
+WHERE id_pago = 2;
+-----------------------------------------------
+

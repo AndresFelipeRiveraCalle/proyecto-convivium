@@ -5,7 +5,7 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 
 // ==========================================================
-// CONSULTAR TASAS DE INTERÉS
+// CONSULTA DE TASAS
 // ==========================================================
 
 $sql = "
@@ -19,90 +19,157 @@ $sql = "
         fuente,
         activo,
         observaciones,
-        fecha_creacion
+        fecha_creacion,
+        fecha_actualizacion,
+
+        (
+            SELECT COUNT(*)
+            FROM intereses_cartera ic
+            WHERE ic.id_tasa_interes =
+                  tasas_interes.id_tasa_interes
+        ) AS cantidad_usos
+
     FROM tasas_interes
-    ORDER BY fecha_inicio DESC, id_tasa_interes DESC
+
+    ORDER BY
+        fecha_inicio DESC,
+        id_tasa_interes DESC
 ";
 
-$stmt = $conexion->prepare($sql);
-$stmt->execute();
+$stmt = $conexion->query($sql);
 
 $tasas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 // ==========================================================
-// FORMATO
+// FUNCIONES
 // ==========================================================
 
-function formatoTasa($valor)
+function e($valor)
+{
+    return htmlspecialchars(
+        (string)$valor,
+        ENT_QUOTES,
+        'UTF-8'
+    );
+}
+
+function porcentaje($valor)
 {
     return number_format(
-        (float)$valor,
-        6,
+        round((float)$valor, 2),
+        2,
         ',',
         '.'
-    );
+    ) . ' %';
+}
+
+
+function estadoVigencia($fechaInicio, $fechaFin)
+{
+    $hoy = date('Y-m-d');
+
+    if ($fechaInicio > $hoy) {
+        return 'PROGRAMADA';
+    }
+
+    if (
+        empty($fechaFin)
+        ||
+        $fechaFin >= $hoy
+    ) {
+        return 'VIGENTE';
+    }
+
+    return 'HISTÓRICA';
 }
 
 ?>
 
+
 <!DOCTYPE html>
+
 <html lang="es">
 
 <head>
 
     <?php include ROOT_PATH . "/includes/head.php"; ?>
 
-    <link
-        rel="stylesheet"
-        href="<?= BASE_URL ?>assets/css/tasas_interes.css"
-    >
-
 </head>
 
 
 <body>
 
-<?php include ROOT_PATH . "/includes/header.php"; ?>
 
-<?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
+<?php include ROOT_PATH . "/includes/header.php"; ?>
 
 
 <div class="contenedor">
+
 
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
 
 
     <main class="contenido">
 
-        <div class="tasas-container">
+
+        <!-- ======================================================
+             TÍTULO
+        ======================================================= -->
+
+        <h2 align="center">
+            Tasas de interés
+        </h2>
 
 
-            <!-- ==================================================
-                 ENCABEZADO
-            =================================================== -->
-
-            <div class="tasas-header">
-
-                <div>
-
-                    <h1>
-                        Tasas de interés
-                    </h1>
-
-                    <p>
-                        Administración de las tasas utilizadas
-                        para el cálculo de intereses de mora.
-                    </p>
-
-                </div>
+        <p align="center">
+            Configuración e histórico de tasas utilizadas para el cálculo de mora.
+        </p>
 
 
-                <div>
+        <br>
+
+
+        <?php
+            require_once ROOT_PATH .
+                "/includes/mensajes.php";
+        ?>
+
+
+        <!-- ======================================================
+             ACCIONES
+        ======================================================= -->
+
+        <div class="bloque filtros">
+
+            <div class="form-card">
+
+                <div
+                    style="
+                        display:flex;
+                        justify-content:space-between;
+                        align-items:center;
+                        gap:15px;
+                        flex-wrap:wrap;
+                    "
+                >
+
+                    <div>
+
+                        <h3>
+                            Administración de tasas
+                        </h3>
+
+                        <small>
+                            Las nuevas tasas deben registrarse por vigencia para conservar el histórico.
+                        </small>
+
+                    </div>
+
 
                     <button
                         type="button"
-                        class="btn-primary"
+                        class="btn-filtrar"
                         id="btnNuevaTasa"
                     >
                         + Nueva tasa
@@ -112,404 +179,377 @@ function formatoTasa($valor)
 
             </div>
 
-
-            <!-- ==================================================
-                 INFORMACIÓN
-            =================================================== -->
-
-            <div class="tasas-info">
-
-                <strong>
-                    Información importante:
-                </strong>
-
-                La tasa de interés moratorio debe configurarse de acuerdo
-                con la normatividad vigente, el reglamento de propiedad
-                horizontal y las decisiones de la asamblea.
-
-                Las tasas utilizadas para generar intereses quedan
-                registradas históricamente y no deben eliminarse.
-
-            </div>
-            <div class="tasas-info-secundaria">
-
-                La aplicación permite registrar tasas legales, tasas
-                aprobadas por asamblea o tasas ingresadas manualmente.
-                Verifique siempre su porcentaje, vigencia y método de
-                cálculo antes de generar intereses.
-
-            </div>
-
-            <!-- ==================================================
-                 TABLA
-            =================================================== -->
-
-            <div class="tabla-card">
-
-                <div class="tabla-header">
-
-                    <h2>
-                        Historial de tasas
-                    </h2>
-
-                </div>
+        </div>
 
 
-                <?php if (empty($tasas)): ?>
-
-                    <div class="sin-datos">
-
-                        No existen tasas de interés
-                        configuradas.
-
-                    </div>
-
-                <?php else: ?>
+        <br>
 
 
-                    <div class="tabla-responsive">
+        <!-- ======================================================
+             HISTÓRICO DE TASAS
+        ======================================================= -->
 
-                        <table class="tabla-tasas">
+        <div class="bloque filtros">
 
-                            <thead>
+            <div class="form-card">
+
+                <h3>
+                    Histórico de tasas
+                </h3>
+
+                <br>
+
+
+                <div class="tabla-responsive">
+
+                    <table class="tabla">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    ID
+                                </th>
+
+                                <th>
+                                    Nombre
+                                </th>
+
+                                <th>
+                                    Tasa anual
+                                </th>
+
+                                <th>
+                                    Tasa mensual
+                                </th>
+
+                                <th>
+                                    Inicio
+                                </th>
+
+                                <th>
+                                    Fin
+                                </th>
+
+                                <th>
+                                    Fuente
+                                </th>
+
+                                <th>
+                                    Estado
+                                </th>
+
+                                <th>
+                                    Vigencia
+                                </th>
+
+                                <th>
+                                    Acción
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                        <?php if (empty($tasas)): ?>
+
+                            <tr>
+
+                                <td
+                                    colspan="10"
+                                    align="center"
+                                >
+                                    No existen tasas registradas.
+                                </td>
+
+                            </tr>
+
+                        <?php else: ?>
+
+
+                            <?php foreach ($tasas as $tasa): ?>
 
                                 <tr>
 
-                                    <th>
-                                        Nombre
-                                    </th>
 
-                                    <th>
-                                        Tasa anual
-                                    </th>
-
-                                    <th>
-                                        Tasa mensual
-                                    </th>
-
-                                    <th>
-                                        Vigencia
-                                    </th>
-
-                                    <th>
-                                        Fuente
-                                    </th>
-
-                                    <th>
-                                        Estado
-                                    </th>
-
-                                    <th>
-                                        Acción
-                                    </th>
-
-                                </tr>
-
-                            </thead>
+                                    <td>
+                                        <?= (int)$tasa['id_tasa_interes'] ?>
+                                    </td>
 
 
-                            <tbody>
+                                    <td>
+                                        <strong>
+                                            <?= e($tasa['nombre']) ?>
+                                        </strong>
+                                    </td>
 
-                                <?php foreach ($tasas as $tasa): ?>
 
-                                    <tr>
+                                    <td class="numero">
+                                        <?= porcentaje($tasa['tasa_anual']) ?>
+                                    </td>
 
-                                        <!-- NOMBRE -->
 
-                                        <td>
+                                    <td class="numero">
+                                        <?= porcentaje($tasa['tasa_mensual']) ?>
+                                    </td>
+
+
+                                    <td>
+                                        <?= e(
+                                            date(
+                                                'd/m/Y',
+                                                strtotime(
+                                                    $tasa['fecha_inicio']
+                                                )
+                                            )
+                                        ) ?>
+                                    </td>
+
+
+                                    <td>
+
+                                        <?php if (
+                                            !empty(
+                                                $tasa['fecha_fin']
+                                            )
+                                        ): ?>
+
+                                            <?= e(
+                                                date(
+                                                    'd/m/Y',
+                                                    strtotime(
+                                                        $tasa['fecha_fin']
+                                                    )
+                                                )
+                                            ) ?>
+
+                                        <?php else: ?>
+
+                                            <span class="activo">
+                                                VIGENTE
+                                            </span>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <td>
+                                        <?= e($tasa['fuente'] ?? '-') ?>
+                                    </td>
+
+
+                                    <td>
+
+                                        <?php if (
+                                            (int)$tasa['activo'] === 1
+                                        ): ?>
+
+                                            <span class="activo">
+                                                ACTIVA
+                                            </span>
+
+                                        <?php else: ?>
+
+                                            <span class="inactivo">
+                                                INACTIVA
+                                            </span>
+
+                                        <?php endif; ?>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <?php
+                                            $vigenciaActual =
+                                                estadoVigencia(
+                                                    $tasa['fecha_inicio'],
+                                                    $tasa['fecha_fin']
+                                                );
+                                        ?>
+
+                                        <?php if (
+                                            $vigenciaActual === 'VIGENTE'
+                                        ): ?>
+
+                                            <span class="activo">
+                                                VIGENTE
+                                            </span>
+
+                                        <?php elseif (
+                                            $vigenciaActual === 'PROGRAMADA'
+                                        ): ?>
 
                                             <strong>
-
-                                                <?= htmlspecialchars(
-                                                    $tasa['nombre']
-                                                ) ?>
-
+                                                PROGRAMADA
                                             </strong>
 
+                                        <?php else: ?>
 
-                                            <?php if (
-                                                !empty(
-                                                    $tasa['observaciones']
-                                                )
-                                            ): ?>
+                                            <span class="inactivo">
+                                                HISTÓRICA
+                                            </span>
 
-                                                <small class="texto-secundario">
+                                        <?php endif; ?>
 
-                                                    <?= htmlspecialchars(
-                                                        $tasa['observaciones']
-                                                    ) ?>
-
-                                                </small>
-
-                                            <?php endif; ?>
-
-                                        </td>
-
-                                        <div class="campo">
-
-                                            <label for="tipo_tasa">
-                                                Tipo de tasa
-                                            </label>
-
-                                            <select
-                                                name="tipo_tasa"
-                                                id="tipo_tasa"
-                                                required
-                                            >
-
-                                                <option value="LEGAL">
-                                                    Legal / referencia normativa
-                                                </option>
-
-                                                <option value="ASAMBLEA">
-                                                    Definida por asamblea
-                                                </option>
-
-                                                <option value="MANUAL">
-                                                    Manual
-                                                </option>
-
-                                            </select>
-
-                                        </div>
-
-                                        <!-- TASA ANUAL -->
-
-                                        <td>
-
-                                            <?= formatoTasa(
-                                                $tasa['tasa_anual']
-                                            ) ?>
-
-                                            %
-
-                                        </td>
+                                    </td>
 
 
-                                        <!-- TASA MENSUAL -->
+                                    <td>
 
-                                        <td>
-
-                                            <?= formatoTasa(
-                                                $tasa['tasa_mensual']
-                                            ) ?>
-
-                                            %
-
-                                        </td>
-
-
-                                        <!-- VIGENCIA -->
-
-                                        <td>
-
-                                            <div class="vigencia">
-
-                                                <span>
-
-                                                    <?= date(
-                                                        'd/m/Y',
-                                                        strtotime(
-                                                            $tasa['fecha_inicio']
-                                                        )
-                                                    ) ?>
-
-                                                </span>
-
-
-                                                <span class="separador">
-                                                    →
-                                                </span>
-
-
-                                                <span>
-
-                                                    <?php if (
-                                                        !empty(
-                                                            $tasa['fecha_fin']
-                                                        )
-                                                    ): ?>
-
-                                                        <?= date(
-                                                            'd/m/Y',
-                                                            strtotime(
-                                                                $tasa['fecha_fin']
-                                                            )
-                                                        ) ?>
-
-                                                    <?php else: ?>
-
-                                                        Vigente
-
-                                                    <?php endif; ?>
-
-                                                </span>
-
-                                            </div>
-
-                                        </td>
-
-
-                                        <!-- FUENTE -->
-
-                                        <td>
-
-                                            <?= !empty(
-                                                $tasa['fuente']
-                                            )
-                                                ? htmlspecialchars(
-                                                    $tasa['fuente']
-                                                )
-                                                : '—'
-                                            ?>
-
-                                        </td>
-
-
-                                        <!-- ESTADO -->
-
-                                        <td>
-
-                                            <?php if (
-                                                (int)$tasa['activo'] === 1
-                                            ): ?>
-
-                                                <span
-                                                    class="estado activo"
-                                                >
-                                                    Activa
-                                                </span>
-
-                                            <?php else: ?>
-
-                                                <span
-                                                    class="estado inactivo"
-                                                >
-                                                    Inactiva
-                                                </span>
-
-                                            <?php endif; ?>
-
-                                        </td>
-
-
-                                        <!-- ACCIÓN -->
-
-                                        <td>
+                                        <div
+                                            style="
+                                                display:flex;
+                                                gap:6px;
+                                                flex-wrap:wrap;
+                                            "
+                                        >
 
                                             <button
                                                 type="button"
                                                 class="btn-secondary btnEditarTasa"
                                                 data-id="<?= (int)$tasa['id_tasa_interes'] ?>"
+                                                data-nombre="<?= e($tasa['nombre']) ?>"
+                                                data-fuente="<?= e($tasa['fuente'] ?? '') ?>"
+                                                data-observaciones="<?= e($tasa['observaciones'] ?? '') ?>"
+                                                data-activo="<?= (int)$tasa['activo'] ?>"
+                                                data-fecha-inicio="<?= e($tasa['fecha_inicio']) ?>"
+                                                data-fecha-fin="<?= e($tasa['fecha_fin'] ?? '') ?>"
+                                                data-usada="<?= (int)($tasa['cantidad_usos'] ?? 0) > 0 ? '1' : '0' ?>"
                                             >
-                                                ✏ Editar
+                                                Editar
                                             </button>
 
-                                        </td>
+                                        <?php if (
+                                            (int)$tasa['activo'] === 1
+                                            &&
+                                            $vigenciaActual === 'VIGENTE'
+                                        ): ?>
 
-                                    </tr>
+                                            <button
+                                                type="button"
+                                                class="btn-secondary btnNuevaVigencia"
+                                                data-id="<?= (int)$tasa['id_tasa_interes'] ?>"
+                                                data-nombre="<?= e($tasa['nombre']) ?>"
+                                                data-tasa-anual="<?= e($tasa['tasa_anual']) ?>"
+                                                data-tasa-mensual="<?= e($tasa['tasa_mensual']) ?>"
+                                                data-fuente="<?= e($tasa['fuente'] ?? '') ?>"
+                                                data-observaciones="<?= e($tasa['observaciones'] ?? '') ?>"
+                                            >
+                                                Nueva vigencia
+                                            </button>
 
-                                <?php endforeach; ?>
+                                        <?php endif; ?>
 
-                            </tbody>
+                                        </div>
 
-                        </table>
-
-                    </div>
+                                    </td>
 
 
-                <?php endif; ?>
+                                </tr>
 
+                            <?php endforeach; ?>
+
+
+                        <?php endif; ?>
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
 
             </div>
 
-
         </div>
 
+
     </main>
+
 
 </div>
 
 
 <!-- ==========================================================
-     MODAL
+     MODAL NUEVA TASA
 =========================================================== -->
 
 <div
-    id="modalTasaInteres"
+    id="modalNuevaTasa"
     class="modal"
     style="display:none;"
 >
 
     <div class="modal-contenido">
 
-
         <div class="modal-header">
 
-            <h2 id="tituloModalTasa">
+            <h3>
                 Nueva tasa de interés
-            </h2>
+            </h3>
 
             <button
                 type="button"
                 class="modal-cerrar"
-                id="cerrarModalTasa"
+                id="cerrarNuevaTasa"
             >
-                ×
+                &times;
             </button>
 
         </div>
 
 
         <form
-            id="formTasaInteres"
             method="POST"
             action="<?= BASE_URL ?>actions/guardar_tasa_interes.php"
         >
 
-            <input
-                type="hidden"
-                name="id_tasa_interes"
-                id="id_tasa_interes"
-                value=""
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(
+                            auto-fit,
+                            minmax(210px, 1fr)
+                        );
+                    gap:15px;
+                "
             >
 
+                <div>
 
-            <!-- NOMBRE -->
+                    <label>
+                        Nombre *
+                    </label>
 
-            <div class="campo">
+                    <input
+                        type="text"
+                        name="nombre"
+                        maxlength="150"
+                        required
+                    >
 
-                <label for="nombre">
-                    Nombre
-                </label>
-
-                <input
-                    type="text"
-                    name="nombre"
-                    id="nombre"
-                    maxlength="150"
-                    required
-                >
-
-            </div>
+                </div>
 
 
-            <!-- TASAS -->
+                <div>
 
-            <div class="campos-dos">
-
-
-                <div class="campo">
-
-                    <label for="tasa_anual">
-                        Tasa anual (%)
+                    <label>
+                        Tasa anual (%) *
                     </label>
 
                     <input
                         type="number"
                         name="tasa_anual"
-                        id="tasa_anual"
-                        step="0.000001"
+                        step="0.01"
                         min="0"
                         required
                     >
@@ -517,193 +557,96 @@ function formatoTasa($valor)
                 </div>
 
 
-                <div class="campo">
+                <div>
 
-                    <label for="tasa_mensual">
-                        Tasa mensual equivalente (%)
+                    <label>
+                        Tasa mensual (%) *
                     </label>
 
                     <input
                         type="number"
                         name="tasa_mensual"
-                        id="tasa_mensual"
-                        step="0.000001"
+                        step="0.01"
                         min="0"
-                        readonly
-                    >
-
-                    <small>
-                        Calculada automáticamente a partir de la tasa anual.
-                    </small>
-
-                </div>
-
-
-            </div>
-
-            <div class="campos-dos">
-
-                <div class="campo">
-
-                    <label for="periodicidad">
-                        Periodicidad
-                    </label>
-
-                    <select
-                        name="periodicidad"
-                        id="periodicidad"
                         required
                     >
 
-                        <option value="MENSUAL">
-                            Mensual
-                        </option>
-
-                    </select>
-
                 </div>
 
 
-                <div class="campo">
+                <div>
 
-                    <label for="metodo_calculo">
-                        Método de cálculo
-                    </label>
-
-                    <select
-                        name="metodo_calculo"
-                        id="metodo_calculo"
-                        required
-                    >
-
-                        <option value="MES_VENCIDO">
-                            Mes vencido
-                        </option>
-
-                        <option value="DIARIO">
-                            Diario
-                        </option>
-
-                        <option value="OTRO">
-                            Otro
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-
-            <!-- FECHAS -->
-
-            <div class="campos-dos">
-
-
-                <div class="campo">
-
-                    <label for="fecha_inicio">
-                        Fecha de inicio
+                    <label>
+                        Fecha inicio *
                     </label>
 
                     <input
                         type="date"
                         name="fecha_inicio"
-                        id="fecha_inicio"
                         required
                     >
 
                 </div>
 
 
-                <div class="campo">
+                <div>
 
-                    <label for="fecha_fin">
-                        Fecha de finalización
+                    <label>
+                        Fecha fin
                     </label>
 
                     <input
                         type="date"
                         name="fecha_fin"
-                        id="fecha_fin"
                     >
-
-                    <small>
-                        Dejar vacío si la tasa continúa vigente.
-                    </small>
 
                 </div>
 
 
-            </div>
+                <div>
 
-
-            <!-- FUENTE -->
-
-            <div class="campo">
-
-                <label for="fuente">
-                    Fuente
-                </label>
-
-                <input
-                    type="text"
-                    name="fuente"
-                    id="fuente"
-                    maxlength="255"
-                    placeholder="Ej. Superintendencia Financiera"
-                >
-
-            </div>
-
-
-            <!-- OBSERVACIONES -->
-
-            <div class="campo">
-
-                <label for="observaciones">
-                    Observaciones
-                </label>
-
-                <textarea
-                    name="observaciones"
-                    id="observaciones"
-                    rows="3"
-                    maxlength="255"
-                ></textarea>
-
-            </div>
-
-
-            <!-- ESTADO -->
-
-            <div class="campo campo-checkbox">
-
-                <label>
+                    <label>
+                        Fuente
+                    </label>
 
                     <input
-                        type="checkbox"
-                        name="activo"
-                        id="activo"
-                        value="1"
-                        checked
+                        type="text"
+                        name="fuente"
+                        maxlength="255"
                     >
 
-                    Tasa activa
+                </div>
 
-                </label>
+                <div
+                    style="
+                        grid-column:1 / -1;
+                    "
+                >
+
+                    <label>
+                        Observaciones
+                    </label>
+
+                    <textarea
+                        name="observaciones"
+                        rows="3"
+                        maxlength="255"
+                    ></textarea>
+
+                </div>
 
             </div>
 
 
-            <!-- BOTONES -->
+            <br>
 
-            <div class="modal-botones">
+
+            <div class="form-actions">
 
                 <button
                     type="button"
-                    class="btn-secondary"
-                    id="cancelarTasa"
+                    class="btn-limpiar"
+                    id="cancelarNuevaTasa"
                 >
                     Cancelar
                 </button>
@@ -711,13 +654,12 @@ function formatoTasa($valor)
 
                 <button
                     type="submit"
-                    class="btn-primary"
+                    class="btn-filtrar"
                 >
-                    Guardar
+                    Guardar tasa
                 </button>
 
             </div>
-
 
         </form>
 
@@ -726,7 +668,736 @@ function formatoTasa($valor)
 </div>
 
 
-<script src="<?= BASE_URL ?>assets/js/tasas_interes.js"></script>
+<!-- ==========================================================
+     MODAL EDITAR TASA
+=========================================================== -->
+
+<div
+    id="modalEditarTasa"
+    class="modal"
+    style="display:none;"
+>
+
+    <div class="modal-contenido">
+
+        <div class="modal-header">
+
+            <h3>
+                Editar datos de la tasa
+            </h3>
+
+            <button
+                type="button"
+                class="modal-cerrar"
+                id="cerrarEditarTasa"
+            >
+                &times;
+            </button>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="<?= BASE_URL ?>actions/actualizar_tasa_interes.php"
+        >
+
+            <input
+                type="hidden"
+                name="id_tasa_interes"
+                id="editar_id_tasa"
+            >
+
+
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(
+                            auto-fit,
+                            minmax(210px, 1fr)
+                        );
+                    gap:15px;
+                "
+            >
+
+                <div>
+
+                    <label>
+                        Nombre *
+                    </label>
+
+                    <input
+                        type="text"
+                        name="nombre"
+                        id="editar_nombre"
+                        maxlength="150"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Fuente
+                    </label>
+
+                    <input
+                        type="text"
+                        name="fuente"
+                        id="editar_fuente"
+                        maxlength="255"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Estado *
+                    </label>
+
+                    <select
+                        name="activo"
+                        id="editar_activo"
+                        required
+                    >
+                        <option value="1">
+                            Activa
+                        </option>
+
+                        <option value="0">
+                            Inactiva
+                        </option>
+                    </select>
+
+                    <small>
+                        Al desactivar una tasa no se elimina su histórico.
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Fecha inicio *
+                    </label>
+
+                    <input
+                        type="date"
+                        name="fecha_inicio"
+                        id="editar_fecha_inicio"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Fecha fin
+                    </label>
+
+                    <input
+                        type="date"
+                        name="fecha_fin"
+                        id="editar_fecha_fin"
+                    >
+
+                </div>
+
+
+                <div
+                    id="avisoFechasBloqueadas"
+                    style="
+                        grid-column:1 / -1;
+                        display:none;
+                    "
+                >
+
+                    <small>
+                        Esta tasa ya fue utilizada en cálculos de intereses.
+                        Las fechas de vigencia no pueden modificarse.
+                        Para cambios futuros use Nueva vigencia.
+                    </small>
+
+                </div>
+
+
+
+                <div
+                    style="
+                        grid-column:1 / -1;
+                    "
+                >
+
+                    <label>
+                        Observaciones
+                    </label>
+
+                    <textarea
+                        name="observaciones"
+                        id="editar_observaciones"
+                        rows="3"
+                        maxlength="255"
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <br>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="btn-limpiar"
+                    id="cancelarEditarTasa"
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn-filtrar"
+                >
+                    Guardar cambios
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================================
+     MODAL NUEVA VIGENCIA
+=========================================================== -->
+
+<div
+    id="modalNuevaVigencia"
+    class="modal"
+    style="display:none;"
+>
+
+    <div class="modal-contenido">
+
+        <div class="modal-header">
+
+            <h3>
+                Nueva vigencia de tasa
+            </h3>
+
+            <button
+                type="button"
+                class="modal-cerrar"
+                id="cerrarNuevaVigencia"
+            >
+                &times;
+            </button>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="<?= BASE_URL ?>actions/editar_tasa_interes.php"
+        >
+
+            <input
+                type="hidden"
+                name="id_tasa_interes"
+                id="vigencia_id_tasa"
+            >
+
+
+            <div
+                style="
+                    display:grid;
+                    grid-template-columns:
+                        repeat(
+                            auto-fit,
+                            minmax(210px, 1fr)
+                        );
+                    gap:15px;
+                "
+            >
+
+                <div>
+
+                    <label>
+                        Nombre *
+                    </label>
+
+                    <input
+                        type="text"
+                        name="nombre"
+                        id="vigencia_nombre"
+                        maxlength="150"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Nueva tasa anual (%) *
+                    </label>
+
+                    <input
+                        type="number"
+                        name="tasa_anual"
+                        id="vigencia_tasa_anual"
+                        step="0.01"
+                        min="0"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Nueva tasa mensual (%) *
+                    </label>
+
+                    <input
+                        type="number"
+                        name="tasa_mensual"
+                        id="vigencia_tasa_mensual"
+                        step="0.01"
+                        min="0"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Inicio nueva vigencia *
+                    </label>
+
+                    <input
+                        type="date"
+                        name="fecha_inicio"
+                        id="vigencia_fecha_inicio"
+                        required
+                    >
+
+                    <small>
+                        La vigencia anterior se cerrará el día anterior.
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Fuente
+                    </label>
+
+                    <input
+                        type="text"
+                        name="fuente"
+                        id="vigencia_fuente"
+                        maxlength="255"
+                    >
+
+                </div>
+
+
+                <div
+                    style="
+                        grid-column:1 / -1;
+                    "
+                >
+
+                    <label>
+                        Observaciones
+                    </label>
+
+                    <textarea
+                        name="observaciones"
+                        id="vigencia_observaciones"
+                        rows="3"
+                        maxlength="255"
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <br>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="btn-limpiar"
+                    id="cancelarNuevaVigencia"
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn-filtrar"
+                >
+                    Crear nueva vigencia
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const modalNueva =
+            document.getElementById(
+                'modalNuevaTasa'
+            );
+
+        const modalVigencia =
+            document.getElementById(
+                'modalNuevaVigencia'
+            );
+
+        const modalEditar =
+            document.getElementById(
+                'modalEditarTasa'
+            );
+
+
+        function abrirModal(modal)
+        {
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+
+
+        function cerrarModal(modal)
+        {
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+
+        document
+            .getElementById('btnNuevaTasa')
+            ?.addEventListener(
+                'click',
+                function () {
+                    abrirModal(modalNueva);
+                }
+            );
+
+
+        document
+            .getElementById('cerrarNuevaTasa')
+            ?.addEventListener(
+                'click',
+                function () {
+                    cerrarModal(modalNueva);
+                }
+            );
+
+
+        document
+            .getElementById('cancelarNuevaTasa')
+            ?.addEventListener(
+                'click',
+                function () {
+                    cerrarModal(modalNueva);
+                }
+            );
+
+
+        document
+            .getElementById('cerrarEditarTasa')
+            ?.addEventListener(
+                'click',
+                function () {
+                    cerrarModal(modalEditar);
+                }
+            );
+
+
+        document
+            .getElementById('cancelarEditarTasa')
+            ?.addEventListener(
+                'click',
+                function () {
+                    cerrarModal(modalEditar);
+                }
+            );
+
+
+        document
+            .querySelectorAll(
+                '.btnEditarTasa'
+            )
+            .forEach(
+                function (boton) {
+
+                    boton.addEventListener(
+                        'click',
+                        function () {
+
+                            document
+                                .getElementById(
+                                    'editar_id_tasa'
+                                )
+                                .value =
+                                    boton.dataset.id
+                                    || '';
+
+                            document
+                                .getElementById(
+                                    'editar_nombre'
+                                )
+                                .value =
+                                    boton.dataset.nombre
+                                    || '';
+
+                            document
+                                .getElementById(
+                                    'editar_fuente'
+                                )
+                                .value =
+                                    boton.dataset.fuente
+                                    || '';
+
+                            document
+                                .getElementById(
+                                    'editar_observaciones'
+                                )
+                                .value =
+                                    boton.dataset.observaciones
+                                    || '';
+
+                            document
+                                .getElementById(
+                                    'editar_activo'
+                                )
+                                .value =
+                                    boton.dataset.activo
+                                    || '1';
+
+                            const fechaInicio =
+                                document.getElementById(
+                                    'editar_fecha_inicio'
+                                );
+
+                            const fechaFin =
+                                document.getElementById(
+                                    'editar_fecha_fin'
+                                );
+
+                            const avisoFechas =
+                                document.getElementById(
+                                    'avisoFechasBloqueadas'
+                                );
+
+                            fechaInicio.value =
+                                boton.dataset.fechaInicio
+                                || '';
+
+                            fechaFin.value =
+                                boton.dataset.fechaFin
+                                || '';
+
+                            const tasaUsada =
+                                boton.dataset.usada === '1';
+
+                            fechaInicio.disabled =
+                                tasaUsada;
+
+                            fechaFin.disabled =
+                                tasaUsada;
+
+                            if (avisoFechas) {
+                                avisoFechas.style.display =
+                                    tasaUsada
+                                        ? 'block'
+                                        : 'none';
+                            }
+
+                            abrirModal(
+                                modalEditar
+                            );
+                        }
+                    );
+                }
+            );
+
+
+        document
+            .getElementById('cerrarNuevaVigencia')
+            ?.addEventListener(
+                'click',
+                function () {
+                    cerrarModal(modalVigencia);
+                }
+            );
+
+
+        document
+            .getElementById('cancelarNuevaVigencia')
+            ?.addEventListener(
+                'click',
+                function () {
+                    cerrarModal(modalVigencia);
+                }
+            );
+
+
+        document
+            .querySelectorAll(
+                '.btnNuevaVigencia'
+            )
+            .forEach(
+                function (boton) {
+
+                    boton.addEventListener(
+                        'click',
+                        function () {
+
+                            document
+                                .getElementById(
+                                    'vigencia_id_tasa'
+                                )
+                                .value =
+                                    boton.dataset.id
+                                    || '';
+
+                            document
+                                .getElementById(
+                                    'vigencia_nombre'
+                                )
+                                .value =
+                                    boton.dataset.nombre
+                                    || '';
+
+                            document
+                                .getElementById(
+                                    'vigencia_tasa_anual'
+                                )
+                                .value =
+                                    boton.dataset.tasaAnual
+                                    || '';
+
+                            document
+                                .getElementById(
+                                    'vigencia_tasa_mensual'
+                                )
+                                .value =
+                                    boton.dataset.tasaMensual
+                                    || '';
+
+                            document
+                                .getElementById(
+                                    'vigencia_fuente'
+                                )
+                                .value =
+                                    boton.dataset.fuente
+                                    || '';
+
+                            document
+                                .getElementById(
+                                    'vigencia_observaciones'
+                                )
+                                .value =
+                                    boton.dataset.observaciones
+                                    || '';
+
+                            document
+                                .getElementById(
+                                    'vigencia_fecha_inicio'
+                                )
+                                .value = '';
+
+                            abrirModal(
+                                modalVigencia
+                            );
+                        }
+                    );
+                }
+            );
+
+
+        [
+            modalNueva,
+            modalVigencia,
+            modalEditar
+        ].forEach(
+            function (modal) {
+
+                modal?.addEventListener(
+                    'click',
+                    function (event) {
+
+                        if (
+                            event.target === modal
+                        ) {
+                            cerrarModal(modal);
+                        }
+                    }
+                );
+            }
+        );
+
+
+        document.addEventListener(
+            'keydown',
+            function (event) {
+
+                if (
+                    event.key === 'Escape'
+                ) {
+                    cerrarModal(modalNueva);
+                    cerrarModal(modalVigencia);
+                    cerrarModal(modalEditar);
+                }
+            }
+        );
+
+    }
+);
+
+</script>
+
 
 </body>
 
