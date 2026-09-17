@@ -63,21 +63,34 @@ $params = [];
 
 // ==========================================================
 // FILTRO BUSCAR
+// Busca por factura, unidad, nombre o grupo.
 // ==========================================================
 
 if ($buscar !== '') {
 
     $sql .= "
         AND (
-            f.numero_factura LIKE :buscar
-            OR u.codigo LIKE :buscar
-            OR u.nombre LIKE :buscar
-            OR dtu.nombre_grupo LIKE :buscar
+            f.numero_factura LIKE :buscar_factura
+            OR u.codigo LIKE :buscar_unidad
+            OR u.nombre LIKE :buscar_nombre
+            OR dtu.nombre_grupo LIKE :buscar_grupo
         )
     ";
 
-    $params[':buscar'] =
+    $valorBuscar =
         '%' . $buscar . '%';
+
+    $params[':buscar_factura'] =
+        $valorBuscar;
+
+    $params[':buscar_unidad'] =
+        $valorBuscar;
+
+    $params[':buscar_nombre'] =
+        $valorBuscar;
+
+    $params[':buscar_grupo'] =
+        $valorBuscar;
 }
 
 

@@ -79,7 +79,18 @@ $sqlPago = "
         COALESCE(
             SUM(ap.valor_aplicado),
             0
-        ) AS valor_aplicado
+        ) AS valor_aplicado,
+
+        COALESCE(
+            (
+                SELECT SUM(sf.valor_original)
+                FROM saldo_favor sf
+                WHERE
+                    sf.id_pago = p.id_pago
+                    AND sf.estado <> 'ANULADO'
+            ),
+            0
+        ) AS valor_saldo_favor
 
     FROM pagos p
 
@@ -146,7 +157,8 @@ if (!$pago) {
 $valorDisponible =
     round(
         (float)$pago['valor'] -
-        (float)$pago['valor_aplicado'],
+        (float)$pago['valor_aplicado'] -
+        (float)$pago['valor_saldo_favor'],
         2
     );
 
@@ -159,6 +171,7 @@ $sqlCartera = "
     SELECT
         c.id_cartera,
         c.id_factura,
+        c.id_detalle,
         c.periodo,
         c.descripcion,
         c.valor_original,
@@ -168,6 +181,8 @@ $sqlCartera = "
         c.estado,
 
         f.numero_factura,
+
+        fd.id_interes,
 
         cf.nombre AS concepto,
 
@@ -195,10 +210,10 @@ $sqlCartera = "
         c.id_unidad =
             :id_unidad
 
-        AND c.estado =
-            'PENDIENTE'
+        AND c.estado <>
+            'ANULADA'
 
-        AND c.saldo > 0
+        AND c.saldo > 0.009
 
     ORDER BY
         c.fecha_vencimiento ASC,
@@ -357,30 +372,78 @@ $aplicaciones =
 
 
         <!-- ======================================================
-             MENSAJES
+             POPUP DE MENSAJE
+             Muestra el resultado de registrar o aplicar un pago.
         ======================================================= -->
 
-        <?php if (
-            !empty($_GET['texto'])
-        ): ?>
+        <?php if (!empty($_GET['texto'])): ?>
 
-            <div class="info-box">
+            <?php
+                $tipoMensaje = strtolower(trim($_GET['tipo'] ?? 'info'));
+                $textoMensaje = trim($_GET['texto']);
 
-                <strong>
-                    <?= e(
-                        strtoupper(
-                            $_GET['tipo'] ?? 'info'
-                        )
-                    ) ?>
-                </strong>
+                $tituloMensaje = 'Información';
+                $iconoMensaje = 'ℹ';
 
-                <p>
-                    <?= e($_GET['texto']) ?>
-                </p>
+                if ($tipoMensaje === 'success') {
+                    $tituloMensaje = 'Operación exitosa';
+                    $iconoMensaje = '✓';
+                } elseif ($tipoMensaje === 'warning') {
+                    $tituloMensaje = 'Atención';
+                    $iconoMensaje = '⚠';
+                } elseif ($tipoMensaje === 'error') {
+                    $tituloMensaje = 'Ocurrió un problema';
+                    $iconoMensaje = '✕';
+                }
+            ?>
 
+            <div
+                id="modalMensajePago"
+                class="modal"
+                style="display:flex; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.55); align-items:center; justify-content:center; padding:20px;"
+            >
+                <div
+                    class="modal-contenido"
+                    style="width:min(520px, 95vw); background:#fff; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.25); overflow:hidden;"
+                >
+                    <div
+                        class="modal-header"
+                        style="display:flex; justify-content:space-between; align-items:center; gap:15px; padding:18px 20px; border-bottom:1px solid #ddd;"
+                    >
+                        <h3 style="margin:0;">
+                            <?= e($iconoMensaje . ' ' . $tituloMensaje) ?>
+                        </h3>
+
+                        <button
+                            type="button"
+                            id="cerrarModalMensajePago"
+                            class="modal-cerrar"
+                            style="border:0; background:transparent; font-size:28px; cursor:pointer; line-height:1;"
+                        >
+                            &times;
+                        </button>
+                    </div>
+
+                    <div style="padding:20px;">
+                        <p style="margin:0; line-height:1.6;">
+                            <?= e($textoMensaje) ?>
+                        </p>
+
+                        <div
+                            class="form-actions"
+                            style="display:flex; justify-content:flex-end; gap:8px; margin-top:22px;"
+                        >
+                            <button
+                                type="button"
+                                id="aceptarModalMensajePago"
+                                class="btn-filtrar"
+                            >
+                                Aceptar
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <br>
 
         <?php endif; ?>
 
@@ -499,8 +562,10 @@ $aplicaciones =
                 </h3>
 
                 <p>
-                    El sistema aplicará el saldo disponible primero
-                    a las obligaciones con vencimiento más antiguo.
+                    El sistema aplicará únicamente el saldo disponible de este pago,
+                    comenzando por las obligaciones con vencimiento más antiguo.
+                    Una obligación puede recibir varios abonos provenientes de pagos diferentes
+                    mientras conserve saldo pendiente.
                 </p>
 
                 <br>
@@ -561,6 +626,12 @@ $aplicaciones =
                     Aplicación manual
                 </h3>
 
+                <p>
+                    Para la prueba de pago parcial seleccione una obligación marcada
+                    como <strong>CAPITAL / OTRO</strong>. El valor digitado puede ser
+                    menor al saldo pendiente; el sistema conservará el remanente en cartera.
+                </p>
+
                 <br>
 
                 <div class="tabla-responsive">
@@ -573,6 +644,7 @@ $aplicaciones =
 
                                 <th>Factura</th>
                                 <th>Período</th>
+                                <th>Tipo</th>
                                 <th>Concepto</th>
                                 <th>Vencimiento</th>
                                 <th>Valor original</th>
@@ -592,7 +664,7 @@ $aplicaciones =
                             <tr>
 
                                 <td
-                                    colspan="8"
+                                    colspan="9"
                                     align="center"
                                 >
                                     La unidad no tiene obligaciones pendientes.
@@ -624,6 +696,15 @@ $aplicaciones =
                                                 )
                                             )
                                         ) ?>
+                                    </td>
+
+
+                                    <td>
+                                        <?php if (!empty($fila['id_interes'])): ?>
+                                            <span class="inactivo">MORA</span>
+                                        <?php else: ?>
+                                            <span class="activo">CAPITAL / OTRO</span>
+                                        <?php endif; ?>
                                     </td>
 
 
@@ -929,6 +1010,54 @@ $aplicaciones =
 
 </div>
 
+
+
+<script>
+// ==========================================================
+// CERRAR POPUP DE MENSAJE
+// Oculta el mensaje y limpia los parámetros de la URL.
+// ==========================================================
+
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('modalMensajePago');
+    const btnCerrar = document.getElementById('cerrarModalMensajePago');
+    const btnAceptar = document.getElementById('aceptarModalMensajePago');
+
+    if (!modal) {
+        return;
+    }
+
+    function cerrarModalMensajePago() {
+        modal.style.display = 'none';
+
+        const url = new URL(window.location.href);
+        url.searchParams.delete('tipo');
+        url.searchParams.delete('texto');
+        url.searchParams.delete('mensaje');
+        window.history.replaceState({}, '', url.toString());
+    }
+
+    if (btnCerrar) {
+        btnCerrar.addEventListener('click', cerrarModalMensajePago);
+    }
+
+    if (btnAceptar) {
+        btnAceptar.addEventListener('click', cerrarModalMensajePago);
+    }
+
+    modal.addEventListener('click', function (event) {
+        if (event.target === modal) {
+            cerrarModalMensajePago();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            cerrarModalMensajePago();
+        }
+    });
+});
+</script>
 
 </body>
 

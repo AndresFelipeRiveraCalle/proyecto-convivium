@@ -136,6 +136,10 @@ $cargosFacturados = 0;
 
 $espaciosFacturados = 0;
 
+$interesesGenerados = 0;
+
+$valorInteresesGenerados = 0;
+
 
 // ==========================================================
 // INICIAR PROCESO
@@ -258,6 +262,104 @@ try {
 
 
     // ======================================================
+    // CONFIGURACIÓN DE MORA VIGENTE
+    // ======================================================
+
+    $sqlConfiguracionMora = "
+        SELECT
+            cm.id_configuracion_mora,
+            cm.nombre,
+            cm.tasa,
+            cm.id_tasa_interes,
+            cm.id_concepto,
+
+            cf.nombre AS concepto_nombre,
+            cf.id_tipo_obligacion
+
+        FROM configuracion_mora cm
+
+        INNER JOIN conceptos_facturacion cf
+            ON cf.id_concepto =
+               cm.id_concepto
+
+        LEFT JOIN tasas_interes ti
+            ON ti.id_tasa_interes =
+               cm.id_tasa_interes
+
+        WHERE
+            cm.estado = 1
+            AND cm.tipo_tasa = 'PORCENTAJE'
+            AND cm.periodicidad = 'MENSUAL'
+            AND cm.fecha_inicio <= :fecha_mora_inicio
+            AND (
+                cm.fecha_fin IS NULL
+                OR cm.fecha_fin >= :fecha_mora_fin
+            )
+            AND cf.estado = 1
+            AND (
+                cm.id_tasa_interes IS NULL
+                OR ti.activo = 1
+            )
+
+        ORDER BY
+            cm.fecha_inicio DESC,
+            cm.id_configuracion_mora DESC
+
+        LIMIT 1
+    ";
+
+
+    $stmtConfiguracionMora =
+        $conexion->prepare(
+            $sqlConfiguracionMora
+        );
+
+
+    $stmtConfiguracionMora->execute([
+
+        ':fecha_mora_inicio'
+            => $fechaFacturacion,
+
+        ':fecha_mora_fin'
+            => $fechaFacturacion
+
+    ]);
+
+
+    $configuracionMora =
+        $stmtConfiguracionMora->fetch(
+            PDO::FETCH_ASSOC
+        );
+
+
+    if ($configuracionMora) {
+
+        if (
+            empty(
+                $configuracionMora[
+                    'id_tipo_obligacion'
+                ]
+            )
+        ) {
+
+            throw new Exception(
+                'El concepto de intereses de mora no tiene tipo de obligación configurado.'
+            );
+        }
+
+
+        if (
+            (float)$configuracionMora['tasa'] <= 0
+        ) {
+
+            throw new Exception(
+                'La configuración de mora vigente tiene una tasa mensual igual o menor que cero.'
+            );
+        }
+    }
+
+
+    // ======================================================
     // BUSCAR UNIDADES ACTIVAS
     // ======================================================
 
@@ -281,6 +383,7 @@ try {
         WHERE
             u.activo = 1
             AND dtu.activo = 1
+            
     ";
 
 
@@ -742,6 +845,110 @@ try {
 
 
     // ======================================================
+    // CARTERA VENCIDA PARA MORA
+    // ======================================================
+
+    $stmtCarteraVencida = null;
+
+
+    if ($configuracionMora) {
+
+        $sqlCarteraVencida = "
+            SELECT
+                c.id_cartera,
+                c.saldo,
+                c.fecha_vencimiento,
+                c.descripcion
+
+            FROM cartera c
+
+            LEFT JOIN facturas_detalle fd
+                ON fd.id_detalle =
+                   c.id_detalle
+
+            WHERE
+                c.id_unidad = :id_unidad
+                AND c.estado = 'PENDIENTE'
+                AND c.saldo > 0.009
+                AND c.fecha_vencimiento < :fecha_facturacion_mora
+
+                AND fd.id_interes IS NULL
+
+                AND (
+                    fd.id_concepto IS NULL
+                    OR fd.id_concepto <> :id_concepto_mora
+                )
+
+                AND NOT EXISTS (
+                    SELECT 1
+                    FROM intereses_cartera ic
+                    WHERE
+                        ic.id_cartera = c.id_cartera
+                        AND ic.periodo_interes = :periodo_interes
+                )
+
+            ORDER BY
+                c.fecha_vencimiento,
+                c.id_cartera
+
+            FOR UPDATE
+        ";
+
+
+        $stmtCarteraVencida =
+            $conexion->prepare(
+                $sqlCarteraVencida
+            );
+    }
+
+
+    // ======================================================
+    // INSERTAR INTERÉS DE CARTERA
+    // ======================================================
+
+    $sqlInsertInteres = "
+        INSERT INTO intereses_cartera
+        (
+            id_cartera,
+            id_tasa_interes,
+            periodo_interes,
+            fecha_calculo,
+            fecha_vencimiento,
+            dias_mora,
+            tasa_interes,
+            valor_base,
+            valor_interes,
+            valor_pagado,
+            saldo,
+            estado,
+            observaciones
+        )
+        VALUES
+        (
+            :id_cartera,
+            :id_tasa_interes,
+            :periodo_interes,
+            :fecha_calculo,
+            :fecha_vencimiento,
+            :dias_mora,
+            :tasa_interes,
+            :valor_base,
+            :valor_interes,
+            0,
+            :saldo,
+            'PENDIENTE',
+            :observaciones
+        )
+    ";
+
+
+    $stmtInsertInteres =
+        $conexion->prepare(
+            $sqlInsertInteres
+        );
+
+
+    // ======================================================
     // INSERTAR FACTURA NUEVA
     // ======================================================
 
@@ -770,7 +977,7 @@ try {
             :fecha_generacion,
             :fecha_vencimiento,
             :subtotal,
-            0,
+            :intereses,
             0,
             :total,
             'GENERADA',
@@ -829,7 +1036,7 @@ try {
             :id_factura,
             :id_concepto,
             :id_tarifa,
-            NULL,
+            :id_interes,
             :descripcion,
             :cantidad,
             :valor_unitario,
@@ -939,6 +1146,9 @@ try {
             subtotal =
                 subtotal + :incremento_subtotal,
 
+            intereses =
+                intereses + :incremento_intereses,
+
             total =
                 total + :incremento_total
 
@@ -1038,11 +1248,189 @@ try {
 
 
         // ==================================================
+        // CALCULAR INTERESES DE MORA DEL MES
+        // ==================================================
+
+        $interesesUnidad = [];
+
+
+        if (
+            $configuracionMora
+            && $stmtCarteraVencida
+        ) {
+
+            $stmtCarteraVencida->execute([
+
+                ':id_unidad'
+                    => $idUnidad,
+
+                ':fecha_facturacion_mora'
+                    => $fechaFacturacion,
+
+                ':id_concepto_mora'
+                    => (int)$configuracionMora[
+                        'id_concepto'
+                    ],
+
+                ':periodo_interes'
+                    => $periodoCargo
+
+            ]);
+
+
+            $carteraVencidaUnidad =
+                $stmtCarteraVencida->fetchAll(
+                    PDO::FETCH_ASSOC
+                );
+
+
+            foreach (
+                $carteraVencidaUnidad
+                as $deudaVencida
+            ) {
+
+                $valorBase =
+                    round(
+                        (float)$deudaVencida['saldo'],
+                        2
+                    );
+
+
+                if ($valorBase <= 0) {
+                    continue;
+                }
+
+
+                $valorInteres =
+                    round(
+                        $valorBase *
+                        (
+                            (float)$configuracionMora['tasa']
+                            / 100
+                        ),
+                        2
+                    );
+
+
+                if ($valorInteres <= 0) {
+                    continue;
+                }
+
+
+                $fechaDeuda =
+                    new DateTime(
+                        $deudaVencida[
+                            'fecha_vencimiento'
+                        ]
+                    );
+
+
+                $fechaCalculoMora =
+                    new DateTime(
+                        $fechaFacturacion
+                    );
+
+
+                $diasMora =
+                    (int)$fechaDeuda
+                        ->diff(
+                            $fechaCalculoMora
+                        )
+                        ->days;
+
+
+                $interesesUnidad[] = [
+
+                    'origen'
+                        => 'INTERES',
+
+                    'id_cartera_origen'
+                        => (int)$deudaVencida[
+                            'id_cartera'
+                        ],
+
+                    'id_concepto'
+                        => (int)$configuracionMora[
+                            'id_concepto'
+                        ],
+
+                    'id_tarifa'
+                        => null,
+
+                    'id_tipo_obligacion'
+                        => (int)$configuracionMora[
+                            'id_tipo_obligacion'
+                        ],
+
+                    'id_tasa_interes'
+                        => !empty(
+                            $configuracionMora[
+                                'id_tasa_interes'
+                            ]
+                        )
+                            ? (int)$configuracionMora[
+                                'id_tasa_interes'
+                            ]
+                            : null,
+
+                    'descripcion'
+                        => $configuracionMora[
+                            'concepto_nombre'
+                        ] .
+                           ' - cartera #' .
+                           (int)$deudaVencida[
+                               'id_cartera'
+                           ] .
+                           ' - período ' .
+                           date(
+                               'm/Y',
+                               strtotime(
+                                   $periodoCargo
+                               )
+                           ),
+
+                    'cantidad'
+                        => 1,
+
+                    'valor_unitario'
+                        => $valorInteres,
+
+                    'subtotal'
+                        => $valorInteres,
+
+                    'tipo_calculo'
+                        => 'PORCENTAJE',
+
+                    'base_calculo'
+                        => $valorBase,
+
+                    'tasa_interes'
+                        => (float)$configuracionMora[
+                            'tasa'
+                        ],
+
+                    'dias_mora'
+                        => $diasMora,
+
+                    'fecha_vencimiento_origen'
+                        => $deudaVencida[
+                            'fecha_vencimiento'
+                        ],
+
+                    'id_cuota'
+                        => null
+
+                ];
+            }
+        }
+
+
+        // ==================================================
         // CASO A:
         // YA EXISTE FACTURA
         // ==================================================
         //
-        // Solo agregamos CARGOS NUEVOS.
+        // Solo agregamos CARGOS NUEVOS e INTERESES pendientes.
         //
         // NO volvemos a generar:
         //
@@ -1074,10 +1462,13 @@ try {
 
 
             // ==============================================
-            // SIN CARGOS NUEVOS
+            // SIN CARGOS NI INTERESES NUEVOS
             // ==============================================
 
-            if (empty($cargosUnidad)) {
+            if (
+                empty($cargosUnidad)
+                && empty($interesesUnidad)
+            ) {
 
                 $facturasOmitidas++;
 
@@ -1091,9 +1482,13 @@ try {
                 ];
 
 
-            $incrementoFactura = 0;
+            $incrementoSubtotal = 0;
+
+            $incrementoIntereses = 0;
 
             $cantidadCargosAgregados = 0;
+
+            $cantidadInteresesAgregados = 0;
 
 
             // ==============================================
@@ -1166,6 +1561,9 @@ try {
                         ],
 
                     ':id_tarifa'
+                        => null,
+
+                    ':id_interes'
                         => null,
 
                     ':descripcion'
@@ -1301,7 +1699,7 @@ try {
                 }
 
 
-                $incrementoFactura +=
+                $incrementoSubtotal +=
                     $valorCargo;
 
 
@@ -1314,14 +1712,231 @@ try {
 
 
             // ==============================================
+            // AGREGAR INTERESES A FACTURA EXISTENTE
+            // ==============================================
+
+            foreach (
+                $interesesUnidad
+                as $interes
+            ) {
+
+                $stmtInsertInteres->execute([
+
+                    ':id_cartera'
+                        => $interes[
+                            'id_cartera_origen'
+                        ],
+
+                    ':id_tasa_interes'
+                        => $interes[
+                            'id_tasa_interes'
+                        ],
+
+                    ':periodo_interes'
+                        => $periodoCargo,
+
+                    ':fecha_calculo'
+                        => $fechaFacturacion,
+
+                    ':fecha_vencimiento'
+                        => $interes[
+                            'fecha_vencimiento_origen'
+                        ],
+
+                    ':dias_mora'
+                        => $interes[
+                            'dias_mora'
+                        ],
+
+                    ':tasa_interes'
+                        => $interes[
+                            'tasa_interes'
+                        ],
+
+                    ':valor_base'
+                        => $interes[
+                            'base_calculo'
+                        ],
+
+                    ':valor_interes'
+                        => $interes[
+                            'subtotal'
+                        ],
+
+                    ':saldo'
+                        => $interes[
+                            'subtotal'
+                        ],
+
+                    ':observaciones'
+                        => 'Generado automáticamente durante la facturación del período ' .
+                           date(
+                               'm/Y',
+                               strtotime(
+                                   $periodoCargo
+                               )
+                           )
+
+                ]);
+
+
+                $idInteres =
+                    (int)$conexion->lastInsertId();
+
+
+                if ($idInteres <= 0) {
+
+                    throw new Exception(
+                        'No fue posible obtener el ID del interés generado.'
+                    );
+                }
+
+
+                $stmtInsertDetalle->execute([
+
+                    ':id_factura'
+                        => $idFactura,
+
+                    ':id_concepto'
+                        => $interes[
+                            'id_concepto'
+                        ],
+
+                    ':id_tarifa'
+                        => null,
+
+                    ':id_interes'
+                        => $idInteres,
+
+                    ':descripcion'
+                        => $interes[
+                            'descripcion'
+                        ],
+
+                    ':cantidad'
+                        => 1,
+
+                    ':valor_unitario'
+                        => $interes[
+                            'subtotal'
+                        ],
+
+                    ':subtotal'
+                        => $interes[
+                            'subtotal'
+                        ],
+
+                    ':tipo_calculo'
+                        => 'PORCENTAJE',
+
+                    ':base_calculo'
+                        => $interes[
+                            'base_calculo'
+                        ]
+
+                ]);
+
+
+                $idDetalle =
+                    (int)$conexion->lastInsertId();
+
+
+                if ($idDetalle <= 0) {
+
+                    throw new Exception(
+                        'No fue posible obtener el ID del detalle de intereses.'
+                    );
+                }
+
+
+                $stmtInsertCartera->execute([
+
+                    ':id_factura'
+                        => $idFactura,
+
+                    ':id_detalle'
+                        => $idDetalle,
+
+                    ':id_unidad'
+                        => $idUnidad,
+
+                    ':id_tipo_obligacion'
+                        => $interes[
+                            'id_tipo_obligacion'
+                        ],
+
+                    ':periodo'
+                        => $periodoCargo,
+
+                    ':descripcion'
+                        => $interes[
+                            'descripcion'
+                        ],
+
+                    ':valor_original'
+                        => $interes[
+                            'subtotal'
+                        ],
+
+                    ':saldo'
+                        => $interes[
+                            'subtotal'
+                        ],
+
+                    ':fecha_vencimiento'
+                        => $fechaVencimiento,
+
+                    ':observaciones'
+                        => 'Interés generado automáticamente desde cartera #' .
+                           $interes[
+                               'id_cartera_origen'
+                           ]
+
+                ]);
+
+
+                $incrementoIntereses +=
+                    (float)$interes[
+                        'subtotal'
+                    ];
+
+
+                $cantidadInteresesAgregados++;
+                $interesesGenerados++;
+                $valorInteresesGenerados +=
+                    (float)$interes['subtotal'];
+                $carterasGeneradas++;
+                $detallesGenerados++;
+            }
+
+
+            // ==============================================
             // ACTUALIZAR TOTAL DE LA FACTURA EXISTENTE
             // ==============================================
 
-            if ($cantidadCargosAgregados > 0) {
+            if (
+                $cantidadCargosAgregados > 0
+                || $cantidadInteresesAgregados > 0
+            ) {
 
-                $incrementoFactura =
+                $incrementoSubtotal =
                     round(
-                        $incrementoFactura,
+                        $incrementoSubtotal,
+                        2
+                    );
+
+
+                $incrementoIntereses =
+                    round(
+                        $incrementoIntereses,
+                        2
+                    );
+
+
+                $incrementoTotal =
+                    round(
+                        $incrementoSubtotal +
+                        $incrementoIntereses,
                         2
                     );
 
@@ -1329,10 +1944,13 @@ try {
                 $stmtIncrementarFactura->execute([
 
                     ':incremento_subtotal'
-                        => $incrementoFactura,
+                        => $incrementoSubtotal,
+
+                    ':incremento_intereses'
+                        => $incrementoIntereses,
 
                     ':incremento_total'
-                        => $incrementoFactura,
+                        => $incrementoTotal,
 
                     ':id_factura'
                         => $idFactura
@@ -1379,6 +1997,7 @@ try {
         // 1. Conceptos generales
         // 2. Cargos pendientes
         // 3. Espacios
+        // 4. Intereses de mora
         //
         // ==================================================
 
@@ -2030,6 +2649,20 @@ try {
 
 
         // ==================================================
+        // 4. INTERESES DE MORA
+        // ==================================================
+
+        foreach (
+            $interesesUnidad
+            as $interes
+        ) {
+
+            $detallesUnidad[] =
+                $interes;
+        }
+
+
+        // ==================================================
         // SIN NADA PARA FACTURAR
         // ==================================================
 
@@ -2051,16 +2684,31 @@ try {
 
         $subtotalFactura = 0;
 
+        $interesesFactura = 0;
+
 
         foreach (
             $detallesUnidad
             as $detalle
         ) {
 
-            $subtotalFactura +=
-                (float)$detalle[
-                    'subtotal'
-                ];
+            if (
+                ($detalle['origen'] ?? '')
+                === 'INTERES'
+            ) {
+
+                $interesesFactura +=
+                    (float)$detalle[
+                        'subtotal'
+                    ];
+
+            } else {
+
+                $subtotalFactura +=
+                    (float)$detalle[
+                        'subtotal'
+                    ];
+            }
         }
 
 
@@ -2071,8 +2719,19 @@ try {
             );
 
 
+        $interesesFactura =
+            round(
+                $interesesFactura,
+                2
+            );
+
+
         $totalFactura =
-            $subtotalFactura;
+            round(
+                $subtotalFactura +
+                $interesesFactura,
+                2
+            );
 
 
         // ==================================================
@@ -2098,6 +2757,9 @@ try {
 
             ':subtotal'
                 => $subtotalFactura,
+
+            ':intereses'
+                => $interesesFactura,
 
             ':total'
                 => $totalFactura,
@@ -2167,6 +2829,87 @@ try {
         ) {
 
 
+            $idInteresDetalle = null;
+
+
+            if (
+                ($detalle['origen'] ?? '')
+                === 'INTERES'
+            ) {
+
+                $stmtInsertInteres->execute([
+
+                    ':id_cartera'
+                        => $detalle[
+                            'id_cartera_origen'
+                        ],
+
+                    ':id_tasa_interes'
+                        => $detalle[
+                            'id_tasa_interes'
+                        ],
+
+                    ':periodo_interes'
+                        => $periodoCargo,
+
+                    ':fecha_calculo'
+                        => $fechaFacturacion,
+
+                    ':fecha_vencimiento'
+                        => $detalle[
+                            'fecha_vencimiento_origen'
+                        ],
+
+                    ':dias_mora'
+                        => $detalle[
+                            'dias_mora'
+                        ],
+
+                    ':tasa_interes'
+                        => $detalle[
+                            'tasa_interes'
+                        ],
+
+                    ':valor_base'
+                        => $detalle[
+                            'base_calculo'
+                        ],
+
+                    ':valor_interes'
+                        => $detalle[
+                            'subtotal'
+                        ],
+
+                    ':saldo'
+                        => $detalle[
+                            'subtotal'
+                        ],
+
+                    ':observaciones'
+                        => 'Generado automáticamente durante la facturación del período ' .
+                           date(
+                               'm/Y',
+                               strtotime(
+                                   $periodoCargo
+                               )
+                           )
+
+                ]);
+
+
+                $idInteresDetalle =
+                    (int)$conexion->lastInsertId();
+
+
+                if ($idInteresDetalle <= 0) {
+
+                    throw new Exception(
+                        'No fue posible obtener el ID del interés generado.'
+                    );
+                }
+            }
+
+
             $stmtInsertDetalle->execute([
 
                 ':id_factura'
@@ -2181,6 +2924,9 @@ try {
                     => $detalle[
                         'id_tarifa'
                     ],
+
+                ':id_interes'
+                    => $idInteresDetalle,
 
                 ':descripcion'
                     => $detalle[
@@ -2296,6 +3042,20 @@ try {
             $detallesGenerados++;
 
 
+            if (
+                ($detalle['origen'] ?? '')
+                === 'INTERES'
+            ) {
+
+                $interesesGenerados++;
+
+                $valorInteresesGenerados +=
+                    (float)$detalle[
+                        'subtotal'
+                    ];
+            }
+
+
             // ==============================================
             // SI ES CARGO, CERRAR CUOTA
             // ==============================================
@@ -2386,6 +3146,15 @@ try {
         $cargosFacturados .
         '. Espacios facturados: ' .
         $espaciosFacturados .
+        '. Intereses de mora generados: ' .
+        $interesesGenerados .
+        ' por $' .
+        number_format(
+            $valorInteresesGenerados,
+            2,
+            ',',
+            '.'
+        ) .
         '. Conceptos sin tarifa activa/vigente omitidos: ' .
         $conceptosSinTarifa .
         '.';

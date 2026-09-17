@@ -92,12 +92,6 @@
                         </a>
                     </li>                    
                     <li>
-                        <a href="<?= BASE_URL ?>configuracion/facturacion.php">
-                            Facturacion
-                        </a>
-                    </li>
-
-                    <li>
                         <a href="<?= BASE_URL ?>configuracion/extractos_bancarios.php">
                             Cargar extractos
                         </a>
@@ -138,11 +132,6 @@
                             Configuración de mora
                         </a>
                     </li>   
-                    <li>
-                        <a href="<?= BASE_URL ?>configuracion/configuracion_mora.php">
-                            Configuración de mora
-                        </a>
-                    </li>
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/pagos.php">
                             Pagos

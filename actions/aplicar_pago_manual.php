@@ -13,7 +13,7 @@ function redireccionarPago($idPago, $tipo, $texto)
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/aplicar_pagos.php?" .
+        "configuracion/aplicar_pago.php?" .
         http_build_query([
             'id_pago' => $idPago,
             'tipo'    => $tipo,
@@ -114,6 +114,103 @@ function actualizarEstadoFactura(PDO $conexion, int $idFactura): void
     ]);
 }
 
+
+
+// ==========================================================
+// CREAR SALDO A FAVOR
+// Convierte el excedente cuando la unidad ya no tiene cartera pendiente.
+// ==========================================================
+
+function crearSaldoFavorSiCorresponde(
+    PDO $conexion,
+    int $idPago,
+    int $idUnidad,
+    float $disponible
+): float {
+    $disponible = round($disponible, 2);
+
+    if ($disponible <= 0.009) {
+        return 0.00;
+    }
+
+    $sqlPendiente = "
+        SELECT COUNT(*)
+        FROM cartera
+        WHERE
+            id_unidad = :id_unidad
+            AND estado <> 'ANULADA'
+            AND saldo > 0.009
+    ";
+
+    $stmtPendiente = $conexion->prepare($sqlPendiente);
+    $stmtPendiente->execute([
+        ':id_unidad' => $idUnidad
+    ]);
+
+    if ((int)$stmtPendiente->fetchColumn() > 0) {
+        return 0.00;
+    }
+
+    $sqlExistente = "
+        SELECT
+            COALESCE(SUM(valor_original), 0)
+        FROM saldo_favor
+        WHERE
+            id_pago = :id_pago
+            AND estado <> 'ANULADO'
+    ";
+
+    $stmtExistente = $conexion->prepare($sqlExistente);
+    $stmtExistente->execute([
+        ':id_pago' => $idPago
+    ]);
+
+    $yaConvertido =
+        round(
+            (float)$stmtExistente->fetchColumn(),
+            2
+        );
+
+    if ($yaConvertido > 0.009) {
+        return 0.00;
+    }
+
+    $sqlInsert = "
+        INSERT INTO saldo_favor
+        (
+            id_unidad,
+            id_pago,
+            valor_original,
+            valor_utilizado,
+            saldo_disponible,
+            estado,
+            fecha_generacion,
+            observaciones
+        )
+        VALUES
+        (
+            :id_unidad,
+            :id_pago,
+            :valor_original,
+            0.00,
+            :saldo_disponible,
+            'DISPONIBLE',
+            NOW(),
+            :observaciones
+        )
+    ";
+
+    $stmtInsert = $conexion->prepare($sqlInsert);
+    $stmtInsert->execute([
+        ':id_unidad'        => $idUnidad,
+        ':id_pago'          => $idPago,
+        ':valor_original'   => $disponible,
+        ':saldo_disponible' => $disponible,
+        ':observaciones'    => 'Saldo generado por excedente del pago.'
+    ]);
+
+    return $disponible;
+}
 
 // ==========================================================
 // VALIDAR MÉTODO
@@ -241,10 +338,37 @@ try {
     $yaAplicado =
         (float)$stmtAplicado->fetchColumn();
 
+
+    // ======================================================
+    // SALDO YA CONVERTIDO
+    // Resta el excedente que ya pasó a saldo a favor.
+    // ======================================================
+
+    $sqlSaldoConvertido = "
+        SELECT
+            COALESCE(SUM(valor_original), 0)
+        FROM saldo_favor
+        WHERE
+            id_pago = :id_pago
+            AND estado <> 'ANULADO'
+    ";
+
+    $stmtSaldoConvertido =
+        $conexion->prepare($sqlSaldoConvertido);
+
+    $stmtSaldoConvertido->execute([
+        ':id_pago' => $idPago
+    ]);
+
+    $saldoConvertido =
+        (float)$stmtSaldoConvertido->fetchColumn();
+
+
     $disponible =
         round(
             (float)$pago['valor'] -
-            $yaAplicado,
+            $yaAplicado -
+            $saldoConvertido,
             2
         );
 
@@ -269,14 +393,19 @@ try {
 
     $sqlCartera = "
         SELECT
-            id_cartera,
-            id_factura,
-            id_unidad,
-            descripcion,
-            saldo,
-            estado
-        FROM cartera
-        WHERE id_cartera = :id_cartera
+            c.id_cartera,
+            c.id_factura,
+            c.id_unidad,
+            c.id_detalle,
+            c.descripcion,
+            c.valor_pagado,
+            c.saldo,
+            c.estado,
+            fd.id_interes
+        FROM cartera c
+        LEFT JOIN facturas_detalle fd
+            ON fd.id_detalle = c.id_detalle
+        WHERE c.id_cartera = :id_cartera
         LIMIT 1
         FOR UPDATE
     ";
@@ -309,8 +438,8 @@ try {
 
 
     if (
-        $cartera['estado'] !== 'PENDIENTE' ||
-        (float)$cartera['saldo'] <= 0
+        $cartera['estado'] === 'ANULADA' ||
+        (float)$cartera['saldo'] <= 0.009
     ) {
 
         throw new Exception(
@@ -433,6 +562,68 @@ try {
 
 
     // ======================================================
+    // SI LA OBLIGACIÓN ES MORA, SINCRONIZAR intereses_cartera
+    // ======================================================
+
+    if (!empty($cartera['id_interes'])) {
+
+        $sqlInteres = "
+            SELECT
+                id_interes,
+                valor_pagado,
+                saldo,
+                estado
+            FROM intereses_cartera
+            WHERE id_interes = :id_interes
+            LIMIT 1
+            FOR UPDATE
+        ";
+
+        $stmtInteres = $conexion->prepare($sqlInteres);
+        $stmtInteres->execute([
+            ':id_interes' => (int)$cartera['id_interes']
+        ]);
+
+        $interes = $stmtInteres->fetch(PDO::FETCH_ASSOC);
+
+        if ($interes) {
+
+            $nuevoPagadoInteres = round(
+                (float)$interes['valor_pagado'] + $valorAplicar,
+                2
+            );
+
+            $nuevoSaldoInteres = round(
+                max((float)$interes['saldo'] - $valorAplicar, 0),
+                2
+            );
+
+            $nuevoEstadoInteres =
+                $nuevoSaldoInteres <= 0.009
+                    ? 'PAGADO'
+                    : 'PENDIENTE';
+
+            $sqlUpdateInteres = "
+                UPDATE intereses_cartera
+                SET
+                    valor_pagado = :valor_pagado,
+                    saldo = :saldo,
+                    estado = :estado
+                WHERE id_interes = :id_interes
+            ";
+
+            $stmtUpdateInteres = $conexion->prepare($sqlUpdateInteres);
+            $stmtUpdateInteres->execute([
+                ':valor_pagado' => $nuevoPagadoInteres,
+                ':saldo' => $nuevoSaldoInteres,
+                ':estado' => $nuevoEstadoInteres,
+                ':id_interes' => (int)$cartera['id_interes']
+            ]);
+        }
+    }
+
+
+    // ======================================================
     // ESTADO FACTURA
     // ======================================================
 
@@ -445,20 +636,56 @@ try {
     }
 
 
+    // ======================================================
+    // SALDO A FAVOR
+    // Convierte el excedente si ya no quedan obligaciones pendientes.
+    // ======================================================
+
+    $remanentePago =
+        round(
+            $disponible - $valorAplicar,
+            2
+        );
+
+    $saldoFavorGenerado =
+        crearSaldoFavorSiCorresponde(
+            $conexion,
+            $idPago,
+            (int)$pago['id_unidad'],
+            $remanentePago
+        );
+
+
     $conexion->commit();
 
 
-    redireccionarPago(
-        $idPago,
-        'success',
-        'Aplicación manual realizada correctamente por $' .
+    $mensaje =
+        'Pago parcial aplicado correctamente por $' .
         number_format(
             $valorAplicar,
             2,
             ',',
             '.'
         ) .
-        '.'
+        '.';
+
+    if ($saldoFavorGenerado > 0.009) {
+        $mensaje .=
+            ' Se generó un saldo a favor por $' .
+            number_format(
+                $saldoFavorGenerado,
+                2,
+                ',',
+                '.'
+            ) .
+            '.';
+    }
+
+
+    redireccionarPago(
+        $idPago,
+        'success',
+        $mensaje
     );
 
 

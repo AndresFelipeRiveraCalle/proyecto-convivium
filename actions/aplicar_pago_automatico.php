@@ -13,7 +13,7 @@ function redireccionarPago($idPago, $tipo, $texto)
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/aplicar_pagos.php?" .
+        "configuracion/aplicar_pago.php?" .
         http_build_query([
             'id_pago' => $idPago,
             'tipo'    => $tipo,
@@ -85,6 +85,103 @@ function actualizarEstadoFactura(PDO $conexion, int $idFactura): void
     ]);
 }
 
+
+
+// ==========================================================
+// CREAR SALDO A FAVOR
+// Convierte el excedente cuando la unidad ya no tiene cartera pendiente.
+// ==========================================================
+
+function crearSaldoFavorSiCorresponde(
+    PDO $conexion,
+    int $idPago,
+    int $idUnidad,
+    float $disponible
+): float {
+    $disponible = round($disponible, 2);
+
+    if ($disponible <= 0.009) {
+        return 0.00;
+    }
+
+    $sqlPendiente = "
+        SELECT COUNT(*)
+        FROM cartera
+        WHERE
+            id_unidad = :id_unidad
+            AND estado <> 'ANULADA'
+            AND saldo > 0.009
+    ";
+
+    $stmtPendiente = $conexion->prepare($sqlPendiente);
+    $stmtPendiente->execute([
+        ':id_unidad' => $idUnidad
+    ]);
+
+    if ((int)$stmtPendiente->fetchColumn() > 0) {
+        return 0.00;
+    }
+
+    $sqlExistente = "
+        SELECT
+            COALESCE(SUM(valor_original), 0)
+        FROM saldo_favor
+        WHERE
+            id_pago = :id_pago
+            AND estado <> 'ANULADO'
+    ";
+
+    $stmtExistente = $conexion->prepare($sqlExistente);
+    $stmtExistente->execute([
+        ':id_pago' => $idPago
+    ]);
+
+    $yaConvertido =
+        round(
+            (float)$stmtExistente->fetchColumn(),
+            2
+        );
+
+    if ($yaConvertido > 0.009) {
+        return 0.00;
+    }
+
+    $sqlInsert = "
+        INSERT INTO saldo_favor
+        (
+            id_unidad,
+            id_pago,
+            valor_original,
+            valor_utilizado,
+            saldo_disponible,
+            estado,
+            fecha_generacion,
+            observaciones
+        )
+        VALUES
+        (
+            :id_unidad,
+            :id_pago,
+            :valor_original,
+            0.00,
+            :saldo_disponible,
+            'DISPONIBLE',
+            NOW(),
+            :observaciones
+        )
+    ";
+
+    $stmtInsert = $conexion->prepare($sqlInsert);
+    $stmtInsert->execute([
+        ':id_unidad'        => $idUnidad,
+        ':id_pago'          => $idPago,
+        ':valor_original'   => $disponible,
+        ':saldo_disponible' => $disponible,
+        ':observaciones'    => 'Saldo generado por excedente del pago.'
+    ]);
+
+    return $disponible;
+}
 
 // ==========================================================
 // VALIDAR MÉTODO
@@ -198,12 +295,40 @@ try {
     $valorAplicadoActual =
         (float)$stmtAplicado->fetchColumn();
 
+
+    // ======================================================
+    // SALDO YA CONVERTIDO
+    // Resta el excedente que ya pasó a saldo a favor.
+    // ======================================================
+
+    $sqlSaldoConvertido = "
+        SELECT
+            COALESCE(SUM(valor_original), 0)
+        FROM saldo_favor
+        WHERE
+            id_pago = :id_pago
+            AND estado <> 'ANULADO'
+    ";
+
+    $stmtSaldoConvertido =
+        $conexion->prepare($sqlSaldoConvertido);
+
+    $stmtSaldoConvertido->execute([
+        ':id_pago' => $idPago
+    ]);
+
+    $saldoConvertido =
+        (float)$stmtSaldoConvertido->fetchColumn();
+
+
     $valorPago =
         (float)$pago['valor'];
 
     $disponible =
         round(
-            $valorPago - $valorAplicadoActual,
+            $valorPago -
+            $valorAplicadoActual -
+            $saldoConvertido,
             2
         );
 
@@ -235,8 +360,8 @@ try {
         FROM cartera
         WHERE
             id_unidad = :id_unidad
-            AND estado = 'PENDIENTE'
-            AND saldo > 0
+            AND estado <> 'ANULADA'
+            AND saldo > 0.009
         ORDER BY
             fecha_vencimiento ASC,
             periodo ASC,
@@ -319,7 +444,7 @@ try {
 
         WHERE
             id_cartera = :id_cartera
-            AND estado = 'PENDIENTE'
+            AND estado <> 'ANULADA'
     ";
 
     $stmtUpdateCartera =
@@ -445,7 +570,26 @@ try {
 
 
     // ======================================================
+    // SALDO A FAVOR
+    // Convierte el excedente si ya no quedan obligaciones pendientes.
+    // ======================================================
+
+    $saldoFavorGenerado =
+        crearSaldoFavorSiCorresponde(
+            $conexion,
+            $idPago,
+            (int)$pago['id_unidad'],
+            $disponible
+        );
+
+    if ($saldoFavorGenerado > 0.009) {
+        $disponible = 0.00;
+    }
+
+
+    // ======================================================
     // COMMIT
+    // Confirma las aplicaciones y el posible saldo a favor.
     // ======================================================
 
     $conexion->commit();
@@ -462,14 +606,29 @@ try {
         ) .
         '. Aplicaciones creadas: ' .
         $cantidadAplicaciones .
-        '. Saldo disponible del pago: $' .
-        number_format(
-            $disponible,
-            2,
-            ',',
-            '.'
-        ) .
         '.';
+
+    if ($saldoFavorGenerado > 0.009) {
+        $mensaje .=
+            ' Saldo a favor generado: $' .
+            number_format(
+                $saldoFavorGenerado,
+                2,
+                ',',
+                '.'
+            ) .
+            '.';
+    } else {
+        $mensaje .=
+            ' Saldo disponible del pago: $' .
+            number_format(
+                $disponible,
+                2,
+                ',',
+                '.'
+            ) .
+            '.';
+    }
 
 
     redireccionarPago(
