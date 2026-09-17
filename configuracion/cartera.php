@@ -59,19 +59,28 @@ $where = [
 $params = [];
 
 
+// ==========================================================
+// FILTRO DE BÚSQUEDA
+// Busca por unidad, factura, descripción o concepto.
+// ==========================================================
+
 if ($buscar !== '') {
 
     $where[] = "
         (
-            u.codigo LIKE :buscar
-            OR f.numero_factura LIKE :buscar
-            OR c.descripcion LIKE :buscar
-            OR cf.nombre LIKE :buscar
+            u.codigo LIKE :buscar_unidad
+            OR f.numero_factura LIKE :buscar_factura
+            OR c.descripcion LIKE :buscar_descripcion
+            OR cf.nombre LIKE :buscar_concepto
         )
     ";
 
-    $params[':buscar'] =
-        '%' . $buscar . '%';
+    $valorBuscar = '%' . $buscar . '%';
+
+    $params[':buscar_unidad'] = $valorBuscar;
+    $params[':buscar_factura'] = $valorBuscar;
+    $params[':buscar_descripcion'] = $valorBuscar;
+    $params[':buscar_concepto'] = $valorBuscar;
 }
 
 
@@ -215,12 +224,64 @@ $sql = "
 
         COUNT(c.id_cartera) AS cantidad_conceptos,
 
+        SUM(
+            CASE
+                WHEN fd.id_interes IS NOT NULL
+                THEN 1
+                ELSE 0
+            END
+        ) AS cantidad_intereses,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN fd.id_interes IS NOT NULL
+                    THEN c.valor_original
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS valor_intereses,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN fd.id_interes IS NOT NULL
+                    THEN c.valor_pagado
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS pagado_intereses,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN fd.id_interes IS NOT NULL
+                    THEN c.saldo
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS saldo_intereses,
+
         GROUP_CONCAT(
-            DISTINCT COALESCE(
-                cf.nombre,
-                tobl.nombre,
-                c.descripcion
-            )
+            DISTINCT
+            CASE
+                WHEN fd.id_interes IS NOT NULL
+                THEN CONCAT(
+                    COALESCE(
+                        cf.nombre,
+                        'Intereses de mora'
+                    ),
+                    ' [MORA]'
+                )
+                ELSE COALESCE(
+                    cf.nombre,
+                    tobl.nombre,
+                    c.descripcion
+                )
+            END
             ORDER BY c.id_cartera
             SEPARATOR ' | '
         ) AS conceptos,
@@ -325,6 +386,28 @@ $registros =
 <head>
 
     <?php include ROOT_PATH . "/includes/head.php"; ?>
+
+    <style>
+        .mora-badge {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #fff3cd;
+            color: #7a5300;
+            border: 1px solid #ffe08a;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .mora-resumen {
+            display: block;
+            margin-top: 5px;
+            color: #7a5300;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+    </style>
 
 </head>
 
@@ -761,6 +844,25 @@ $registros =
                                             <?= e($fila['conceptos'] ?? '') ?>
                                         </small>
 
+                                        <?php if (
+                                            (int)($fila['cantidad_intereses'] ?? 0) > 0
+                                        ): ?>
+
+                                            <br>
+
+                                            <span class="mora-badge">
+                                                MORA
+                                            </span>
+
+                                            <span class="mora-resumen">
+                                                Interés facturado:
+                                                <?= dinero($fila['valor_intereses'] ?? 0) ?>
+                                                · Saldo de mora:
+                                                <?= dinero($fila['saldo_intereses'] ?? 0) ?>
+                                            </span>
+
+                                        <?php endif; ?>
+
                                     </td>
 
 
@@ -875,7 +977,7 @@ $registros =
                                             ): ?>
 
                                                 <a
-                                                    href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>&origen=cartera_general"
+                                                    href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>"
                                                     class="btn-secondary"
                                                 >
                                                     Ver factura

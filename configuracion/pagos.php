@@ -1,12 +1,42 @@
 <?php
+/**
+ * ==============================================================
+ * CONVIVIUM - LISTADO GENERAL DE PAGOS
+ * ==============================================================
+ * Archivo: configuracion/pagos.php
+ *
+ * Objetivo:
+ * - Consultar todos los pagos registrados en el sistema.
+ * - Filtrar por unidad/referencia, estado de conciliación,
+ *   estado del pago y rango de fechas.
+ * - Mostrar cuánto de cada pago ya fue aplicado y cuánto queda
+ *   disponible para futuras aplicaciones.
+ * - Permitir registrar un nuevo pago o aplicar uno que aún tenga saldo.
+ *
+ * Flujo relacionado:
+ *   pagos.php
+ *      -> registrar_pago.php
+ *          -> actions/guardar_pago.php
+ *              -> aplicar_pago.php
+ *                  -> actions/aplicar_pago_manual.php
+ *
+ * IMPORTANTE:
+ * Un registro de la tabla `pagos` representa dinero recibido.
+ * No debe confundirse con una aplicación a cartera. Un mismo pago puede
+ * distribuirse entre varias obligaciones mientras conserve saldo disponible.
+ * ==============================================================
+ */
+
 
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
 // ==========================================================
-// FUNCIONES
+// FUNCIONES DE PRESENTACIÓN
 // ==========================================================
+// e(): protege las salidas HTML.
+// dinero(): unifica el formato monetario colombiano usado en la vista.
 
 function e($valor)
 {
@@ -29,8 +59,9 @@ function dinero($valor)
 
 
 // ==========================================================
-// FILTROS
+// FILTROS RECIBIDOS POR GET
 // ==========================================================
+// Todos son opcionales. Se usan más abajo para construir el WHERE dinámico.
 
 $buscar =
     trim(
@@ -59,8 +90,10 @@ $fechaHasta =
 
 
 // ==========================================================
-// WHERE DINÁMICO
+// CONSTRUCCIÓN DEL WHERE DINÁMICO
 // ==========================================================
+// Se agregan condiciones únicamente cuando el usuario diligencia un filtro.
+// Los valores siempre viajan como parámetros preparados para evitar inyección SQL.
 
 $where = [
     "1 = 1"
@@ -159,8 +192,9 @@ $whereSql =
 
 
 // ==========================================================
-// RESUMEN
+// RESUMEN GENERAL DE PAGOS SEGÚN LOS FILTROS
 // ==========================================================
+// Estos totales alimentan las tarjetas/resumen de la parte superior.
 
 $sqlResumen = "
     SELECT
@@ -233,7 +267,7 @@ $resumen =
 
 
 // ==========================================================
-// LISTADO DE PAGOS
+// LISTADO DETALLADO DE PAGOS DE PAGOS
 // ==========================================================
 
 $sql = "
@@ -264,10 +298,31 @@ $sql = "
             0
         ) AS valor_aplicado,
 
+        COALESCE(
+            (
+                SELECT SUM(sf.valor_original)
+                FROM saldo_favor sf
+                WHERE
+                    sf.id_pago = p.id_pago
+                    AND sf.estado <> 'ANULADO'
+            ),
+            0
+        ) AS valor_saldo_favor,
+
         (
             p.valor -
             COALESCE(
                 SUM(ap.valor_aplicado),
+                0
+            ) -
+            COALESCE(
+                (
+                    SELECT SUM(sf.valor_original)
+                    FROM saldo_favor sf
+                    WHERE
+                        sf.id_pago = p.id_pago
+                        AND sf.estado <> 'ANULADO'
+                ),
                 0
             )
         ) AS valor_disponible,
@@ -385,6 +440,16 @@ $pagos =
                     Consulta y seguimiento de pagos recibidos.
                 </p>
 
+            </div>
+
+            <div>
+                <a
+                    href="<?= BASE_URL ?>configuracion/registrar_pago.php"
+                    class="btn-filtrar"
+                    style="text-decoration:none; display:inline-block;"
+                >
+                    + Registrar pago
+                </a>
             </div>
 
         </div>
@@ -939,7 +1004,7 @@ $pagos =
                                             ): ?>
 
                                                 <a
-                                                    href="<?= BASE_URL ?>configuracion/aplicar_pagos.php?id_pago=<?= (int)$pago['id_pago'] ?>"
+                                                    href="<?= BASE_URL ?>configuracion/aplicar_pago.php?id_pago=<?= (int)$pago['id_pago'] ?>"
                                                     class="btn-secondary"
                                                 >
                                                     Aplicar pago

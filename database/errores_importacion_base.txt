@@ -1,0 +1,1 @@
+ERROR 1068 (42000) at line 1976: Multiple primary key defined
