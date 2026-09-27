@@ -1496,6 +1496,674 @@ background: #f9fafb;
 }
 
 /* ======================================================
+   FACTURA - PANTALLA
+======================================================= */
+
+
+/* ======================================================
+   BARRA SUPERIOR
+======================================================= */
+
+.factura-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+
+.factura-toolbar-acciones {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+
+.factura-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 15px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: #0f172a;
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.factura-btn:hover {
+    background: #f8fafc;
+}
+
+
+/* ======================================================
+   DOCUMENTO
+======================================================= */
+
+.factura-documento {
+    max-width: 1050px;
+
+    margin:
+        0
+        auto
+        30px
+        auto;
+
+    padding: 28px;
+
+    background: #ffffff;
+
+    border: 1px solid #dbe3ec;
+    border-radius: 14px;
+
+    box-shadow:
+        0
+        10px
+        30px
+        rgba(15, 23, 42, 0.08);
+
+    color: #132238;
+}
+
+
+/* ======================================================
+   CABECERA
+======================================================= */
+
+.factura-cabecera {
+    display: grid;
+
+    grid-template-columns:
+        210px
+        1fr
+        260px;
+
+    gap: 22px;
+
+    align-items: center;
+}
+
+
+.factura-logo {
+    text-align: center;
+}
+
+
+.factura-logo img {
+    display: block;
+
+    max-width: 180px;
+    max-height: 95px;
+
+    width: auto;
+    height: auto;
+
+    margin:
+        0
+        auto;
+
+    object-fit: contain;
+}
+
+
+.factura-logo-placeholder {
+    font-size: 28px;
+    font-weight: 800;
+
+    color: #153b5c;
+}
+
+
+.factura-empresa {
+    text-align: center;
+}
+
+
+.factura-empresa h2 {
+    margin:
+        0
+        0
+        6px
+        0;
+
+    font-size: 23px;
+
+    color: #10243e;
+}
+
+
+.factura-empresa p {
+    margin:
+        3px
+        0;
+
+    font-size: 14px;
+}
+
+
+.factura-periodo {
+    padding:
+        18px
+        14px;
+
+    background: #eaf4fb;
+
+    border-radius: 10px;
+
+    text-align: center;
+}
+
+
+.factura-periodo small {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-weight: 700;
+}
+
+
+.factura-periodo strong {
+    display: block;
+
+    font-size: 22px;
+}
+
+
+/* ======================================================
+   DATOS PRINCIPALES
+======================================================= */
+
+.factura-meta {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            1fr
+        );
+
+    margin-top: 22px;
+
+    border: 1px solid #d4dee9;
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+
+.factura-meta-item {
+    padding: 12px;
+
+    text-align: center;
+
+    border-right:
+        1px solid
+        #d4dee9;
+
+    background: #fbfdff;
+}
+
+
+.factura-meta-item:last-child {
+    border-right: none;
+}
+
+
+.factura-meta-item span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-size: 12px;
+
+    color: #64748b;
+}
+
+
+.factura-meta-item strong {
+    font-size: 17px;
+}
+
+
+/* ======================================================
+   PERSONA / UNIDAD
+======================================================= */
+
+.factura-cliente {
+    display: grid;
+
+    grid-template-columns:
+        1.2fr
+        1fr;
+
+    margin-top: 12px;
+
+    border: 1px solid #d4dee9;
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+
+.factura-cliente-bloque {
+    padding: 15px;
+}
+
+
+.factura-cliente-bloque
++
+.factura-cliente-bloque {
+    border-left:
+        1px solid
+        #d4dee9;
+}
+
+
+.factura-titulo-campo {
+    margin-bottom: 5px;
+
+    font-size: 12px;
+
+    color: #64748b;
+}
+
+
+.factura-persona-nombre {
+    margin-bottom: 5px;
+
+    font-size: 19px;
+    font-weight: 700;
+}
+
+
+.factura-datos-unidad {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            1fr
+        );
+
+    margin-top: 12px;
+}
+
+
+.factura-unidad-item {
+    padding:
+        10px
+        8px
+        0
+        8px;
+
+    border-top:
+        1px solid
+        #e2e8f0;
+}
+
+
+/* ======================================================
+   TABLA
+======================================================= */
+
+.factura-tabla {
+    width: 100%;
+
+    margin-top: 18px;
+
+    border-collapse: collapse;
+}
+
+
+.factura-tabla th {
+    padding:
+        11px
+        10px;
+
+    background: #dceefb;
+
+    border:
+        1px solid
+        #c5d9e8;
+
+    color: #10243e;
+
+    text-align: left;
+}
+
+
+.factura-tabla td {
+    padding: 10px;
+
+    border:
+        1px solid
+        #d8e2ec;
+
+    vertical-align: top;
+}
+
+
+.factura-tabla .numero {
+    text-align: right;
+
+    white-space: nowrap;
+}
+
+
+.factura-tabla
+.total-row th,
+.factura-tabla
+.total-row td {
+    background: #dceefb;
+
+    font-size: 17px;
+    font-weight: 800;
+}
+
+
+/* ======================================================
+   CONCEPTOS
+======================================================= */
+
+.factura-concepto-link {
+    color: #0f4d7a;
+
+    font-weight: 700;
+
+    text-decoration: underline;
+
+    text-underline-offset: 3px;
+}
+
+
+.factura-concepto-link:hover {
+    color: #0b6ca8;
+}
+
+
+.factura-concepto-aclaracion {
+    display: block;
+
+    margin-top: 4px;
+
+    font-size: 11px;
+
+    color: #64748b;
+}
+
+
+/* ======================================================
+   MORA E INTERESES
+======================================================= */
+
+.fila-interes td {
+    background: #fff9e8;
+}
+
+
+.factura-mora {
+    display: block;
+
+    margin-top: 7px;
+
+    padding:
+        8px
+        10px;
+
+    border:
+        1px solid
+        #ead8a5;
+
+    border-radius: 7px;
+
+    background: #fffdf4;
+
+    font-size: 11px;
+
+    line-height: 1.55;
+}
+
+
+.factura-mora-titulo {
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-weight: 800;
+
+    color: #7a4512;
+}
+
+
+.factura-resumen-mora {
+    margin-top: 16px;
+
+    padding:
+        12px
+        14px;
+
+    border:
+        1px solid
+        #ead8a5;
+
+    border-radius: 8px;
+
+    background: #fff9e8;
+
+    color: #624611;
+}
+
+
+.factura-interes-detalle {
+    display: block;
+
+    margin-top: 5px;
+
+    font-size: 11px;
+
+    line-height: 1.45;
+
+    color: #7a5a12;
+}
+
+
+/* ======================================================
+   BLOQUES INFERIORES
+======================================================= */
+
+.factura-inferior {
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1.15fr
+        1fr;
+
+    gap: 14px;
+
+    margin-top: 18px;
+}
+
+
+.factura-panel {
+    min-height: 115px;
+
+    padding: 15px;
+
+    border:
+        1px solid
+        #d8e2ec;
+
+    border-radius: 8px;
+
+    background: #fbfdff;
+}
+
+
+.factura-panel h4 {
+    margin:
+        0
+        0
+        10px
+        0;
+
+    color: #174f7a;
+}
+
+
+.factura-estado {
+    display: inline-block;
+
+    padding:
+        8px
+        15px;
+
+    border-radius: 8px;
+
+    background: #d8f5dc;
+
+    color: #176c2b;
+
+    font-weight: 800;
+}
+
+
+.factura-fecha-limite {
+    margin-top: 9px;
+
+    font-size: 23px;
+
+    font-weight: 800;
+}
+
+
+.factura-qr-placeholder {
+    display: flex;
+
+    height: 120px;
+
+    padding: 15px;
+
+    align-items: center;
+    justify-content: center;
+
+    border:
+        2px dashed
+        #b9c6d3;
+
+    border-radius: 8px;
+
+    color: #64748b;
+
+    text-align: center;
+}
+
+
+/* ======================================================
+   MENSAJES
+======================================================= */
+
+.factura-nota {
+    margin-top: 18px;
+
+    padding: 13px;
+
+    border-radius: 7px;
+
+    background: #e8f7ea;
+
+    color: #256b2e;
+
+    text-align: center;
+
+    font-weight: 700;
+}
+
+
+.factura-observaciones {
+    margin-top: 18px;
+
+    padding-top: 14px;
+
+    border-top:
+        1px solid
+        #dbe3ec;
+
+    color: #475569;
+}
+
+
+/* ======================================================
+   RESPONSIVE
+======================================================= */
+
+@media (
+    max-width:
+    900px
+) {
+
+    .factura-cabecera {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .factura-meta {
+        grid-template-columns:
+            repeat(
+                2,
+                1fr
+            );
+    }
+
+
+    .factura-cliente {
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .factura-cliente-bloque
+    +
+    .factura-cliente-bloque {
+
+        border-left:
+            none;
+
+        border-top:
+            1px solid
+            #d4dee9;
+    }
+
+
+    .factura-datos-unidad {
+        grid-template-columns:
+            repeat(
+                2,
+                1fr
+            );
+    }
+
+
+    .factura-inferior {
+        grid-template-columns:
+            1fr;
+    }
+}
+
+/* ======================================================
    IMPRESIÓN / PDF - UNA SOLA HOJA A4
 ======================================================= */
 
@@ -1503,10 +2171,12 @@ background: #f9fafb;
 
     html,
     body {
-        width: 210mm !important;
-        height: 297mm !important;
+        width: auto !important;
+        height: auto !important;
+
         margin: 0 !important;
         padding: 0 !important;
+
         background: #fff !important;
     }
 
@@ -1551,6 +2221,9 @@ background: #f9fafb;
     .contenedor,
     .contenido,
     main {
+
+        position: static !important;
+
         display: block !important;
 
         width: 100% !important;
@@ -1560,9 +2233,10 @@ background: #f9fafb;
     }
 
 
-    /* ==================================================
-       DOCUMENTO A4
-    =================================================== */
+
+/* ==================================================
+   DOCUMENTO A4
+=================================================== */
 
     .factura-documento {
 
@@ -1571,91 +2245,112 @@ background: #f9fafb;
         top: 0 !important;
         left: 0 !important;
 
-        /*
-         * A4 = 210 x 297 mm
-         *
-         * Con margen de 6 mm:
-         * ancho útil aprox. = 198 mm
-         */
-
-        width: 198mm !important;
-
-        max-width: 198mm !important;
+        width: 100% !important;
+        max-width: none !important;
 
         margin: 0 !important;
 
-        padding: 5mm !important;
+        padding: 2mm !important;
 
         box-sizing: border-box !important;
 
         background: #fff !important;
 
         border: none !important;
-
         border-radius: 0 !important;
-
         box-shadow: none !important;
 
-        font-size: 9pt !important;
-
-        line-height: 1.15 !important;
+        font-size: 8pt !important;
+        line-height: 1.1 !important;
 
         overflow: visible !important;
-
-        transform-origin: top left !important;
     }
 
 
     /* ==================================================
-       CABECERA
+    CABECERA
     =================================================== */
 
     .factura-cabecera {
 
+        display: grid !important;
+
         grid-template-columns:
-            42mm
+            32mm
             1fr
-            50mm !important;
+            48mm !important;
 
-        gap: 4mm !important;
+        gap:
+            4mm !important;
 
-        align-items: center !important;
+        align-items:
+            center !important;
+
+        margin-bottom:
+            3mm !important;
+    }
+
+
+    .factura-logo {
+        text-align:
+            center !important;
     }
 
 
     .factura-logo img {
 
-        max-width: 38mm !important;
+        max-width:
+            24mm !important;
 
-        max-height: 20mm !important;
+        max-height:
+            18mm !important;
+
+        margin:
+            0 auto !important;
     }
 
 
     .factura-logo-placeholder {
 
-        font-size: 18pt !important;
+        font-size:
+            16pt !important;
+    }
+
+
+    .factura-empresa {
+
+        text-align:
+            center !important;
     }
 
 
     .factura-empresa h2 {
 
-        font-size: 14pt !important;
-
         margin:
             0
             0
-            2mm
+            1mm
             0 !important;
+
+        font-size:
+            12pt !important;
+
+        line-height:
+            1.1 !important;
     }
 
 
     .factura-empresa p {
 
-        font-size: 8pt !important;
-
         margin:
-            0.5mm
+            0.4mm
             0 !important;
+
+        font-size:
+            6.8pt !important;
+
+        line-height:
+            1.15 !important;
     }
 
 
@@ -1667,59 +2362,147 @@ background: #f9fafb;
 
         border-radius:
             2mm !important;
+
+        background:
+            #eaf4fb !important;
+
+        text-align:
+            center !important;
+    }
+
+
+    .factura-periodo small {
+
+        display:
+            block !important;
+
+        margin-bottom:
+            1mm !important;
+
+        font-size:
+            6pt !important;
+
+        font-weight:
+            700 !important;
     }
 
 
     .factura-periodo strong {
 
+        display:
+            block !important;
+
         font-size:
-            13pt !important;
+            11pt !important;
+
+        line-height:
+            1.1 !important;
     }
 
 
     /* ==================================================
-       DATOS PRINCIPALES
+    DATOS PRINCIPALES
     =================================================== */
 
     .factura-meta {
 
+        display:
+            grid !important;
+
+        grid-template-columns:
+            repeat(4, 1fr) !important;
+
         margin-top:
-            3mm !important;
+            2mm !important;
+
+        border:
+            0.3mm solid
+            #cfddeb !important;
+
+        border-radius:
+            1.5mm !important;
+
+        overflow:
+            hidden !important;
     }
 
 
     .factura-meta-item {
 
         padding:
-            2mm !important;
+            2mm
+            1.5mm !important;
+
+        text-align:
+            center !important;
+
+        border-right:
+            0.3mm solid
+            #cfddeb !important;
+
+        background:
+            #fbfdff !important;
+    }
+
+
+    .factura-meta-item:last-child {
+
+        border-right:
+            none !important;
     }
 
 
     .factura-meta-item span {
 
-        font-size:
-            7pt !important;
+        display:
+            block !important;
 
         margin-bottom:
-            1mm !important;
+            0.6mm !important;
+
+        font-size:
+            5.8pt !important;
+
+        color:
+            #64748b !important;
     }
 
 
     .factura-meta-item strong {
 
         font-size:
-            10pt !important;
+            8pt !important;
+
+        line-height:
+            1.1 !important;
     }
 
 
     /* ==================================================
-       PERSONA / UNIDAD
+    PERSONA / UNIDAD
     =================================================== */
 
     .factura-cliente {
 
+        display:
+            grid !important;
+
+        grid-template-columns:
+            1.2fr
+            1fr !important;
+
         margin-top:
             2mm !important;
+
+        border:
+            0.3mm solid
+            #cfddeb !important;
+
+        border-radius:
+            1.5mm !important;
+
+        overflow:
+            hidden !important;
     }
 
 
@@ -1730,24 +2513,56 @@ background: #f9fafb;
     }
 
 
-    .factura-persona-nombre {
+    .factura-cliente-bloque
+    +
+    .factura-cliente-bloque {
 
-        font-size:
-            10pt !important;
-
-        margin-bottom:
-            1mm !important;
+        border-left:
+            0.3mm solid
+            #cfddeb !important;
     }
 
 
     .factura-titulo-campo {
 
+        margin-bottom:
+            0.6mm !important;
+
         font-size:
-            7pt !important;
+            5.8pt !important;
+
+        color:
+            #64748b !important;
+    }
+
+
+    .factura-persona-nombre {
+
+        margin-bottom:
+            0.8mm !important;
+
+        font-size:
+            8.5pt !important;
+
+        font-weight:
+            700 !important;
+    }
+
+
+    .factura-cliente-bloque div {
+
+        line-height:
+            1.2 !important;
     }
 
 
     .factura-datos-unidad {
+
+        display:
+            grid !important;
+
+        grid-template-columns:
+            repeat(4, 1fr) !important;
 
         margin-top:
             2mm !important;
@@ -1757,24 +2572,48 @@ background: #f9fafb;
     .factura-unidad-item {
 
         padding:
-            2mm
+            1.5mm
             1mm
             0
             1mm !important;
+
+        border-top:
+            0.3mm solid
+            #e2e8f0 !important;
     }
 
 
     /* ==================================================
-       TABLA DE CONCEPTOS
+    RESUMEN DE MORA
     =================================================== */
 
-    .factura-tabla {
+    .factura-resumen-mora {
 
         margin-top:
-            3mm !important;
+            2mm !important;
+
+        padding:
+            1.8mm
+            2.5mm !important;
+
+        border:
+            0.3mm solid
+            #ead8a5 !important;
+
+        border-radius:
+            1.5mm !important;
+
+        background:
+            #fff9e8 !important;
+
+        color:
+            #624611 !important;
 
         font-size:
-            8pt !important;
+            6.5pt !important;
+
+        line-height:
+            1.2 !important;
 
         page-break-inside:
             avoid !important;
@@ -1783,21 +2622,81 @@ background: #f9fafb;
             avoid !important;
     }
 
+    /* ==================================================
+       TABLA DE CONCEPTOS
+    =================================================== */
+
+    .factura-tabla {
+
+        width:100% !important;
+        margin-top:2mm !important;
+        font-size:7.5pt !important;
+        table-layout:fixed !important;
+        page-break-inside:auto !important;
+        break-inside:auto !important;
+    }
+
 
     .factura-tabla th {
-
-        padding:
-            2mm !important;
+        padding:1.5mm !important;
+        line-height:1.1 !important;
     }
 
 
     .factura-tabla td {
 
         padding:
-            1.7mm
-            2mm !important;
-    }
+            1.2mm
+            1.5mm !important;
 
+        line-height:
+            1.15 !important;
+
+        vertical-align:
+            top !important;
+    }
+        /* ==================================================
+        ANCHO DE LAS 5 COLUMNAS
+        =================================================== */
+
+        .factura-tabla th:nth-child(1),
+        .factura-tabla td:nth-child(1) {
+
+            width:
+                38% !important;
+        }
+
+
+        .factura-tabla th:nth-child(2),
+        .factura-tabla td:nth-child(2) {
+
+            width:
+                20% !important;
+        }
+
+
+        .factura-tabla th:nth-child(3),
+        .factura-tabla td:nth-child(3) {
+
+            width:
+                14% !important;
+        }
+
+
+        .factura-tabla th:nth-child(4),
+        .factura-tabla td:nth-child(4) {
+
+            width:
+                14% !important;
+        }
+
+
+        .factura-tabla th:nth-child(5),
+        .factura-tabla td:nth-child(5) {
+
+            width:
+                14% !important;
+        }
 
     .factura-tabla .total-row th,
     .factura-tabla .total-row td {
@@ -1947,6 +2846,128 @@ background: #f9fafb;
             avoid !important;
     }
 
+        /* ==================================================
+       MORA E INTERESES
+    =================================================== */
+
+    .fila-interes td {
+
+        background:
+            #fff !important;
+    }
+
+
+    .factura-resumen-mora {
+
+        margin-top:
+            2mm !important;
+
+        padding:
+            1.8mm
+            2mm !important;
+
+        border:
+            0.3mm solid
+            #cfcfcf !important;
+
+        border-radius:
+            1.5mm !important;
+
+        background:
+            #fff !important;
+
+        color:
+            #000 !important;
+
+        font-size:
+            7pt !important;
+
+        line-height:
+            1.2 !important;
+
+        page-break-inside:
+            avoid !important;
+
+        break-inside:
+            avoid !important;
+    }
+
+
+    .factura-mora {
+
+        display:
+            block !important;
+
+        margin-top:
+            1mm !important;
+
+        padding:
+            1.5mm
+            1.8mm !important;
+
+        border:
+            0.3mm solid
+            #cfcfcf !important;
+
+        border-radius:
+            1.2mm !important;
+
+        background:
+            #fff !important;
+
+        color:
+            #000 !important;
+
+        font-size:
+            6.5pt !important;
+
+        line-height:
+            1.25 !important;
+
+        page-break-inside:
+            avoid !important;
+
+        break-inside:
+            avoid !important;
+    }
+
+
+    .factura-mora-titulo {
+
+        display:
+            block !important;
+
+        margin-bottom:
+            0.5mm !important;
+
+        color:
+            #000 !important;
+
+        font-size:
+            7pt !important;
+
+        font-weight:
+            800 !important;
+    }
+
+
+    .factura-interes-detalle {
+
+        display:
+            block !important;
+
+        margin-top:
+            0.8mm !important;
+
+        font-size:
+            6.5pt !important;
+
+        line-height:
+            1.2 !important;
+
+        color:
+            #000 !important;
+    }
 
     /* ==================================================
        EVITAR CORTES
@@ -1955,10 +2976,22 @@ background: #f9fafb;
     .factura-cabecera,
     .factura-meta,
     .factura-cliente,
-    .factura-tabla,
     .factura-inferior,
     .factura-panel,
-    .factura-observaciones {
+    .factura-observaciones,
+    .factura-resumen-mora,
+    .factura-mora,
+    .fila-interes {
+
+        page-break-inside:
+            avoid !important;
+
+        break-inside:
+            avoid !important;
+    }
+
+
+    .factura-tabla tr {
 
         page-break-inside:
             avoid !important;
@@ -1969,16 +3002,121 @@ background: #f9fafb;
 
 
     /* ==================================================
-       CONFIGURACIÓN A4
-    =================================================== */
+        AJUSTES FINALES DE IMPRESIÓN
+        =================================================== */
 
-    @page {
+        .factura-documento {
+            border-radius: 0 !important;
+        }
 
-        size:
-            A4 portrait;
+        .estado-mora-texto,
+        .estado-al-dia-texto,
+        .estado-periodo-actual,
+        .factura-meta,
+        .factura-cliente,
+        .factura-periodo,
+        .factura-resumen-mora {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
 
-        margin:
-            6mm;
-    }
 
+        /* ==================================================
+        CONFIGURACIÓN A4
+        =================================================== */
+
+        @page {
+            size: A4 portrait;
+            margin: 5mm;
+        }
+
+    
+    
+}
+
+/* ======================================================
+   MORA E INTERESES
+======================================================= */
+
+.fila-interes td {
+    background: #fff9e8;
+}
+
+.factura-mora {
+    display: block;
+    margin-top: 7px;
+    padding: 8px 10px;
+    border: 1px solid #ead8a5;
+    border-radius: 7px;
+    background: #fffdf4;
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.factura-mora-titulo {
+    display: block;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: #7a4512;
+}
+
+.factura-resumen-mora {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border: 1px solid #ead8a5;
+    border-radius: 8px;
+    background: #fff9e8;
+    color: #624611;
+}
+
+.factura-interes-detalle {
+    display: block;
+    margin-top: 5px;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #7a5a12;
+}
+
+/* ======================================================
+   SALDOS ANTERIORES
+======================================================= */
+
+.fila-saldo-anterior td {
+    background: #f8fafc;
+}
+
+.fila-saldo-anterior .factura-concepto-aclaracion {
+    color: #64748b;
+}
+
+/* ======================================================
+   PERÍODO Y ESTADO
+======================================================= */
+
+.factura-periodo-estado {
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.factura-periodo-estado strong {
+    font-weight: 700;
+}
+
+.estado-mora-texto {
+    margin-top: 4px;
+    color: #9a4d00;
+    font-weight: 700;
+}
+
+.estado-al-dia-texto {
+    margin-top: 4px;
+    color: #2f855a;
+    font-weight: 700;
+}
+
+.estado-periodo-actual {
+    margin-top: 4px;
+    color: #64748b;
+    font-weight: 600;
 }

@@ -383,7 +383,6 @@ try {
         WHERE
             u.activo = 1
             AND dtu.activo = 1
-            
     ";
 
 
@@ -675,11 +674,6 @@ try {
     // ======================================================
     // CONSULTA FACTURA EXISTENTE
     // ======================================================
-    //
-    // FOR UPDATE protege la factura mientras se agregan
-    // cargos nuevos dentro de esta transacción.
-    //
-    // ======================================================
 
     $sqlFacturaExiste = "
         SELECT
@@ -845,7 +839,42 @@ try {
 
 
     // ======================================================
+    // SALDO ANTERIOR DE LA UNIDAD
+    // Suma la cartera pendiente de períodos anteriores.
+    // ======================================================
+
+    $sqlSaldoAnterior = "
+        SELECT
+            COALESCE(
+                SUM(c.saldo),
+                0
+            ) AS saldo_anterior
+
+        FROM cartera c
+
+        WHERE
+            c.id_unidad =
+                :id_unidad
+
+            AND c.estado <>
+                'ANULADA'
+
+            AND c.saldo > 0.009
+
+            AND c.periodo <
+                :periodo_actual
+    ";
+
+
+    $stmtSaldoAnterior =
+        $conexion->prepare(
+            $sqlSaldoAnterior
+        );
+
+
+    // ======================================================
     // CARTERA VENCIDA PARA MORA
+    // Solo toma conceptos habilitados para interés de mora.
     // ======================================================
 
     $stmtCarteraVencida = null;
@@ -862,29 +891,43 @@ try {
 
             FROM cartera c
 
-            LEFT JOIN facturas_detalle fd
+            INNER JOIN facturas_detalle fd
                 ON fd.id_detalle =
                    c.id_detalle
 
+            INNER JOIN conceptos_facturacion cf_origen
+                ON cf_origen.id_concepto =
+                   fd.id_concepto
+
             WHERE
                 c.id_unidad = :id_unidad
+
                 AND c.estado = 'PENDIENTE'
+
                 AND c.saldo > 0.009
-                AND c.fecha_vencimiento < :fecha_facturacion_mora
+
+                AND c.fecha_vencimiento <
+                    :fecha_facturacion_mora
 
                 AND fd.id_interes IS NULL
 
-                AND (
-                    fd.id_concepto IS NULL
-                    OR fd.id_concepto <> :id_concepto_mora
-                )
+                AND cf_origen.aplica_interes_mora = 1
+
+                AND fd.id_concepto <>
+                    :id_concepto_mora
 
                 AND NOT EXISTS (
-                    SELECT 1
+                    SELECT
+                        1
+
                     FROM intereses_cartera ic
+
                     WHERE
-                        ic.id_cartera = c.id_cartera
-                        AND ic.periodo_interes = :periodo_interes
+                        ic.id_cartera =
+                            c.id_cartera
+
+                        AND ic.periodo_interes =
+                            :periodo_interes
                 )
 
             ORDER BY
@@ -950,6 +993,7 @@ try {
 
     // ======================================================
     // INSERTAR FACTURA NUEVA
+    // Guarda también el saldo anterior.
     // ======================================================
 
     $sqlInsertFactura = "
@@ -978,7 +1022,7 @@ try {
             :fecha_vencimiento,
             :subtotal,
             :intereses,
-            0,
+            :saldos_anteriores,
             :total,
             'GENERADA',
             :observaciones
@@ -999,11 +1043,13 @@ try {
     $sqlNumeroFactura = "
         UPDATE facturas
 
-        SET numero_factura =
-            :numero_factura
+        SET
+            numero_factura =
+                :numero_factura
 
-        WHERE id_factura =
-            :id_factura
+        WHERE
+            id_factura =
+                :id_factura
     ";
 
 
@@ -1054,7 +1100,7 @@ try {
 
 
     // ======================================================
-    // INSERTAR CARTERA DESDE DETALLE DE FACTURA
+    // INSERTAR CARTERA DESDE DETALLE
     // ======================================================
 
     $sqlInsertCartera = "
@@ -1130,13 +1176,8 @@ try {
 
 
     // ======================================================
-    // ACTUALIZAR TOTALES DE FACTURA EXISTENTE
-    // ======================================================
-    //
-    // Solo incrementamos el valor del cargo nuevo.
-    //
-    // No recalculamos Administración ni espacios existentes.
-    //
+    // INCREMENTAR FACTURA EXISTENTE
+    // Agrega cargos o intereses nuevos.
     // ======================================================
 
     $sqlIncrementarFactura = "
@@ -1144,13 +1185,16 @@ try {
 
         SET
             subtotal =
-                subtotal + :incremento_subtotal,
+                subtotal
+                + :incremento_subtotal,
 
             intereses =
-                intereses + :incremento_intereses,
+                intereses
+                + :incremento_intereses,
 
             total =
-                total + :incremento_total
+                total
+                + :incremento_total
 
         WHERE
             id_factura =
@@ -1166,6 +1210,40 @@ try {
     $stmtIncrementarFactura =
         $conexion->prepare(
             $sqlIncrementarFactura
+        );
+
+
+    // ======================================================
+    // ACTUALIZAR SALDO ANTERIOR
+    // Mantiene el total sincronizado con cartera.
+    // ======================================================
+
+    $sqlActualizarSaldoAnterior = "
+        UPDATE facturas
+
+        SET
+            saldos_anteriores =
+                :saldo_anterior,
+
+            total =
+                subtotal
+                + intereses
+                + :saldo_anterior_total
+
+        WHERE
+            id_factura =
+                :id_factura
+
+            AND estado IN (
+                'BORRADOR',
+                'GENERADA'
+            )
+    ";
+
+
+    $stmtActualizarSaldoAnterior =
+        $conexion->prepare(
+            $sqlActualizarSaldoAnterior
         );
 
 
@@ -1203,6 +1281,29 @@ try {
 
 
         // ==================================================
+        // CALCULAR SALDO ANTERIOR
+        // Obtiene cartera pendiente de períodos anteriores.
+        // ==================================================
+
+        $stmtSaldoAnterior->execute([
+
+            ':id_unidad'
+                => $idUnidad,
+
+            ':periodo_actual'
+                => $periodoCargo
+
+        ]);
+
+
+        $saldoAnteriorFactura =
+            round(
+                (float)$stmtSaldoAnterior->fetchColumn(),
+                2
+            );
+
+
+        // ==================================================
         // BUSCAR FACTURA EXISTENTE
         // ==================================================
 
@@ -1227,7 +1328,7 @@ try {
 
 
         // ==================================================
-        // BUSCAR CARGOS PENDIENTES SIEMPRE
+        // BUSCAR CARGOS PENDIENTES
         // ==================================================
 
         $stmtCargosUnidad->execute([
@@ -1248,7 +1349,7 @@ try {
 
 
         // ==================================================
-        // CALCULAR INTERESES DE MORA DEL MES
+        // CALCULAR INTERESES DE MORA
         // ==================================================
 
         $interesesUnidad = [];
@@ -1291,7 +1392,9 @@ try {
 
                 $valorBase =
                     round(
-                        (float)$deudaVencida['saldo'],
+                        (float)$deudaVencida[
+                            'saldo'
+                        ],
                         2
                     );
 
@@ -1301,11 +1404,18 @@ try {
                 }
 
 
+                // ==========================================
+                // INTERÉS MENSUAL
+                // No se prorratea por días.
+                // ==========================================
+
                 $valorInteres =
                     round(
                         $valorBase *
                         (
-                            (float)$configuracionMora['tasa']
+                            (float)$configuracionMora[
+                                'tasa'
+                            ]
                             / 100
                         ),
                         2
@@ -1316,6 +1426,11 @@ try {
                     continue;
                 }
 
+
+                // ==========================================
+                // DÍAS DE MORA
+                // Solo se conserva como dato informativo.
+                // ==========================================
 
                 $fechaDeuda =
                     new DateTime(
@@ -1426,18 +1541,7 @@ try {
 
 
         // ==================================================
-        // CASO A:
-        // YA EXISTE FACTURA
-        // ==================================================
-        //
-        // Solo agregamos CARGOS NUEVOS e INTERESES pendientes.
-        //
-        // NO volvemos a generar:
-        //
-        // - Administración
-        // - conceptos generales
-        // - espacios
-        //
+        // CASO A: FACTURA EXISTENTE
         // ==================================================
 
         if ($facturaExistente) {
@@ -1450,7 +1554,10 @@ try {
             if (
                 !in_array(
                     $facturaExistente['estado'],
-                    ['BORRADOR', 'GENERADA'],
+                    [
+                        'BORRADOR',
+                        'GENERADA'
+                    ],
                     true
                 )
             ) {
@@ -1462,15 +1569,91 @@ try {
 
 
             // ==============================================
+            // VALIDAR CAMBIO DE SALDO ANTERIOR
+            // ==============================================
+
+            $saldoAnteriorGuardado =
+                round(
+                    (float)(
+                        $facturaExistente[
+                            'saldos_anteriores'
+                        ]
+                        ?? 0
+                    ),
+                    2
+                );
+
+
+            $totalEsperadoExistente =
+                round(
+                    (float)$facturaExistente[
+                        'subtotal'
+                    ]
+                    +
+                    (float)$facturaExistente[
+                        'intereses'
+                    ]
+                    +
+                    $saldoAnteriorFactura,
+                    2
+                );
+
+
+            $requiereActualizarSaldo =
+                abs(
+                    $saldoAnteriorGuardado
+                    -
+                    $saldoAnteriorFactura
+                ) > 0.009
+                ||
+                abs(
+                    (float)$facturaExistente[
+                        'total'
+                    ]
+                    -
+                    $totalEsperadoExistente
+                ) > 0.009;
+
+
+            // ==============================================
+            // ACTUALIZAR SALDO ANTERIOR
+            // ==============================================
+
+            $stmtActualizarSaldoAnterior->execute([
+
+                ':saldo_anterior'
+                    => $saldoAnteriorFactura,
+
+                ':saldo_anterior_total'
+                    => $saldoAnteriorFactura,
+
+                ':id_factura'
+                    => (int)$facturaExistente[
+                        'id_factura'
+                    ]
+
+            ]);
+
+
+            // ==============================================
             // SIN CARGOS NI INTERESES NUEVOS
             // ==============================================
 
             if (
                 empty($cargosUnidad)
-                && empty($interesesUnidad)
+                &&
+                empty($interesesUnidad)
             ) {
 
-                $facturasOmitidas++;
+                if ($requiereActualizarSaldo) {
+
+                    $facturasActualizadas++;
+
+                } else {
+
+                    $facturasOmitidas++;
+                }
+
 
                 continue;
             }
@@ -1712,6 +1895,235 @@ try {
 
 
             // ==============================================
+            // AGREGAR CARGOS A FACTURA EXISTENTE
+            // ==============================================
+
+            foreach (
+                $cargosUnidad
+                as $cargo
+            ) {
+
+                $valorCargo =
+                    round(
+                        (float)$cargo[
+                            'valor'
+                        ],
+                        2
+                    );
+
+
+                if ($valorCargo <= 0) {
+
+                    throw new Exception(
+                        'La cuota ' .
+                        $cargo['numero_cuota'] .
+                        ' del cargo "' .
+                        $cargo['cargo_nombre'] .
+                        '" tiene un valor igual o menor que cero.'
+                    );
+                }
+
+
+                $cantidadCuotas =
+                    (int)$cargo[
+                        'cantidad_cuotas'
+                    ];
+
+
+                if ($cantidadCuotas <= 0) {
+
+                    $cantidadCuotas = 1;
+                }
+
+
+                $descripcionCargo =
+                    $cargo[
+                        'cargo_nombre'
+                    ] .
+                    ' - cuota ' .
+                    (int)$cargo[
+                        'numero_cuota'
+                    ] .
+                    '/' .
+                    $cantidadCuotas;
+
+
+                // ==========================================
+                // INSERTAR DETALLE DEL CARGO
+                // ==========================================
+
+                $stmtInsertDetalle->execute([
+
+                    ':id_factura'
+                        => $idFactura,
+
+                    ':id_concepto'
+                        => (int)$cargo[
+                            'id_concepto'
+                        ],
+
+                    ':id_tarifa'
+                        => null,
+
+                    ':id_interes'
+                        => null,
+
+                    ':descripcion'
+                        => $descripcionCargo,
+
+                    ':cantidad'
+                        => 1,
+
+                    ':valor_unitario'
+                        => $valorCargo,
+
+                    ':subtotal'
+                        => $valorCargo,
+
+                    ':tipo_calculo'
+                        => 'FIJO',
+
+                    ':base_calculo'
+                        => 1
+
+                ]);
+
+
+                $idDetalle =
+                    (int)$conexion->lastInsertId();
+
+
+                if ($idDetalle <= 0) {
+
+                    throw new Exception(
+                        'No fue posible obtener el ID del detalle del cargo "' .
+                        $cargo['cargo_nombre'] .
+                        '".'
+                    );
+                }
+
+
+                // ==========================================
+                // VALIDAR TIPO DE OBLIGACIÓN
+                // ==========================================
+
+                if (
+                    empty(
+                        $cargo[
+                            'id_tipo_obligacion'
+                        ]
+                    )
+                ) {
+
+                    throw new Exception(
+                        'El concepto del cargo "' .
+                        $cargo['cargo_nombre'] .
+                        '" no tiene tipo de obligación configurado.'
+                    );
+                }
+
+
+                // ==========================================
+                // CREAR CARTERA
+                // ==========================================
+
+                $stmtInsertCartera->execute([
+
+                    ':id_factura'
+                        => $idFactura,
+
+                    ':id_detalle'
+                        => $idDetalle,
+
+                    ':id_unidad'
+                        => $idUnidad,
+
+                    ':id_tipo_obligacion'
+                        => (int)$cargo[
+                            'id_tipo_obligacion'
+                        ],
+
+                    ':periodo'
+                        => $periodoCargo,
+
+                    ':descripcion'
+                        => $descripcionCargo,
+
+                    ':valor_original'
+                        => $valorCargo,
+
+                    ':saldo'
+                        => $valorCargo,
+
+                    ':fecha_vencimiento'
+                        => $fechaVencimiento,
+
+                    ':observaciones'
+                        => 'Generado desde factura ' .
+                           (
+                               !empty(
+                                   $facturaExistente[
+                                       'numero_factura'
+                                   ]
+                               )
+                                   ? $facturaExistente[
+                                       'numero_factura'
+                                   ]
+                                   : '#' . $idFactura
+                           )
+
+                ]);
+
+
+                $carterasGeneradas++;
+
+
+                // ==========================================
+                // MARCAR CUOTA COMO FACTURADA
+                // ==========================================
+
+                $stmtActualizarCuota->execute([
+
+                    ':fecha_facturacion'
+                        => $fechaFacturacion,
+
+                    ':id_detalle'
+                        => $idDetalle,
+
+                    ':id_cuota'
+                        => (int)$cargo[
+                            'id_cuota'
+                        ]
+
+                ]);
+
+
+                if (
+                    $stmtActualizarCuota->rowCount()
+                    !== 1
+                ) {
+
+                    throw new Exception(
+                        'No fue posible marcar como facturada la cuota ' .
+                        $cargo['id_cuota'] .
+                        '. La cuota pudo haber cambiado de estado.'
+                    );
+                }
+
+
+                $incrementoSubtotal +=
+                    $valorCargo;
+
+
+                $cantidadCargosAgregados++;
+
+                $cargosFacturados++;
+
+                $detallesGenerados++;
+            }
+
+
+            // ==============================================
             // AGREGAR INTERESES A FACTURA EXISTENTE
             // ==============================================
 
@@ -1719,6 +2131,11 @@ try {
                 $interesesUnidad
                 as $interes
             ) {
+
+
+                // ==========================================
+                // INSERTAR INTERÉS
+                // ==========================================
 
                 $stmtInsertInteres->execute([
 
@@ -1792,6 +2209,10 @@ try {
                 }
 
 
+                // ==========================================
+                // INSERTAR DETALLE DE INTERÉS
+                // ==========================================
+
                 $stmtInsertDetalle->execute([
 
                     ':id_factura'
@@ -1849,6 +2270,10 @@ try {
                 }
 
 
+                // ==========================================
+                // CREAR CARTERA DEL INTERÉS
+                // ==========================================
+
                 $stmtInsertCartera->execute([
 
                     ':id_factura'
@@ -1902,21 +2327,28 @@ try {
 
 
                 $cantidadInteresesAgregados++;
+
                 $interesesGenerados++;
+
                 $valorInteresesGenerados +=
-                    (float)$interes['subtotal'];
+                    (float)$interes[
+                        'subtotal'
+                    ];
+
                 $carterasGeneradas++;
+
                 $detallesGenerados++;
             }
 
 
             // ==============================================
-            // ACTUALIZAR TOTAL DE LA FACTURA EXISTENTE
+            // ACTUALIZAR TOTAL DE FACTURA EXISTENTE
             // ==============================================
 
             if (
                 $cantidadCargosAgregados > 0
-                || $cantidadInteresesAgregados > 0
+                ||
+                $cantidadInteresesAgregados > 0
             ) {
 
                 $incrementoSubtotal =
@@ -1935,7 +2367,8 @@ try {
 
                 $incrementoTotal =
                     round(
-                        $incrementoSubtotal +
+                        $incrementoSubtotal
+                        +
                         $incrementoIntereses,
                         2
                     );
@@ -1966,8 +2399,14 @@ try {
                     throw new Exception(
                         'No fue posible actualizar el total de la factura ' .
                         (
-                            !empty($facturaExistente['numero_factura'])
-                                ? $facturaExistente['numero_factura']
+                            !empty(
+                                $facturaExistente[
+                                    'numero_factura'
+                                ]
+                            )
+                                ? $facturaExistente[
+                                    'numero_factura'
+                                ]
                                 : '#' . $idFactura
                         ) .
                         '.'
@@ -1979,33 +2418,19 @@ try {
             }
 
 
-            // ==============================================
-            // YA TERMINAMOS ESTA UNIDAD
-            // ==============================================
-
             continue;
         }
 
 
         // ==================================================
-        // CASO B:
-        // NO EXISTE FACTURA
-        // ==================================================
-        //
-        // Crear factura completa con:
-        //
-        // 1. Conceptos generales
-        // 2. Cargos pendientes
-        // 3. Espacios
-        // 4. Intereses de mora
-        //
+        // CASO B: FACTURA NUEVA
         // ==================================================
 
         $detallesUnidad = [];
 
 
         // ==================================================
-        // 1. CONCEPTOS GENERALES
+        // CONCEPTOS GENERALES
         // ==================================================
 
         foreach (
@@ -2047,7 +2472,7 @@ try {
 
 
             // ==============================================
-            // BUSCAR TARIFA ACTIVA Y VIGENTE
+            // BUSCAR TARIFA
             // ==============================================
 
             $stmtTarifa->execute([
@@ -2074,7 +2499,7 @@ try {
 
 
             // ==============================================
-            // SIN TARIFA = OMITIR CONCEPTO
+            // SIN TARIFA
             // ==============================================
 
             if (!$tarifa) {
@@ -2105,7 +2530,7 @@ try {
 
 
             // ==============================================
-            // CALCULAR
+            // CALCULAR CONCEPTO
             // ==============================================
 
             switch ($tipoCalculo) {
@@ -2259,14 +2684,13 @@ try {
 
 
         // ==================================================
-        // 2. CARGOS PENDIENTES
+        // CARGOS PENDIENTES
         // ==================================================
 
         foreach (
             $cargosUnidad
             as $cargo
         ) {
-
 
             $valorCargo =
                 round(
@@ -2359,7 +2783,7 @@ try {
 
 
         // ==================================================
-        // 3. ESPACIOS VIGENTES
+        // ESPACIOS VIGENTES
         // ==================================================
 
         $stmtEspacios->execute([
@@ -2386,7 +2810,6 @@ try {
             $espacios
             as $espacio
         ) {
-
 
             $idConceptoEspacio =
                 (int)$espacio[
@@ -2471,7 +2894,8 @@ try {
                 (float)(
                     $espacio[
                         'area'
-                    ] ?? 0
+                    ]
+                    ?? 0
                 );
 
 
@@ -2589,9 +3013,7 @@ try {
                 );
 
 
-            if (
-                $valorEspacio <= 0
-            ) {
+            if ($valorEspacio <= 0) {
 
                 throw new Exception(
                     'El cálculo del espacio "' .
@@ -2649,7 +3071,7 @@ try {
 
 
         // ==================================================
-        // 4. INTERESES DE MORA
+        // AGREGAR INTERESES
         // ==================================================
 
         foreach (
@@ -2679,7 +3101,7 @@ try {
 
 
         // ==================================================
-        // CALCULAR SUBTOTAL
+        // CALCULAR TOTALES
         // ==================================================
 
         $subtotalFactura = 0;
@@ -2693,7 +3115,12 @@ try {
         ) {
 
             if (
-                ($detalle['origen'] ?? '')
+                (
+                    $detalle[
+                        'origen'
+                    ]
+                    ?? ''
+                )
                 === 'INTERES'
             ) {
 
@@ -2726,9 +3153,17 @@ try {
             );
 
 
+        // ==================================================
+        // TOTAL A PAGAR
+        // Incluye cartera anterior más el período actual.
+        // ==================================================
+
         $totalFactura =
             round(
-                $subtotalFactura +
+                $saldoAnteriorFactura
+                +
+                $subtotalFactura
+                +
                 $interesesFactura,
                 2
             );
@@ -2761,6 +3196,9 @@ try {
             ':intereses'
                 => $interesesFactura,
 
+            ':saldos_anteriores'
+                => $saldoAnteriorFactura,
+
             ':total'
                 => $totalFactura,
 
@@ -2787,7 +3225,7 @@ try {
 
 
         // ==================================================
-        // NÚMERO DE FACTURA
+        // GENERAR NÚMERO DE FACTURA
         // ==================================================
 
         $numeroFactura =
@@ -2828,12 +3266,20 @@ try {
             as $detalle
         ) {
 
-
             $idInteresDetalle = null;
 
 
+            // ==============================================
+            // CREAR INTERÉS
+            // ==============================================
+
             if (
-                ($detalle['origen'] ?? '')
+                (
+                    $detalle[
+                        'origen'
+                    ]
+                    ?? ''
+                )
                 === 'INTERES'
             ) {
 
@@ -2910,6 +3356,10 @@ try {
             }
 
 
+            // ==============================================
+            // INSERTAR DETALLE
+            // ==============================================
+
             $stmtInsertDetalle->execute([
 
                 ':id_factura'
@@ -2974,7 +3424,7 @@ try {
 
 
             // ==============================================
-            // CREAR CARTERA DEL DETALLE
+            // VALIDAR TIPO DE OBLIGACIÓN
             // ==============================================
 
             if (
@@ -2992,6 +3442,10 @@ try {
                 );
             }
 
+
+            // ==============================================
+            // CREAR CARTERA DEL DETALLE
+            // ==============================================
 
             $stmtInsertCartera->execute([
 
@@ -3042,8 +3496,17 @@ try {
             $detallesGenerados++;
 
 
+            // ==============================================
+            // CONTAR INTERESES
+            // ==============================================
+
             if (
-                ($detalle['origen'] ?? '')
+                (
+                    $detalle[
+                        'origen'
+                    ]
+                    ?? ''
+                )
                 === 'INTERES'
             ) {
 
@@ -3057,15 +3520,15 @@ try {
 
 
             // ==============================================
-            // SI ES CARGO, CERRAR CUOTA
+            // CERRAR CUOTA DE CARGO
             // ==============================================
 
             if (
                 $detalle[
                     'origen'
-                ] === 'CARGO'
+                ]
+                === 'CARGO'
             ) {
-
 
                 $stmtActualizarCuota->execute([
 
@@ -3101,13 +3564,14 @@ try {
 
 
             // ==============================================
-            // CONTADOR ESPACIOS
+            // CONTAR ESPACIOS
             // ==============================================
 
             if (
                 $detalle[
                     'origen'
-                ] === 'ESPACIO'
+                ]
+                === 'ESPACIO'
             ) {
 
                 $espaciosFacturados++;
@@ -3117,7 +3581,6 @@ try {
 
         $facturasGeneradas++;
     }
-
 
     // ======================================================
     // CONFIRMAR TRANSACCIÓN
@@ -3132,22 +3595,31 @@ try {
 
     $mensaje =
         'Proceso de facturación completado correctamente. ' .
+
         'Facturas nuevas: ' .
         $facturasGeneradas .
+
         '. Facturas existentes actualizadas: ' .
         $facturasActualizadas .
+
         '. Facturas/unidades sin cambios: ' .
         $facturasOmitidas .
+
         '. Detalles nuevos: ' .
         $detallesGenerados .
+
         '. Registros de cartera generados: ' .
         $carterasGeneradas .
+
         '. Cargos facturados: ' .
         $cargosFacturados .
+
         '. Espacios facturados: ' .
         $espaciosFacturados .
+
         '. Intereses de mora generados: ' .
         $interesesGenerados .
+
         ' por $' .
         number_format(
             $valorInteresesGenerados,
@@ -3155,6 +3627,7 @@ try {
             ',',
             '.'
         ) .
+
         '. Conceptos sin tarifa activa/vigente omitidos: ' .
         $conceptosSinTarifa .
         '.';
