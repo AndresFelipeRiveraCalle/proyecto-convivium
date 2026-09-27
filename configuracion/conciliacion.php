@@ -139,7 +139,8 @@ $whereSql =
 
 
 // ==========================================================
-// MOVIMIENTOS BANCARIOS PENDIENTES
+// MOVIMIENTOS BANCARIOS
+// Obtiene una sola fila por movimiento bancario.
 // ==========================================================
 
 $sqlMovimientos = "
@@ -160,31 +161,13 @@ $sqlMovimientos = "
 
         cb.banco,
         cb.tipo_cuenta,
-        cb.numero_cuenta,
-
-        p_rel.id_pago AS pago_relacionado,
-        p_rel.id_unidad AS pago_id_unidad,
-        p_rel.fecha_pago AS pago_fecha,
-        p_rel.valor AS pago_valor,
-        p_rel.referencia AS pago_referencia,
-        p_rel.estado_conciliacion AS pago_estado_conciliacion,
-
-        u_rel.codigo AS pago_unidad_codigo,
-        u_rel.nombre AS pago_unidad_nombre
+        cb.numero_cuenta
 
     FROM extractos_bancarios eb
 
     LEFT JOIN cuentas_bancarias cb
         ON cb.id_cuenta_bancaria =
            eb.id_cuenta_bancaria
-
-    LEFT JOIN pagos p_rel
-        ON p_rel.id_extracto =
-           eb.id_extracto
-
-    LEFT JOIN unidades u_rel
-        ON u_rel.id_unidad =
-           p_rel.id_unidad
 
     WHERE
         $whereSql

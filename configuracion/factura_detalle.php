@@ -6,6 +6,7 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 // ==========================================================
 // FUNCIONES
+// Formatea texto, valores monetarios y fechas.
 // ==========================================================
 
 function e($valor)
@@ -17,6 +18,7 @@ function e($valor)
     );
 }
 
+
 function dinero($valor)
 {
     return '$' . number_format(
@@ -26,6 +28,7 @@ function dinero($valor)
         '.'
     );
 }
+
 
 function fechaEs($fecha)
 {
@@ -42,6 +45,7 @@ function fechaEs($fecha)
 
 // ==========================================================
 // VALIDAR FACTURA
+// Obtiene y valida la factura solicitada.
 // ==========================================================
 
 $idFactura =
@@ -68,6 +72,7 @@ if ($idFactura <= 0) {
 
 // ==========================================================
 // FACTURA
+// Obtiene los datos principales de la factura y la unidad.
 // ==========================================================
 
 $sqlFactura = "
@@ -100,15 +105,20 @@ $sqlFactura = "
     FROM facturas f
 
     INNER JOIN unidades u
-        ON u.id_unidad = f.id_unidad
+        ON u.id_unidad =
+           f.id_unidad
 
     LEFT JOIN detalle_tipos_unidad dtu
-        ON dtu.id_tipo_config = u.id_tipo_config
+        ON dtu.id_tipo_config =
+           u.id_tipo_config
 
     LEFT JOIN tipos_vivienda tv
-        ON tv.id_tipo_vivienda = dtu.id_tipo_vivienda
+        ON tv.id_tipo_vivienda =
+           dtu.id_tipo_vivienda
 
-    WHERE f.id_factura = :id_factura
+    WHERE
+        f.id_factura =
+            :id_factura
 
     LIMIT 1
 ";
@@ -121,7 +131,8 @@ $stmtFactura =
 
 
 $stmtFactura->execute([
-    ':id_factura' => $idFactura
+    ':id_factura'
+        => $idFactura
 ]);
 
 
@@ -149,6 +160,7 @@ if (!$factura) {
 
 // ==========================================================
 // DATOS DE LA COPROPIEDAD
+// Obtiene la versión activa de los datos generales.
 // ==========================================================
 
 $sqlCopropiedad = "
@@ -165,9 +177,11 @@ $sqlCopropiedad = "
 
     FROM datos_unidad
 
-    WHERE es_actual = 1
+    WHERE
+        es_actual = 1
 
-    ORDER BY id DESC
+    ORDER BY
+        id DESC
 
     LIMIT 1
 ";
@@ -202,6 +216,7 @@ if (!$copropiedad) {
 
 // ==========================================================
 // PERSONA PRINCIPAL DE FACTURACIÓN
+// Prioriza la persona configurada para recibir factura.
 // ==========================================================
 
 $sqlPersona = "
@@ -223,23 +238,30 @@ $sqlPersona = "
     FROM residente r
 
     INNER JOIN usuario u
-        ON u.id = r.usuario_id
+        ON u.id =
+           r.usuario_id
 
     LEFT JOIN tipos_documento td
-        ON td.id_tipo_documento = u.id_tipo_documento
+        ON td.id_tipo_documento =
+           u.id_tipo_documento
 
     WHERE
-        r.unidad_id = :id_unidad
+        r.unidad_id =
+            :id_unidad
+
         AND r.activo = 1
+
         AND r.fecha_hasta IS NULL
 
     ORDER BY
         r.recibe_factura DESC,
+
         CASE r.tipo
             WHEN 'propietario' THEN 1
             WHEN 'inquilino' THEN 2
             ELSE 3
         END,
+
         u.apellidos,
         u.nombres
 
@@ -281,7 +303,8 @@ if (!$persona) {
 
 
 // ==========================================================
-// ESPACIOS VIGENTES DE LA UNIDAD
+// ESPACIOS VIGENTES
+// Obtiene los espacios asociados a la unidad.
 // ==========================================================
 
 $sqlEspacios = "
@@ -292,12 +315,18 @@ $sqlEspacios = "
     FROM espacios_unidad
 
     WHERE
-        id_unidad = :id_unidad
+        id_unidad =
+            :id_unidad
+
         AND activo = 1
-        AND fecha_desde <= :fecha
+
+        AND fecha_desde <=
+            :fecha
+
         AND (
             fecha_hasta IS NULL
-            OR fecha_hasta >= :fecha2
+            OR fecha_hasta >=
+               :fecha_fin
         )
 
     ORDER BY
@@ -319,7 +348,7 @@ $stmtEspacios->execute([
     ':fecha'
         => $factura['fecha_generacion'],
 
-    ':fecha2'
+    ':fecha_fin'
         => $factura['fecha_generacion']
 ]);
 
@@ -332,26 +361,199 @@ $espacios =
 
 $parqueaderos = [];
 
-$otrosEspacios = [];
-
 
 foreach ($espacios as $espacio) {
 
-    if ($espacio['tipo_espacio'] === 'PARQUEADERO') {
+    if (
+        $espacio['tipo_espacio']
+        === 'PARQUEADERO'
+    ) {
 
         $parqueaderos[] =
-            $espacio['codigo'];
-
-    } else {
-
-        $otrosEspacios[] =
             $espacio['codigo'];
     }
 }
 
+// ==========================================================
+// DATOS DEL PERÍODO DE LA FACTURA
+// Prepara la fecha de corte y el período mensual.
+// ==========================================================
+
+$periodoFactura =
+    sprintf(
+        '%04d-%02d-01',
+        (int)$factura['periodo'],
+        (int)$factura['mes']
+    );
+
+
+$fechaCorteFactura =
+    $factura['fecha_generacion'];
+
+
+// ==========================================================
+// SALDOS ANTERIORES
+// Obtiene las obligaciones pendientes de períodos anteriores.
+// ==========================================================
+
+$sqlSaldosAnteriores = "
+    SELECT
+        c.id_cartera,
+        c.id_factura,
+        c.id_detalle,
+        c.periodo,
+        c.descripcion,
+        c.valor_original,
+        c.valor_pagado,
+        c.saldo,
+        c.fecha_vencimiento,
+        c.estado,
+
+        f.numero_factura,
+
+        fd.id_concepto,
+        fd.id_interes,
+
+        cf.nombre AS concepto_nombre,
+
+        CASE
+            WHEN c.fecha_vencimiento < :fecha_corte_mora
+            THEN
+                GREATEST(
+                    1,
+                    TIMESTAMPDIFF(
+                        MONTH,
+                        DATE_FORMAT(
+                            c.fecha_vencimiento,
+                            '%Y-%m-01'
+                        ),
+                        DATE_FORMAT(
+                            :periodo_factura_mora,
+                            '%Y-%m-01'
+                        )
+                    )
+                )
+            ELSE 0
+        END AS meses_mora
+
+    FROM cartera c
+
+    LEFT JOIN facturas f
+        ON f.id_factura =
+           c.id_factura
+
+    LEFT JOIN facturas_detalle fd
+        ON fd.id_detalle =
+           c.id_detalle
+
+    LEFT JOIN conceptos_facturacion cf
+        ON cf.id_concepto =
+           fd.id_concepto
+
+    WHERE
+        c.id_unidad =
+            :id_unidad
+
+        AND c.estado <>
+            'ANULADA'
+
+        AND c.saldo > 0.009
+
+        AND c.periodo <
+            :periodo_factura
+
+        AND (
+            c.id_factura IS NULL
+            OR c.id_factura <>
+               :id_factura
+        )
+
+    ORDER BY
+        c.periodo,
+        c.fecha_vencimiento,
+        c.id_cartera
+";
+
+
+$stmtSaldosAnteriores =
+    $conexion->prepare(
+        $sqlSaldosAnteriores
+    );
+
+
+$stmtSaldosAnteriores->execute([
+
+    ':fecha_corte_mora'
+        => $fechaCorteFactura,
+
+    ':periodo_factura_mora'
+        => $periodoFactura,
+
+    ':id_unidad'
+        => (int)$factura[
+            'id_unidad'
+        ],
+
+    ':periodo_factura'
+        => $periodoFactura,
+
+    ':id_factura'
+        => $idFactura
+
+]);
+
+
+$saldosAnteriores =
+    $stmtSaldosAnteriores->fetchAll(
+        PDO::FETCH_ASSOC
+    );
+
+
+// ==========================================================
+// TOTAL DE SALDOS ANTERIORES
+// Verifica el total que se mostrará en la factura.
+// ==========================================================
+
+$saldoAnteriorTotal = 0;
+
+
+foreach ($saldosAnteriores as $saldoAnterior) {
+
+    $saldoAnteriorTotal +=
+        (float)$saldoAnterior[
+            'saldo'
+        ];
+}
+
+$saldoAnteriorTotal = round($saldoAnteriorTotal,2);
+
+
+// ==========================================================
+// TOTAL VISUAL DE LA FACTURA
+// Suma el saldo anterior reconstruido y los cargos del mes.
+// ==========================================================
+
+$valorMesFactura =
+    round(
+        (float)$factura['subtotal']
+        +
+        (float)$factura['intereses'],
+        2
+    );
+
+
+$totalPagarFactura =
+    round(
+        $saldoAnteriorTotal
+        +
+        $valorMesFactura,
+        2
+    );
+
 
 // ==========================================================
 // DETALLES DE FACTURA
+// Obtiene conceptos, cargos e información de mora.
 // ==========================================================
 
 $sqlDetalles = "
@@ -373,47 +575,107 @@ $sqlDetalles = "
 
         tf.nombre AS tarifa_nombre,
 
+        ic.id_cartera AS id_cartera_origen,
         ic.periodo_interes,
         ic.fecha_calculo AS interes_fecha_calculo,
-        ic.dias_mora AS interes_dias_mora,
+        ic.fecha_vencimiento AS interes_fecha_vencimiento,
         ic.tasa_interes AS interes_tasa,
         ic.valor_base AS interes_valor_base,
         ic.valor_interes AS interes_valor,
+
+        co.descripcion AS mora_descripcion,
+        co.fecha_vencimiento AS mora_fecha_vencimiento,
+        co.saldo AS mora_saldo_actual,
+
+        fdo.id_concepto AS mora_id_concepto,
+
+        cfo.nombre AS mora_concepto,
+
+        fo.numero_factura AS mora_factura_origen,
+
+        CASE
+            WHEN
+                ic.id_interes IS NOT NULL
+                AND co.fecha_vencimiento IS NOT NULL
+                AND ic.periodo_interes IS NOT NULL
+            THEN
+                GREATEST(
+                    1,
+                    TIMESTAMPDIFF(
+                        MONTH,
+                        DATE_FORMAT(
+                            co.fecha_vencimiento,
+                            '%Y-%m-01'
+                        ),
+                        DATE_FORMAT(
+                            ic.periodo_interes,
+                            '%Y-%m-01'
+                        )
+                    )
+                )
+
+            ELSE NULL
+        END AS meses_mora,
 
         cfc.id_cuota,
         cfc.numero_cuota,
 
         cfu.id_cargo_unidad,
 
-        c.id_cargo,
-        c.nombre AS cargo_nombre,
-        c.descripcion AS cargo_descripcion,
-        c.numero_cuotas AS cargo_numero_cuotas,
-        c.estado AS cargo_estado
+        cg.id_cargo,
+        cg.nombre AS cargo_nombre,
+        cg.descripcion AS cargo_descripcion,
+        cg.numero_cuotas AS cargo_numero_cuotas,
+        cg.estado AS cargo_estado
 
     FROM facturas_detalle fd
 
     INNER JOIN conceptos_facturacion cf
-        ON cf.id_concepto = fd.id_concepto
+        ON cf.id_concepto =
+           fd.id_concepto
 
     LEFT JOIN tarifas_facturacion tf
-        ON tf.id_tarifa = fd.id_tarifa
+        ON tf.id_tarifa =
+           fd.id_tarifa
 
     LEFT JOIN intereses_cartera ic
-        ON ic.id_interes = fd.id_interes
+        ON ic.id_interes =
+           fd.id_interes
+
+    LEFT JOIN cartera co
+        ON co.id_cartera =
+           ic.id_cartera
+
+    LEFT JOIN facturas_detalle fdo
+        ON fdo.id_detalle =
+           co.id_detalle
+
+    LEFT JOIN conceptos_facturacion cfo
+        ON cfo.id_concepto =
+           fdo.id_concepto
+
+    LEFT JOIN facturas fo
+        ON fo.id_factura =
+           co.id_factura
 
     LEFT JOIN cargos_facturacion_cuotas cfc
-        ON cfc.id_detalle = fd.id_detalle
+        ON cfc.id_detalle =
+           fd.id_detalle
 
     LEFT JOIN cargos_facturacion_unidades cfu
-        ON cfu.id_cargo_unidad = cfc.id_cargo_unidad
+        ON cfu.id_cargo_unidad =
+           cfc.id_cargo_unidad
 
-    LEFT JOIN cargos_facturacion c
-        ON c.id_cargo = cfu.id_cargo
+    LEFT JOIN cargos_facturacion cg
+        ON cg.id_cargo =
+           cfu.id_cargo
 
-    WHERE fd.id_factura = :id_factura
+    WHERE
+        fd.id_factura =
+            :id_factura
 
-    ORDER BY fd.id_detalle
+    ORDER BY
+        fd.id_detalle
 ";
 
 
@@ -436,7 +698,34 @@ $detalles =
 
 
 // ==========================================================
+// RESUMEN DE INTERESES
+// Calcula los intereses incluidos en esta factura.
+// ==========================================================
+
+$cantidadIntereses = 0;
+
+$valorIntereses = 0;
+
+
+foreach ($detalles as $detalle) {
+
+    if (
+        !empty(
+            $detalle['id_interes']
+        )
+    ) {
+
+        $cantidadIntereses++;
+
+        $valorIntereses +=
+            (float)$detalle['subtotal'];
+    }
+}
+
+
+// ==========================================================
 // TEXTOS
+// Prepara datos para presentación.
 // ==========================================================
 
 $meses = [
@@ -456,40 +745,69 @@ $meses = [
 
 
 $periodoTexto =
-    ($meses[(int)$factura['mes']] ?? '') .
-    ' ' .
+    (
+        $meses[
+            (int)$factura['mes']
+        ]
+        ?? ''
+    )
+    .
+    ' '
+    .
     $factura['periodo'];
 
 
 $nombrePersona =
     trim(
-        $persona['nombres'] .
-        ' ' .
+        $persona['nombres']
+        .
+        ' '
+        .
         $persona['apellidos']
     );
 
 
 $telefonoPersona =
-    !empty($persona['celular'])
+    !empty(
+        $persona['celular']
+    )
         ? $persona['celular']
         : $persona['telefono'];
 
 
 $documentoPersona =
     trim(
-        ($persona['tipo_documento_codigo'] ?? '') .
-        ' ' .
-        ($persona['numero_documento'] ?? '')
+        (
+            $persona[
+                'tipo_documento_codigo'
+            ]
+            ?? ''
+        )
+        .
+        ' '
+        .
+        (
+            $persona[
+                'numero_documento'
+            ]
+            ?? ''
+        )
     );
 
 
 // ==========================================================
 // LOGO
+// Construye la URL del logo configurado.
 // ==========================================================
 
 $logoUrl = '';
 
-if (!empty($copropiedad['logo'])) {
+
+if (
+    !empty(
+        $copropiedad['logo']
+    )
+) {
 
     $logoGuardado =
         ltrim(
@@ -520,481 +838,74 @@ if (!empty($copropiedad['logo'])) {
 
 
 // ==========================================================
-// RETORNO SEGÚN ORIGEN
+// RETORNO
+// Conserva la navegación según la pantalla de origen.
 // ==========================================================
 
-$urlVolver = BASE_URL . 'configuracion/facturas_generadas.php';
-$textoVolver = '← Volver a facturas';
+$urlVolver =
+    BASE_URL .
+    'configuracion/facturas_generadas.php';
 
-$origen = $_GET['origen'] ?? '';
 
-if ($origen === 'cartera_general') {
-    $urlVolver = BASE_URL . 'configuracion/cartera.php';
-    $textoVolver = '← Volver a cartera';
-}
+$textoVolver =
+    '← Volver a facturas';
+
+
+$origen =
+    $_GET['origen'] ?? '';
+
 
 if (
-    $origen === 'cartera_detalle'
-    && !empty($_GET['id_unidad'])
+    $origen ===
+    'cartera_general'
 ) {
+
+    $urlVolver =
+        BASE_URL .
+        'configuracion/cartera.php';
+
+    $textoVolver =
+        '← Volver a cartera';
+}
+
+
+if (
+    $origen ===
+        'cartera_detalle'
+    &&
+    !empty(
+        $_GET['id_unidad']
+    )
+) {
+
     $urlVolver =
         BASE_URL .
         'configuracion/cartera_detalle.php?' .
         http_build_query([
-            'id_unidad' => (int)$_GET['id_unidad']
+            'id_unidad'
+                => (int)$_GET['id_unidad']
         ]);
 
-    $textoVolver = '← Volver al detalle de cartera';
+
+    $textoVolver =
+        '← Volver al detalle de cartera';
 }
 
 ?>
 
 <!DOCTYPE html>
-
 <html lang="es">
 
 <head>
-
     <?php include ROOT_PATH . "/includes/head.php"; ?>
-
-
-    <style>
-
-        /* ======================================================
-           PÁGINA DE DETALLE
-        ======================================================= */
-
-        .factura-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 18px;
-        }
-
-        .factura-toolbar-acciones {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .factura-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            text-decoration: none;
-            border: 1px solid #cbd5e1;
-            background: #fff;
-            color: #0f172a;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .factura-btn:hover {
-            background: #f8fafc;
-        }
-
-
-        /* ======================================================
-           DOCUMENTO
-        ======================================================= */
-
-        .factura-documento {
-            max-width: 1050px;
-            margin: 0 auto 30px auto;
-            background: #fff;
-            border: 1px solid #dbe3ec;
-            border-radius: 14px;
-            padding: 28px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-            color: #132238;
-        }
-
-        .factura-cabecera {
-            display: grid;
-            grid-template-columns: 210px 1fr 260px;
-            gap: 22px;
-            align-items: center;
-        }
-
-        .factura-logo {
-            text-align: center;
-        }
-
-        .factura-logo img {
-            max-width: 180px;
-            max-height: 95px;
-            object-fit: contain;
-        }
-
-        .factura-logo-placeholder {
-            font-size: 28px;
-            font-weight: 800;
-            color: #153b5c;
-        }
-
-        .factura-empresa {
-            text-align: center;
-        }
-
-        .factura-empresa h2 {
-            margin: 0 0 6px 0;
-            font-size: 23px;
-            color: #10243e;
-        }
-
-        .factura-empresa p {
-            margin: 3px 0;
-            font-size: 14px;
-        }
-
-        .factura-periodo {
-            background: #eaf4fb;
-            border-radius: 10px;
-            text-align: center;
-            padding: 18px 14px;
-        }
-
-        .factura-periodo small {
-            display: block;
-            font-weight: 700;
-            margin-bottom: 7px;
-        }
-
-        .factura-periodo strong {
-            display: block;
-            font-size: 22px;
-        }
-
-
-        /* ======================================================
-           DATOS PRINCIPALES
-        ======================================================= */
-
-        .factura-meta {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            margin-top: 22px;
-            border: 1px solid #d4dee9;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .factura-meta-item {
-            padding: 12px;
-            text-align: center;
-            border-right: 1px solid #d4dee9;
-            background: #fbfdff;
-        }
-
-        .factura-meta-item:last-child {
-            border-right: none;
-        }
-
-        .factura-meta-item span {
-            display: block;
-            font-size: 12px;
-            margin-bottom: 4px;
-            color: #64748b;
-        }
-
-        .factura-meta-item strong {
-            font-size: 17px;
-        }
-
-
-        /* ======================================================
-           PERSONA / UNIDAD
-        ======================================================= */
-
-        .factura-cliente {
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            margin-top: 12px;
-            border: 1px solid #d4dee9;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .factura-cliente-bloque {
-            padding: 15px;
-        }
-
-        .factura-cliente-bloque + .factura-cliente-bloque {
-            border-left: 1px solid #d4dee9;
-        }
-
-        .factura-titulo-campo {
-            color: #64748b;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        .factura-persona-nombre {
-            font-size: 19px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .factura-datos-unidad {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0;
-            margin-top: 12px;
-        }
-
-        .factura-unidad-item {
-            border-top: 1px solid #e2e8f0;
-            padding: 10px 8px 0 8px;
-        }
-
-        .factura-unidad-item:first-child {
-            padding-left: 0;
-        }
-
-
-        /* ======================================================
-           TABLA DE CONCEPTOS
-        ======================================================= */
-
-        .factura-tabla {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 18px;
-        }
-
-        .factura-tabla th {
-            background: #dceefb;
-            color: #10243e;
-            padding: 11px 10px;
-            border: 1px solid #c5d9e8;
-            text-align: left;
-        }
-
-        .factura-tabla td {
-            padding: 10px;
-            border: 1px solid #d8e2ec;
-            vertical-align: top;
-        }
-
-        .factura-tabla .numero {
-            text-align: right;
-            white-space: nowrap;
-        }
-
-        .factura-tabla .total-row th,
-        .factura-tabla .total-row td {
-            background: #dceefb;
-            font-size: 17px;
-            font-weight: 800;
-        }
-
-        .factura-concepto-link {
-            color: #0f4d7a;
-            font-weight: 700;
-            text-decoration: underline;
-            text-underline-offset: 3px;
-        }
-
-        .factura-concepto-link:hover {
-            color: #0b6ca8;
-        }
-
-        .factura-concepto-aclaracion {
-            display: block;
-            margin-top: 4px;
-            font-size: 11px;
-            color: #64748b;
-        }
-
-        .fila-interes td {
-            background: #fff9e8;
-        }
-
-        .factura-interes-detalle {
-            display: block;
-            margin-top: 5px;
-            font-size: 11px;
-            color: #7a5a12;
-            line-height: 1.45;
-        }
-
-
-        /* ======================================================
-           BLOQUES INFERIORES
-        ======================================================= */
-
-        .factura-inferior {
-            display: grid;
-            grid-template-columns: 1fr 1.15fr 1fr;
-            gap: 14px;
-            margin-top: 18px;
-        }
-
-        .factura-panel {
-            border: 1px solid #d8e2ec;
-            border-radius: 8px;
-            padding: 15px;
-            min-height: 115px;
-            background: #fbfdff;
-        }
-
-        .factura-panel h4 {
-            margin: 0 0 10px 0;
-            color: #174f7a;
-        }
-
-        .factura-estado {
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 8px;
-            background: #d8f5dc;
-            color: #176c2b;
-            font-weight: 800;
-        }
-
-        .factura-fecha-limite {
-            font-size: 23px;
-            font-weight: 800;
-            margin-top: 9px;
-        }
-
-        .factura-qr-placeholder {
-            height: 120px;
-            border: 2px dashed #b9c6d3;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: #64748b;
-            padding: 15px;
-        }
-
-        .factura-nota {
-            margin-top: 18px;
-            padding: 13px;
-            background: #e8f7ea;
-            color: #256b2e;
-            text-align: center;
-            border-radius: 7px;
-            font-weight: 700;
-        }
-
-        .factura-observaciones {
-            margin-top: 18px;
-            border-top: 1px solid #dbe3ec;
-            padding-top: 14px;
-            color: #475569;
-        }
-
-
-        /* ======================================================
-           RESPONSIVE
-        ======================================================= */
-
-        @media (max-width: 900px) {
-
-            .factura-cabecera {
-                grid-template-columns: 1fr;
-            }
-
-            .factura-meta {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .factura-meta-item {
-                border-bottom: 1px solid #d4dee9;
-            }
-
-            .factura-cliente {
-                grid-template-columns: 1fr;
-            }
-
-            .factura-cliente-bloque + .factura-cliente-bloque {
-                border-left: none;
-                border-top: 1px solid #d4dee9;
-            }
-
-            .factura-inferior {
-                grid-template-columns: 1fr;
-            }
-        }
-
-
-        /* ======================================================
-           IMPRESIÓN
-        ======================================================= */
-
-        @media print {
-
-            body {
-                background: #fff !important;
-            }
-
-            header,
-            .sidebar,
-            .factura-toolbar,
-            .no-print {
-                display: none !important;
-            }
-
-            .contenedor {
-                display: block !important;
-            }
-
-            .contenido {
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-            }
-
-            .factura-documento {
-                max-width: none;
-                width: 100%;
-                margin: 0;
-                border: none;
-                border-radius: 0;
-                box-shadow: none;
-                padding: 8mm;
-            }
-
-            .factura-concepto-link {
-                color: #000;
-                text-decoration: none;
-            }
-
-            .fila-interes td {
-                background: #fff !important;
-            }
-
-            @page {
-                size: A4 portrait;
-                margin: 8mm;
-            }
-        }
-
-    </style>
-
 </head>
 
-
 <body>
-
-
 <?php include ROOT_PATH . "/includes/header.php"; ?>
 
 
 <div class="contenedor">
-
-
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-
-
     <main class="contenido">
 
 
@@ -1045,92 +956,112 @@ if (
         ======================================================= -->
 
         <section class="factura-documento">
-
-
             <!-- ==================================================
                  CABECERA
             =================================================== -->
-
             <div class="factura-cabecera">
-
-
                 <div class="factura-logo">
 
                     <?php if ($logoUrl !== ''): ?>
-
                         <img
                             src="<?= e($logoUrl) ?>"
                             alt="Logo copropiedad"
                         >
-
                     <?php else: ?>
 
                         <div class="factura-logo-placeholder">
                             Convivium
                         </div>
 
-                        <small>
-                            Propiedad Horizontal
-                        </small>
-
+                        <small>Propiedad Horizontal</small>
                     <?php endif; ?>
 
                 </div>
 
-
                 <div class="factura-empresa">
-
                     <h2>
                         <?= e($copropiedad['nombre']) ?>
                     </h2>
 
-
-                    <?php if (!empty($copropiedad['nit'])): ?>
+                    <?php if (
+                        !empty($copropiedad['nit'])): ?>
 
                         <p>
-                            NIT. <?= e($copropiedad['nit']) ?>
+                            NIT.<?= e($copropiedad['nit']) ?>
                         </p>
-
                     <?php endif; ?>
 
-
                     <?php if (!empty($copropiedad['direccion'])): ?>
-
                         <p>
                             <?= e($copropiedad['direccion']) ?>
                         </p>
-
                     <?php endif; ?>
 
 
                     <?php if (
-                        !empty($copropiedad['telefono']) ||
-                        !empty($copropiedad['correo'])
+                        !empty(
+                            $copropiedad[
+                                'telefono'
+                            ]
+                        )
+                        ||
+                        !empty(
+                            $copropiedad[
+                                'correo'
+                            ]
+                        )
                     ): ?>
 
                         <p>
 
-                            <?php if (!empty($copropiedad['telefono'])): ?>
+                            <?php if (
+                                !empty(
+                                    $copropiedad[
+                                        'telefono'
+                                    ]
+                                )
+                            ): ?>
 
                                 Tel.
-                                <?= e($copropiedad['telefono']) ?>
+                                <?= e(
+                                    $copropiedad[
+                                        'telefono'
+                                    ]
+                                ) ?>
 
                             <?php endif; ?>
 
 
                             <?php if (
-                                !empty($copropiedad['telefono']) &&
-                                !empty($copropiedad['correo'])
+                                !empty(
+                                    $copropiedad[
+                                        'telefono'
+                                    ]
+                                )
+                                &&
+                                !empty(
+                                    $copropiedad[
+                                        'correo'
+                                    ]
+                                )
                             ): ?>
-
                                 &nbsp; · &nbsp;
-
                             <?php endif; ?>
 
 
-                            <?php if (!empty($copropiedad['correo'])): ?>
+                            <?php if (
+                                !empty(
+                                    $copropiedad[
+                                        'correo'
+                                    ]
+                                )
+                            ): ?>
 
-                                <?= e($copropiedad['correo']) ?>
+                                <?= e(
+                                    $copropiedad[
+                                        'correo'
+                                    ]
+                                ) ?>
 
                             <?php endif; ?>
 
@@ -1148,7 +1079,9 @@ if (
                     </small>
 
                     <strong>
-                        <?= e($periodoTexto) ?>
+                        <?= e(
+                            $periodoTexto
+                        ) ?>
                     </strong>
 
                 </div>
@@ -1158,7 +1091,7 @@ if (
 
 
             <!-- ==================================================
-                 META
+                 DATOS PRINCIPALES
             =================================================== -->
 
             <div class="factura-meta">
@@ -1171,7 +1104,11 @@ if (
                     </span>
 
                     <strong>
-                        <?= e($factura['numero_factura']) ?>
+                        <?= e(
+                            $factura[
+                                'numero_factura'
+                            ]
+                        ) ?>
                     </strong>
 
                 </div>
@@ -1184,12 +1121,16 @@ if (
                     </span>
 
                     <strong>
+
                         <?= str_pad(
-                            (string)$factura['id_factura'],
+                            (string)$factura[
+                                'id_factura'
+                            ],
                             10,
                             '0',
                             STR_PAD_LEFT
                         ) ?>
+
                     </strong>
 
                 </div>
@@ -1202,11 +1143,15 @@ if (
                     </span>
 
                     <strong>
+
                         <?= e(
                             fechaEs(
-                                $factura['fecha_generacion']
+                                $factura[
+                                    'fecha_generacion'
+                                ]
                             )
                         ) ?>
+
                     </strong>
 
                 </div>
@@ -1219,11 +1164,15 @@ if (
                     </span>
 
                     <strong>
+
                         <?= e(
                             fechaEs(
-                                $factura['fecha_vencimiento']
+                                $factura[
+                                    'fecha_vencimiento'
+                                ]
                             )
                         ) ?>
+
                     </strong>
 
                 </div>
@@ -1233,7 +1182,7 @@ if (
 
 
             <!-- ==================================================
-                 PERSONA + UNIDAD
+                 PERSONA Y UNIDAD
             =================================================== -->
 
             <div class="factura-cliente">
@@ -1249,28 +1198,52 @@ if (
                     <div class="factura-persona-nombre">
 
                         <?= $nombrePersona !== ''
-                            ? e($nombrePersona)
+                            ? e(
+                                $nombrePersona
+                            )
                             : 'Sin persona de facturación asignada'
                         ?>
 
                     </div>
 
 
-                    <?php if (!empty($persona['correo'])): ?>
+                    <?php if (
+                        !empty(
+                            $persona[
+                                'correo'
+                            ]
+                        )
+                    ): ?>
 
                         <div>
+
                             Correo:
-                            <?= e($persona['correo']) ?>
+
+                            <?= e(
+                                $persona[
+                                    'correo'
+                                ]
+                            ) ?>
+
                         </div>
 
                     <?php endif; ?>
 
 
-                    <?php if (!empty($telefonoPersona)): ?>
+                    <?php if (
+                        !empty(
+                            $telefonoPersona
+                        )
+                    ): ?>
 
                         <div>
+
                             Teléfono:
-                            <?= e($telefonoPersona) ?>
+
+                            <?= e(
+                                $telefonoPersona
+                            ) ?>
+
                         </div>
 
                     <?php endif; ?>
@@ -1280,17 +1253,20 @@ if (
 
                 <div class="factura-cliente-bloque">
 
-
                     <div class="factura-titulo-campo">
                         Identificación
                     </div>
 
 
                     <strong>
+
                         <?= $documentoPersona !== ''
-                            ? e($documentoPersona)
+                            ? e(
+                                $documentoPersona
+                            )
                             : '-'
                         ?>
+
                     </strong>
 
 
@@ -1304,7 +1280,13 @@ if (
                             </div>
 
                             <strong>
-                                <?= e($factura['unidad_codigo']) ?>
+
+                                <?= e(
+                                    $factura[
+                                        'unidad_codigo'
+                                    ]
+                                ) ?>
+
                             </strong>
 
                         </div>
@@ -1317,10 +1299,14 @@ if (
                             </div>
 
                             <strong>
+
                                 <?= e(
-                                    $factura['tipo_unidad']
+                                    $factura[
+                                        'tipo_unidad'
+                                    ]
                                     ?? '-'
                                 ) ?>
+
                             </strong>
 
                         </div>
@@ -1333,10 +1319,14 @@ if (
                             </div>
 
                             <strong>
+
                                 <?= e(
-                                    $factura['nombre_grupo']
+                                    $factura[
+                                        'nombre_grupo'
+                                    ]
                                     ?? '-'
                                 ) ?>
+
                             </strong>
 
                         </div>
@@ -1350,7 +1340,9 @@ if (
 
                             <strong>
 
-                                <?= !empty($parqueaderos)
+                                <?= !empty(
+                                    $parqueaderos
+                                )
                                     ? e(
                                         implode(
                                             ', ',
@@ -1375,6 +1367,42 @@ if (
 
 
             <!-- ==================================================
+                 RESUMEN DE MORA
+            =================================================== -->
+
+            <?php if (
+                $cantidadIntereses > 0
+            ): ?>
+
+                <div class="factura-resumen-mora">
+
+                    <strong>
+                        Mora del período:
+                    </strong>
+
+                    esta factura incluye
+
+                    <?= (int)$cantidadIntereses ?>
+
+                    <?= $cantidadIntereses === 1
+                        ? 'interés mensual'
+                        : 'intereses mensuales'
+                    ?>
+
+                    por un total de
+
+                    <strong>
+                        <?= dinero(
+                            $valorIntereses
+                        ) ?>
+                    </strong>.
+
+                </div>
+
+            <?php endif; ?>
+
+
+            <!-- ==================================================
                  CONCEPTOS
             =================================================== -->
 
@@ -1387,6 +1415,10 @@ if (
 
                         <th>
                             Concepto
+                        </th>
+
+                        <th>
+                            Período / Estado
                         </th>
 
                         <th class="numero">
@@ -1408,14 +1440,193 @@ if (
 
                 <tbody>
 
+                <!-- ==================================================
+                    SALDOS ANTERIORES
+                =================================================== -->
 
-                <?php if (empty($detalles)): ?>
+                <?php foreach ($saldosAnteriores as $saldoAnterior): ?>
+                    <tr class="fila-saldo-anterior">
+                        <!-- CONCEPTO -->
+                        <td>
+                            <strong>
+
+                                <?= e(
+                                    $saldoAnterior[
+                                        'concepto_nombre'
+                                    ]
+                                    ??
+                                    $saldoAnterior[
+                                        'descripcion'
+                                    ]
+                                    ??
+                                    'Saldo anterior'
+                                ) ?>
+
+                            </strong>
+
+                        </td>
+
+
+                        <!-- PERÍODO / ESTADO -->
+
+                        <td class="factura-periodo-estado">
+
+                            <div>
+
+                                <strong>
+                                    Período:
+                                </strong>
+
+                                <?= e(
+                                    date(
+                                        'm/Y',
+                                        strtotime(
+                                            $saldoAnterior[
+                                                'periodo'
+                                            ]
+                                        )
+                                    )
+                                ) ?>
+
+                            </div>
+
+
+                            <?php if (
+                                !empty(
+                                    $saldoAnterior[
+                                        'fecha_vencimiento'
+                                    ]
+                                )
+                                &&
+                                $saldoAnterior[
+                                    'fecha_vencimiento'
+                                ] < $fechaCorteFactura
+                            ): ?>
+
+                                <div class="estado-mora-texto">
+
+                                    En mora:
+
+                                    <strong>
+
+                                        <?= (int)$saldoAnterior[
+                                            'meses_mora'
+                                        ] ?>
+
+                                        <?= (int)$saldoAnterior[
+                                            'meses_mora'
+                                        ] === 1
+                                            ? 'mes'
+                                            : 'meses'
+                                        ?>
+
+                                    </strong>
+
+                                </div>
+
+                            <?php else: ?>
+
+                                <div class="estado-al-dia-texto">
+
+                                    Al día
+
+                                </div>
+
+                            <?php endif; ?>
+
+
+                            <?php if (
+                                !empty(
+                                    $saldoAnterior[
+                                        'fecha_vencimiento'
+                                    ]
+                                )
+                            ): ?>
+
+                                <div class="factura-concepto-aclaracion">
+
+                                    Venció:
+                                    <?= e(
+                                        fechaEs(
+                                            $saldoAnterior[
+                                                'fecha_vencimiento'
+                                            ]
+                                        )
+                                    ) ?>
+
+                                </div>
+
+                            <?php endif; ?>
+
+                        </td>
+
+
+                        <!-- SALDO ANTERIOR -->
+
+                        <td class="numero">
+
+                            <strong>
+
+                                <?= dinero(
+                                    $saldoAnterior[
+                                        'saldo_al_corte'
+                                    ]
+                                    ??
+                                    $saldoAnterior[
+                                        'saldo'
+                                    ]
+                                ) ?>
+
+                            </strong>
+
+                        </td>
+
+
+                        <!-- ESTE MES -->
+
+                        <td class="numero">
+
+                            <?= dinero(0) ?>
+
+                        </td>
+
+
+                        <!-- TOTAL -->
+
+                        <td class="numero">
+
+                            <strong>
+
+                                <?= dinero(
+                                    $saldoAnterior[
+                                        'saldo_al_corte'
+                                    ]
+                                    ??
+                                    $saldoAnterior[
+                                        'saldo'
+                                    ]
+                                ) ?>
+
+                            </strong>
+
+                        </td>
+
+                    </tr>
+
+                <?php endforeach; ?>
+                <?php if (
+                    empty(
+                        $detalles
+                    )
+                ): ?>
 
 
                     <tr>
 
-                        <td colspan="4">
+                        <td colspan="5">
+
                             No existen conceptos registrados.
+
                         </td>
 
                     </tr>
@@ -1427,7 +1638,14 @@ if (
                     <?php foreach ($detalles as $detalle): ?>
 
 
-                        <tr<?= !empty($detalle['id_interes']) ? ' class="fila-interes"' : '' ?>>
+                        <tr<?= !empty(
+                            $detalle[
+                                'id_interes'
+                            ]
+                        )
+                            ? ' class="fila-interes"'
+                            : ''
+                        ?>>
 
 
                             <td>
@@ -1435,7 +1653,9 @@ if (
 
                                 <?php if (
                                     !empty(
-                                        $detalle['id_cargo']
+                                        $detalle[
+                                            'id_cargo'
+                                        ]
                                     )
                                 ): ?>
 
@@ -1443,7 +1663,6 @@ if (
                                     <a
                                         href="<?= BASE_URL ?>configuracion/cargo_detalle.php?id=<?= (int)$detalle['id_cargo'] ?>"
                                         class="factura-concepto-link"
-                                        title="Ver explicación del cobro"
                                     >
 
                                         <?= e(
@@ -1458,7 +1677,9 @@ if (
                                     <span class="factura-concepto-aclaracion">
 
                                         <?= e(
-                                            $detalle['descripcion']
+                                            $detalle[
+                                                'descripcion'
+                                            ]
                                         ) ?>
 
                                     </span>
@@ -1478,33 +1699,137 @@ if (
                                     </strong>
 
 
-                                    <?php if (!empty($detalle['id_interes'])): ?>
-
-                                        <span class="factura-concepto-aclaracion">
-                                            <?= e($detalle['descripcion']) ?>
-                                        </span>
-
-                                        <span class="factura-interes-detalle">
-                                            Base: <?= dinero($detalle['interes_valor_base'] ?? $detalle['base_calculo']) ?>
-                                            · Tasa: <?= number_format((float)($detalle['interes_tasa'] ?? 0), 2, ',', '.') ?>%
-                                            <?php if (!empty($detalle['periodo_interes'])): ?>
-                                                · Período: <?= e(date('m/Y', strtotime($detalle['periodo_interes']))) ?>
-                                            <?php endif; ?>
-                                        </span>
-
-                                    <?php endif; ?>
-
-
                                     <?php if (
-                                        empty($detalle['id_interes']) &&
                                         !empty(
-                                            $detalle['tarifa_nombre']
+                                            $detalle[
+                                                'id_interes'
+                                            ]
                                         )
                                     ): ?>
+
+
+                                        <span class="factura-concepto-aclaracion">
+
+                                            <?= e(
+                                                $detalle[
+                                                    'descripcion'
+                                                ]
+                                            ) ?>
+
+                                        </span>
+
+
+                                        <span class="factura-mora">
+
+                                            Obligación origen:
+
+                                            <strong>
+
+                                                <?= e(
+                                                    $detalle[
+                                                        'mora_concepto'
+                                                    ]
+                                                    ??
+                                                    $detalle[
+                                                        'mora_descripcion'
+                                                    ]
+                                                    ??
+                                                    'Obligación'
+                                                ) ?>
+
+                                            </strong>
+
+
+                                            <?php if (
+                                                !empty(
+                                                    $detalle[
+                                                        'mora_factura_origen'
+                                                    ]
+                                                )
+                                            ): ?>
+
+                                                · Factura:
+
+                                                <?= e(
+                                                    $detalle[
+                                                        'mora_factura_origen'
+                                                    ]
+                                                ) ?>
+
+                                            <?php endif; ?>
+
+
+                                            <br>
+
+
+                                            Saldo base:
+
+                                            <strong>
+
+                                                <?= dinero(
+                                                    $detalle[
+                                                        'interes_valor_base'
+                                                    ]
+                                                    ??
+                                                    $detalle[
+                                                        'base_calculo'
+                                                    ]
+                                                ) ?>
+
+                                            </strong>
+
+
+                                            · Tasa:
+
+                                            <strong>
+
+                                                <?= number_format(
+                                                    (float)(
+                                                        $detalle[
+                                                            'interes_tasa'
+                                                        ]
+                                                        ?? 0
+                                                    ),
+                                                    2,
+                                                    ',',
+                                                    '.'
+                                                ) ?>%
+
+                                            </strong>
+
+
+                                            · Interés:
+
+                                            <strong>
+
+                                                <?= dinero(
+                                                    $detalle[
+                                                        'interes_valor'
+                                                    ]
+                                                    ??
+                                                    $detalle[
+                                                        'subtotal'
+                                                    ]
+                                                ) ?>
+
+                                            </strong>
+
+                                        </span>
+
+
+                                    <?php elseif (
+                                        !empty(
+                                            $detalle[
+                                                'tarifa_nombre'
+                                            ]
+                                        )
+                                    ): ?>
+
 
                                         <span class="factura-concepto-aclaracion">
 
                                             Tarifa:
+
                                             <?= e(
                                                 $detalle[
                                                     'tarifa_nombre'
@@ -1512,6 +1837,7 @@ if (
                                             ) ?>
 
                                         </span>
+
 
                                     <?php endif; ?>
 
@@ -1521,17 +1847,85 @@ if (
 
                             </td>
 
+                            <td class="factura-periodo-estado">
 
+                                <div>
+
+                                    <strong>
+                                        Período:
+                                    </strong>
+
+                                    <?= e(
+                                        str_pad(
+                                            (string)$factura[
+                                                'mes'
+                                            ],
+                                            2,
+                                            '0',
+                                            STR_PAD_LEFT
+                                        )
+                                    ) ?>
+
+                                    /
+
+                                    <?= e(
+                                        $factura[
+                                            'periodo'
+                                        ]
+                                    ) ?>
+
+                                </div>
+
+
+                                <?php if (
+                                    !empty(
+                                        $detalle[
+                                            'id_interes'
+                                        ]
+                                    )
+                                ): ?>
+
+                                    <div class="estado-mora-texto">
+
+                                        En mora:
+
+                                        <strong>
+
+                                            <?= (int)(
+                                                $detalle[
+                                                    'meses_mora'
+                                                ]
+                                                ?? 1
+                                            ) ?>
+
+                                            <?= (int)(
+                                                $detalle[
+                                                    'meses_mora'
+                                                ]
+                                                ?? 1
+                                            ) === 1
+                                                ? 'mes'
+                                                : 'meses'
+                                            ?>
+
+                                        </strong>
+
+                                    </div>
+
+                                <?php else: ?>
+
+                                    <div class="estado-periodo-actual">
+
+                                        Período actual
+
+                                    </div>
+
+                                <?php endif; ?>
+
+                            </td>
                             <td class="numero">
 
-                                <?php
-                                    /*
-                                     * Todavía no estamos trayendo cartera histórica
-                                     * por concepto. Por ahora queda en cero.
-                                     */
-                                ?>
-
-                                $0,00
+                                <?= dinero(0) ?>
 
                             </td>
 
@@ -1539,7 +1933,9 @@ if (
                             <td class="numero">
 
                                 <?= dinero(
-                                    $detalle['subtotal']
+                                    $detalle[
+                                        'subtotal'
+                                    ]
                                 ) ?>
 
                             </td>
@@ -1550,7 +1946,9 @@ if (
                                 <strong>
 
                                     <?= dinero(
-                                        $detalle['subtotal']
+                                        $detalle[
+                                            'subtotal'
+                                        ]
                                     ) ?>
 
                                 </strong>
@@ -1567,44 +1965,38 @@ if (
                 <?php endif; ?>
 
 
-                    <tr class="total-row">
+                <tr class="total-row">
+                    <th colspan="2">
+                        TOTAL A PAGAR
+                    </th>
 
-                        <th>
-                            TOTAL A PAGAR
-                        </th>
+                    <td class="numero">
 
-                        <td class="numero">
+                        <?= dinero(
+                            $saldoAnteriorTotal
+                        ) ?>
 
-                            <?= dinero(
-                                $factura[
-                                    'saldos_anteriores'
-                                ]
-                            ) ?>
+                    </td>
 
-                        </td>
 
-                        <td class="numero">
+                    <td class="numero">
 
-                            <?= dinero(
-                                $factura[
-                                    'subtotal'
-                                ] +
-                                $factura[
-                                    'intereses'
-                                ]
-                            ) ?>
+                        <?= dinero(
+                            $valorMesFactura
+                        ) ?>
 
-                        </td>
+                    </td>
 
-                        <td class="numero">
 
-                            <?= dinero(
-                                $factura['total']
-                            ) ?>
+                    <td class="numero">
 
-                        </td>
+                        <?= dinero(
+                            $totalPagarFactura
+                        ) ?>
 
-                    </tr>
+                    </td>
+
+                </tr>
 
 
                 </tbody>
@@ -1618,12 +2010,11 @@ if (
             =================================================== -->
 
             <?php if (
-                in_array(
-                    $factura['estado'],
-                    ['PAGADA'],
-                    true
-                )
+                $factura[
+                    'estado'
+                ] === 'PAGADA'
             ): ?>
+
 
                 <div class="factura-nota">
 
@@ -1631,6 +2022,7 @@ if (
                     Su cuenta se encuentra al día.
 
                 </div>
+
 
             <?php endif; ?>
 
@@ -1654,7 +2046,9 @@ if (
                         <span class="factura-estado">
 
                             <?= e(
-                                $factura['estado']
+                                $factura[
+                                    'estado'
+                                ]
                             ) ?>
 
                         </span>
@@ -1712,10 +2106,15 @@ if (
                         Información de pago
                     </h4>
 
+
                     <p>
 
                         Esta sección quedará conectada con
-                        <strong>cuentas_bancarias</strong>
+
+                        <strong>
+                            cuentas_bancarias
+                        </strong>
+
                         cuando integremos el módulo de pagos.
 
                     </p>
@@ -1740,15 +2139,8 @@ if (
 
 
                     <p>
-
-                        <strong>
-                            Total:
-                        </strong>
-
-                        <?= dinero(
-                            $factura['total']
-                        ) ?>
-
+                        <strong>Total:</strong>
+                        <?= dinero($totalPagarFactura) ?>
                     </p>
 
                 </div>
@@ -1763,9 +2155,12 @@ if (
 
             <?php if (
                 !empty(
-                    $factura['observaciones']
+                    $factura[
+                        'observaciones'
+                    ]
                 )
             ): ?>
+
 
                 <div class="factura-observaciones">
 
@@ -1784,6 +2179,7 @@ if (
                     ) ?>
 
                 </div>
+
 
             <?php endif; ?>
 
