@@ -301,6 +301,51 @@ if (!$persona) {
     ];
 }
 
+// ==========================================================
+// DESTINATARIOS DE CORREO
+// Obtiene las personas activas con correo asociadas a la unidad.
+// ==========================================================
+
+$sqlDestinatariosCorreo = "
+
+    SELECT u.id AS id_usuario,u.nombres,u.apellidos,u.correo,
+        MAX(r.recibe_factura) AS recibe_factura,
+        GROUP_CONCAT( DISTINCT r.tipo
+            ORDER BY
+                FIELD(r.tipo,'propietario','inquilino','residente')
+            SEPARATOR ', '
+        ) AS tipos_relacion
+
+    FROM residente r
+    INNER JOIN usuario u ON u.id = r.usuario_id
+
+    WHERE r.unidad_id = :id_unidad AND r.activo = 1 AND r.fecha_hasta IS NULL AND u.correo IS NOT NULL
+        AND TRIM(u.correo) <> ''
+    GROUP BY u.id,u.nombres,u.apellidos,u.correo
+    ORDER BY recibe_factura DESC,u.apellidos,u.nombres
+";
+
+
+$stmtDestinatariosCorreo =
+    $conexion->prepare(
+        $sqlDestinatariosCorreo
+    );
+
+
+$stmtDestinatariosCorreo->execute([
+
+    ':id_unidad'
+        => (int)$factura[
+            'id_unidad'
+        ]
+
+]);
+
+
+$destinatariosCorreo =
+    $stmtDestinatariosCorreo->fetchAll(
+        PDO::FETCH_ASSOC
+    );
 
 // ==========================================================
 // ESPACIOS VIGENTES
@@ -527,6 +572,71 @@ foreach ($saldosAnteriores as $saldoAnterior) {
 
 $saldoAnteriorTotal = round($saldoAnteriorTotal,2);
 
+// ==========================================================
+// RESUMEN DEL SALDO ANTERIOR
+// Prepara un único registro para mostrar la cartera previa.
+// ==========================================================
+
+$cantidadSaldosAnteriores =
+    count(
+        $saldosAnteriores
+    );
+
+
+$hayMoraAnterior = false;
+
+$mesesMoraAnterior = 0;
+
+
+foreach (
+    $saldosAnteriores
+    as $saldoAnterior
+) {
+
+    if (
+        !empty(
+            $saldoAnterior[
+                'fecha_vencimiento'
+            ]
+        )
+        &&
+        $saldoAnterior[
+            'fecha_vencimiento'
+        ] < $fechaCorteFactura
+    ) {
+
+        $hayMoraAnterior = true;
+
+
+        $mesesMoraActual =
+            (int)(
+                $saldoAnterior[
+                    'meses_mora'
+                ]
+                ?? 0
+            );
+
+
+        if (
+            $mesesMoraActual >
+            $mesesMoraAnterior
+        ) {
+
+            $mesesMoraAnterior =
+                $mesesMoraActual;
+        }
+    }
+}
+
+
+$periodoAnteriorTexto =
+    date(
+        'm/Y',
+        strtotime(
+            $periodoFactura .
+            ' -1 month'
+        )
+    );
 
 // ==========================================================
 // TOTAL VISUAL DE LA FACTURA
@@ -848,7 +958,7 @@ $urlVolver =
 
 
 $textoVolver =
-    '← Volver a facturas';
+    'Volver a facturas';
 
 
 $origen =
@@ -891,6 +1001,90 @@ if (
         '← Volver al detalle de cartera';
 }
 
+
+// ==========================================================
+// HISTORIAL DE ENVÍOS
+// Obtiene los correos enviados para esta factura.
+// ==========================================================
+
+$sqlEnviosFactura = "
+
+    SELECT
+
+        id_envio,
+        tipo_envio,
+        destinatario,
+        nombre_destinatario,
+        asunto,
+        estado,
+        fecha_envio,
+        intentos,
+        mensaje_error,
+        message_id,
+        fecha_creacion
+
+    FROM envios_facturas
+
+    WHERE
+        id_factura =
+            :id_factura
+
+    ORDER BY
+        id_envio DESC
+";
+
+
+$stmtEnviosFactura =
+    $conexion->prepare(
+        $sqlEnviosFactura
+    );
+
+
+$stmtEnviosFactura->execute([
+
+    ':id_factura'
+        => $idFactura
+
+]);
+
+
+$enviosFactura =
+    $stmtEnviosFactura->fetchAll(
+        PDO::FETCH_ASSOC
+    );
+
+
+// ==========================================================
+// RESUMEN DE ENVÍOS
+// ==========================================================
+
+$totalEnviosCorrectos = 0;
+
+$ultimoEnvio = null;
+
+
+foreach (
+    $enviosFactura
+    as $envioFactura
+) {
+
+    if (
+        $envioFactura['estado']
+        === 'ENVIADO'
+    ) {
+
+        $totalEnviosCorrectos++;
+
+        if (
+            $ultimoEnvio === null
+        ) {
+
+            $ultimoEnvio =
+                $envioFactura;
+        }
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -902,7 +1096,7 @@ if (
 
 <body>
 <?php include ROOT_PATH . "/includes/header.php"; ?>
-
+<?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
 
 <div class="contenedor">
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
@@ -936,20 +1130,97 @@ if (
                 >
                     <?= e($textoVolver) ?>
                 </a>
+                <a
+                    href="<?= BASE_URL ?>actions/generar_factura_pdf.php?id=<?= (int)$idFactura ?>"
+                    class="factura-btn"
+                    target="_blank"
+                >
+                    Ver PDF
+                </a>
+                <button
+                    type="button"
+                    class="factura-btn"
+                    id="btnAbrirEnvioFactura"
+                >
+                    Enviar factura
+                </button>
 
+                <?php if (!empty($enviosFactura)): ?>
+
+                    <button
+                        type="button"
+                        class="factura-btn"
+                        id="btnHistorialEnvios"
+                    >
+                        Historial de envíos
+                    </button>
+
+                <?php endif; ?>
 
                 <button
                     type="button"
                     class="factura-btn"
                     onclick="window.print()"
                 >
-                    🖨 Imprimir / Guardar PDF
+                    Imprimir / Guardar PDF
                 </button>
 
             </div>
 
         </div>
 
+        <?php if (
+            $ultimoEnvio !== null
+        ): ?>
+
+            <div class="factura-envio-resumen">
+
+                <div>
+
+                    <strong>
+                        Último envío:
+                    </strong>
+
+                    <?= date(
+                        'd/m/Y H:i',
+                        strtotime(
+                            $ultimoEnvio[
+                                'fecha_envio'
+                            ]
+                        )
+                    ) ?>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Destinatarios enviados:
+                    </strong>
+
+                    <?= (int)$totalEnviosCorrectos ?>
+
+                </div>
+
+
+                <div>
+
+                    <strong>
+                        Último destinatario:
+                    </strong>
+
+                    <?= e(
+                        $ultimoEnvio[
+                            'destinatario'
+                        ]
+                    ) ?>
+
+                </div>
+
+            </div>
+
+        <?php endif; ?>
 
         <!-- ======================================================
              DOCUMENTO
@@ -1441,28 +1712,35 @@ if (
                 <tbody>
 
                 <!-- ==================================================
-                    SALDOS ANTERIORES
+                    SALDO ANTERIOR ACUMULADO
                 =================================================== -->
 
-                <?php foreach ($saldosAnteriores as $saldoAnterior): ?>
+                <?php if (
+                    $saldoAnteriorTotal > 0.009
+                ): ?>
+
                     <tr class="fila-saldo-anterior">
+
+
                         <!-- CONCEPTO -->
+
                         <td>
+
                             <strong>
-
-                                <?= e(
-                                    $saldoAnterior[
-                                        'concepto_nombre'
-                                    ]
-                                    ??
-                                    $saldoAnterior[
-                                        'descripcion'
-                                    ]
-                                    ??
-                                    'Saldo anterior'
-                                ) ?>
-
+                                Saldo anterior acumulado
                             </strong>
+
+
+                            <span class="factura-concepto-aclaracion">
+
+                                <?= (int)$cantidadSaldosAnteriores ?>
+
+                                <?= $cantidadSaldosAnteriores === 1
+                                    ? 'obligación pendiente'
+                                    : 'obligaciones pendientes'
+                                ?>
+
+                            </span>
 
                         </td>
 
@@ -1474,86 +1752,49 @@ if (
                             <div>
 
                                 <strong>
-                                    Período:
+                                    Hasta:
                                 </strong>
 
                                 <?= e(
-                                    date(
-                                        'm/Y',
-                                        strtotime(
-                                            $saldoAnterior[
-                                                'periodo'
-                                            ]
-                                        )
-                                    )
+                                    $periodoAnteriorTexto
                                 ) ?>
 
                             </div>
 
 
                             <?php if (
-                                !empty(
-                                    $saldoAnterior[
-                                        'fecha_vencimiento'
-                                    ]
-                                )
-                                &&
-                                $saldoAnterior[
-                                    'fecha_vencimiento'
-                                ] < $fechaCorteFactura
+                                $hayMoraAnterior
                             ): ?>
 
                                 <div class="estado-mora-texto">
 
-                                    En mora:
+                                    En mora
 
-                                    <strong>
+                                    <?php if (
+                                        $mesesMoraAnterior > 0
+                                    ): ?>
 
-                                        <?= (int)$saldoAnterior[
-                                            'meses_mora'
-                                        ] ?>
+                                        · hasta
 
-                                        <?= (int)$saldoAnterior[
-                                            'meses_mora'
-                                        ] === 1
-                                            ? 'mes'
-                                            : 'meses'
-                                        ?>
+                                        <strong>
 
-                                    </strong>
+                                            <?= $mesesMoraAnterior ?>
+
+                                            <?= $mesesMoraAnterior === 1
+                                                ? 'mes'
+                                                : 'meses'
+                                            ?>
+
+                                        </strong>
+
+                                    <?php endif; ?>
 
                                 </div>
 
                             <?php else: ?>
 
-                                <div class="estado-al-dia-texto">
-
-                                    Al día
-
-                                </div>
-
-                            <?php endif; ?>
-
-
-                            <?php if (
-                                !empty(
-                                    $saldoAnterior[
-                                        'fecha_vencimiento'
-                                    ]
-                                )
-                            ): ?>
-
-                                <div class="factura-concepto-aclaracion">
-
-                                    Venció:
-                                    <?= e(
-                                        fechaEs(
-                                            $saldoAnterior[
-                                                'fecha_vencimiento'
-                                            ]
-                                        )
-                                    ) ?>
-
+                                <div class="estado-periodo-actual">
+                                    Pendiente
                                 </div>
 
                             <?php endif; ?>
@@ -1568,13 +1809,7 @@ if (
                             <strong>
 
                                 <?= dinero(
-                                    $saldoAnterior[
-                                        'saldo_al_corte'
-                                    ]
-                                    ??
-                                    $saldoAnterior[
-                                        'saldo'
-                                    ]
+                                    $saldoAnteriorTotal
                                 ) ?>
 
                             </strong>
@@ -1598,13 +1833,7 @@ if (
                             <strong>
 
                                 <?= dinero(
-                                    $saldoAnterior[
-                                        'saldo_al_corte'
-                                    ]
-                                    ??
-                                    $saldoAnterior[
-                                        'saldo'
-                                    ]
+                                    $saldoAnteriorTotal
                                 ) ?>
 
                             </strong>
@@ -1613,7 +1842,7 @@ if (
 
                     </tr>
 
-                <?php endforeach; ?>
+                <?php endif; ?>
                 <?php if (
                     empty(
                         $detalles
@@ -2192,6 +2421,883 @@ if (
 
 </div>
 
+<!-- =========================================================
+     MODAL ENVIAR FACTURA
+========================================================= -->
+
+<div
+    id="modalEnviarFactura"
+    class="modal"
+    style="display:none;"
+    >
+
+    <div
+        class="modal-contenido modal-envio-factura-contenido"
+    >
+
+        <div class="modal-header">
+
+            <div>
+
+                <h3>
+                    Enviar factura
+                </h3>
+
+                <div
+                    class="modal-envio-subtitulo"
+                >
+                    <?= e($factura['numero_factura']) ?>
+                    · Unidad
+                    <?= e($factura['unidad_codigo']) ?>
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="modal-cerrar"
+                id="cerrarModalEnviarFactura"
+            >
+                &times;
+            </button>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="<?= BASE_URL ?>actions/enviar_factura.php"
+            id="formEnviarFactura"
+        >
+
+            <input
+                type="hidden"
+                name="id_factura"
+                value="<?= (int)$idFactura ?>"
+            >
+
+
+            <div class="modal-envio-descripcion">
+
+                Seleccione las personas a las que desea
+                enviar esta factura.
+
+                <strong>
+                    Los destinatarios configurados para
+                    recibir factura aparecen seleccionados
+                    automáticamente.
+                </strong>
+
+            </div>
+
+
+            <?php if (
+                empty(
+                    $destinatariosCorreo
+                )
+            ): ?>
+
+                <div class="modal-envio-vacio">
+
+                    Esta unidad no tiene personas activas
+                    con una dirección de correo registrada.
+
+                </div>
+
+            <?php else: ?>
+
+
+                <div
+                    class="modal-envio-destinatarios"
+                >
+
+                    <?php foreach (
+                        $destinatariosCorreo
+                        as $destinatario
+                    ): ?>
+
+
+                        <?php
+
+                        $nombreDestinatario =
+                            trim(
+                                $destinatario['nombres']
+                                .
+                                ' '
+                                .
+                                $destinatario['apellidos']
+                            );
+
+
+                        $recibeFactura =
+                            (int)$destinatario[
+                                'recibe_factura'
+                            ] === 1;
+
+
+                        $tiposRelacion =
+                            $destinatario[
+                                'tipos_relacion'
+                            ]
+                            ?? '';
+
+                        ?>
+
+
+                        <label
+                            class="modal-envio-persona"
+                        >
+
+                            <div
+                                class="modal-envio-check"
+                            >
+
+                                <input
+                                    type="checkbox"
+                                    name="destinatarios[]"
+                                    value="<?= (int)$destinatario['id_usuario'] ?>"
+                                    <?= $recibeFactura ? 'checked' : '' ?>
+                                >
+
+                            </div>
+
+
+                            <div
+                                class="modal-envio-info"
+                            >
+
+                                <div
+                                    class="modal-envio-nombre"
+                                >
+                                    <?= e($nombreDestinatario) ?>
+                                </div>
+
+
+                                <div
+                                    class="modal-envio-correo"
+                                >
+                                    <?= e($destinatario['correo']) ?>
+                                </div>
+
+
+                                <div
+                                    class="modal-envio-detalle"
+                                >
+
+                                    <?= e(
+                                        ucfirst(
+                                            str_replace(
+                                                ',',
+                                                ' ·',
+                                                $tiposRelacion
+                                            )
+                                        )
+                                    ) ?>
+
+
+                                    <?php if (
+                                        $recibeFactura
+                                    ): ?>
+
+                                        <span
+                                            class="modal-envio-principal"
+                                        >
+                                            Recibe factura
+                                        </span>
+
+                                    <?php endif; ?>
+
+                                </div>
+
+                            </div>
+
+                        </label>
+
+
+                    <?php endforeach; ?>
+
+                </div>
+
+
+                <div
+                    id="mensajeSeleccionDestinatarios"
+                    class="modal-envio-validacion"
+                    style="display:none;"
+                >
+                    Debe seleccionar al menos un destinatario.
+                </div>
+
+
+            <?php endif; ?>
+
+
+            <div class="form-actions">
+
+                <button
+                    type="button"
+                    class="btn-limpiar"
+                    id="cancelarEnvioFactura"
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                    <?= empty($destinatariosCorreo)
+                        ? 'disabled'
+                        : ''
+                    ?>
+                >
+                    Enviar factura
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     MODAL HISTORIAL DE ENVÍOS
+========================================================= -->
+
+<div
+    id="modalHistorialEnvios"
+    class="modal"
+    style="display:none;"
+>
+
+    <div
+        class="modal-contenido modal-historial-envios-contenido"
+    >
+
+        <div class="modal-header">
+
+            <div>
+
+                <h3>
+                    Historial de envíos
+                </h3>
+
+                <div class="modal-envio-subtitulo">
+
+                    <?= e(
+                        $factura[
+                            'numero_factura'
+                        ]
+                    ) ?>
+
+                    · Unidad
+
+                    <?= e(
+                        $factura[
+                            'unidad_codigo'
+                        ]
+                    ) ?>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="modal-cerrar"
+                id="cerrarHistorialEnvios"
+            >
+                &times;
+            </button>
+
+        </div>
+
+
+        <?php if (empty($enviosFactura)): ?>
+
+            <div class="modal-envio-vacio">
+
+                Esta factura todavía no tiene
+                registros de envío.
+
+            </div>
+
+        <?php else: ?>
+
+
+            <div class="historial-envios-lista">
+
+
+                <?php foreach (
+                    $enviosFactura
+                    as $envio
+                ): ?>
+
+
+                    <div class="historial-envio-item">
+
+
+                        <div class="historial-envio-principal">
+
+                            <div>
+
+                                <strong>
+
+                                    <?= e(
+                                        $envio[
+                                            'nombre_destinatario'
+                                        ]
+                                    ) ?>
+
+                                </strong>
+
+
+                                <div
+                                    class="historial-envio-correo"
+                                >
+
+                                    <?= e(
+                                        $envio[
+                                            'destinatario'
+                                        ]
+                                    ) ?>
+
+                                </div>
+
+                            </div>
+
+
+                            <div>
+
+                                <?php if (
+                                    $envio['estado']
+                                    === 'ENVIADO'
+                                ): ?>
+
+                                    <span
+                                        class="historial-envio-estado enviado"
+                                    >
+                                        ENVIADO
+                                    </span>
+
+                                <?php elseif (
+                                    $envio['estado']
+                                    === 'ERROR'
+                                ): ?>
+
+                                    <span
+                                        class="historial-envio-estado error"
+                                    >
+                                        ERROR
+                                    </span>
+
+                                <?php else: ?>
+
+                                    <span
+                                        class="historial-envio-estado pendiente"
+                                    >
+
+                                        <?= e(
+                                            $envio[
+                                                'estado'
+                                            ]
+                                        ) ?>
+
+                                    </span>
+
+                                <?php endif; ?>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="historial-envio-datos">
+
+
+                            <span>
+
+                                <strong>
+                                    Fecha:
+                                </strong>
+
+                                <?php if (
+                                    !empty(
+                                        $envio[
+                                            'fecha_envio'
+                                        ]
+                                    )
+                                ): ?>
+
+                                    <?= date(
+                                        'd/m/Y H:i:s',
+                                        strtotime(
+                                            $envio[
+                                                'fecha_envio'
+                                            ]
+                                        )
+                                    ) ?>
+
+                                <?php else: ?>
+
+                                    -
+
+                                <?php endif; ?>
+
+                            </span>
+
+
+                            <span>
+
+                                <strong>
+                                    Tipo:
+                                </strong>
+
+                                <?= e(
+                                    $envio[
+                                        'tipo_envio'
+                                    ]
+                                ) ?>
+
+                            </span>
+
+
+                            <span>
+
+                                <strong>
+                                    Intentos:
+                                </strong>
+
+                                <?= (int)$envio[
+                                    'intentos'
+                                ] ?>
+
+                            </span>
+
+                        </div>
+
+
+                        <?php if (
+                            !empty(
+                                $envio[
+                                    'mensaje_error'
+                                ]
+                            )
+                        ): ?>
+
+                            <div
+                                class="historial-envio-error"
+                            >
+
+                                <?= e(
+                                    $envio[
+                                        'mensaje_error'
+                                    ]
+                                ) ?>
+
+                            </div>
+
+                        <?php endif; ?>
+
+
+                    </div>
+
+
+                <?php endforeach; ?>
+
+
+            </div>
+
+
+        <?php endif; ?>
+
+
+        <div class="form-actions">
+
+            <button
+                type="button"
+                class="btn-limpiar"
+                id="cerrarHistorialEnviosAbajo"
+            >
+                Cerrar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+
+// ==========================================================
+// MODALES DE FACTURA
+// Controla envío e historial desde un solo bloque.
+// ==========================================================
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+
+        // ==================================================
+        // MODAL ENVIAR FACTURA
+        // ==================================================
+
+        const modalEnvio =
+            document.getElementById(
+                'modalEnviarFactura'
+            );
+
+
+        const btnAbrirEnvio =
+            document.getElementById(
+                'btnAbrirEnvioFactura'
+            );
+
+
+        const btnCerrarEnvio =
+            document.getElementById(
+                'cerrarModalEnviarFactura'
+            );
+
+
+        const btnCancelarEnvio =
+            document.getElementById(
+                'cancelarEnvioFactura'
+            );
+
+
+        const formularioEnvio =
+            document.getElementById(
+                'formEnviarFactura'
+            );
+
+
+        const mensajeSeleccion =
+            document.getElementById(
+                'mensajeSeleccionDestinatarios'
+            );
+
+
+        // ==================================================
+        // ABRIR ENVÍO
+        // ==================================================
+
+        function abrirModalEnvio() {
+
+            if (!modalEnvio) {
+                return;
+            }
+
+
+            modalEnvio.style.display =
+                'flex';
+        }
+
+
+        // ==================================================
+        // CERRAR ENVÍO
+        // ==================================================
+
+        function cerrarModalEnvio() {
+
+            if (!modalEnvio) {
+                return;
+            }
+
+
+            modalEnvio.style.display =
+                'none';
+
+
+            if (
+                mensajeSeleccion
+            ) {
+
+                mensajeSeleccion.style.display =
+                    'none';
+            }
+        }
+
+
+        // ==================================================
+        // EVENTOS ENVÍO
+        // ==================================================
+
+        if (
+            btnAbrirEnvio
+        ) {
+
+            btnAbrirEnvio.addEventListener(
+                'click',
+                abrirModalEnvio
+            );
+        }
+
+
+        if (
+            btnCerrarEnvio
+        ) {
+
+            btnCerrarEnvio.addEventListener(
+                'click',
+                cerrarModalEnvio
+            );
+        }
+
+
+        if (
+            btnCancelarEnvio
+        ) {
+
+            btnCancelarEnvio.addEventListener(
+                'click',
+                cerrarModalEnvio
+            );
+        }
+
+
+        if (
+            modalEnvio
+        ) {
+
+            modalEnvio.addEventListener(
+                'click',
+                function (event) {
+
+                    if (
+                        event.target ===
+                        modalEnvio
+                    ) {
+
+                        cerrarModalEnvio();
+                    }
+                }
+            );
+        }
+
+
+        // ==================================================
+        // VALIDAR ENVÍO
+        // ==================================================
+
+        if (
+            formularioEnvio
+        ) {
+
+            formularioEnvio.addEventListener(
+                'submit',
+                function (event) {
+
+                    const seleccionados =
+                        formularioEnvio.querySelectorAll(
+                            'input[name="destinatarios[]"]:checked'
+                        );
+
+
+                    if (
+                        seleccionados.length === 0
+                    ) {
+
+                        event.preventDefault();
+
+
+                        if (
+                            mensajeSeleccion
+                        ) {
+
+                            mensajeSeleccion.style.display =
+                                'block';
+                        }
+
+
+                        return;
+                    }
+
+
+                    if (
+                        mensajeSeleccion
+                    ) {
+
+                        mensajeSeleccion.style.display =
+                            'none';
+                    }
+
+
+                    const cantidad =
+                        seleccionados.length;
+
+
+                    const textoConfirmacion =
+                        cantidad === 1
+                            ? '¿Desea enviar la factura a 1 destinatario?'
+                            : '¿Desea enviar la factura a ' +
+                              cantidad +
+                              ' destinatarios?';
+
+
+                    if (
+                        !confirm(
+                            textoConfirmacion
+                        )
+                    ) {
+
+                        event.preventDefault();
+                    }
+                }
+            );
+        }
+
+
+
+        // ==================================================
+        // MODAL HISTORIAL DE ENVÍOS
+        // ==================================================
+
+        const modalHistorial =
+            document.getElementById(
+                'modalHistorialEnvios'
+            );
+
+
+        const btnHistorial =
+            document.getElementById(
+                'btnHistorialEnvios'
+            );
+
+
+        const btnCerrarHistorial =
+            document.getElementById(
+                'cerrarHistorialEnvios'
+            );
+
+
+        const btnCerrarHistorialAbajo =
+            document.getElementById(
+                'cerrarHistorialEnviosAbajo'
+            );
+
+
+        // ==================================================
+        // ABRIR HISTORIAL
+        // ==================================================
+
+        function abrirHistorialEnvios() {
+
+            if (!modalHistorial) {
+                return;
+            }
+
+
+            modalHistorial.style.display =
+                'flex';
+        }
+
+
+        // ==================================================
+        // CERRAR HISTORIAL
+        // ==================================================
+
+        function cerrarHistorialEnvios() {
+
+            if (!modalHistorial) {
+                return;
+            }
+
+
+            modalHistorial.style.display =
+                'none';
+        }
+
+
+        // ==================================================
+        // EVENTOS HISTORIAL
+        // ==================================================
+
+        if (
+            btnHistorial
+        ) {
+
+            btnHistorial.addEventListener(
+                'click',
+                abrirHistorialEnvios
+            );
+        }
+
+
+        if (
+            btnCerrarHistorial
+        ) {
+
+            btnCerrarHistorial.addEventListener(
+                'click',
+                cerrarHistorialEnvios
+            );
+        }
+
+
+        if (
+            btnCerrarHistorialAbajo
+        ) {
+
+            btnCerrarHistorialAbajo.addEventListener(
+                'click',
+                cerrarHistorialEnvios
+            );
+        }
+
+
+        if (
+            modalHistorial
+        ) {
+
+            modalHistorial.addEventListener(
+                'click',
+                function (event) {
+
+                    if (
+                        event.target ===
+                        modalHistorial
+                    ) {
+
+                        cerrarHistorialEnvios();
+                    }
+                }
+            );
+        }
+
+
+
+        // ==================================================
+        // CERRAR CON ESC
+        // ==================================================
+
+        document.addEventListener(
+            'keydown',
+            function (event) {
+
+                if (
+                    event.key !==
+                    'Escape'
+                ) {
+
+                    return;
+                }
+
+
+                cerrarModalEnvio();
+
+                cerrarHistorialEnvios();
+            }
+        );
+
+    }
+);
+
+</script>
 
 </body>
 

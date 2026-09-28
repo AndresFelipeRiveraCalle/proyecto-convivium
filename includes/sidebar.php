@@ -46,6 +46,11 @@
                             Tablas Maestras
                         </a>
                     </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>actions/guardar_configuracion_correo.php">
+                            Configuración de correo
+                        </a>
+                    </li>
                 </ul>
             </li>
 
