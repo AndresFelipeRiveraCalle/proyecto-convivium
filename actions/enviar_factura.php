@@ -537,7 +537,18 @@ try {
 // ==========================================================
 
 $enviados = 0;
-$errores  = 0;
+
+$errores = 0;
+
+
+// ==========================================================
+// RESULTADO DE DESTINATARIOS
+// Guarda los correos enviados y los que fallaron.
+// ==========================================================
+
+$correosEnviados = [];
+
+$correosError = [];
 
 
 // ==========================================================
@@ -963,15 +974,13 @@ foreach (
 
 
         $enviados++;
-        $correosEnviados[] =
-        $correoDestinatario;
+        $correosEnviados[] =  $correoDestinatario;
 
     } catch (Throwable $e) {
 
 
         $errores++;
-        $correosError[] =
-        $correoDestinatario;
+        $correosError[] = $correoDestinatario;
 
         $mensajeError =
             mb_substr(

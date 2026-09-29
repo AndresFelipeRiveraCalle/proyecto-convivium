@@ -9,37 +9,66 @@ require_once ROOT_PATH . "/config/conexion.php";
 // Formatea texto, valores monetarios y fechas.
 // ==========================================================
 
-function e($valor)
-{
-    return htmlspecialchars(
-        (string)$valor,
-        ENT_QUOTES,
-        'UTF-8'
-    );
-}
+if (
+    !function_exists(
+        'e'
+    )
+) {
 
-
-function dinero($valor)
-{
-    return '$' . number_format(
-        (float)$valor,
-        2,
-        ',',
-        '.'
-    );
-}
-
-
-function fechaEs($fecha)
-{
-    if (empty($fecha)) {
-        return '-';
+    function e($valor)
+    {
+        return htmlspecialchars(
+            (string)$valor,
+            ENT_QUOTES,
+            'UTF-8'
+        );
     }
+}
 
-    return date(
-        'd/m/Y',
-        strtotime($fecha)
-    );
+
+if (
+    !function_exists(
+        'dinero'
+    )
+) {
+
+    function dinero($valor)
+    {
+        return '$' . number_format(
+            (float)$valor,
+            2,
+            ',',
+            '.'
+        );
+    }
+}
+
+
+if (
+    !function_exists(
+        'fechaEs'
+    )
+) {
+
+    function fechaEs($fecha)
+    {
+        if (
+            empty(
+                $fecha
+            )
+        ) {
+
+            return '-';
+        }
+
+
+        return date(
+            'd/m/Y',
+            strtotime(
+                $fecha
+            )
+        );
+    }
 }
 
 

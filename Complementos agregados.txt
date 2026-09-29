@@ -1,0 +1,24 @@
+Se creo una clave para autenticar el envió de correo
+
+C:\xampp\php>php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"
+
+Esta instrucción genera e imprime una cadena hexadecimal aleatoria y criptográficamente segura de 64 caracteres, seguida de un salto de línea.
+
+¿Para qué se usa?Es muy útil en programación web para crear:Tokens de seguridad (por ejemplo, para prevenir ataques CSRF).Contraseñas temporales o claves de recuperación.Identificadores únicos y aleatorios para sesiones o archivos.Si necesitas ayuda con más funciones de PHP o quieres saber cómo implementar esto en un formulario o base de datos, dime y lo revisamos.
+
+
+185d77dadc8d96a22b8cbb6d9975b69b0c52bb0f8504681560955bd776f59d2d
+
+Se crea una autenticación para convivium en la seguridad de la cuenta de correo (Contraseñas de aplicación) para enviar mensajes 
+
+Convivium SMTP: wnflroglxnrsdnti
+
+
+
+Se agregaron librerías 
+
+* Poppler
+* Tesseract-OCR
+
+* phpmailer
+* composer con dompdf/dompdf
