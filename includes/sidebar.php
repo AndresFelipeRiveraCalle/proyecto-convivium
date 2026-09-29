@@ -95,7 +95,13 @@
                         <a href="<?= BASE_URL ?>configuracion/facturas_generadas.php">
                             Ver facturas
                         </a>
-                    </li>                    
+                    </li>            
+
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/envio_facturas.php">
+                            Enviar facturas
+                        </a>
+                    </li>   
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/extractos_bancarios.php">
                             Cargar extractos
