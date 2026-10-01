@@ -9,9 +9,7 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header(
-        "Location: " .
-        BASE_URL .
-        "configuracion/calendario_financiero.php"
+        "Location: " . BASE_URL . "configuracion/calendario_financiero.php"
     );
     exit;
 }
@@ -135,14 +133,11 @@ if ($fechaInicioCierre > $fechaFinCierre) {
 // VALIDAR ESTADO
 // ==========================================================
 
-$estadosPermitidos = [
-    'ABIERTO', 'EN_CIERRE','CERRADO'
-];
+$estadosPermitidos = ['ABIERTO', 'EN_CIERRE','CERRADO'];
 
 if (
     !in_array(
-        $estado,  $estadosPermitidos,
-        true
+        $estado,  $estadosPermitidos, true
     )
 ) {
 
@@ -166,13 +161,8 @@ try {
         LIMIT 1
     ";
 
-    $stmtExiste = $conexion->prepare(
-        $sqlExiste
-    );
-
-    $stmtExiste->execute([
-        ':id_calendario' => $idCalendario
-    ]);
+    $stmtExiste = $conexion->prepare($sqlExiste);
+    $stmtExiste->execute([':id_calendario' => $idCalendario]);
 
     $calendario = $stmtExiste->fetch(PDO::FETCH_ASSOC);
 
@@ -203,14 +193,10 @@ try {
     foreach (
         $fechasPeriodo as $nombreFecha => $fecha
     ) {
-        $anioFecha = substr(
-            $fecha, 0, 4
-        );
+        $anioFecha = substr($fecha, 0, 4);
 
         if ($anioFecha !== $anioPeriodo) {
-            redireccionarError(
-                $idCalendario, "La {$nombreFecha} no corresponde al año del período financiero."
-            );
+            redireccionarError($idCalendario, "La {$nombreFecha} no corresponde al año del período financiero.");
         }
     }
 
