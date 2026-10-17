@@ -339,52 +339,133 @@ try {
         );
     }
 
-
     // ======================================================
     // CARTERA PENDIENTE DE LA UNIDAD
-    // ======================================================
-    //
-    // Regla automática:
-    // primero la deuda con vencimiento más antiguo.
-    //
+    // Aplica primero a la deuda con vencimiento más antiguo.
     // ======================================================
 
     $sqlCartera = "
+
         SELECT
-            id_cartera,
-            id_factura,
-            descripcion,
-            saldo,
-            fecha_vencimiento,
-            periodo
-        FROM cartera
+
+            c.id_cartera,
+            c.id_factura,
+            c.id_detalle,
+            c.descripcion,
+            c.saldo,
+            c.fecha_vencimiento,
+            c.periodo,
+
+            fd.id_interes
+
+        FROM cartera c
+
+        LEFT JOIN facturas_detalle fd
+            ON fd.id_detalle =
+            c.id_detalle
+
         WHERE
-            id_unidad = :id_unidad
-            AND estado <> 'ANULADA'
-            AND saldo > 0.009
+
+            c.id_unidad =
+                :id_unidad
+
+            AND c.estado <>
+                'ANULADA'
+
+            AND c.saldo > 0.009
+
         ORDER BY
-            fecha_vencimiento ASC,
-            periodo ASC,
-            id_cartera ASC
+
+            c.fecha_vencimiento ASC,
+            c.periodo ASC,
+            c.id_cartera ASC
+
         FOR UPDATE
     ";
 
-    $stmtCartera = $conexion->prepare($sqlCartera);
+
+    $stmtCartera =
+        $conexion->prepare(
+            $sqlCartera
+        );
+
 
     $stmtCartera->execute([
-        ':id_unidad' => (int)$pago['id_unidad']
+
+        ':id_unidad'
+            => (int)$pago[
+                'id_unidad'
+            ]
+
     ]);
+
+
+    $obligaciones =
+        $stmtCartera->fetchAll(
+            PDO::FETCH_ASSOC
+        );
 
     $obligaciones =
         $stmtCartera->fetchAll(PDO::FETCH_ASSOC);
 
+    // ======================================================
+    // SIN OBLIGACIONES PENDIENTES
+    // Convierte todo el disponible en saldo a favor.
+    // ======================================================
 
-    if (empty($obligaciones)) {
-        throw new Exception(
-            'La unidad no tiene obligaciones pendientes para aplicar este pago.'
+    if (
+        empty(
+            $obligaciones
+        )
+    ) {
+
+        $saldoFavorGenerado =
+            crearSaldoFavorSiCorresponde(
+
+                $conexion,
+
+                $idPago,
+
+                (int)$pago[
+                    'id_unidad'
+                ],
+
+                $disponible
+
+            );
+
+
+        if (
+            $saldoFavorGenerado <= 0.009
+        ) {
+
+            throw new Exception(
+                'La unidad no tiene obligaciones pendientes y no fue posible generar el saldo a favor.'
+            );
+        }
+
+
+        $conexion->commit();
+
+
+        redireccionarPago(
+
+            $idPago,
+
+            'success',
+
+            'La unidad no tiene obligaciones pendientes. ' .
+            'Se generó un saldo a favor por $' .
+            number_format(
+                $saldoFavorGenerado,
+                2,
+                ',',
+                '.'
+            ) .
+            '.'
+
         );
     }
-
 
     // ======================================================
     // INSERT APLICACIÓN
@@ -530,7 +611,162 @@ try {
                 '.'
             );
         }
+        // ======================================================
+        // SINCRONIZAR INTERÉS DE MORA
+        // Si esta cartera representa interés, actualiza también
+        // intereses_cartera.
+        // ======================================================
 
+        if (
+            !empty(
+                $obligacion[
+                    'id_interes'
+                ]
+            )
+        ) {
+
+            $sqlInteres = "
+
+                SELECT
+
+                    id_interes,
+                    valor_pagado,
+                    saldo,
+                    estado
+
+                FROM intereses_cartera
+
+                WHERE
+                    id_interes =
+                        :id_interes
+
+                LIMIT 1
+
+                FOR UPDATE
+            ";
+
+
+            $stmtInteres =
+                $conexion->prepare(
+                    $sqlInteres
+                );
+
+
+            $stmtInteres->execute([
+
+                ':id_interes'
+                    => (int)$obligacion[
+                        'id_interes'
+                    ]
+
+            ]);
+
+
+            $interes =
+                $stmtInteres->fetch(
+                    PDO::FETCH_ASSOC
+                );
+
+
+            if (
+                !$interes
+            ) {
+
+                throw new Exception(
+                    'No se encontró el registro de interés asociado a la obligación #' .
+                    $obligacion[
+                        'id_cartera'
+                    ] .
+                    '.'
+                );
+            }
+
+
+            $nuevoPagadoInteres =
+                round(
+
+                    (float)$interes[
+                        'valor_pagado'
+                    ]
+                    +
+                    $valorAplicar,
+
+                    2
+
+                );
+
+
+            $nuevoSaldoInteres =
+                round(
+
+                    max(
+
+                        (float)$interes[
+                            'saldo'
+                        ]
+                        -
+                        $valorAplicar,
+
+                        0
+
+                    ),
+
+                    2
+
+                );
+
+
+            $nuevoEstadoInteres =
+                $nuevoSaldoInteres <= 0.009
+                    ? 'PAGADO'
+                    : 'PENDIENTE';
+
+
+            $sqlUpdateInteres = "
+
+                UPDATE intereses_cartera
+
+                SET
+
+                    valor_pagado =
+                        :valor_pagado,
+
+                    saldo =
+                        :saldo,
+
+                    estado =
+                        :estado
+
+                WHERE
+                    id_interes =
+                        :id_interes
+            ";
+
+
+            $stmtUpdateInteres =
+                $conexion->prepare(
+                    $sqlUpdateInteres
+                );
+
+
+            $stmtUpdateInteres->execute([
+
+                ':valor_pagado'
+                    => $nuevoPagadoInteres,
+
+                ':saldo'
+                    => $nuevoSaldoInteres,
+
+                ':estado'
+                    => $nuevoEstadoInteres,
+
+                ':id_interes'
+                    => (int)$obligacion[
+                        'id_interes'
+                    ]
+
+            ]);
+        }
 
         $disponible =
             round(

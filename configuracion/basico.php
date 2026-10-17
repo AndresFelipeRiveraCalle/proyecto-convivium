@@ -36,8 +36,8 @@ $idGrupoSeleccionado = isset($_GET['id'])
 
 $idAgrupacionSeleccionada =
     isset($_GET['agrupacion'])
-        ? (int)$_GET['agrupacion']
-        : 0;
+    ? (int)$_GET['agrupacion']
+    : 0;
 
 
 // ==========================================================
@@ -135,9 +135,7 @@ foreach ($distribuciones as $distribucion) {
     $idTipoConfig =
         (int)$distribucion["id_tipo_config"];
 
-    $mapaDistribucion
-        [$idAgrupacion]
-        [$idTipoConfig]
+    $mapaDistribucion[$idAgrupacion][$idTipoConfig]
         =
         (int)$distribucion["cantidad"];
 }
@@ -258,7 +256,7 @@ if ($idGrupoSeleccionado > 0) {
     $stmtResumenUnidades->execute([
 
         ':id_tipo_config'
-            => $idGrupoSeleccionado
+        => $idGrupoSeleccionado
 
     ]);
 
@@ -272,13 +270,13 @@ if ($idGrupoSeleccionado > 0) {
         $resumenUnidades = [
 
             'cantidad_creadas'
-                => (int)$resultadoResumen['cantidad_creadas'],
+            => (int)$resultadoResumen['cantidad_creadas'],
 
             'area_real'
-                => (float)$resultadoResumen['area_real'],
+            => (float)$resultadoResumen['area_real'],
 
             'coeficiente_real'
-                => (float)$resultadoResumen['coeficiente_real']
+            => (float)$resultadoResumen['coeficiente_real']
 
         ];
     }
@@ -291,8 +289,8 @@ if ($idGrupoSeleccionado > 0) {
 
 $cantidadConfigurada =
     $grupoSeleccionado
-        ? (int)$grupoSeleccionado['cantidad_unidades']
-        : 0;
+    ? (int)$grupoSeleccionado['cantidad_unidades']
+    : 0;
 
 
 $cantidadCreada =
@@ -303,14 +301,14 @@ $unidadesPendientes =
     max(
         0,
         $cantidadConfigurada -
-        $cantidadCreada
+            $cantidadCreada
     );
 
 
 $areaConfigurada =
     $grupoSeleccionado
-        ? (float)($grupoSeleccionado['area_total'] ?? 0)
-        : 0;
+    ? (float)($grupoSeleccionado['area_total'] ?? 0)
+    : 0;
 
 
 $areaReal =
@@ -324,8 +322,8 @@ $diferenciaArea =
 
 $coeficienteConfigurado =
     $grupoSeleccionado
-        ? (float)($grupoSeleccionado['coeficiente_total'] ?? 0)
-        : 0;
+    ? (float)($grupoSeleccionado['coeficiente_total'] ?? 0)
+    : 0;
 
 
 $coeficienteReal =
@@ -365,484 +363,417 @@ $tiposUnidad =
 <html lang="es">
 
 <head>
-
     <?php include ROOT_PATH . "/includes/head.php"; ?>
-
 </head>
-
 
 <body>
 
+    <?php include ROOT_PATH . "/includes/header.php"; ?>
+    <?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
 
-<?php include ROOT_PATH . "/includes/header.php"; ?>
+    <div class="contenedor">
 
-<?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
+        <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
 
+        <main class="contenido">
 
-<div class="contenedor">
-
-    <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-
-
-    <main class="contenido">
-
-
-        <!-- ======================================================
+            <!-- ======================================================
              ENCABEZADO
         ======================================================= -->
 
-        <h2 align="center">
-            Configuración básica
-        </h2>
+            <h2 align="center">
+                Configuración básica
+            </h2>
 
+            <br>
 
-        <br>
+            <p>
+                Configura la estructura física de la copropiedad, los tipos de unidades, grupos, cantidades,
+                áreas y coeficientes.
+            </p>
 
+            <br>
 
-        <p>
-
-            Configura la estructura física de la copropiedad,
-            los tipos de unidades, grupos, cantidades,
-            áreas y coeficientes.
-
-        </p>
-
-
-        <br>
-
-
-        <!-- ======================================================
+            <!-- ======================================================
              GRUPOS
         ======================================================= -->
-
-        <h3>
-            Configuración de tipos de unidades
-        </h3>
-
-
-        <div class="bloque filtros">
-
-            <div class="tabs-container">
-
-
-                <?php foreach ($tiposVivienda as $tipo): ?>
-
-
-                    <a
-                        href="basico.php?id=<?= (int)$tipo['id_tipo_config'] ?>"
-                        class="tab-button <?= (
-                            (int)$tipo['id_tipo_config'] ===
-                            $idGrupoSeleccionado
-                        )
-                            ? 'active'
-                            : ''
-                        ?>"
-                    >
-
-                        <?= htmlspecialchars(
-                            $tipo['nombre_grupo']
-                        ) ?>
-
-                    </a>
-
-
-                <?php endforeach; ?>
-
-
-                <button
-                    type="button"
-                    class="tab-button tab-add"
-                    id="btnNuevoTipo"
-                    title="Crear nuevo grupo"
-                >
-
-                    +
-
-                </button>
-
-
-            </div>
-
-        </div>
-
-
-        <br>
-
-
-        <!-- ======================================================
-             DETALLE DEL GRUPO
-        ======================================================= -->
-
-        <?php if ($grupoSeleccionado): ?>
+            <h3>
+                Configuración de tipos de unidades
+            </h3>
 
 
             <div class="bloque filtros">
+                <div class="tabs-container">
+
+                    <?php foreach ($tiposVivienda as $tipo): ?>
+
+                        <a
+                            href="basico.php?id=<?= (int)$tipo['id_tipo_config'] ?>"
+                            class="tab-button <?= (
+                                                    (int)$tipo['id_tipo_config'] ===
+                                                    $idGrupoSeleccionado
+                                                )
+                                                    ? 'active'
+                                                    : ''
+                                                ?>">
+
+                            <?= htmlspecialchars(
+                                $tipo['nombre_grupo']
+                            ) ?>
+
+                        </a>
+
+                    <?php endforeach; ?>
 
 
-                <div class="form-card">
+                    <button type="button" class="tab-button tab-add"
+                        id="btnNuevoTipo"
+                        title="Crear nuevo grupo">
+                        +
+                    </button>
+                </div>
+            </div>
+
+            <!-- ======================================================
+             DETALLE DEL GRUPO
+        ======================================================= -->
+
+            <?php if ($grupoSeleccionado): ?>
 
 
-                    <div class="acciones-superior">
+                <div class="bloque filtros">
 
 
-                        <div>
+                    <div class="form-card">
 
-                            <h3>
+                        <div class="bloque filtros"
+                            <div class="acciones-superior">
 
-                                <?= htmlspecialchars(
-                                    $grupoSeleccionado['nombre_grupo']
-                                ) ?>
+                            <div>
 
-                            </h3>
-
-                            <p>
-
-                                Tipo:
-                                <strong>
+                                <h3>
 
                                     <?= htmlspecialchars(
-                                        $grupoSeleccionado['tipo']
+                                        $grupoSeleccionado['nombre_grupo']
                                     ) ?>
 
-                                </strong>
+                                </h3>
 
-                            </p>
+                                <p>
 
+                                    Tipo:
+                                    <strong>
+
+                                        <?= htmlspecialchars(
+                                            $grupoSeleccionado['tipo']
+                                        ) ?>
+
+                                    </strong>
+
+                                </p>
+
+                            </div>
+                            <br>
+
+                            <button
+                                type="button"
+                                class="btn-filtrar"
+                                id="btnEditarTipoUnidad">
+
+                                Editar grupo
+
+                            </button>
                         </div>
-
-
-                        <button
-                            type="button"
-                            class="btn-filtrar"
-                            id="btnEditarTipoUnidad"
-                        >
-
-                            Editar grupo
-
-                        </button>
-
-
                     </div>
+                </div>
 
 
-                    <br>
-
-
-                    <!-- ==================================================
+                <!-- ==================================================
                          RESUMEN DE CANTIDADES
                     =================================================== -->
 
-                    <div class="bloque filtros">
+                <div class="bloque filtros">
 
 
-                        <div class="card">
+                    <div class="card">
 
-                            <label>
-                                Cantidad configurada
-                            </label>
+                        <label>
+                            Cantidad configurada
+                        </label>
 
-                            <input
-                                type="number"
-                                value="<?= $cantidadConfigurada ?>"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="card">
-
-                            <label>
-                                Unidades creadas
-                            </label>
-
-                            <input
-                                type="number"
-                                value="<?= $cantidadCreada ?>"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="card">
-
-                            <label>
-                                Pendientes por crear
-                            </label>
-
-                            <input
-                                type="number"
-                                value="<?= $unidadesPendientes ?>"
-                                readonly
-                            >
-
-
-                            <?php if (
-                                $cantidadCreada <
-                                $cantidadConfigurada
-                            ): ?>
-
-                                <small>
-
-                                    Faltan
-                                    <?= $unidadesPendientes ?>
-                                    unidades por crear.
-
-                                </small>
-
-                            <?php elseif (
-                                $cantidadCreada ===
-                                $cantidadConfigurada
-                            ): ?>
-
-                                <small>
-                                    Configuración completa.
-                                </small>
-
-                            <?php else: ?>
-
-                                <small>
-
-                                    Existen
-                                    <?= $cantidadCreada - $cantidadConfigurada ?>
-                                    unidades adicionales.
-
-                                </small>
-
-                            <?php endif; ?>
-
-
-                        </div>
+                        <input 
+                            type="number"
+                            value="<?= $cantidadConfigurada ?>"
+                            readonly>
 
                     </div>
 
 
-                    <br>
+                    <div class="card">
+
+                        <label>
+                            Unidades creadas
+                        </label>
+
+                        <input
+                            type="number"
+                            value="<?= $cantidadCreada ?>"
+                            readonly>
+
+                    </div>
 
 
-                    <!-- ==================================================
+                    <div class="card">
+
+                        <label>
+                            Pendientes por crear
+                        </label>
+
+                        <input
+                            type="number"
+                            value="<?= $unidadesPendientes ?>"
+                            readonly>
+
+
+                        <?php if (
+                            $cantidadCreada <
+                            $cantidadConfigurada
+                        ): ?>
+
+                            <small>
+
+                                Faltan
+                                <?= $unidadesPendientes ?>
+                                unidades por crear.
+
+                            </small>
+
+                        <?php elseif (
+                            $cantidadCreada ===
+                            $cantidadConfigurada
+                        ): ?>
+
+                            <small>
+                                Configuración completa.
+                            </small>
+
+                        <?php else: ?>
+
+                            <small>
+
+                                Existen
+                                <?= $cantidadCreada - $cantidadConfigurada ?>
+                                unidades adicionales.
+
+                            </small>
+
+                        <?php endif; ?>
+
+
+                    </div>
+
+                </div>
+
+                <!-- ==================================================
                          ÁREAS
                     =================================================== -->
 
-                    <h3>
-                        Control de áreas
-                    </h3>
+                <h3>
+                    Control de áreas
+                </h3>
 
 
-                    <div class="bloque filtros">
+                <div class="bloque filtros">
 
 
-                        <div class="card">
+                    <div class="card">
 
-                            <label>
-                                Área total configurada
-                            </label>
+                        <label>
+                            Área total configurada
+                        </label>
 
-                            <input
-                                type="text"
-                                value="<?= number_format(
-                                    $areaConfigurada,
-                                    2,
-                                    ',',
-                                    '.'
-                                ) ?> m²"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="card">
-
-                            <label>
-                                Área de unidades creadas
-                            </label>
-
-                            <input
-                                type="text"
-                                value="<?= number_format(
-                                    $areaReal,
-                                    2,
-                                    ',',
-                                    '.'
-                                ) ?> m²"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="card">
-
-                            <label>
-                                Diferencia
-                            </label>
-
-                            <input
-                                type="text"
-                                value="<?= number_format(
-                                    $diferenciaArea,
-                                    2,
-                                    ',',
-                                    '.'
-                                ) ?> m²"
-                                readonly
-                            >
-
-                        </div>
+                        <input
+                            type="text"
+                            value="<?= number_format(
+                                        $areaConfigurada,
+                                        2,
+                                        ',',
+                                        '.'
+                                    ) ?> m²"
+                            readonly>
 
                     </div>
 
 
-                    <br>
+                    <div class="card">
+
+                        <label>
+                            Área de unidades creadas
+                        </label>
+
+                        <input
+                            type="text"
+                            value="<?= number_format(
+                                        $areaReal,
+                                        2,
+                                        ',',
+                                        '.'
+                                    ) ?> m²"
+                            readonly>
+
+                    </div>
 
 
-                    <!-- ==================================================
+                    <div class="card">
+
+                        <label>
+                            Diferencia
+                        </label>
+
+                        <input
+                            type="text"
+                            value="<?= number_format(
+                                        $diferenciaArea,
+                                        2,
+                                        ',',
+                                        '.'
+                                    ) ?> m²"
+                            readonly>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==================================================
                          COEFICIENTES
                     =================================================== -->
 
-                    <h3>
-                        Control de coeficientes
-                    </h3>
+                <h3>
+                    Control de coeficientes
+                </h3>
 
 
-                    <div class="bloque filtros">
+                <div class="bloque filtros">
 
 
-                        <div class="card">
-
-                            <label>
-                                Coeficiente total configurado
-                            </label>
-
-                            <input
-                                type="text"
-                                value="<?= number_format(
-                                    $coeficienteConfigurado,
-                                    8,
-                                    '.',
-                                    ''
-                                ) ?>"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="card">
-
-                            <label>
-                                Coeficiente de unidades creadas
-                            </label>
-
-                            <input
-                                type="text"
-                                value="<?= number_format(
-                                    $coeficienteReal,
-                                    8,
-                                    '.',
-                                    ''
-                                ) ?>"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="card">
-
-                            <label>
-                                Diferencia
-                            </label>
-
-                            <input
-                                type="text"
-                                value="<?= number_format(
-                                    $diferenciaCoeficiente,
-                                    8,
-                                    '.',
-                                    ''
-                                ) ?>"
-                                readonly
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <br>
-
-
-                    <!-- ==================================================
-                         OBSERVACIONES
-                    =================================================== -->
-
-                    <div class="form-group textarea">
+                    <div class="card">
 
                         <label>
-                            Observaciones
+                            Coeficiente total configurado
                         </label>
 
-                        <textarea
-                            rows="3"
-                            readonly
-                        ><?= htmlspecialchars(
-                            $grupoSeleccionado['observaciones']
-                            ?? ''
-                        ) ?></textarea>
+                        <input
+                            type="text"
+                            value="<?= number_format(
+                                        $coeficienteConfigurado,
+                                        8,
+                                        '.',
+                                        ''
+                                    ) ?>"
+                            readonly>
 
                     </div>
 
 
-                    <br>
+                    <div class="card">
+
+                        <label>
+                            Coeficiente de unidades creadas
+                        </label>
+
+                        <input
+                            type="text"
+                            value="<?= number_format(
+                                        $coeficienteReal,
+                                        8,
+                                        '.',
+                                        ''
+                                    ) ?>"
+                            readonly>
+
+                    </div>
 
 
-                    <!-- ==================================================
+                    <div class="card">
+
+                        <label>
+                            Diferencia
+                        </label>
+
+                        <input
+                            type="text"
+                            value="<?= number_format(
+                                        $diferenciaCoeficiente,
+                                        8,
+                                        '.',
+                                        ''
+                                    ) ?>"
+                            readonly>
+
+                    </div>
+
+                </div>
+
+                <!-- ==================================================
+                         OBSERVACIONES
+                    =================================================== -->
+                <div class="bloque filtros">
+
+                    <label>Observaciones</label>
+                    <div class="form-group textarea">
+                        <textarea rows="3"
+                            readonly><?= htmlspecialchars(
+                                            $grupoSeleccionado['observaciones']
+                                                ?? ''
+                                        ) ?></textarea>
+                    </div>
+
+                </div>
+
+                <!-- ==================================================
                          ACCIONES
                     =================================================== -->
 
-                    <div class="form-actions">
+                <div class="form-actions">
 
 
-                        <button
-                            type="button"
-                            class="btn-secondary"
-                            onclick="window.location.href='<?= BASE_URL ?>configuracion/unidades.php?id=<?= (int)$idGrupoSeleccionado ?>'"
-                        >
+                    <button
+                        type="button"
+                        class="btn-filtrar"
+                        onclick="window.location.href='<?= BASE_URL ?>configuracion/unidades.php?id=<?= (int)$idGrupoSeleccionado ?>'">
 
-                            Ver unidades
+                        Ver unidades
 
-                        </button>
-
-
-                    </div>
+                    </button>
 
 
                 </div>
 
-            </div>
+
+    </div>
+
+    </div>
 
 
-        <?php else: ?>
+<?php else: ?>
 
 
-            <div class="bloque filtros">
+    <div class="bloque filtros">
 
-                <p>
+        <p>
 
-                    No existen grupos de unidades configurados.
+            No existen grupos de unidades configurados.
 
-                </p>
+        </p>
 
-            </div>
-
-
-        <?php endif; ?>
+    </div>
 
 
-    </main>
+<?php endif; ?>
+
+
+</main>
 
 </div>
 
@@ -853,285 +784,27 @@ $tiposUnidad =
 
 <?php if ($grupoSeleccionado): ?>
 
-<div
-    id="modalEditarTipoUnidad"
-    class="modal"
->
+    <div
+        id="modalEditarTipoUnidad"
+        class="modal">
 
-    <div class="modal-contenido">
+        <div class="modal-contenido">
 
 
-        <div class="modal-header">
+            <div class="modal-header">
 
 
-            <h3>
-                Editar grupo de unidades
-            </h3>
-
-
-            <button
-                type="button"
-                id="cerrarEditarTipoUnidad"
-                class="modal-cerrar"
-            >
-
-                &times;
-
-            </button>
-
-
-        </div>
-
-
-        <form
-            id="formEditarTipoUnidad"
-            action="<?= BASE_URL ?>actions/guardar_tipo_unidad.php"
-            method="POST"
-        >
-
-
-            <!-- ID -->
-
-            <input
-                type="hidden"
-                name="id_tipo_config"
-                value="<?= (int)$grupoSeleccionado['id_tipo_config'] ?>"
-            >
-
-
-            <!-- ==================================================
-                 TIPO DE UNIDAD
-            =================================================== -->
-
-            <div class="form-group">
-
-                <label for="editar_id_tipo_vivienda">
-
-                    Tipo de unidad *
-
-                </label>
-
-
-                <select
-                    name="id_tipo_vivienda"
-                    id="editar_id_tipo_vivienda"
-                    required
-                >
-
-                    <option value="">
-                        Seleccione...
-                    </option>
-
-
-                    <?php foreach ($tiposUnidad as $tipoUnidad): ?>
-
-                        <option
-                            value="<?= (int)$tipoUnidad['id_tipo_vivienda'] ?>"
-                            <?= (
-                                (int)$grupoSeleccionado['id_tipo_vivienda'] ===
-                                (int)$tipoUnidad['id_tipo_vivienda']
-                            )
-                                ? 'selected'
-                                : ''
-                            ?>
-                        >
-
-                            <?= htmlspecialchars(
-                                $tipoUnidad['nombre']
-                            ) ?>
-
-                        </option>
-
-                    <?php endforeach; ?>
-
-                </select>
-
-            </div>
-
-
-            <!-- ==================================================
-                 NOMBRE
-            =================================================== -->
-
-            <div class="form-group">
-
-                <label for="editar_nombre_grupo">
-
-                    Nombre del grupo *
-
-                </label>
-
-
-                <input
-                    type="text"
-                    name="nombre_grupo"
-                    id="editar_nombre_grupo"
-                    maxlength="100"
-                    value="<?= htmlspecialchars(
-                        $grupoSeleccionado['nombre_grupo']
-                    ) ?>"
-                    required
-                >
-
-            </div>
-
-
-            <!-- ==================================================
-                 CANTIDAD
-            =================================================== -->
-
-            <div class="form-group">
-
-                <label for="editar_cantidad_unidades">
-
-                    Cantidad configurada *
-
-                </label>
-
-
-                <input
-                    type="number"
-                    name="cantidad_unidades"
-                    id="editar_cantidad_unidades"
-                    min="1"
-                    value="<?= $cantidadConfigurada ?>"
-                    required
-                >
-
-
-                <small>
-
-                    Actualmente existen
-                    <?= $cantidadCreada ?>
-                    unidades activas creadas.
-
-                </small>
-
-            </div>
-
-
-            <!-- ==================================================
-                 ÁREA TOTAL
-            =================================================== -->
-
-            <div class="form-group">
-
-                <label for="editar_area_total">
-
-                    Área total esperada (m²)
-
-                </label>
-
-
-                <input
-                    type="number"
-                    name="area_total"
-                    id="editar_area_total"
-                    step="0.01"
-                    min="0"
-                    value="<?= htmlspecialchars(
-                        $grupoSeleccionado['area_total']
-                        ?? ''
-                    ) ?>"
-                >
-
-
-                <small>
-
-                    Suma esperada del área
-                    de todas las unidades del grupo.
-
-                </small>
-
-            </div>
-
-
-            <!-- ==================================================
-                 COEFICIENTE
-            =================================================== -->
-
-            <div class="form-group">
-
-                <label for="editar_coeficiente_total">
-
-                    Coeficiente total esperado
-
-                </label>
-
-
-                <input
-                    type="number"
-                    name="coeficiente_total"
-                    id="editar_coeficiente_total"
-                    step="0.00000001"
-                    min="0"
-                    value="<?= htmlspecialchars(
-                        $grupoSeleccionado['coeficiente_total']
-                        ?? ''
-                    ) ?>"
-                >
-
-
-                <small>
-
-                    Suma esperada de los coeficientes
-                    individuales del grupo.
-
-                </small>
-
-            </div>
-
-
-            <!-- ==================================================
-                 OBSERVACIONES
-            =================================================== -->
-
-            <div class="form-group">
-
-                <label for="editar_observaciones">
-
-                    Observaciones
-
-                </label>
-
-
-                <textarea
-                    name="observaciones"
-                    id="editar_observaciones"
-                    rows="3"
-                    maxlength="255"
-                ><?= htmlspecialchars(
-                    $grupoSeleccionado['observaciones']
-                    ?? ''
-                ) ?></textarea>
-
-            </div>
-
-
-            <!-- ==================================================
-                 BOTONES
-            =================================================== -->
-
-            <div class="form-actions">
+                <h3>
+                    Editar grupo de unidades
+                </h3>
 
 
                 <button
                     type="button"
-                    class="btn-limpiar"
-                    id="cancelarEditarTipoUnidad"
-                >
+                    id="cerrarEditarTipoUnidad"
+                    class="modal-cerrar">
 
-                    Cancelar
-
-                </button>
-
-
-                <button
-                    type="submit"
-                    class="btn-filtrar"
-                >
-
-                    Guardar cambios
+                    &times;
 
                 </button>
 
@@ -1139,11 +812,256 @@ $tiposUnidad =
             </div>
 
 
-        </form>
+            <form
+                id="formEditarTipoUnidad"
+                action="<?= BASE_URL ?>actions/guardar_tipo_unidad.php"
+                method="POST">
+
+
+                <!-- ID -->
+
+                <input
+                    type="hidden"
+                    name="id_tipo_config"
+                    value="<?= (int)$grupoSeleccionado['id_tipo_config'] ?>">
+
+
+                <!-- ==================================================
+                 TIPO DE UNIDAD
+            =================================================== -->
+
+                <div class="form-group">
+
+                    <label for="editar_id_tipo_vivienda">
+
+                        Tipo de unidad *
+
+                    </label>
+
+
+                    <select
+                        name="id_tipo_vivienda"
+                        id="editar_id_tipo_vivienda"
+                        required>
+
+                        <option value="">
+                            Seleccione...
+                        </option>
+
+
+                        <?php foreach ($tiposUnidad as $tipoUnidad): ?>
+
+                            <option
+                                value="<?= (int)$tipoUnidad['id_tipo_vivienda'] ?>"
+                                <?= (
+                                    (int)$grupoSeleccionado['id_tipo_vivienda'] ===
+                                    (int)$tipoUnidad['id_tipo_vivienda']
+                                )
+                                    ? 'selected'
+                                    : ''
+                                ?>>
+
+                                <?= htmlspecialchars(
+                                    $tipoUnidad['nombre']
+                                ) ?>
+
+                            </option>
+
+                        <?php endforeach; ?>
+
+                    </select>
+
+                </div>
+
+
+                <!-- ==================================================
+                 NOMBRE
+            =================================================== -->
+
+                <div class="form-group">
+
+                    <label for="editar_nombre_grupo">
+
+                        Nombre del grupo *
+
+                    </label>
+
+
+                    <input
+                        type="text"
+                        name="nombre_grupo"
+                        id="editar_nombre_grupo"
+                        maxlength="100"
+                        value="<?= htmlspecialchars(
+                                    $grupoSeleccionado['nombre_grupo']
+                                ) ?>"
+                        required>
+
+                </div>
+
+
+                <!-- ==================================================
+                 CANTIDAD
+            =================================================== -->
+
+                <div class="form-group">
+
+                    <label for="editar_cantidad_unidades">
+
+                        Cantidad configurada *
+
+                    </label>
+
+
+                    <input
+                        type="number"
+                        name="cantidad_unidades"
+                        id="editar_cantidad_unidades"
+                        min="1"
+                        value="<?= $cantidadConfigurada ?>"
+                        required>
+
+
+                    <small>
+
+                        Actualmente existen
+                        <?= $cantidadCreada ?>
+                        unidades activas creadas.
+
+                    </small>
+
+                </div>
+
+
+                <!-- ==================================================
+                 ÁREA TOTAL
+            =================================================== -->
+
+                <div class="form-group">
+
+                    <label for="editar_area_total">
+
+                        Área total esperada (m²)
+
+                    </label>
+
+
+                    <input
+                        type="number"
+                        name="area_total"
+                        id="editar_area_total"
+                        step="0.01"
+                        min="0"
+                        value="<?= htmlspecialchars(
+                                    $grupoSeleccionado['area_total']
+                                        ?? ''
+                                ) ?>">
+
+
+                    <small>
+
+                        Suma esperada del área
+                        de todas las unidades del grupo.
+
+                    </small>
+
+                </div>
+
+
+                <!-- ==================================================
+                 COEFICIENTE
+            =================================================== -->
+
+                <div class="form-group">
+
+                    <label for="editar_coeficiente_total">
+
+                        Coeficiente total esperado
+
+                    </label>
+
+
+                    <input
+                        type="number"
+                        name="coeficiente_total"
+                        id="editar_coeficiente_total"
+                        step="0.00000001"
+                        min="0"
+                        value="<?= htmlspecialchars(
+                                    $grupoSeleccionado['coeficiente_total']
+                                        ?? ''
+                                ) ?>">
+
+
+                    <small>
+
+                        Suma esperada de los coeficientes
+                        individuales del grupo.
+
+                    </small>
+
+                </div>
+
+
+                <!-- ==================================================
+                 OBSERVACIONES
+            =================================================== -->
+
+                <div class="form-group">
+
+                    <label for="editar_observaciones">
+
+                        Observaciones
+
+                    </label>
+
+
+                    <textarea
+                        name="observaciones"
+                        id="editar_observaciones"
+                        rows="3"
+                        maxlength="255"><?= htmlspecialchars(
+                                            $grupoSeleccionado['observaciones']
+                                                ?? ''
+                                        ) ?></textarea>
+
+                </div>
+
+
+                <!-- ==================================================
+                 BOTONES
+            =================================================== -->
+
+                <div class="form-actions">
+
+
+                    <button
+                        type="button"
+                        class="btn-limpiar"
+                        id="cancelarEditarTipoUnidad">
+
+                        Cancelar
+
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="btn-filtrar">
+
+                        Guardar cambios
+
+                    </button>
+
+
+                </div>
+
+
+            </form>
+
+        </div>
 
     </div>
-
-</div>
 
 <?php endif; ?>
 
@@ -1154,8 +1072,7 @@ $tiposUnidad =
 
 <div
     id="modalGrupo"
-    class="modal"
->
+    class="modal">
 
     <div class="modal-contenido">
 
@@ -1171,8 +1088,7 @@ $tiposUnidad =
             <button
                 type="button"
                 id="cerrarGrupo"
-                class="modal-cerrar"
-            >
+                class="modal-cerrar">
 
                 &times;
 
@@ -1184,8 +1100,7 @@ $tiposUnidad =
 
         <form
             action="<?= BASE_URL ?>actions/guardar_grupo.php"
-            method="POST"
-        >
+            method="POST">
 
 
             <!-- TIPO -->
@@ -1199,8 +1114,7 @@ $tiposUnidad =
 
                 <select
                     name="id_tipo_vivienda"
-                    required
-                >
+                    required>
 
                     <option value="">
                         Seleccione...
@@ -1210,8 +1124,7 @@ $tiposUnidad =
                     <?php foreach ($tiposUnidad as $tipoUnidad): ?>
 
                         <option
-                            value="<?= (int)$tipoUnidad['id_tipo_vivienda'] ?>"
-                        >
+                            value="<?= (int)$tipoUnidad['id_tipo_vivienda'] ?>">
 
                             <?= htmlspecialchars(
                                 $tipoUnidad['nombre']
@@ -1240,8 +1153,7 @@ $tiposUnidad =
                     name="nombre_grupo"
                     maxlength="100"
                     placeholder="Ej. Torre A"
-                    required
-                >
+                    required>
 
             </div>
 
@@ -1259,8 +1171,7 @@ $tiposUnidad =
                     type="number"
                     name="cantidad_unidades"
                     min="1"
-                    required
-                >
+                    required>
 
             </div>
 
@@ -1278,8 +1189,7 @@ $tiposUnidad =
                     type="number"
                     name="area_total"
                     step="0.01"
-                    min="0"
-                >
+                    min="0">
 
             </div>
 
@@ -1297,8 +1207,7 @@ $tiposUnidad =
                     type="number"
                     name="coeficiente_total"
                     step="0.00000001"
-                    min="0"
-                >
+                    min="0">
 
             </div>
 
@@ -1315,8 +1224,7 @@ $tiposUnidad =
                 <textarea
                     name="observaciones"
                     rows="3"
-                    maxlength="255"
-                ></textarea>
+                    maxlength="255"></textarea>
 
             </div>
 
@@ -1329,8 +1237,7 @@ $tiposUnidad =
                 <button
                     type="reset"
                     class="btn-limpiar"
-                    id="cancelarGrupo"
-                >
+                    id="cancelarGrupo">
 
                     Cancelar
 
@@ -1339,8 +1246,7 @@ $tiposUnidad =
 
                 <button
                     type="submit"
-                    class="btn-filtrar"
-                >
+                    class="btn-filtrar">
 
                     Guardar
 
@@ -1363,8 +1269,7 @@ $tiposUnidad =
 
 <div
     id="modalNuevaAgrupacion"
-    class="modal"
->
+    class="modal">
 
     <div class="modal-contenido">
 
@@ -1380,8 +1285,7 @@ $tiposUnidad =
             <button
                 type="button"
                 class="modal-cerrar"
-                id="cerrarModalAgrupacion"
-            >
+                id="cerrarModalAgrupacion">
 
                 &times;
 
@@ -1393,8 +1297,7 @@ $tiposUnidad =
 
         <form
             action="<?= BASE_URL ?>actions/guardar_agrupacion.php"
-            method="POST"
-        >
+            method="POST">
 
 
             <div class="form-group">
@@ -1407,8 +1310,7 @@ $tiposUnidad =
                 <select
                     name="id_tipo_agrupacion"
                     class="form-control"
-                    required
-                >
+                    required>
 
                     <option value="">
                         Seleccione un tipo
@@ -1418,8 +1320,7 @@ $tiposUnidad =
                     <?php foreach ($tiposAgrupacion as $tipo): ?>
 
                         <option
-                            value="<?= (int)$tipo['id_tipo_agrupacion'] ?>"
-                        >
+                            value="<?= (int)$tipo['id_tipo_agrupacion'] ?>">
 
                             <?= htmlspecialchars(
                                 $tipo['nombre']
@@ -1445,8 +1346,7 @@ $tiposUnidad =
                     type="text"
                     name="nombre"
                     maxlength="100"
-                    required
-                >
+                    required>
 
             </div>
 
@@ -1461,8 +1361,7 @@ $tiposUnidad =
                 <textarea
                     name="descripcion"
                     rows="2"
-                    maxlength="200"
-                ></textarea>
+                    maxlength="200"></textarea>
 
             </div>
 
@@ -1473,8 +1372,7 @@ $tiposUnidad =
                 <button
                     type="button"
                     class="btn-limpiar"
-                    id="cancelarModalAgrupacion"
-                >
+                    id="cancelarModalAgrupacion">
 
                     Cancelar
 
@@ -1483,8 +1381,7 @@ $tiposUnidad =
 
                 <button
                     type="submit"
-                    class="btn-filtrar"
-                >
+                    class="btn-filtrar">
 
                     Guardar
 
@@ -1507,8 +1404,7 @@ $tiposUnidad =
 
 <div
     id="modalEditarAgrupacion"
-    class="modal"
->
+    class="modal">
 
     <div class="modal-contenido">
 
@@ -1524,8 +1420,7 @@ $tiposUnidad =
             <button
                 type="button"
                 class="modal-cerrar"
-                id="cerrarModalEditarAgrupacion"
-            >
+                id="cerrarModalEditarAgrupacion">
 
                 &times;
 
@@ -1537,15 +1432,13 @@ $tiposUnidad =
 
         <form
             action="<?= BASE_URL ?>actions/editar_agrupacion.php"
-            method="POST"
-        >
+            method="POST">
 
 
             <input
                 type="hidden"
                 name="id_agrupacion"
-                id="editar_id_agrupacion"
-            >
+                id="editar_id_agrupacion">
 
 
             <div class="form-group">
@@ -1559,8 +1452,7 @@ $tiposUnidad =
                     name="id_tipo_agrupacion"
                     id="editar_id_tipo_agrupacion"
                     class="form-control"
-                    required
-                >
+                    required>
 
                     <option value="">
                         Seleccione un tipo
@@ -1570,8 +1462,7 @@ $tiposUnidad =
                     <?php foreach ($tiposAgrupacion as $tipo): ?>
 
                         <option
-                            value="<?= (int)$tipo['id_tipo_agrupacion'] ?>"
-                        >
+                            value="<?= (int)$tipo['id_tipo_agrupacion'] ?>">
 
                             <?= htmlspecialchars(
                                 $tipo['nombre']
@@ -1598,8 +1489,7 @@ $tiposUnidad =
                     name="nombre"
                     id="editar_nombre_agrupacion"
                     maxlength="100"
-                    required
-                >
+                    required>
 
             </div>
 
@@ -1615,8 +1505,7 @@ $tiposUnidad =
                     name="descripcion"
                     id="editar_descripcion_agrupacion"
                     rows="2"
-                    maxlength="200"
-                ></textarea>
+                    maxlength="200"></textarea>
 
             </div>
 
@@ -1627,8 +1516,7 @@ $tiposUnidad =
                 <button
                     type="button"
                     class="btn-limpiar"
-                    id="cancelarModalEditarAgrupacion"
-                >
+                    id="cancelarModalEditarAgrupacion">
 
                     Cancelar
 
@@ -1637,8 +1525,7 @@ $tiposUnidad =
 
                 <button
                     type="submit"
-                    class="btn-filtrar"
-                >
+                    class="btn-filtrar">
 
                     Actualizar
 
@@ -1660,9 +1547,7 @@ $tiposUnidad =
 ========================================================== -->
 
 <script>
-
-const BASE_URL = "<?= BASE_URL ?>";
-
+    const BASE_URL = "<?= BASE_URL ?>";
 </script>
 
 
@@ -1671,117 +1556,114 @@ const BASE_URL = "<?= BASE_URL ?>";
 ========================================================== -->
 
 <script>
+    document.addEventListener(
+        "DOMContentLoaded",
+        function() {
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+            const btnEditar =
+                document.getElementById(
+                    "btnEditarTipoUnidad"
+                );
 
-        const btnEditar =
-            document.getElementById(
-                "btnEditarTipoUnidad"
-            );
+            const modal =
+                document.getElementById(
+                    "modalEditarTipoUnidad"
+                );
 
-        const modal =
-            document.getElementById(
-                "modalEditarTipoUnidad"
-            );
+            const btnCerrar =
+                document.getElementById(
+                    "cerrarEditarTipoUnidad"
+                );
 
-        const btnCerrar =
-            document.getElementById(
-                "cerrarEditarTipoUnidad"
-            );
-
-        const btnCancelar =
-            document.getElementById(
-                "cancelarEditarTipoUnidad"
-            );
+            const btnCancelar =
+                document.getElementById(
+                    "cancelarEditarTipoUnidad"
+                );
 
 
-        // ==================================================
-        // ABRIR
-        // ==================================================
+            // ==================================================
+            // ABRIR
+            // ==================================================
 
-        if (
-            btnEditar &&
-            modal
-        ) {
+            if (
+                btnEditar &&
+                modal
+            ) {
 
-            btnEditar.addEventListener(
-                "click",
-                function () {
+                btnEditar.addEventListener(
+                    "click",
+                    function() {
+
+                        modal.style.display =
+                            "flex";
+
+                    }
+                );
+
+            }
+
+
+            // ==================================================
+            // CERRAR
+            // ==================================================
+
+            function cerrarModal() {
+
+                if (modal) {
 
                     modal.style.display =
-                        "flex";
+                        "none";
 
                 }
-            );
 
-        }
+            }
 
 
-        // ==================================================
-        // CERRAR
-        // ==================================================
+            if (btnCerrar) {
 
-        function cerrarModal()
-        {
+                btnCerrar.addEventListener(
+                    "click",
+                    cerrarModal
+                );
+
+            }
+
+
+            if (btnCancelar) {
+
+                btnCancelar.addEventListener(
+                    "click",
+                    cerrarModal
+                );
+
+            }
+
+
+            // ==================================================
+            // CLIC FUERA DEL MODAL
+            // ==================================================
 
             if (modal) {
 
-                modal.style.display =
-                    "none";
+                modal.addEventListener(
+                    "click",
+                    function(event) {
+
+                        if (
+                            event.target === modal
+                        ) {
+
+                            cerrarModal();
+
+                        }
+
+                    }
+                );
 
             }
 
         }
-
-
-        if (btnCerrar) {
-
-            btnCerrar.addEventListener(
-                "click",
-                cerrarModal
-            );
-
-        }
-
-
-        if (btnCancelar) {
-
-            btnCancelar.addEventListener(
-                "click",
-                cerrarModal
-            );
-
-        }
-
-
-        // ==================================================
-        // CLIC FUERA DEL MODAL
-        // ==================================================
-
-        if (modal) {
-
-            modal.addEventListener(
-                "click",
-                function (event) {
-
-                    if (
-                        event.target === modal
-                    ) {
-
-                        cerrarModal();
-
-                    }
-
-                }
-            );
-
-        }
-
-    }
-);
-
+    );
 </script>
 
 

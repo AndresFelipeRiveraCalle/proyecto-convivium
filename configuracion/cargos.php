@@ -507,7 +507,7 @@ function nombreEstadoCargo($estado)
 
                     <button
                         type="button"
-                        class="btn-guardar"
+                        class="btn-filtrar"
                         id="abrirNuevoCargo"
                     >
                         Nuevo cargo

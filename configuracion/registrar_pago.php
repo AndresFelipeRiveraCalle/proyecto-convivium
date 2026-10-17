@@ -136,17 +136,17 @@ $texto = trim($_GET['texto'] ?? $_GET['mensaje'] ?? '');
 
                         <div>
                             <label>Referencia</label>
-                            <input type="text" name="referencia" maxlength="255" placeholder="Recibo, transferencia, comprobante...">
+                            <input type="text" name="referencia" maxlength="100" placeholder="Recibo, transferencia, comprobante...">
                         </div>
 
                         <div>
                             <label>Referencia externa</label>
-                            <input type="text" name="referencia_externa" maxlength="255">
+                            <input type="text" name="referencia_externa" maxlength="150">
                         </div>
 
                         <div>
                             <label>ID externo</label>
-                            <input type="text" name="id_externo" maxlength="255">
+                            <input type="text" name="id_externo" maxlength="150">
                         </div>
 
                     </div>

@@ -1205,20 +1205,17 @@ foreach (
             <div class="factura-envio-resumen">
 
                 <div>
-
                     <strong>
                         Último envío:
                     </strong>
 
-                    <?= date(
-                        'd/m/Y H:i',
+                    <?= date('d/m/Y H:i',
                         strtotime(
                             $ultimoEnvio[
                                 'fecha_envio'
                             ]
                         )
                     ) ?>
-
                 </div>
 
 
@@ -1395,20 +1392,13 @@ foreach (
             =================================================== -->
 
             <div class="factura-meta">
-
-
                 <div class="factura-meta-item">
-
                     <span>
                         Número de factura
                     </span>
 
                     <strong>
-                        <?= e(
-                            $factura[
-                                'numero_factura'
-                            ]
-                        ) ?>
+                        <?= e($factura['numero_factura']) ?>
                     </strong>
 
                 </div>
@@ -2366,15 +2356,11 @@ foreach (
 
 
                     <p>
-
                         Esta sección quedará conectada con
-
                         <strong>
                             cuentas_bancarias
                         </strong>
-
                         cuando integremos el módulo de pagos.
-
                     </p>
 
 
@@ -2441,10 +2427,8 @@ foreach (
 
             <?php endif; ?>
 
-
+        <h5 align="right">Convivium &copy; <?= date('Y') ?> · Todos los derechos reservados.</h5>
         </section>
-
-
     </main>
 
 
