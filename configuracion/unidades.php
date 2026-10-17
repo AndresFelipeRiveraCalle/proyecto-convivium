@@ -411,336 +411,141 @@ $puedeCrearUnidad =
                         : ''
                     ?>
                 >
-
-                    + Nueva unidad
-
+                    Nueva unidad
                 </button>
-
-
             <?php endif; ?>
-
-
         </div>
 
-
         <br>
-
-
         <!-- ======================================================
              TABLA DE UNIDADES
         ======================================================= -->
-
         <div class="bloque filtros">
-
-
             <div class="form-card">
-
-
                 <h3>
                     Unidades registradas
                 </h3>
-
-
                 <br>
-
-
                 <div class="tabla-responsive">
-
-
                     <table class="tabla">
-
-
                         <thead>
-
-
                             <tr>
-
-
-                                <th>
-                                    Código
-                                </th>
-
-
-                                <th>
-                                    Nombre
-                                </th>
-
-
-                                <th>
-                                    Piso
-                                </th>
-
-
-                                <th>
-                                    Área
-                                </th>
-
-
-                                <th>
-                                    Coeficiente
-                                </th>
-
-
-                                <th>
-                                    Estado
-                                </th>
-
-
-                                <th>
-                                    Personas
-                                </th>
-
-
-                                <th>
-                                    Espacios
-                                </th>
-
-
-                                <th>
-                                    Registro
-                                </th>
-
-
-                                <th>
-                                    Acciones
-                                </th>
-
-
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Piso</th>
+                                <th>Área</th>
+                                <th>Coeficiente</th>
+                                <th>Estado</th>
+                                <th>Personas</th>
+                                <th>Espacios</th>
+                                <th>Registro</th>
+                                <th>Acciones</th>
                             </tr>
-
-
                         </thead>
-
-
                         <tbody>
-
-
                         <?php if (empty($unidades)): ?>
-
-
                             <tr>
-
-
                                 <td
-                                    colspan="10"
-                                    style="text-align:center;"
+                                    colspan="10" style="text-align:center;"
                                 >
-
-                                    No existen unidades registradas
-                                    para este grupo.
-
+                                    No existen unidades registradas para este grupo.
                                 </td>
-
-
                             </tr>
-
-
                         <?php else: ?>
 
-
                             <?php foreach ($unidades as $u): ?>
-
-
                                 <tr>
-
-
                                     <!-- ==========================
                                          CÓDIGO
                                     =========================== -->
-
                                     <td>
-
-
                                         <strong>
-
-                                            <?= htmlspecialchars(
-                                                $u['codigo']
-                                            ) ?>
-
+                                            <?= htmlspecialchars($u['codigo']) ?>
                                         </strong>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          NOMBRE
                                     =========================== -->
-
                                     <td>
-
-
-                                        <?= htmlspecialchars(
-                                            $u['nombre'] ?? ''
-                                        ) ?>
-
-
+                                        <?= htmlspecialchars($u['nombre'] ?? '') ?>
                                     </td>
-
 
                                     <!-- ==========================
                                          PISO
                                     =========================== -->
 
                                     <td>
-
-
-                                        <?= $u['piso'] !== null
-                                            ? htmlspecialchars(
-                                                $u['piso']
-                                            )
+                                        <?= $u['piso'] !== null ? htmlspecialchars($u['piso'])
                                             : '-'
                                         ?>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          ÁREA
                                     =========================== -->
-
                                     <td>
-
-
-                                        <?php if (
-                                            $u['area'] !== null &&
-                                            $u['area'] !== ''
-                                        ): ?>
-
-
-                                            <?= number_format(
-                                                (float)$u['area'],
-                                                2,
-                                                ',',
-                                                '.'
-                                            ) ?>
-
+                                        <?php if ($u['area'] !== null && $u['area'] !== ''): ?>
+                                            <?= number_format((float)$u['area'],2,',','.') ?>
                                             m²
-
-
                                         <?php else: ?>
-
-
                                             -
-
-
                                         <?php endif; ?>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          COEFICIENTE
                                     =========================== -->
 
                                     <td>
+                                        <?php if ($u['coeficiente'] !== null && $u['coeficiente'] !== ''): ?>
 
-
-                                        <?php if (
-                                            $u['coeficiente'] !== null &&
-                                            $u['coeficiente'] !== ''
-                                        ): ?>
-
-
-                                            <?= number_format(
-                                                (float)$u['coeficiente'],
-                                                8,
-                                                '.',
-                                                ''
-                                            ) ?>
-
+                                            <?= number_format((float)$u['coeficiente'],8, '.','') ?>
 
                                         <?php else: ?>
-
-
                                             -
-
-
                                         <?php endif; ?>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          ESTADO
                                     =========================== -->
-
                                     <td>
-
-
-                                        <?= htmlspecialchars(
-                                            $u['estado']
-                                        ) ?>
-
-
+                                        <?= htmlspecialchars($u['estado']) ?>
                                     </td>
-
 
                                     <!-- ==========================
                                          PERSONAS
                                     =========================== -->
-
                                     <td style="text-align:center;">
-
-
                                         <strong>
-
                                             <?= (int)$u['cantidad_personas'] ?>
-
                                         </strong>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          ESPACIOS
                                     =========================== -->
-
                                     <td style="text-align:center;">
-
-
                                         <strong>
-
                                             <?= (int)$u['cantidad_espacios'] ?>
-
                                         </strong>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          REGISTRO
                                     =========================== -->
-
                                     <td>
-
-
-                                        <?php if (
-                                            (int)$u['activo'] === 1
-                                        ): ?>
-
-
+                                        <?php if ((int)$u['activo'] === 1): ?>
                                             <span class="activo">
                                                 Activa
                                             </span>
-
-
                                         <?php else: ?>
-
 
                                             <span class="inactivo">
                                                 Inactiva
                                             </span>
-
-
                                         <?php endif; ?>
-
-
                                     </td>
 
 
@@ -755,7 +560,7 @@ $puedeCrearUnidad =
 
                                         <a
                                             href="<?= BASE_URL ?>configuracion/personas_unidad.php?id_unidad=<?= (int)$u['id_unidad'] ?>"
-                                            class="btn-secondary"
+                                            class="btn-filtrar"
                                         >
 
                                             Personas
@@ -767,7 +572,7 @@ $puedeCrearUnidad =
 
                                         <a
                                             href="<?= BASE_URL ?>configuracion/espacios_unidad.php?id_unidad=<?= (int)$u['id_unidad'] ?>"
-                                            class="btn-secondary"
+                                            class="btn-filtrar"
                                         >
 
                                             Espacios
@@ -779,7 +584,7 @@ $puedeCrearUnidad =
 
                                         <button
                                             type="button"
-                                            class="btn-secondary btnEditarUnidad"
+                                            class="btn-filtrar btnEditarUnidad"
 
                                             data-id="<?= (int)$u['id_unidad'] ?>"
 

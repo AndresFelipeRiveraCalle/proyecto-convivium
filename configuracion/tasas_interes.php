@@ -172,7 +172,7 @@ function estadoVigencia($fechaInicio, $fechaFin)
                         class="btn-filtrar"
                         id="btnNuevaTasa"
                     >
-                        + Nueva tasa
+                        Nueva tasa
                     </button>
 
                 </div>
@@ -411,7 +411,6 @@ function estadoVigencia($fechaInicio, $fechaFin)
                                                 flex-wrap:wrap;
                                             "
                                         >
-
                                             <button
                                                 type="button"
                                                 class="btn-secondary btnEditarTasa"
@@ -435,7 +434,7 @@ function estadoVigencia($fechaInicio, $fechaFin)
 
                                             <button
                                                 type="button"
-                                                class="btn-secondary btnNuevaVigencia"
+                                                class="btn-filtrar btnNuevaVigencia"
                                                 data-id="<?= (int)$tasa['id_tasa_interes'] ?>"
                                                 data-nombre="<?= e($tasa['nombre']) ?>"
                                                 data-tasa-anual="<?= e($tasa['tasa_anual']) ?>"
