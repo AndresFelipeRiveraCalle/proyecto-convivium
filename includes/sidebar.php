@@ -197,7 +197,20 @@
 
             </li>
 
+            <!-- ZONAS COMUNES -->
+            <li class="submenu">
+                <div class="submenu-titulo">
+                    <span><i class="fa-solid fa-screwdriver-wrench icono"></i> Zonas Comunes</span>
+                    <i class="fa-solid fa-chevron-down flecha"></i>
+                </div>
 
+                <ul class="submenu-items">
+                    <li>
+                        <a href="<?= BASE_URL ?>zonas/index.php">
+                        Solicitudes</a>
+                    </li>
+                </ul>
+            </li>
             <!-- MANTENIMIENTO -->
             <li class="submenu">
                 <div class="submenu-titulo">

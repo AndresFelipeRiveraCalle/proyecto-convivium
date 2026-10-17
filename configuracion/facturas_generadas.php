@@ -259,160 +259,91 @@ function formatoPeriodoFactura(
         <!-- ======================================================
              FILTROS
         ======================================================= -->
-
+  
         <div class="bloque filtros">
-
-
             <div class="form-card">
+                <h3>Filtros</h3>
+        
+                <form method="GET" action="">
+                    
+                    <label for="buscar">
+                        Buscar
+                    </label>
 
 
-                <h3>
-                    Filtros
-                </h3>
+                    <input
+                        type="text"
+                        name="buscar"
+                        id="buscar"
+                        value="<?= htmlspecialchars($buscar) ?>"
+                        placeholder="Factura, unidad o grupo"
+                    >
 
 
-                <br>
+                    <label for="periodo">
+                        Período
+                    </label>
 
 
-                <form
-                    method="GET"
-                    action=""
-                >
+                    <input
+                        type="month"
+                        name="periodo"
+                        id="periodo"
+                        value="<?= htmlspecialchars($periodo) ?>"
+                    >
+
+                    <label for="estado">
+                        Estado
+                    </label>
 
 
-                    <div class="form-group">
+                    <select
+                        name="estado"
+                        id="estado"
+                    >
+                        <option value="">
+                            Todos
+                        </option>
 
+                        <?php
+                        $estados = [
+                            'BORRADOR',
+                            'GENERADA',
+                            'PARCIAL',
+                            'PAGADA',
+                            'VENCIDA',
+                            'ANULADA'
+                        ];
+                        ?>
 
-                        <label for="buscar">
-                            Buscar
-                        </label>
-
-
-                        <input
-                            type="text"
-                            name="buscar"
-                            id="buscar"
-                            value="<?= htmlspecialchars($buscar) ?>"
-                            placeholder="Factura, unidad o grupo"
-                        >
-
-
-                    </div>
-
-
-                    <div class="form-group">
-
-
-                        <label for="periodo">
-                            Período
-                        </label>
-
-
-                        <input
-                            type="month"
-                            name="periodo"
-                            id="periodo"
-                            value="<?= htmlspecialchars($periodo) ?>"
-                        >
-
-
-                    </div>
-
-
-                    <div class="form-group">
-
-
-                        <label for="estado">
-                            Estado
-                        </label>
-
-
-                        <select
-                            name="estado"
-                            id="estado"
-                        >
-
-
-                            <option value="">
-                                Todos
+                        <?php foreach ($estados as $estadoItem): ?>
+                            <option
+                                value="<?= $estadoItem ?>"
+                                <?= (
+                                    $estado === $estadoItem
+                                        ? 'selected'
+                                        : ''
+                                ) ?>
+                            >
+                                <?= $estadoItem ?>
                             </option>
+                        <?php endforeach; ?>
+                    </select>
 
+                    <button type="submit" class="btn-filtrar"
+                    >
+                        Filtrar
+                    </button>
 
-                            <?php
-                            $estados = [
-                                'BORRADOR',
-                                'GENERADA',
-                                'PARCIAL',
-                                'PAGADA',
-                                'VENCIDA',
-                                'ANULADA'
-                            ];
-                            ?>
-
-
-                            <?php foreach ($estados as $estadoItem): ?>
-
-
-                                <option
-                                    value="<?= $estadoItem ?>"
-                                    <?= (
-                                        $estado === $estadoItem
-                                            ? 'selected'
-                                            : ''
-                                    ) ?>
-                                >
-
-                                    <?= $estadoItem ?>
-
-                                </option>
-
-
-                            <?php endforeach; ?>
-
-
-                        </select>
-
-
-                    </div>
-
-
-                    <div class="form-actions">
-
-
-                        <a
-                            href="<?= BASE_URL ?>configuracion/facturas_genneradas.php"
-                            class="btn-limpiar"
-                        >
-
-                            Limpiar
-
-                        </a>
-
-
-                        <button
-                            type="submit"
-                            class="btn-filtrar"
-                        >
-
-                            Filtrar
-
-                        </button>
-
-
-                    </div>
-
-
+                    <a
+                        href="<?= BASE_URL ?>configuracion/facturas_generadas.php"
+                        class="btn-limpiar"
+                    >
+                        Limpiar
+                    </a>
                 </form>
-
-
             </div>
-
-
         </div>
-
-
-        <br>
-
 
         <!-- ======================================================
              LISTADO

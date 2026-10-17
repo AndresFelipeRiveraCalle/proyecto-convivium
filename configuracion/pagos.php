@@ -448,7 +448,7 @@ $pagos =
                     class="btn-filtrar"
                     style="text-decoration:none; display:inline-block;"
                 >
-                    + Registrar pago
+                    Registrar pago
                 </a>
             </div>
 
@@ -550,58 +550,30 @@ $pagos =
 
         </div>
 
-
-        <br>
-
-
+        
         <!-- ======================================================
              FILTROS
         ======================================================= -->
 
         <div class="bloque filtros">
-
+            
             <div class="form-card">
+            <h3>Filtros</h3>
+                <Div class="form-card">
+                <form method="GET" action="">
+                    <label>
+                        Buscar
+                    </label>
 
-                <h3>
-                    Filtros
-                </h3>
-
-                <br>
-
-                <form
-                    method="GET"
-                    action=""
-                >
-
-                    <div
-                        style="
-                            display:grid;
-                            grid-template-columns:
-                                repeat(
-                                    auto-fit,
-                                    minmax(200px, 1fr)
-                                );
-                            gap:15px;
-                        "
+                    <input
+                        type="text"
+                        name="buscar"
+                        value="<?= e($buscar) ?>"
+                        placeholder="Unidad, referencia..."
                     >
 
-                        <div>
-
-                            <label>
-                                Buscar
-                            </label>
-
-                            <input
-                                type="text"
-                                name="buscar"
-                                value="<?= e($buscar) ?>"
-                                placeholder="Unidad, referencia..."
-                            >
-
-                        </div>
 
 
-                        <div>
 
                             <label>
                                 Conciliación
@@ -657,11 +629,6 @@ $pagos =
 
                             </select>
 
-                        </div>
-
-
-                        <div>
-
                             <label>
                                 Estado
                             </label>
@@ -694,10 +661,6 @@ $pagos =
 
                             </select>
 
-                        </div>
-
-
-                        <div>
 
                             <label>
                                 Desde
@@ -709,10 +672,8 @@ $pagos =
                                 value="<?= e($fechaDesde) ?>"
                             >
 
-                        </div>
 
 
-                        <div>
 
                             <label>
                                 Hasta
@@ -724,22 +685,20 @@ $pagos =
                                 value="<?= e($fechaHasta) ?>"
                             >
 
-                        </div>
-
-                    </div>
-
+                        
 
                     <br>
 
+                </Div>
 
                     <div class="form-actions">
 
-                        <button
-                            type="submit"
+                        <a
+                            type="button"
                             class="btn-filtrar"
                         >
-                            Filtrar
-                        </button>
+                            Filtrar 
+                        </a>
 
 
                         <a
@@ -754,6 +713,7 @@ $pagos =
                 </form>
 
             </div>
+
 
         </div>
 
