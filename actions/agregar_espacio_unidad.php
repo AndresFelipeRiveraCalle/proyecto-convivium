@@ -5,7 +5,7 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 
 // ==========================================================
-// VALIDAR MÉTODO
+// SOLO POST
 // ==========================================================
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 
 // ==========================================================
-// RECIBIR DATOS
+// DATOS
 // ==========================================================
 
 $idUnidad = isset($_POST['id_unidad'])
@@ -29,8 +29,13 @@ $idUnidad = isset($_POST['id_unidad'])
     : 0;
 
 
+$numeroDocumento = isset($_POST['numero_documento'])
+    ? trim($_POST['numero_documento'])
+    : '';
+
+
 $tipoEspacio = isset($_POST['tipo_espacio'])
-    ? trim($_POST['tipo_espacio'])
+    ? strtoupper(trim($_POST['tipo_espacio']))
     : '';
 
 
@@ -39,7 +44,8 @@ $codigo = isset($_POST['codigo'])
     : '';
 
 
-$area = isset($_POST['area']) && $_POST['area'] !== ''
+$area = isset($_POST['area']) &&
+        $_POST['area'] !== ''
     ? (float)$_POST['area']
     : null;
 
@@ -55,17 +61,7 @@ $observaciones = isset($_POST['observaciones'])
 
 
 // ==========================================================
-// URL RETORNO
-// ==========================================================
-
-$urlRetorno =
-    BASE_URL .
-    "configuracion/personas_unidad.php?id_unidad=" .
-    $idUnidad;
-
-
-// ==========================================================
-// VALIDAR UNIDAD
+// RETORNO
 // ==========================================================
 
 if ($idUnidad <= 0) {
@@ -81,8 +77,14 @@ if ($idUnidad <= 0) {
 }
 
 
+$urlRetorno =
+    BASE_URL .
+    "configuracion/personas_unidad.php?id_unidad=" .
+    $idUnidad;
+
+
 // ==========================================================
-// VALIDAR TIPO
+// VALIDACIONES
 // ==========================================================
 
 $tiposPermitidos = [
@@ -92,6 +94,21 @@ $tiposPermitidos = [
     'BODEGA',
     'OTRO'
 ];
+
+
+if ($numeroDocumento === '') {
+
+    header(
+        "Location: " .
+        $urlRetorno .
+        "&tipo=warning&texto=" .
+        urlencode(
+            "Debe indicar el documento del propietario."
+        )
+    );
+
+    exit;
+}
 
 
 if (
@@ -106,16 +123,14 @@ if (
         "Location: " .
         $urlRetorno .
         "&tipo=warning&texto=" .
-        urlencode("Tipo de espacio no válido.")
+        urlencode(
+            "Tipo de espacio no válido."
+        )
     );
 
     exit;
 }
 
-
-// ==========================================================
-// VALIDAR CÓDIGO
-// ==========================================================
 
 if ($codigo === '') {
 
@@ -123,16 +138,14 @@ if ($codigo === '') {
         "Location: " .
         $urlRetorno .
         "&tipo=warning&texto=" .
-        urlencode("Debe ingresar el código del espacio.")
+        urlencode(
+            "Debe indicar el código del espacio."
+        )
     );
 
     exit;
 }
 
-
-// ==========================================================
-// VALIDAR ÁREA
-// ==========================================================
 
 if (
     $area !== null &&
@@ -143,31 +156,16 @@ if (
         "Location: " .
         $urlRetorno .
         "&tipo=warning&texto=" .
-        urlencode("El área no puede ser negativa.")
+        urlencode(
+            "El área no puede ser negativa."
+        )
     );
 
     exit;
 }
 
 
-// ==========================================================
-// VALIDAR FECHA
-// ==========================================================
-
-if ($fechaDesde === '') {
-
-    header(
-        "Location: " .
-        $urlRetorno .
-        "&tipo=warning&texto=" .
-        urlencode("Debe ingresar la fecha desde.")
-    );
-
-    exit;
-}
-
-
-$fechaValidada =
+$fechaObj =
     DateTime::createFromFormat(
         'Y-m-d',
         $fechaDesde
@@ -175,28 +173,8 @@ $fechaValidada =
 
 
 if (
-    !$fechaValidada ||
-    $fechaValidada->format('Y-m-d') !== $fechaDesde
-) {
-
-    header(
-        "Location: " .
-        $urlRetorno .
-        "&tipo=warning&texto=" .
-        urlencode("La fecha ingresada no es válida.")
-    );
-
-    exit;
-}
-
-
-// ==========================================================
-// VALIDAR OBSERVACIONES
-// ==========================================================
-
-if (
-    $observaciones !== null &&
-    strlen($observaciones) > 255
+    !$fechaObj ||
+    $fechaObj->format('Y-m-d') !== $fechaDesde
 ) {
 
     header(
@@ -204,7 +182,7 @@ if (
         $urlRetorno .
         "&tipo=warning&texto=" .
         urlencode(
-            "Las observaciones no pueden superar los 255 caracteres."
+            "Fecha no válida."
         )
     );
 
@@ -214,29 +192,34 @@ if (
 
 try {
 
+    // ======================================================
+    // TRANSACCIÓN
+    // ======================================================
+
+    $conexion->beginTransaction();
+
 
     // ======================================================
-    // VALIDAR QUE EXISTA LA UNIDAD
+    // VALIDAR UNIDAD
     // ======================================================
 
     $sqlUnidad = "
         SELECT
-            id_unidad
+            id_unidad,
+            activo
 
         FROM unidades
 
-        WHERE
-            id_unidad = :id_unidad
-            AND activo = 1
+        WHERE id_unidad = :id_unidad
 
         LIMIT 1
+
+        FOR UPDATE
     ";
 
 
     $stmtUnidad =
-        $conexion->prepare(
-            $sqlUnidad
-        );
+        $conexion->prepare($sqlUnidad);
 
 
     $stmtUnidad->execute([
@@ -250,7 +233,12 @@ try {
         );
 
 
-    if (!$unidad) {
+    if (
+        !$unidad ||
+        (int)$unidad['activo'] !== 1
+    ) {
+
+        $conexion->rollBack();
 
         header(
             "Location: " .
@@ -266,37 +254,119 @@ try {
 
 
     // ======================================================
-    // VALIDAR QUE EL ESPACIO NO ESTÉ ASIGNADO ACTUALMENTE
+    // BUSCAR PROPIETARIO
     // ======================================================
 
-    $sqlExiste = "
+    $sqlUsuario = "
         SELECT
-            eu.id_espacio_unidad,
-            eu.id_unidad,
-            u.codigo AS codigo_unidad
+            id,
+            nombres,
+            apellidos,
+            estado
 
-        FROM espacios_unidad eu
+        FROM usuario
 
-        INNER JOIN unidades u
-            ON u.id_unidad = eu.id_unidad
-
-        WHERE
-            eu.tipo_espacio = :tipo_espacio
-            AND eu.codigo = :codigo
-            AND eu.activo = 1
-            AND eu.fecha_hasta IS NULL
+        WHERE numero_documento = :numero_documento
 
         LIMIT 1
     ";
 
 
-    $stmtExiste =
+    $stmtUsuario =
         $conexion->prepare(
-            $sqlExiste
+            $sqlUsuario
         );
 
 
-    $stmtExiste->execute([
+    $stmtUsuario->execute([
+        ':numero_documento' =>
+            $numeroDocumento
+    ]);
+
+
+    $propietario =
+        $stmtUsuario->fetch(
+            PDO::FETCH_ASSOC
+        );
+
+
+    if (!$propietario) {
+
+        $conexion->rollBack();
+
+        header(
+            "Location: " .
+            $urlRetorno .
+            "&tipo=warning&texto=" .
+            urlencode(
+                "No existe un usuario con ese documento."
+            )
+        );
+
+        exit;
+    }
+
+
+    if ((int)$propietario['estado'] !== 1) {
+
+        $conexion->rollBack();
+
+        header(
+            "Location: " .
+            $urlRetorno .
+            "&tipo=warning&texto=" .
+            urlencode(
+                "El propietario está inactivo."
+            )
+        );
+
+        exit;
+    }
+
+
+    $usuarioId =
+        (int)$propietario['id'];
+
+
+    // ======================================================
+    // VALIDAR QUE NO EXISTA OTRO REGISTRO VIGENTE
+    // ======================================================
+    //
+    // IMPORTANTE:
+    // Un mismo espacio físico solo puede tener
+    // UN registro con fecha_hasta NULL.
+    //
+    // ======================================================
+
+    $sqlVigente = "
+        SELECT
+
+            id_espacio_unidad,
+            id_unidad,
+            usuario_id,
+            fecha_desde
+
+        FROM espacios_unidad
+
+        WHERE
+            tipo_espacio = :tipo_espacio
+            AND UPPER(TRIM(codigo)) = :codigo
+            AND activo = 1
+            AND fecha_hasta IS NULL
+
+        LIMIT 1
+
+        FOR UPDATE
+    ";
+
+
+    $stmtVigente =
+        $conexion->prepare(
+            $sqlVigente
+        );
+
+
+    $stmtVigente->execute([
 
         ':tipo_espacio' =>
             $tipoEspacio,
@@ -307,13 +377,15 @@ try {
     ]);
 
 
-    $espacioExistente =
-        $stmtExiste->fetch(
+    $espacioVigente =
+        $stmtVigente->fetch(
             PDO::FETCH_ASSOC
         );
 
 
-    if ($espacioExistente) {
+    if ($espacioVigente) {
+
+        $conexion->rollBack();
 
         header(
             "Location: " .
@@ -322,9 +394,8 @@ try {
             urlencode(
                 "El espacio " .
                 $codigo .
-                " ya está asociado actualmente a la unidad " .
-                $espacioExistente['codigo_unidad'] .
-                "."
+                " ya tiene un registro vigente. " .
+                "Si cambió de propietario o unidad, debe usar la opción Transferir."
             )
         );
 
@@ -333,13 +404,14 @@ try {
 
 
     // ======================================================
-    // INSERTAR ESPACIO
+    // INSERTAR
     // ======================================================
 
     $sqlInsertar = "
         INSERT INTO espacios_unidad
         (
             id_unidad,
+            usuario_id,
             tipo_espacio,
             codigo,
             area,
@@ -351,6 +423,7 @@ try {
         VALUES
         (
             :id_unidad,
+            :usuario_id,
             :tipo_espacio,
             :codigo,
             :area,
@@ -373,6 +446,9 @@ try {
         ':id_unidad' =>
             $idUnidad,
 
+        ':usuario_id' =>
+            $usuarioId,
+
         ':tipo_espacio' =>
             $tipoEspacio,
 
@@ -393,9 +469,8 @@ try {
     ]);
 
 
-    // ======================================================
-    // ÉXITO
-    // ======================================================
+    $conexion->commit();
+
 
     header(
         "Location: " .
@@ -409,7 +484,13 @@ try {
     exit;
 
 
-} catch (PDOException $e) {
+} catch (Throwable $e) {
+
+
+    if ($conexion->inTransaction()) {
+
+        $conexion->rollBack();
+    }
 
 
     header(
@@ -417,7 +498,7 @@ try {
         $urlRetorno .
         "&tipo=error&texto=" .
         urlencode(
-            "No fue posible guardar el espacio."
+            "No fue posible agregar el espacio."
         )
     );
 

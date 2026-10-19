@@ -19,7 +19,7 @@ $tipoFiltro = isset($_GET['tipo_espacio'])
 
 
 // ==========================================================
-// TIPOS DE ESPACIO PERMITIDOS
+// TIPOS PERMITIDOS
 // ==========================================================
 
 $tiposPermitidos = [
@@ -29,6 +29,38 @@ $tiposPermitidos = [
     'BODEGA',
     'OTRO'
 ];
+
+
+// ==========================================================
+// UNIDADES ACTIVAS
+// ==========================================================
+
+$sqlUnidades = "
+    SELECT
+        u.id_unidad,
+        u.codigo,
+        u.nombre,
+        d.nombre_grupo
+
+    FROM unidades u
+
+    LEFT JOIN detalle_tipos_unidad d
+        ON d.id_tipo_config = u.id_tipo_config
+
+    WHERE u.activo = 1
+
+    ORDER BY
+        d.nombre_grupo,
+        u.codigo
+";
+
+
+$stmtUnidades =
+    $conexion->query($sqlUnidades);
+
+
+$unidadesDisponibles =
+    $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
 
 
 // ==========================================================
@@ -80,16 +112,12 @@ $parametros = [];
 
 
 // ==========================================================
-// FILTRAR POR TIPO
+// FILTRO TIPO
 // ==========================================================
 
 if (
     $tipoFiltro !== '' &&
-    in_array(
-        $tipoFiltro,
-        $tiposPermitidos,
-        true
-    )
+    in_array($tipoFiltro, $tiposPermitidos, true)
 ) {
 
     $sqlEspacios .= "
@@ -111,15 +139,10 @@ if ($buscar !== '') {
         AND
         (
             eu.codigo LIKE :buscar_codigo
-
             OR us.numero_documento LIKE :buscar_documento
-
             OR us.nombres LIKE :buscar_nombres
-
             OR us.apellidos LIKE :buscar_apellidos
-
             OR u.codigo LIKE :buscar_unidad
-
             OR u.nombre LIKE :buscar_nombre_unidad
         )
     ";
@@ -157,14 +180,11 @@ $sqlEspacios .= "
     ORDER BY
 
         CASE eu.tipo_espacio
-
             WHEN 'PARQUEADERO' THEN 1
             WHEN 'CUARTO_UTIL' THEN 2
             WHEN 'DEPOSITO' THEN 3
             WHEN 'BODEGA' THEN 4
-
             ELSE 5
-
         END,
 
         eu.codigo
@@ -172,28 +192,22 @@ $sqlEspacios .= "
 
 
 // ==========================================================
-// EJECUTAR CONSULTA ESPACIOS
+// EJECUTAR CONSULTA
 // ==========================================================
 
 $stmtEspacios =
-    $conexion->prepare(
-        $sqlEspacios
-    );
+    $conexion->prepare($sqlEspacios);
 
 
-$stmtEspacios->execute(
-    $parametros
-);
+$stmtEspacios->execute($parametros);
 
 
 $espacios =
-    $stmtEspacios->fetchAll(
-        PDO::FETCH_ASSOC
-    );
+    $stmtEspacios->fetchAll(PDO::FETCH_ASSOC);
 
 
 // ==========================================================
-// RESUMEN GENERAL
+// RESUMEN
 // ==========================================================
 
 $sqlResumen = "
@@ -258,25 +272,15 @@ $sqlResumen = "
 
 
 $stmtResumen =
-    $conexion->query(
-        $sqlResumen
-    );
+    $conexion->query($sqlResumen);
 
 
 $resumen =
-    $stmtResumen->fetch(
-        PDO::FETCH_ASSOC
-    );
+    $stmtResumen->fetch(PDO::FETCH_ASSOC);
 
 
 // ==========================================================
-// CONSULTAR TODO EL HISTÓRICO
-// ==========================================================
-//
-// Se hace una sola consulta.
-// Después agrupamos los registros por:
-// tipo_espacio + codigo.
-//
+// HISTÓRICO GENERAL
 // ==========================================================
 
 $sqlHistorico = "
@@ -325,19 +329,15 @@ $sqlHistorico = "
 
 
 $stmtHistorico =
-    $conexion->query(
-        $sqlHistorico
-    );
+    $conexion->query($sqlHistorico);
 
 
 $historicoGeneral =
-    $stmtHistorico->fetchAll(
-        PDO::FETCH_ASSOC
-    );
+    $stmtHistorico->fetchAll(PDO::FETCH_ASSOC);
 
 
 // ==========================================================
-// AGRUPAR HISTÓRICO POR ESPACIO
+// AGRUPAR HISTÓRICO
 // ==========================================================
 
 $historicos = [];
@@ -363,7 +363,7 @@ foreach ($historicoGeneral as $registro) {
 
 
 // ==========================================================
-// FUNCIÓN NOMBRE TIPO ESPACIO
+// NOMBRE DEL TIPO
 // ==========================================================
 
 function nombreTipoEspacio($tipo)
@@ -396,7 +396,6 @@ function nombreTipoEspacio($tipo)
 <!DOCTYPE html>
 
 <html lang="es">
-
 
 <head>
 
@@ -434,9 +433,16 @@ function nombreTipoEspacio($tipo)
                 class="btn-limpiar"
                 onclick="window.location.href='unidades.php'"
             >
-
                 ← Volver a unidades
+            </button>
 
+
+            <button
+                type="button"
+                class="btn-filtrar"
+                onclick="abrirModalNuevoEspacio()"
+            >
+                + Nuevo espacio
             </button>
 
 
@@ -480,106 +486,64 @@ function nombreTipoEspacio($tipo)
             <div class="tabs-container">
 
 
-                <!-- TOTAL -->
-
                 <div class="tab-content">
 
-                    <strong>
-                        Total
-                    </strong>
-
+                    <strong>Total</strong>
                     <br>
-
                     <?= (int)($resumen['total'] ?? 0) ?>
 
                 </div>
 
 
-                <!-- PARQUEADEROS -->
-
                 <div class="tab-content">
 
-                    <strong>
-                        Parqueaderos
-                    </strong>
-
+                    <strong>Parqueaderos</strong>
                     <br>
-
                     <?= (int)($resumen['parqueaderos'] ?? 0) ?>
 
                 </div>
 
 
-                <!-- CUARTOS ÚTILES -->
-
                 <div class="tab-content">
 
-                    <strong>
-                        Cuartos útiles
-                    </strong>
-
+                    <strong>Cuartos útiles</strong>
                     <br>
-
                     <?= (int)($resumen['cuartos_utiles'] ?? 0) ?>
 
                 </div>
 
 
-                <!-- DEPÓSITOS -->
-
                 <div class="tab-content">
 
-                    <strong>
-                        Depósitos
-                    </strong>
-
+                    <strong>Depósitos</strong>
                     <br>
-
                     <?= (int)($resumen['depositos'] ?? 0) ?>
 
                 </div>
 
 
-                <!-- BODEGAS -->
-
                 <div class="tab-content">
 
-                    <strong>
-                        Bodegas
-                    </strong>
-
+                    <strong>Bodegas</strong>
                     <br>
-
                     <?= (int)($resumen['bodegas'] ?? 0) ?>
 
                 </div>
 
 
-                <!-- SIN UNIDAD -->
-
                 <div class="tab-content">
 
-                    <strong>
-                        Sin unidad
-                    </strong>
-
+                    <strong>Sin unidad</strong>
                     <br>
-
                     <?= (int)($resumen['sin_unidad'] ?? 0) ?>
 
                 </div>
 
 
-                <!-- SIN PROPIETARIO -->
-
                 <div class="tab-content">
 
-                    <strong>
-                        Sin propietario
-                    </strong>
-
+                    <strong>Sin propietario</strong>
                     <br>
-
                     <?= (int)($resumen['sin_propietario'] ?? 0) ?>
 
                 </div>
@@ -610,15 +574,11 @@ function nombreTipoEspacio($tipo)
                 <div class="bloque filtros">
 
 
-                    <!-- BUSCAR -->
-
                     <div class="form-group">
-
 
                         <label for="buscar">
                             Buscar
                         </label>
-
 
                         <input
                             type="text"
@@ -628,30 +588,23 @@ function nombreTipoEspacio($tipo)
                             placeholder="Código, propietario, documento o unidad"
                         >
 
-
                     </div>
 
 
-                    <!-- TIPO -->
-
                     <div class="form-group">
-
 
                         <label for="tipo_espacio">
                             Tipo de espacio
                         </label>
-
 
                         <select
                             name="tipo_espacio"
                             id="tipo_espacio"
                         >
 
-
                             <option value="">
                                 Todos
                             </option>
-
 
                             <option
                                 value="PARQUEADERO"
@@ -660,11 +613,8 @@ function nombreTipoEspacio($tipo)
                                     : ''
                                 ?>
                             >
-
                                 Parqueadero
-
                             </option>
-
 
                             <option
                                 value="CUARTO_UTIL"
@@ -673,11 +623,8 @@ function nombreTipoEspacio($tipo)
                                     : ''
                                 ?>
                             >
-
                                 Cuarto útil
-
                             </option>
-
 
                             <option
                                 value="DEPOSITO"
@@ -686,11 +633,8 @@ function nombreTipoEspacio($tipo)
                                     : ''
                                 ?>
                             >
-
                                 Depósito
-
                             </option>
-
 
                             <option
                                 value="BODEGA"
@@ -699,11 +643,8 @@ function nombreTipoEspacio($tipo)
                                     : ''
                                 ?>
                             >
-
                                 Bodega
-
                             </option>
-
 
                             <option
                                 value="OTRO"
@@ -712,43 +653,30 @@ function nombreTipoEspacio($tipo)
                                     : ''
                                 ?>
                             >
-
                                 Otro
-
                             </option>
 
-
                         </select>
-
 
                     </div>
 
 
-                    <!-- BOTONES -->
-
                     <div class="form-actions">
-
 
                         <button
                             type="button"
                             class="btn-limpiar"
                             onclick="window.location.href='espacios.php'"
                         >
-
                             Limpiar
-
                         </button>
-
 
                         <button
                             type="submit"
                             class="btn-filtrar"
                         >
-
                             Buscar
-
                         </button>
-
 
                     </div>
 
@@ -802,27 +730,18 @@ function nombreTipoEspacio($tipo)
 
                         <thead>
 
-
                             <tr>
 
                                 <th>Tipo</th>
-
                                 <th>Código</th>
-
                                 <th>Área</th>
-
                                 <th>Propietario</th>
-
                                 <th>Unidad</th>
-
                                 <th>Desde</th>
-
                                 <th>Observaciones</th>
-
                                 <th>Acciones</th>
 
                             </tr>
-
 
                         </thead>
 
@@ -848,14 +767,12 @@ function nombreTipoEspacio($tipo)
                             ?>
 
 
-                            <!-- ==================================
+                            <!-- ==============================
                                  FILA PRINCIPAL
-                            =================================== -->
+                            =============================== -->
 
                             <tr>
 
-
-                                <!-- TIPO -->
 
                                 <td>
 
@@ -868,31 +785,23 @@ function nombreTipoEspacio($tipo)
                                 </td>
 
 
-                                <!-- CÓDIGO -->
-
                                 <td>
 
                                     <strong>
-
                                         <?= htmlspecialchars(
                                             $espacio['codigo']
                                         ) ?>
-
                                     </strong>
 
                                 </td>
 
 
-                                <!-- ÁREA -->
-
                                 <td>
-
 
                                     <?php if (
                                         $espacio['area'] !== null &&
                                         $espacio['area'] !== ''
                                     ): ?>
-
 
                                         <?= number_format(
                                             (float)$espacio['area'],
@@ -901,28 +810,20 @@ function nombreTipoEspacio($tipo)
                                             '.'
                                         ) ?> m²
 
-
                                     <?php else: ?>
-
 
                                         -
 
-
                                     <?php endif; ?>
-
 
                                 </td>
 
 
-                                <!-- PROPIETARIO -->
-
                                 <td>
-
 
                                     <?php if (
                                         !empty($espacio['usuario_id'])
                                     ): ?>
-
 
                                         <strong>
 
@@ -936,16 +837,13 @@ function nombreTipoEspacio($tipo)
 
                                         </strong>
 
-
                                         <?php if (
                                             !empty(
                                                 $espacio['numero_documento']
                                             )
                                         ): ?>
 
-
                                             <br>
-
 
                                             <small>
 
@@ -955,35 +853,24 @@ function nombreTipoEspacio($tipo)
 
                                             </small>
 
-
                                         <?php endif; ?>
-
 
                                     <?php else: ?>
 
-
                                         <span class="inactivo">
-
                                             Sin propietario
-
                                         </span>
 
-
                                     <?php endif; ?>
-
 
                                 </td>
 
 
-                                <!-- UNIDAD -->
-
                                 <td>
-
 
                                     <?php if (
                                         !empty($espacio['id_unidad'])
                                     ): ?>
-
 
                                         <strong>
 
@@ -993,24 +880,19 @@ function nombreTipoEspacio($tipo)
 
                                         </strong>
 
-
                                         <?php if (
                                             !empty(
                                                 $espacio['nombre_unidad']
                                             )
                                         ): ?>
 
-
                                             <br>
-
 
                                             <?= htmlspecialchars(
                                                 $espacio['nombre_unidad']
                                             ) ?>
 
-
                                         <?php endif; ?>
-
 
                                         <?php if (
                                             !empty(
@@ -1018,9 +900,7 @@ function nombreTipoEspacio($tipo)
                                             )
                                         ): ?>
 
-
                                             <br>
-
 
                                             <small>
 
@@ -1030,23 +910,16 @@ function nombreTipoEspacio($tipo)
 
                                             </small>
 
-
                                         <?php endif; ?>
-
 
                                     <?php else: ?>
 
-
                                         Ninguna
-
 
                                     <?php endif; ?>
 
-
                                 </td>
 
-
-                                <!-- DESDE -->
 
                                 <td>
 
@@ -1065,8 +938,6 @@ function nombreTipoEspacio($tipo)
                                 </td>
 
 
-                                <!-- OBSERVACIONES -->
-
                                 <td>
 
                                     <?= !empty(
@@ -1081,14 +952,78 @@ function nombreTipoEspacio($tipo)
                                 </td>
 
 
-                                <!-- ACCIONES -->
-
                                 <td>
 
+
+                                    <!-- EDITAR -->
+
+                                    <button
+                                        type="button"
+                                        class="btn-secondary btnEditarEspacio"
+
+                                        data-id="<?= (int)$espacio['id_espacio_unidad'] ?>"
+
+                                        data-tipo="<?= htmlspecialchars(
+                                            $espacio['tipo_espacio'],
+                                            ENT_QUOTES
+                                        ) ?>"
+
+                                        data-codigo="<?= htmlspecialchars(
+                                            $espacio['codigo'],
+                                            ENT_QUOTES
+                                        ) ?>"
+
+                                        data-area="<?= htmlspecialchars(
+                                            $espacio['area'] ?? '',
+                                            ENT_QUOTES
+                                        ) ?>"
+
+                                        data-observaciones="<?= htmlspecialchars(
+                                            $espacio['observaciones'] ?? '',
+                                            ENT_QUOTES
+                                        ) ?>"
+                                    >
+
+                                        Editar
+
+                                    </button>
+
+
+                                    <!-- TRANSFERIR -->
+
+                                    <button
+                                        type="button"
+                                        class="btn-limpiar btnTransferirEspacio"
+
+                                        data-id="<?= (int)$espacio['id_espacio_unidad'] ?>"
+
+                                        data-codigo="<?= htmlspecialchars(
+                                            $espacio['codigo'],
+                                            ENT_QUOTES
+                                        ) ?>"
+
+                                        data-tipo="<?= htmlspecialchars(
+                                            $espacio['tipo_espacio'],
+                                            ENT_QUOTES
+                                        ) ?>"
+
+                                        data-area="<?= htmlspecialchars(
+                                            $espacio['area'] ?? '',
+                                            ENT_QUOTES
+                                        ) ?>"
+                                    >
+
+                                        Transferir
+
+                                    </button>
+
+
+                                    <!-- HISTÓRICO -->
 
                                     <button
                                         type="button"
                                         class="btn-secondary btnVerHistorico"
+
                                         data-id="<?= (int)$espacio['id_espacio_unidad'] ?>"
                                     >
 
@@ -1097,10 +1032,11 @@ function nombreTipoEspacio($tipo)
                                     </button>
 
 
+                                    <!-- UNIDAD -->
+
                                     <?php if (
                                         !empty($espacio['id_unidad'])
                                     ): ?>
-
 
                                         <a
                                             href="personas_unidad.php?id_unidad=<?= (int)$espacio['id_unidad'] ?>"
@@ -1111,7 +1047,6 @@ function nombreTipoEspacio($tipo)
 
                                         </a>
 
-
                                     <?php endif; ?>
 
 
@@ -1121,16 +1056,15 @@ function nombreTipoEspacio($tipo)
                             </tr>
 
 
-                            <!-- ==================================
-                                 FILA HISTÓRICO
-                            =================================== -->
+                            <!-- ==============================
+                                 HISTÓRICO
+                            =============================== -->
 
                             <tr
                                 id="historico_<?= (int)$espacio['id_espacio_unidad'] ?>"
                                 class="fila-historico"
                                 style="display:none;"
                             >
-
 
                                 <td colspan="8">
 
@@ -1159,19 +1093,12 @@ function nombreTipoEspacio($tipo)
 
 
                                         <?php if (
-                                            empty(
-                                                $historicoEspacio
-                                            )
+                                            empty($historicoEspacio)
                                         ): ?>
 
-
                                             <p>
-
-                                                No existe histórico
-                                                para este espacio.
-
+                                                No existe histórico para este espacio.
                                             </p>
-
 
                                         <?php else: ?>
 
@@ -1184,39 +1111,17 @@ function nombreTipoEspacio($tipo)
 
                                                     <thead>
 
-
                                                         <tr>
 
-                                                            <th>
-                                                                Propietario
-                                                            </th>
-
-                                                            <th>
-                                                                Documento
-                                                            </th>
-
-                                                            <th>
-                                                                Unidad
-                                                            </th>
-
-                                                            <th>
-                                                                Desde
-                                                            </th>
-
-                                                            <th>
-                                                                Hasta
-                                                            </th>
-
-                                                            <th>
-                                                                Estado
-                                                            </th>
-
-                                                            <th>
-                                                                Observaciones
-                                                            </th>
+                                                            <th>Propietario</th>
+                                                            <th>Documento</th>
+                                                            <th>Unidad</th>
+                                                            <th>Desde</th>
+                                                            <th>Hasta</th>
+                                                            <th>Estado</th>
+                                                            <th>Observaciones</th>
 
                                                         </tr>
-
 
                                                     </thead>
 
@@ -1233,19 +1138,13 @@ function nombreTipoEspacio($tipo)
                                                         <tr>
 
 
-                                                            <!-- =================
-                                                                 PROPIETARIO
-                                                            ================== -->
-
                                                             <td>
-
 
                                                                 <?php if (
                                                                     !empty(
                                                                         $registro['usuario_id']
                                                                     )
                                                                 ): ?>
-
 
                                                                     <strong>
 
@@ -1259,25 +1158,16 @@ function nombreTipoEspacio($tipo)
 
                                                                     </strong>
 
-
                                                                 <?php else: ?>
-
 
                                                                     Sin propietario registrado
 
-
                                                                 <?php endif; ?>
-
 
                                                             </td>
 
 
-                                                            <!-- =================
-                                                                 DOCUMENTO
-                                                            ================== -->
-
                                                             <td>
-
 
                                                                 <?= !empty(
                                                                     $registro['numero_documento']
@@ -1288,23 +1178,16 @@ function nombreTipoEspacio($tipo)
                                                                     : '-'
                                                                 ?>
 
-
                                                             </td>
 
 
-                                                            <!-- =================
-                                                                 UNIDAD
-                                                            ================== -->
-
                                                             <td>
-
 
                                                                 <?php if (
                                                                     !empty(
                                                                         $registro['id_unidad']
                                                                     )
                                                                 ): ?>
-
 
                                                                     <strong>
 
@@ -1314,24 +1197,19 @@ function nombreTipoEspacio($tipo)
 
                                                                     </strong>
 
-
                                                                     <?php if (
                                                                         !empty(
                                                                             $registro['nombre_unidad']
                                                                         )
                                                                     ): ?>
 
-
                                                                         <br>
-
 
                                                                         <?= htmlspecialchars(
                                                                             $registro['nombre_unidad']
                                                                         ) ?>
 
-
                                                                     <?php endif; ?>
-
 
                                                                     <?php if (
                                                                         !empty(
@@ -1339,9 +1217,7 @@ function nombreTipoEspacio($tipo)
                                                                         )
                                                                     ): ?>
 
-
                                                                         <br>
-
 
                                                                         <small>
 
@@ -1351,28 +1227,18 @@ function nombreTipoEspacio($tipo)
 
                                                                         </small>
 
-
                                                                     <?php endif; ?>
-
 
                                                                 <?php else: ?>
 
-
                                                                     Ninguna
 
-
                                                                 <?php endif; ?>
-
 
                                                             </td>
 
 
-                                                            <!-- =================
-                                                                 DESDE
-                                                            ================== -->
-
                                                             <td>
-
 
                                                                 <?= !empty(
                                                                     $registro['fecha_desde']
@@ -1386,16 +1252,10 @@ function nombreTipoEspacio($tipo)
                                                                     : '-'
                                                                 ?>
 
-
                                                             </td>
 
 
-                                                            <!-- =================
-                                                                 HASTA
-                                                            ================== -->
-
                                                             <td>
-
 
                                                                 <?= !empty(
                                                                     $registro['fecha_hasta']
@@ -1409,16 +1269,10 @@ function nombreTipoEspacio($tipo)
                                                                     : 'Actual'
                                                                 ?>
 
-
                                                             </td>
 
 
-                                                            <!-- =================
-                                                                 ESTADO
-                                                            ================== -->
-
                                                             <td>
-
 
                                                                 <?php if (
                                                                     empty(
@@ -1426,36 +1280,20 @@ function nombreTipoEspacio($tipo)
                                                                     )
                                                                 ): ?>
 
-
                                                                     <span class="activo">
-
                                                                         Actual
-
                                                                     </span>
-
 
                                                                 <?php else: ?>
 
-
-                                                                    <span>
-
-                                                                        Histórico
-
-                                                                    </span>
-
+                                                                    Histórico
 
                                                                 <?php endif; ?>
-
 
                                                             </td>
 
 
-                                                            <!-- =================
-                                                                 OBSERVACIONES
-                                                            ================== -->
-
                                                             <td>
-
 
                                                                 <?= !empty(
                                                                     $registro['observaciones']
@@ -1465,7 +1303,6 @@ function nombreTipoEspacio($tipo)
                                                                     )
                                                                     : '-'
                                                                 ?>
-
 
                                                             </td>
 
@@ -1521,129 +1358,1118 @@ function nombreTipoEspacio($tipo)
 </div>
 
 
-<!-- ==========================================================
+<!-- =========================================================
+     MODAL NUEVO ESPACIO
+========================================================= -->
+
+<div
+    id="modalNuevoEspacio"
+    class="modal"
+    style="display:none;"
+>
+
+
+    <div class="modal-contenido">
+
+
+        <div class="modal-header">
+
+
+            <h3>
+                Nuevo espacio
+            </h3>
+
+
+            <button
+                type="button"
+                class="modal-cerrar"
+                onclick="cerrarModalNuevoEspacio()"
+            >
+                &times;
+            </button>
+
+
+        </div>
+
+
+        <form
+            action="<?= BASE_URL ?>actions/agregar_espacio.php"
+            method="POST"
+        >
+
+
+            <div class="form-group">
+
+                <label>
+                    Documento del propietario *
+                </label>
+
+                <input
+                    type="text"
+                    name="numero_documento"
+                    maxlength="30"
+                    required
+                    placeholder="Digite el documento"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Tipo de espacio *
+                </label>
+
+                <select
+                    name="tipo_espacio"
+                    required
+                >
+
+                    <option value="">
+                        Seleccione...
+                    </option>
+
+                    <option value="PARQUEADERO">
+                        Parqueadero
+                    </option>
+
+                    <option value="CUARTO_UTIL">
+                        Cuarto útil
+                    </option>
+
+                    <option value="DEPOSITO">
+                        Depósito
+                    </option>
+
+                    <option value="BODEGA">
+                        Bodega
+                    </option>
+
+                    <option value="OTRO">
+                        Otro
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Código *
+                </label>
+
+                <input
+                    type="text"
+                    name="codigo"
+                    maxlength="50"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Área
+                </label>
+
+                <input
+                    type="number"
+                    name="area"
+                    step="0.01"
+                    min="0"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Unidad asociada
+                </label>
+
+                <select name="id_unidad">
+
+                    <option value="">
+                        Ninguna
+                    </option>
+
+
+                    <?php foreach (
+                        $unidadesDisponibles
+                        as $unidadDisponible
+                    ): ?>
+
+                        <option
+                            value="<?= (int)$unidadDisponible['id_unidad'] ?>"
+                        >
+
+                            <?= htmlspecialchars(
+                                $unidadDisponible['codigo']
+                            ) ?>
+
+                            <?php if (
+                                !empty($unidadDisponible['nombre'])
+                            ): ?>
+
+                                -
+                                <?= htmlspecialchars(
+                                    $unidadDisponible['nombre']
+                                ) ?>
+
+                            <?php endif; ?>
+
+                            <?php if (
+                                !empty($unidadDisponible['nombre_grupo'])
+                            ): ?>
+
+                                (
+                                <?= htmlspecialchars(
+                                    $unidadDisponible['nombre_grupo']
+                                ) ?>
+                                )
+
+                            <?php endif; ?>
+
+                        </option>
+
+                    <?php endforeach; ?>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Fecha desde *
+                </label>
+
+                <input
+                    type="date"
+                    name="fecha_desde"
+                    value="<?= date('Y-m-d') ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Observaciones
+                </label>
+
+                <textarea
+                    name="observaciones"
+                    rows="3"
+                    maxlength="255"
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-actions">
+
+
+                <button
+                    type="button"
+                    class="btn-limpiar"
+                    onclick="cerrarModalNuevoEspacio()"
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn-filtrar"
+                >
+                    Guardar espacio
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================================================
+     MODAL EDITAR ESPACIO
+========================================================= -->
+
+<div
+    id="modalEditarEspacio"
+    class="modal"
+    style="display:none;"
+>
+
+
+    <div class="modal-contenido">
+
+
+        <div class="modal-header">
+
+
+            <h3>
+                Editar espacio
+            </h3>
+
+
+            <button
+                type="button"
+                class="modal-cerrar"
+                onclick="cerrarModalEditarEspacio()"
+            >
+                &times;
+            </button>
+
+
+        </div>
+
+
+        <form
+            action="<?= BASE_URL ?>actions/editar_espacio_unidad.php"
+            method="POST"
+        >
+
+
+            <input
+                type="hidden"
+                name="id_espacio_unidad"
+                id="editar_espacio_id"
+            >
+            <input
+                type="hidden"
+                name="origen"
+                value="espacios"
+            >
+
+
+            <div class="form-group">
+
+                <label>
+                    Tipo *
+                </label>
+
+                <select
+                    name="tipo_espacio"
+                    id="editar_espacio_tipo"
+                    required
+                >
+
+                    <option value="PARQUEADERO">
+                        Parqueadero
+                    </option>
+
+                    <option value="CUARTO_UTIL">
+                        Cuarto útil
+                    </option>
+
+                    <option value="DEPOSITO">
+                        Depósito
+                    </option>
+
+                    <option value="BODEGA">
+                        Bodega
+                    </option>
+
+                    <option value="OTRO">
+                        Otro
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Código *
+                </label>
+
+                <input
+                    type="text"
+                    name="codigo"
+                    id="editar_espacio_codigo"
+                    maxlength="50"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Área
+                </label>
+
+                <input
+                    type="number"
+                    name="area"
+                    id="editar_espacio_area"
+                    step="0.01"
+                    min="0"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Observaciones
+                </label>
+
+                <textarea
+                    name="observaciones"
+                    id="editar_espacio_observaciones"
+                    rows="3"
+                    maxlength="255"
+                ></textarea>
+
+            </div>
+
+
+            <p>
+                Para cambiar propietario o unidad utiliza Transferir.
+            </p>
+
+
+            <br>
+
+
+            <div class="form-actions">
+
+
+                <button
+                    type="button"
+                    class="btn-limpiar"
+                    onclick="cerrarModalEditarEspacio()"
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn-filtrar"
+                >
+                    Guardar cambios
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================================================
+     MODAL TRANSFERIR ESPACIO
+========================================================= -->
+
+<div
+    id="modalTransferirEspacio"
+    class="modal"
+    style="display:none;"
+>
+
+
+    <div class="modal-contenido">
+
+
+        <div class="modal-header">
+
+
+            <h3>
+                Transferir espacio
+            </h3>
+
+
+            <button
+                type="button"
+                class="modal-cerrar"
+                onclick="cerrarModalTransferirEspacio()"
+            >
+                &times;
+            </button>
+
+
+        </div>
+
+
+        <form
+            action="<?= BASE_URL ?>actions/transferir_espacio.php"
+            method="POST"
+        >
+
+
+            <input
+                type="hidden"
+                name="id_espacio_unidad"
+                id="transferir_id_espacio_unidad"
+            >
+            <input
+                type="hidden"
+                name="origen"
+                value="espacios"
+            >
+
+            <div class="form-group">
+
+                <label>
+                    Espacio
+                </label>
+
+                <input
+                    type="text"
+                    id="transferir_codigo"
+                    readonly
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Tipo
+                </label>
+
+                <input
+                    type="text"
+                    id="transferir_tipo"
+                    readonly
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Área
+                </label>
+
+                <input
+                    type="text"
+                    id="transferir_area"
+                    readonly
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Documento del nuevo propietario *
+                </label>
+
+                <input
+                    type="text"
+                    name="numero_documento"
+                    id="transferir_documento_propietario"
+                    maxlength="30"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Unidad asociada
+                </label>
+
+                <select
+                    name="id_unidad"
+                    id="transferir_id_unidad"
+                >
+
+                    <option value="">
+                        Ninguna
+                    </option>
+
+
+                    <?php foreach (
+                        $unidadesDisponibles
+                        as $unidadDisponible
+                    ): ?>
+
+                        <option
+                            value="<?= (int)$unidadDisponible['id_unidad'] ?>"
+                        >
+
+                            <?= htmlspecialchars(
+                                $unidadDisponible['codigo']
+                            ) ?>
+
+                            <?php if (
+                                !empty($unidadDisponible['nombre'])
+                            ): ?>
+
+                                -
+                                <?= htmlspecialchars(
+                                    $unidadDisponible['nombre']
+                                ) ?>
+
+                            <?php endif; ?>
+
+                            <?php if (
+                                !empty($unidadDisponible['nombre_grupo'])
+                            ): ?>
+
+                                (
+                                <?= htmlspecialchars(
+                                    $unidadDisponible['nombre_grupo']
+                                ) ?>
+                                )
+
+                            <?php endif; ?>
+
+                        </option>
+
+                    <?php endforeach; ?>
+
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Fecha de transferencia *
+                </label>
+
+                <input
+                    type="date"
+                    name="fecha_transferencia"
+                    id="transferir_fecha"
+                    value="<?= date('Y-m-d') ?>"
+                    required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    Observaciones
+                </label>
+
+                <textarea
+                    name="observaciones"
+                    id="transferir_observaciones"
+                    rows="3"
+                    maxlength="255"
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-actions">
+
+
+                <button
+                    type="button"
+                    class="btn-limpiar"
+                    onclick="cerrarModalTransferirEspacio()"
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="btn-filtrar"
+                >
+                    Transferir espacio
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================================================
      JAVASCRIPT
-========================================================== -->
+========================================================= -->
 
 <script>
+
+
+// ==========================================================
+// NUEVO ESPACIO
+// ==========================================================
+
+function abrirModalNuevoEspacio()
+{
+
+    const modal =
+        document.getElementById(
+            "modalNuevoEspacio"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "flex";
+    }
+}
+
+
+function cerrarModalNuevoEspacio()
+{
+
+    const modal =
+        document.getElementById(
+            "modalNuevoEspacio"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "none";
+    }
+}
+
+
+// ==========================================================
+// EDITAR
+// ==========================================================
+
+function cerrarModalEditarEspacio()
+{
+
+    const modal =
+        document.getElementById(
+            "modalEditarEspacio"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "none";
+    }
+}
+
+
+// ==========================================================
+// TRANSFERIR
+// ==========================================================
+
+function cerrarModalTransferirEspacio()
+{
+
+    const modal =
+        document.getElementById(
+            "modalTransferirEspacio"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "none";
+    }
+}
+
+
+// ==========================================================
+// DOM READY
+// ==========================================================
 
 document.addEventListener(
     "DOMContentLoaded",
     function () {
 
 
-        // ======================================================
-        // BOTONES VER HISTÓRICO
-        // ======================================================
+        // ==================================================
+        // EDITAR ESPACIO
+        // ==================================================
 
-        const botonesHistorico =
-            document.querySelectorAll(
-                ".btnVerHistorico"
+        document
+            .querySelectorAll(
+                ".btnEditarEspacio"
+            )
+            .forEach(
+                function (boton) {
+
+
+                    boton.addEventListener(
+                        "click",
+                        function () {
+
+
+                            document.getElementById(
+                                "editar_espacio_id"
+                            ).value =
+                                this.dataset.id || "";
+
+
+                            document.getElementById(
+                                "editar_espacio_tipo"
+                            ).value =
+                                this.dataset.tipo || "";
+
+
+                            document.getElementById(
+                                "editar_espacio_codigo"
+                            ).value =
+                                this.dataset.codigo || "";
+
+
+                            document.getElementById(
+                                "editar_espacio_area"
+                            ).value =
+                                this.dataset.area || "";
+
+
+                            document.getElementById(
+                                "editar_espacio_observaciones"
+                            ).value =
+                                this.dataset.observaciones || "";
+
+
+                            document.getElementById(
+                                "modalEditarEspacio"
+                            ).style.display =
+                                "flex";
+
+
+                        }
+                    );
+
+
+                }
             );
 
 
-        botonesHistorico.forEach(
-            function (boton) {
+        // ==================================================
+        // TRANSFERIR ESPACIO
+        // ==================================================
+
+        document
+            .querySelectorAll(
+                ".btnTransferirEspacio"
+            )
+            .forEach(
+                function (boton) {
 
 
-                boton.addEventListener(
-                    "click",
-                    function () {
+                    boton.addEventListener(
+                        "click",
+                        function () {
 
 
-                        const id =
-                            this.dataset.id;
-
-
-                        const fila =
                             document.getElementById(
-                                "historico_" + id
-                            );
+                                "transferir_id_espacio_unidad"
+                            ).value =
+                                this.dataset.id || "";
 
 
-                        if (!fila) {
+                            document.getElementById(
+                                "transferir_codigo"
+                            ).value =
+                                this.dataset.codigo || "";
 
-                            return;
+
+                            let tipo =
+                                this.dataset.tipo || "";
+
+
+                            let tipoVisible =
+                                tipo;
+
+
+                            switch (tipo) {
+
+                                case "PARQUEADERO":
+
+                                    tipoVisible =
+                                        "Parqueadero";
+
+                                    break;
+
+
+                                case "CUARTO_UTIL":
+
+                                    tipoVisible =
+                                        "Cuarto útil";
+
+                                    break;
+
+
+                                case "DEPOSITO":
+
+                                    tipoVisible =
+                                        "Depósito";
+
+                                    break;
+
+
+                                case "BODEGA":
+
+                                    tipoVisible =
+                                        "Bodega";
+
+                                    break;
+
+
+                                case "OTRO":
+
+                                    tipoVisible =
+                                        "Otro";
+
+                                    break;
+                            }
+
+
+                            document.getElementById(
+                                "transferir_tipo"
+                            ).value =
+                                tipoVisible;
+
+
+                            const area =
+                                this.dataset.area || "";
+
+
+                            document.getElementById(
+                                "transferir_area"
+                            ).value =
+                                area !== ""
+                                    ? area + " m²"
+                                    : "";
+
+
+                            document.getElementById(
+                                "transferir_documento_propietario"
+                            ).value = "";
+
+
+                            document.getElementById(
+                                "transferir_id_unidad"
+                            ).value = "";
+
+
+                            document.getElementById(
+                                "transferir_observaciones"
+                            ).value = "";
+
+
+                            document.getElementById(
+                                "modalTransferirEspacio"
+                            ).style.display =
+                                "flex";
+
+
                         }
+                    );
 
 
-                        // ==================================================
-                        // SI ESTÁ CERRADO
-                        // ==================================================
-
-                        if (
-                            fila.style.display === "none" ||
-                            fila.style.display === ""
-                        ) {
+                }
+            );
 
 
-                            // ==============================================
-                            // CERRAR TODOS LOS DEMÁS
-                            // ==============================================
+        // ==================================================
+        // HISTÓRICO
+        // ==================================================
 
-                            document
-                                .querySelectorAll(
-                                    ".fila-historico"
-                                )
-                                .forEach(
-                                    function (otraFila) {
+        document
+            .querySelectorAll(
+                ".btnVerHistorico"
+            )
+            .forEach(
+                function (boton) {
 
-                                        otraFila.style.display =
-                                            "none";
 
-                                    }
+                    boton.addEventListener(
+                        "click",
+                        function () {
+
+
+                            const id =
+                                this.dataset.id;
+
+
+                            const fila =
+                                document.getElementById(
+                                    "historico_" + id
                                 );
 
 
-                            // ==============================================
-                            // RESTAURAR TEXTO DE BOTONES
-                            // ==============================================
+                            if (!fila) {
 
-                            document
-                                .querySelectorAll(
-                                    ".btnVerHistorico"
-                                )
-                                .forEach(
-                                    function (otroBoton) {
-
-                                        otroBoton.textContent =
-                                            "Ver histórico";
-
-                                    }
-                                );
+                                return;
+                            }
 
 
-                            // ==============================================
-                            // ABRIR ACTUAL
-                            // ==============================================
-
-                            fila.style.display =
-                                "table-row";
+                            if (
+                                fila.style.display === "none" ||
+                                fila.style.display === ""
+                            ) {
 
 
-                            this.textContent =
-                                "Ocultar histórico";
+                                // ==========================
+                                // CERRAR OTROS
+                                // ==========================
+
+                                document
+                                    .querySelectorAll(
+                                        ".fila-historico"
+                                    )
+                                    .forEach(
+                                        function (otraFila) {
+
+                                            otraFila.style.display =
+                                                "none";
+
+                                        }
+                                    );
 
 
-                        } else {
+                                document
+                                    .querySelectorAll(
+                                        ".btnVerHistorico"
+                                    )
+                                    .forEach(
+                                        function (otroBoton) {
+
+                                            otroBoton.textContent =
+                                                "Ver histórico";
+
+                                        }
+                                    );
 
 
-                            // ==================================================
-                            // CERRAR ACTUAL
-                            // ==================================================
+                                // ==========================
+                                // ABRIR ACTUAL
+                                // ==========================
 
-                            fila.style.display =
-                                "none";
+                                fila.style.display =
+                                    "table-row";
 
 
-                            this.textContent =
-                                "Ver histórico";
+                                this.textContent =
+                                    "Ocultar histórico";
+
+
+                            } else {
+
+
+                                fila.style.display =
+                                    "none";
+
+
+                                this.textContent =
+                                    "Ver histórico";
+
+                            }
+
 
                         }
+                    );
 
 
-                    }
-                );
+                }
+            );
+
+
+        // ==================================================
+        // CERRAR MODALES HACIENDO CLIC FUERA
+        // ==================================================
+
+        window.addEventListener(
+            "click",
+            function (event) {
+
+
+                const modalNuevo =
+                    document.getElementById(
+                        "modalNuevoEspacio"
+                    );
+
+
+                const modalEditar =
+                    document.getElementById(
+                        "modalEditarEspacio"
+                    );
+
+
+                const modalTransferir =
+                    document.getElementById(
+                        "modalTransferirEspacio"
+                    );
+
+
+                if (
+                    modalNuevo &&
+                    event.target === modalNuevo
+                ) {
+
+                    cerrarModalNuevoEspacio();
+
+                }
+
+
+                if (
+                    modalEditar &&
+                    event.target === modalEditar
+                ) {
+
+                    cerrarModalEditarEspacio();
+
+                }
+
+
+                if (
+                    modalTransferir &&
+                    event.target === modalTransferir
+                ) {
+
+                    cerrarModalTransferirEspacio();
+
+                }
 
 
             }

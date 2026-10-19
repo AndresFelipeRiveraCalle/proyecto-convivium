@@ -1,489 +1,317 @@
 <?php
+// ==========================================================
+// REGISTRAR PAGO
+// Muestra el formulario para registrar un nuevo pago.
+// ==========================================================
 
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
+// Escapa texto antes de mostrarlo en pantalla.
+function e($valor)
+{
+    return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
+}
 
 // ==========================================================
-// CONSULTAR UNIDADES
+// UNIDAD PRESELECCIONADA
+// Recibe la unidad cuando se abre desde cartera.
 // ==========================================================
+$idUnidadSeleccionada = isset($_GET['id_unidad']) ? (int)$_GET['id_unidad'] : 0;
 
+// ==========================================================
+// UNIDADES ACTIVAS
+// Carga las unidades disponibles para registrar el pago.
+// ==========================================================
 $sqlUnidades = "
     SELECT
-        id_unidad,
-        codigo,
-        nombre
-    FROM unidades
-    WHERE activo = 1
-    ORDER BY codigo ASC
+        u.id_unidad,
+        u.codigo,
+        u.nombre,
+        dtu.nombre_grupo
+    FROM unidades u
+    LEFT JOIN detalle_tipos_unidad dtu
+        ON dtu.id_tipo_config = u.id_tipo_config
+    WHERE u.activo = 1
+    ORDER BY dtu.nombre_grupo, u.codigo
 ";
 
-$stmtUnidades = $conexion->prepare($sqlUnidades);
-$stmtUnidades->execute();
-
+$stmtUnidades = $conexion->query($sqlUnidades);
 $unidades = $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
 
-
 // ==========================================================
-// DATOS DEL FORMULARIO
+// MENSAJE DE RETORNO
+// Recibe el resultado enviado por guardar_pago.php.
 // ==========================================================
-
-$fechaPago = date('Y-m-d');
-
+$tipo = trim($_GET['tipo'] ?? '');
+$texto = trim($_GET['texto'] ?? $_GET['mensaje'] ?? '');
 ?>
-
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
-    <?php
-    include ROOT_PATH . "/includes/head.php";
-    ?>
-
+    <?php include ROOT_PATH . "/includes/head.php"; ?>
 </head>
-
-
 <body>
 
-
-<?php include ROOT_PATH . "/includes/header.php";?>
-
-<?php require_once ROOT_PATH . "/includes/mensajes.php";?>
-
+<?php include ROOT_PATH . "/includes/header.php"; ?>
 
 <div class="contenedor">
 
-    <!-- ======================================================
-         SIDEBAR
-    ======================================================= -->
-    <?php include ROOT_PATH . "/includes/sidebar.php";?>
-
-    <!-- ======================================================
-         CONTENIDO
-    ======================================================= -->
+    <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
 
     <main class="contenido">
 
-
-        <div class="cartera-container">
-
-
-            <!-- ==================================================
-                 ENCABEZADO
-            =================================================== -->
-
-            <div class="cartera-header">
-
-                <div>
-
-                    <h1>
-                        Registrar pago
-                    </h1>
-
-                    <p>
-                        Registre un pago recibido de una unidad.
-                        El sistema aplicará posteriormente el valor
-                        según las reglas de cartera.
-                    </p>
-
-                </div>
-
-
-                <div>
-
-                    <a
-                        href="<?= BASE_URL ?>configuracion/cartera.php"
-                        class="btn-secondary"
-                    >
-                        ← Volver a cartera
-                    </a>
-
-                </div>
-
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:15px; flex-wrap:wrap;">
+            <div>
+                <h2>Registrar pago</h2>
+                <p>Registra un nuevo ingreso para una unidad. El pago quedará disponible para aplicarlo posteriormente a una o varias obligaciones.</p>
             </div>
 
+            <a href="<?= BASE_URL ?>configuracion/pagos.php" class="btn-secondary">
+                ← Volver a pagos
+            </a>
+        </div>
 
-            <!-- ==================================================
-                 FORMULARIO
-            =================================================== -->
+        <br>
 
-            <div class="tabla-card">
+        <div class="bloque filtros">
+            <div class="form-card">
 
+                <h3>Datos del pago</h3>
+                <br>
 
-                <form
-                    action="<?= BASE_URL ?>actions/guardar_pago.php"
-                    method="POST"
-                    id="formRegistrarPago"
-                >
+                <!-- REGISTRO DEL PAGO: guarda el ingreso sin aplicarlo todavía a cartera. -->
+                <form method="POST" action="<?= BASE_URL ?>actions/guardar_pago.php">
 
+                    <div class="form-grid">
 
-                    <!-- ==================================================
-                         DATOS PRINCIPALES
-                    =================================================== -->
-
-                    <h2>
-                        Información del pago
-                    </h2>
-
-
-                    <div class="filtros-grid">
-
-
-                        <!-- UNIDAD -->
-
-                        <div class="campo">
-
-                            <label for="id_unidad">
-                                Unidad *
-                            </label>
-
-
-                            <select
-                                name="id_unidad"
-                                id="id_unidad"
-                                required
-                            >
-
-                                <option value="">
-                                    Seleccione una unidad
-                                </option>
-
-
-                                <?php foreach (
-                                    $unidades
-                                    as $unidad
-                                ): ?>
-
-
+                        <div>
+                            <label>Unidad *</label>
+                            <select name="id_unidad" required>
+                                <option value="">Seleccione...</option>
+                                <?php foreach ($unidades as $unidad): ?>
                                     <option
                                         value="<?= (int)$unidad['id_unidad'] ?>"
+                                        <?= $idUnidadSeleccionada === (int)$unidad['id_unidad'] ? 'selected' : '' ?>
                                     >
-
-                                        <?= htmlspecialchars(
-                                            $unidad['codigo']
-                                        ) ?>
-
-
-                                        <?php if (
-                                            !empty(
-                                                $unidad['nombre']
-                                            )
-                                        ): ?>
-
-                                            -
-                                            <?= htmlspecialchars(
-                                                $unidad['nombre']
-                                            ) ?>
-
-                                        <?php endif; ?>
-
+                                        <?= e($unidad['codigo']) ?>
+                                        <?= !empty($unidad['nombre_grupo']) ? ' - ' . e($unidad['nombre_grupo']) : '' ?>
+                                        <?= !empty($unidad['nombre']) ? ' - ' . e($unidad['nombre']) : '' ?>
                                     </option>
-
-
                                 <?php endforeach; ?>
-
-
                             </select>
-
                         </div>
 
-
-                        <!-- FECHA -->
-
-                        <div class="campo">
-
-                            <label for="fecha_pago">
-                                Fecha del pago *
-                            </label>
-
-
-                            <input
-                                type="date"
-                                name="fecha_pago"
-                                id="fecha_pago"
-                                value="<?= htmlspecialchars(
-                                    $fechaPago
-                                ) ?>"
-                                required
-                            >
-
+                        <div>
+                            <label>Fecha del pago *</label>
+                            <input type="date" name="fecha_pago" value="<?= e(date('Y-m-d')) ?>" required>
                         </div>
 
-
-                        <!-- VALOR -->
-
-                        <div class="campo">
-
-                            <label for="valor">
-                                Valor recibido *
-                            </label>
-
-
-                            <input
-                                type="number"
-                                name="valor"
-                                id="valor"
-                                min="0.01"
-                                step="0.01"
-                                placeholder="0.00"
-                                required
-                            >
-
+                        <div>
+                            <label>Valor *</label>
+                            <input type="number" name="valor" min="0.01" step="0.01" required placeholder="0.00">
                         </div>
 
-
-                        <!-- MEDIO DE PAGO -->
-
-                        <div class="campo">
-
-                            <label for="medio_pago">
-                                Medio de pago *
-                            </label>
-
-
-                            <select
-                                name="medio_pago"
-                                id="medio_pago"
-                                required
-                            >
-
-                                <option value="">
-                                    Seleccione
-                                </option>
-
-
-                                <option value="TRANSFERENCIA">
-                                    Transferencia
-                                </option>
-
-
-                                <option value="CONSIGNACION">
-                                    Consignación
-                                </option>
-
-
-                                <option value="PSE">
-                                    PSE
-                                </option>
-
-
-                                <option value="TARJETA">
-                                    Tarjeta
-                                </option>
-
-
-                                <option value="OTRO">
-                                    Otro
-                                </option>
-
-
+                        <div>
+                            <label>Medio de pago *</label>
+                            <select name="medio_pago" required>
+                                <option value="">Seleccione...</option>
+                                <option value="EFECTIVO">Efectivo</option>
+                                <option value="TRANSFERENCIA">Transferencia</option>
+                                <option value="CONSIGNACION">Consignación</option>
+                                <option value="PSE">PSE</option>
+                                <option value="TARJETA">Tarjeta</option>
+                                <option value="OTRO">Otro</option>
                             </select>
-
                         </div>
 
-
-                        <!-- REFERENCIA -->
-
-                        <div class="campo">
-
-                            <label for="referencia">
-                                Referencia
-                            </label>
-
-
-                            <input
-                                type="text"
-                                name="referencia"
-                                id="referencia"
-                                maxlength="100"
-                                placeholder="Número de referencia"
-                            >
-
-                        </div>
-
-
-                        <!-- REFERENCIA EXTERNA -->
-
-                        <div class="campo">
-
-                            <label for="referencia_externa">
-                                Referencia externa
-                            </label>
-
-
-                            <input
-                                type="text"
-                                name="referencia_externa"
-                                id="referencia_externa"
-                                maxlength="150"
-                                placeholder="Referencia externa"
-                            >
-
-                        </div>
-
-
-                        <!-- ID EXTERNO -->
-
-                        <div class="campo">
-
-                            <label for="id_externo">
-                                ID externo
-                            </label>
-
-
-                            <input
-                                type="text"
-                                name="id_externo"
-                                id="id_externo"
-                                maxlength="150"
-                                placeholder="ID de transacción"
-                            >
-
-                        </div>
-
-
-                        <!-- ORIGEN -->
-
-                        <div class="campo">
-
-                            <label for="origen_pago">
-                                Origen del pago *
-                            </label>
-
-
-                            <select
-                                name="origen_pago"
-                                id="origen_pago"
-                                required
-                            >
-
-                                <option value="MANUAL">
-                                    Consignación
-                                </option>
-
-
-                                <option value="BANCO">
-                                    Banco
-                                </option>
-
-
-                                <option value="PASARELA">
-                                    Pasarela
-                                </option>
-
-
+                        <div>
+                            <label>Origen *</label>
+                            <select name="origen_pago" required>
+                                <option value="MANUAL" selected>Manual</option>
+                                <option value="BANCO">Banco</option>
+                                <option value="PASARELA">Pasarela</option>
                             </select>
-
                         </div>
 
+                        <div>
+                            <label>Referencia</label>
+                            <input type="text" name="referencia" maxlength="255" placeholder="Recibo, transferencia, comprobante...">
+                        </div>
+
+                        <div>
+                            <label>Referencia externa</label>
+                            <input type="text" name="referencia_externa" maxlength="255">
+                        </div>
+
+                        <div>
+                            <label>ID externo</label>
+                            <input type="text" name="id_externo" maxlength="255">
+                        </div>
 
                     </div>
 
-
-                    <!-- ==================================================
-                         OBSERVACIONES
-                    =================================================== -->
-
-                    <div class="campo">
-
-                        <label for="observaciones">
-                            Observaciones
-                        </label>
-
-
-                        <textarea
-                            name="observaciones"
-                            id="observaciones"
-                            rows="4"
-                            maxlength="255"
-                            placeholder="Observaciones del pago..."
-                        ></textarea>
-
-                    </div>
-
-
-                    <!-- ==================================================
-                         INFORMACIÓN
-                    =================================================== -->
                     <br>
-                    <div class="mensaje-info">
 
-                        <strong>
-                            Aplicación automática del pago
-                        </strong>
-
-                        <p>
-
-                            Al registrar el pago, el sistema
-                            determinará automáticamente cómo
-                            distribuir el valor recibido.
-
-                        </p>
-
-                        <p>
-
-                            Los intereses tendrán prioridad.
-                            Posteriormente se aplicarán los valores
-                            según la configuración de prioridades
-                            de la unidad y la antigüedad de las
-                            obligaciones.
-
-                        </p>
-
-                        <p>
-
-                            Si el pago supera el total pendiente,
-                            el excedente se registrará como
-                            <strong>saldo a favor</strong>.
-
-                        </p>
-
+                    <div>
+                        <label>Observaciones</label>
+                        <textarea name="observaciones" rows="4" style="width:100%;" placeholder="Observaciones opcionales"></textarea>
                     </div>
 
+                    <br>
 
-                    <!-- ==================================================
-                         BOTONES
-                    =================================================== -->
-
-                    <div class="botones-filtro">
-
-
-                        <a
-                            href="<?= BASE_URL ?>configuracion/cartera.php"
-                            class="btn-secondary"
-                        >
-                            Cancelar
-                        </a>
-
-
-                        <button
-                            type="submit"
-                            class="btn-primary"
-                        >
-                            Registrar pago
-                        </button>
-
-
+                    <div class="form-actions">
+                        <a href="<?= BASE_URL ?>configuracion/pagos.php" class="btn-limpiar">Cancelar</a>
+                        <button type="submit" class="btn-filtrar">Guardar pago</button>
                     </div>
-
 
                 </form>
 
-
             </div>
-
-
         </div>
 
-
     </main>
-
-
 </div>
 
 
-</body>
+<?php if ($texto !== ''): ?>
 
+    <!-- ======================================================
+         MENSAJE DE RESULTADO
+         Muestra el resultado del registro en una ventana emergente.
+    ======================================================= -->
+    <div
+        id="modalMensajePago"
+        style="
+            display:flex;
+            position:fixed;
+            inset:0;
+            z-index:9999;
+            background:rgba(0,0,0,.50);
+            align-items:center;
+            justify-content:center;
+            padding:20px;
+        "
+    >
+        <div
+            style="
+                width:min(430px, 94vw);
+                background:#fff;
+                border-radius:12px;
+                box-shadow:0 20px 60px rgba(0,0,0,.25);
+                overflow:hidden;
+            "
+        >
+            <div
+                style="
+                    display:flex;
+                    justify-content:space-between;
+                    align-items:center;
+                    gap:15px;
+                    padding:18px 20px;
+                    border-bottom:1px solid #e5e7eb;
+                "
+            >
+                <h3 style="margin:0;">
+                    <?php if ($tipo === 'success'): ?>
+                        ✓ Operación exitosa
+                    <?php elseif ($tipo === 'error'): ?>
+                        ⚠ Ocurrió un error
+                    <?php elseif ($tipo === 'warning'): ?>
+                        ⚠ Atención
+                    <?php else: ?>
+                        Información
+                    <?php endif; ?>
+                </h3>
+
+                <button
+                    type="button"
+                    id="cerrarModalMensajePago"
+                    aria-label="Cerrar"
+                    style="
+                        border:0;
+                        background:transparent;
+                        font-size:28px;
+                        cursor:pointer;
+                        line-height:1;
+                    "
+                >
+                    &times;
+                </button>
+            </div>
+
+            <div style="padding:20px;">
+                <p style="margin:0; font-size:15px; line-height:1.5;">
+                    <?= e($texto) ?>
+                </p>
+
+                <div
+                    style="
+                        display:flex;
+                        justify-content:flex-end;
+                        margin-top:20px;
+                    "
+                >
+                    <button
+                        type="button"
+                        id="aceptarModalMensajePago"
+                        class="btn-filtrar"
+                    >
+                        Aceptar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('modalMensajePago');
+            const btnCerrar = document.getElementById('cerrarModalMensajePago');
+            const btnAceptar = document.getElementById('aceptarModalMensajePago');
+
+            // ======================================================
+            // CERRAR MENSAJE
+            // Oculta el popup y limpia el mensaje de la URL.
+            // ======================================================
+            function cerrarMensaje() {
+                if (modal) {
+                    modal.style.display = 'none';
+                }
+
+                const url = new URL(window.location.href);
+                url.searchParams.delete('tipo');
+                url.searchParams.delete('texto');
+                url.searchParams.delete('mensaje');
+
+                window.history.replaceState({}, '', url.toString());
+            }
+
+            if (btnCerrar) {
+                btnCerrar.addEventListener('click', cerrarMensaje);
+            }
+
+            if (btnAceptar) {
+                btnAceptar.addEventListener('click', cerrarMensaje);
+            }
+
+            if (modal) {
+                modal.addEventListener('click', function (event) {
+                    if (event.target === modal) {
+                        cerrarMensaje();
+                    }
+                });
+            }
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    cerrarMensaje();
+                }
+            });
+        });
+    </script>
+
+<?php endif; ?>
+
+</body>
 </html>
