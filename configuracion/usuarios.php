@@ -36,7 +36,7 @@ try {
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
         <main class="contenido">
             <!-- ==========================================
-                 ENCABEZADO
+                    ENCABEZADO
             ========================================== -->
 
             <div class="form-actions">
@@ -51,12 +51,33 @@ try {
                 </button>
             </div>
 
+<<<<<<< HEAD
             <div class="form-card">
                 <!-- ==========================================
                     TABLA DE USUARIOS
                 ========================================== -->
                 <table class="tabla">
                     <thead>
+=======
+            <!-- ==========================================
+                    TABLA DE USUARIOS
+            ========================================== -->
+            <table class="tabla">
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nombre</th>
+                        <th>Documento</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Estado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <?php if (empty($usuarios)): ?>
+>>>>>>> afdad895279c3376740299ea8204f5df9777cf3c
                         <tr>
                             <th>Foto</th>
                             <th>Nombre</th>

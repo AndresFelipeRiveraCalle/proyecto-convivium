@@ -1421,11 +1421,17 @@ INSERT INTO `usuario` (`id`, `nombres`, `apellidos`, `id_tipo_documento`, `numer
 --
 
 CREATE TABLE zona_comun (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT,
     nombre VARCHAR(100) NOT NULL UNIQUE,
     descripcion TEXT,
     capacidad INT
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Indices de la tabla `zona_comun`
+--
+ALTER TABLE `zona_comun`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Volcado de datos para la tabla `zona_comun`
@@ -1454,11 +1460,18 @@ CREATE TABLE horario_zona (
     id_zona INT NOT NULL,
     dia_semana TINYINT NOT NULL,
     hora_inicio TIME NOT NULL,
-    hora_fin TIME NOT NULL,
-    CONSTRAINT fk_horario_zona FOREIGN KEY (id_zona) REFERENCES zona_comun(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT chk_dia_semana CHECK (dia_semana BETWEEN 1 AND 7),
-    CONSTRAINT chk_hora CHECK (hora_fin > hora_inicio)
+    hora_fin TIME NOT NULL
 );
+
+--
+-- Indices de la tabla `horario_zona`
+--
+ALTER TABLE horario_zona
+ADD CONSTRAINT fk_horario_zona
+FOREIGN KEY (id_zona)
+REFERENCES zona_comun(id)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
 
 --
 -- Volcado de datos para la tabla `horario_zona`
@@ -1969,12 +1982,6 @@ ALTER TABLE `usuario`
   ADD KEY `fk_usuario_ciudad` (`id_ciudad`),
   ADD KEY `fk_usuario_genero` (`id_genero`),
   ADD KEY `fk_usuario_tipo_documento` (`id_tipo_documento`);
-
---
--- Indices de la tabla `zona_comun`
---
-ALTER TABLE `zona_comun`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
