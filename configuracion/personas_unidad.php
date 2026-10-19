@@ -1612,6 +1612,9 @@ function imprimirTablaPersonas($lista)
 <!-- =========================================================
      MODAL AGREGAR ESPACIO
 ========================================================= -->
+<!-- =========================================================
+     MODAL AGREGAR ESPACIO
+========================================================= -->
 
 <div
     id="modalAgregarEspacioUnidad"
@@ -1619,28 +1622,22 @@ function imprimirTablaPersonas($lista)
     style="display:none;"
 >
 
-
     <div class="modal-contenido">
 
 
         <div class="modal-header">
 
-
             <h3>
                 Agregar espacio
             </h3>
-
 
             <button
                 type="button"
                 class="modal-cerrar"
                 onclick="cerrarModalEspacio()"
             >
-
                 &times;
-
             </button>
-
 
         </div>
 
@@ -1651,6 +1648,8 @@ function imprimirTablaPersonas($lista)
         >
 
 
+            <!-- UNIDAD -->
+
             <input
                 type="hidden"
                 name="id_unidad"
@@ -1658,10 +1657,35 @@ function imprimirTablaPersonas($lista)
             >
 
 
+            <!-- PROPIETARIO -->
+
             <div class="form-group">
 
                 <label>
-                    Tipo *
+                    Documento del propietario *
+                </label>
+
+                <input
+                    type="text"
+                    name="numero_documento"
+                    maxlength="30"
+                    required
+                    placeholder="Digite el documento del propietario"
+                >
+
+                <small>
+                    El propietario debe estar registrado previamente en usuarios.
+                </small>
+
+            </div>
+
+
+            <!-- TIPO -->
+
+            <div class="form-group">
+
+                <label>
+                    Tipo de espacio *
                 </label>
 
                 <select
@@ -1698,6 +1722,8 @@ function imprimirTablaPersonas($lista)
             </div>
 
 
+            <!-- CÓDIGO -->
+
             <div class="form-group">
 
                 <label>
@@ -1709,10 +1735,13 @@ function imprimirTablaPersonas($lista)
                     name="codigo"
                     maxlength="50"
                     required
+                    placeholder="Ej: P-001 o CU-01"
                 >
 
             </div>
 
+
+            <!-- ÁREA -->
 
             <div class="form-group">
 
@@ -1730,6 +1759,8 @@ function imprimirTablaPersonas($lista)
             </div>
 
 
+            <!-- FECHA -->
+
             <div class="form-group">
 
                 <label>
@@ -1746,6 +1777,8 @@ function imprimirTablaPersonas($lista)
             </div>
 
 
+            <!-- OBSERVACIONES -->
+
             <div class="form-group">
 
                 <label>
@@ -1761,29 +1794,24 @@ function imprimirTablaPersonas($lista)
             </div>
 
 
-            <div class="form-actions">
+            <!-- BOTONES -->
 
+            <div class="form-actions">
 
                 <button
                     type="button"
                     class="btn-limpiar"
                     onclick="cerrarModalEspacio()"
                 >
-
                     Cancelar
-
                 </button>
-
 
                 <button
                     type="submit"
                     class="btn-filtrar"
                 >
-
                     Agregar espacio
-
                 </button>
-
 
             </div>
 
@@ -1792,7 +1820,6 @@ function imprimirTablaPersonas($lista)
 
 
     </div>
-
 
 </div>
 
@@ -1845,6 +1872,11 @@ function imprimirTablaPersonas($lista)
                 id="editar_espacio_id"
             >
 
+            <input
+                type="hidden"
+                name="origen"
+                value="personas_unidad"
+            >
 
             <div class="form-group">
 
@@ -2028,6 +2060,11 @@ function imprimirTablaPersonas($lista)
                 id="transferir_id_espacio_unidad"
             >
 
+            <input
+                type="hidden"
+                name="origen"
+                value="personas_unidad"
+            >
 
             <div class="form-group">
 
