@@ -231,6 +231,15 @@
                 </ul>
             </li>
 
+            <!-- Módulo de Mascotas -->
+            <li>
+                    <!-- Asegúrate de usar tu ruta absoluta o ROOT_PATH si lo tienes configurado así en el sidebar -->
+                    <a href="/proyecto-convivium/mascotas/listar_mascotas.php">
+                    <!-- Puedes usar un icono de FontAwesome si los tienes integrados, como una huellita -->
+                    <i class="icono fa-solid fa-paw"></i> Mascotas
+                    </a>
+            </li>
+
             <li>
                 <a href="<?= BASE_URL ?>inventario/listar.php">
                     <i class="fa-solid fa-boxes-stacked icono"></i>
@@ -257,8 +266,23 @@
                 <a href="#"><i class="fa-solid fa-envelope-open-text icono"></i> Correspondencia</a>
             </li>
 
-            <li>
-                <a href="#"><i class="fa-solid fa-calendar-check icono"></i> Reservas</a>
+            <!-- ZONAS COMUNES -->
+            <li class="submenu">
+                <div class="submenu-titulo">
+                    <span><i class="fa-solid fa-calendar-check icono"></i> Zonas comunes</span>
+                    <i class="fa-solid fa-chevron-down flecha"></i>
+                </div>
+
+                <ul class="submenu-items">
+                    <li>
+                        <a href="<?= BASE_URL ?>zonas/index.php">
+                        Zonas comunes</a>
+                    </li>
+                        
+                    <li><a href="<?= BASE_URL ?>reservas/index.php">
+                        Reservas</a>
+                    </li>
+                </ul>
             </li>
 
             <li>

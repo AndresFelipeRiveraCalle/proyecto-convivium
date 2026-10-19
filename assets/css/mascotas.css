@@ -1,0 +1,84 @@
+/* ==========================================================================
+   Estilos específicos para el Módulo de Mascotas
+   Archivo: assets/css/mascotas.css
+   ========================================================================== */
+
+/* Contenedor principal del módulo */
+.contenedor-modulo {
+    max-width: 400px;
+    margin: 30px auto;
+    padding: 20px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    font-family: Arial, sans-serif;
+    background-color: #ffffff; /* Fondo blanco para que resalte si el fondo general es gris */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Sombra suave para darle volumen */
+}
+
+/* Título del formulario */
+.contenedor-modulo h2 {
+    text-align: center;
+    color: #333333;
+    margin-bottom: 20px;
+}
+
+/* Contenedor de cada etiqueta e input */
+.grupo-input {
+    margin-bottom: 15px;
+}
+
+/* Etiquetas (labels) */
+.grupo-input label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555555;
+}
+
+/* Campos de texto y menú desplegable */
+.grupo-input input[type="text"], 
+.grupo-input select {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box; /* Asegura que el padding no desborde el contenedor */
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease; /* Transición suave al enfocar */
+}
+
+/* Efecto al hacer clic dentro del campo de texto o select */
+.grupo-input input[type="text"]:focus, 
+.grupo-input select:focus {
+    border-color: #007bff; /* Cambia a azul cuando el usuario está escribiendo */
+    outline: none; /* Quita el borde por defecto del navegador */
+}
+
+/* Botón principal de guardar */
+.btn-guardar {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff; /* Azul profesional */
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Transición suave al pasar el mouse */
+}
+
+/* Efecto hover (pasar el mouse) para el botón */
+.btn-guardar:hover {
+    background-color: #0056b3; /* Azul más oscuro */
+}
+
+/* Contenedor donde JavaScript insertará el mensaje de respuesta */
+#mensaje-respuesta {
+    margin-top: 15px;
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 4px;
+    /* El color del texto (verde o rojo) lo estamos asignando desde app.js */
+}
