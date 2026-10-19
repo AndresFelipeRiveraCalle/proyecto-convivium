@@ -36,7 +36,7 @@
                             Unidades
                         </a>
                     </li>
-                                        <li>
+                    <li>
                         <a href="<?= BASE_URL ?>configuracion/espacios.php">
                             Espacios
                         </a>
@@ -44,6 +44,11 @@
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/tablas_maestras.php">
                             Tablas Maestras
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>actions/guardar_configuracion_correo.php">
+                            Configuración de correo
                         </a>
                     </li>
                 </ul>
@@ -77,16 +82,26 @@
                         </a>
                     </li>
                     <li>
-                        <a href="<?= BASE_URL ?>configuracion/obligaciones.php">
-                            Ver facturas
-                        </a>
-                    </li>                    
-                    <li>
-                        <a href="<?= BASE_URL ?>configuracion/facturacion.php">
-                            Facturacion
+                        <a href="<?= BASE_URL ?>configuracion/cargos.php">
+                            Cobros adicionales
                         </a>
                     </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/cargo_detalle.php">
+                            Detalle cobros adicionales
+                        </a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/facturas_generadas.php">
+                            Ver facturas
+                        </a>
+                    </li>            
 
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/envio_facturas.php">
+                            Enviar facturas
+                        </a>
+                    </li>   
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/extractos_bancarios.php">
                             Cargar extractos
@@ -97,34 +112,91 @@
 
             <!-- CARTERA -->
             <li class="submenu">
+
                 <div class="submenu-titulo">
-                    <span><i class="fa-solid fa-wallet icono"></i> Cartera</span>
+
+                    <span>
+                        <i class="fa-solid fa-wallet icono"></i>
+                        Cartera
+                    </span>
+
                     <i class="fa-solid fa-chevron-down flecha"></i>
+
                 </div>
 
+
                 <ul class="submenu-items">
+
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/cartera.php">
                             Estado de cartera
                         </a>
                     </li>
-                    <li>
-                        <a href="<?= BASE_URL ?>configuracion/detalle_cartera.php">
-                            Detalle de cartera
-                        </a>
-                    </li>                    
+
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/tasas_interes.php">
-                            Tasas de interes
+                            Tasas de interés
                         </a>
                     </li>
                     <li>
+                        <a href="<?= BASE_URL ?>configuracion/configuracion_mora.php">
+                            Configuración de mora
+                        </a>
+                    </li>   
+                    <li>
                         <a href="<?= BASE_URL ?>configuracion/pagos.php">
-                            Pagoss
+                            Pagos
                         </a>
                     </li>
+
                 </ul>
+
             </li>
+
+            <!-- PAGOS -->
+            <li class="submenu">
+
+                <div class="submenu-titulo">
+
+                    <span>
+                        <i class="fa-solid fa-money-bill-transfer icono"></i>
+                        Pagos
+                    </span>
+
+                    <i class="fa-solid fa-chevron-down flecha"></i>
+
+                </div>
+
+                <ul class="submenu-items">
+
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/pagos.php">
+                            Pagos registrados
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/conciliacion.php">
+                            Conciliación bancaria
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/aplicaciones_pagos.php">
+                            Aplicaciones de pagos
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/saldos_favor.php">
+                            Saldos a favor
+                        </a>
+                    </li>
+
+                </ul>
+
+            </li>
+
 
             <!-- MANTENIMIENTO -->
             <li class="submenu">
@@ -146,6 +218,15 @@
                 </ul>
             </li>
 
+            <!-- Módulo de Mascotas -->
+            <li>
+                    <!-- Asegúrate de usar tu ruta absoluta o ROOT_PATH si lo tienes configurado así en el sidebar -->
+                    <a href="/proyecto-convivium/mascotas/listar_mascotas.php">
+                    <!-- Puedes usar un icono de FontAwesome si los tienes integrados, como una huellita -->
+                    <i class="icono fa-solid fa-paw"></i> Mascotas
+                    </a>
+            </li>
+
             <li>
                 <a href="<?= BASE_URL ?>inventario/listar.php">
                     <i class="fa-solid fa-boxes-stacked icono"></i>
@@ -162,7 +243,7 @@
                 <ul class="submenu-items">
 
                     <li>
-                        <a href="<?= BASE_URL ?>configuracion/parqueaderos.php"><i class="fa-solid fa-car icono"></i> Vehículos</a>
+                        <a href="<?= BASE_URL ?>configuracion/parqueaderos.php"><i class="fa-solid fa-car icono"></i> Parqueaderos</a>
                     </li>
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/vehiculos.php"><i class="fa-solid fa-car icono"></i> Vehículos</a>

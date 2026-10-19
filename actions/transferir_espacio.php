@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/unidades.php"
+        "configuracion/espacios.php"
     );
 
     exit;
@@ -21,12 +21,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 
 // ==========================================================
-// RECIBIR DATOS
+// DATOS
 // ==========================================================
 
-$idEspacioUnidad = isset($_POST['id_espacio_unidad'])
+$idEspacio = isset($_POST['id_espacio_unidad'])
     ? (int)$_POST['id_espacio_unidad']
     : 0;
+
+
+$origen = isset($_POST['origen'])
+    ? trim($_POST['origen'])
+    : '';
 
 
 $numeroDocumento = isset($_POST['numero_documento'])
@@ -34,18 +39,19 @@ $numeroDocumento = isset($_POST['numero_documento'])
     : '';
 
 
-$idUnidadNueva = isset($_POST['id_unidad']) &&
+$idNuevaUnidad = isset($_POST['id_unidad']) &&
                  $_POST['id_unidad'] !== ''
     ? (int)$_POST['id_unidad']
     : null;
 
 
-$fechaTransferencia = isset($_POST['fecha_transferencia'])
-    ? trim($_POST['fecha_transferencia'])
-    : '';
+$fechaTransferencia =
+    isset($_POST['fecha_transferencia'])
+        ? trim($_POST['fecha_transferencia'])
+        : '';
 
 
-$observacionesNuevas = isset($_POST['observaciones'])
+$observaciones = isset($_POST['observaciones'])
     ? trim($_POST['observaciones'])
     : null;
 
@@ -54,13 +60,15 @@ $observacionesNuevas = isset($_POST['observaciones'])
 // VALIDACIONES BÁSICAS
 // ==========================================================
 
-if ($idEspacioUnidad <= 0) {
+if ($idEspacio <= 0) {
 
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/unidades.php?tipo=error&texto=" .
-        urlencode("Registro de espacio no válido.")
+        "configuracion/espacios.php?tipo=error&texto=" .
+        urlencode(
+            "Espacio no válido."
+        )
     );
 
     exit;
@@ -72,21 +80,10 @@ if ($numeroDocumento === '') {
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/unidades.php?tipo=warning&texto=" .
-        urlencode("Debe ingresar el documento del nuevo propietario.")
-    );
-
-    exit;
-}
-
-
-if ($fechaTransferencia === '') {
-
-    header(
-        "Location: " .
-        BASE_URL .
-        "configuracion/unidades.php?tipo=warning&texto=" .
-        urlencode("Debe ingresar la fecha de transferencia.")
+        "configuracion/espacios.php?tipo=warning&texto=" .
+        urlencode(
+            "Debe indicar el documento del nuevo propietario."
+        )
     );
 
     exit;
@@ -106,14 +103,17 @@ $fechaObj =
 
 if (
     !$fechaObj ||
-    $fechaObj->format('Y-m-d') !== $fechaTransferencia
+    $fechaObj->format('Y-m-d') !==
+        $fechaTransferencia
 ) {
 
     header(
         "Location: " .
         BASE_URL .
-        "configuracion/unidades.php?tipo=warning&texto=" .
-        urlencode("La fecha de transferencia no es válida.")
+        "configuracion/espacios.php?tipo=warning&texto=" .
+        urlencode(
+            "Fecha de transferencia no válida."
+        )
     );
 
     exit;
@@ -122,36 +122,34 @@ if (
 
 try {
 
-
     // ======================================================
-    // INICIAR TRANSACCIÓN
+    // TRANSACCIÓN
     // ======================================================
 
     $conexion->beginTransaction();
 
 
     // ======================================================
-    // OBTENER REGISTRO ACTUAL DEL ESPACIO
+    // CONSULTAR ESPACIO VIGENTE
     // ======================================================
 
-    $sqlEspacioActual = "
+    $sqlEspacio = "
         SELECT
 
-            eu.id_espacio_unidad,
-            eu.id_unidad,
-            eu.usuario_id,
-            eu.tipo_espacio,
-            eu.codigo,
-            eu.area,
-            eu.fecha_desde,
-            eu.fecha_hasta,
-            eu.activo,
-            eu.observaciones
+            id_espacio_unidad,
+            id_unidad,
+            usuario_id,
+            tipo_espacio,
+            codigo,
+            area,
+            fecha_desde,
+            fecha_hasta,
+            activo,
+            observaciones
 
-        FROM espacios_unidad eu
+        FROM espacios_unidad
 
-        WHERE
-            eu.id_espacio_unidad = :id_espacio_unidad
+        WHERE id_espacio_unidad = :id
 
         LIMIT 1
 
@@ -159,58 +157,33 @@ try {
     ";
 
 
-    $stmtEspacioActual =
+    $stmtEspacio =
         $conexion->prepare(
-            $sqlEspacioActual
+            $sqlEspacio
         );
 
 
-    $stmtEspacioActual->execute([
-
-        ':id_espacio_unidad'
-            => $idEspacioUnidad
-
+    $stmtEspacio->execute([
+        ':id' => $idEspacio
     ]);
 
 
-    $espacioActual =
-        $stmtEspacioActual->fetch(
+    $espacio =
+        $stmtEspacio->fetch(
             PDO::FETCH_ASSOC
         );
 
 
-    if (!$espacioActual) {
+    if (!$espacio) {
 
         $conexion->rollBack();
 
         header(
             "Location: " .
             BASE_URL .
-            "configuracion/unidades.php?tipo=warning&texto=" .
-            urlencode("El espacio no existe.")
-        );
-
-        exit;
-    }
-
-
-    // ======================================================
-    // VALIDAR QUE SEA REGISTRO VIGENTE
-    // ======================================================
-
-    if (
-        (int)$espacioActual['activo'] !== 1 ||
-        $espacioActual['fecha_hasta'] !== null
-    ) {
-
-        $conexion->rollBack();
-
-        header(
-            "Location: " .
-            BASE_URL .
-            "configuracion/unidades.php?tipo=warning&texto=" .
+            "configuracion/espacios.php?tipo=warning&texto=" .
             urlencode(
-                "El espacio seleccionado ya no tiene una vigencia activa."
+                "El espacio no existe."
             )
         );
 
@@ -219,47 +192,39 @@ try {
 
 
     // ======================================================
-    // URL DE RETORNO
+    // URL RETORNO ORIGINAL
     // ======================================================
 
-    $idUnidadRetorno =
-        !empty($espacioActual['id_unidad'])
-            ? (int)$espacioActual['id_unidad']
-            : 0;
+    if ($origen === 'espacios') {
 
+        $urlRetorno =
+            BASE_URL .
+            "configuracion/espacios.php";
 
-    if ($idUnidadRetorno > 0) {
+    } elseif (
+        !empty($espacio['id_unidad'])
+    ) {
 
         $urlRetorno =
             BASE_URL .
             "configuracion/personas_unidad.php?id_unidad=" .
-            $idUnidadRetorno;
-
-    } elseif ($idUnidadNueva !== null) {
-
-        $urlRetorno =
-            BASE_URL .
-            "configuracion/personas_unidad.php?id_unidad=" .
-            $idUnidadNueva;
+            (int)$espacio['id_unidad'];
 
     } else {
 
         $urlRetorno =
             BASE_URL .
-            "configuracion/unidades.php";
+            "configuracion/espacios.php";
     }
 
 
     // ======================================================
-    // VALIDAR FECHA VS FECHA DESDE ACTUAL
+    // VALIDAR VIGENCIA
     // ======================================================
 
-    $fechaDesdeActual =
-        $espacioActual['fecha_desde'];
-
-
     if (
-        $fechaTransferencia <= $fechaDesdeActual
+        (int)$espacio['activo'] !== 1 ||
+        $espacio['fecha_hasta'] !== null
     ) {
 
         $conexion->rollBack();
@@ -267,14 +232,52 @@ try {
         header(
             "Location: " .
             $urlRetorno .
-            "&tipo=warning&texto=" .
+            (
+                strpos($urlRetorno, '?') !== false
+                    ? '&'
+                    : '?'
+            ) .
+            "tipo=warning&texto=" .
             urlencode(
-                "La fecha de transferencia debe ser posterior a la fecha desde actual (" .
-                date(
-                    'd/m/Y',
-                    strtotime($fechaDesdeActual)
-                ) .
-                ")."
+                "Este espacio ya no corresponde al registro vigente."
+            )
+        );
+
+        exit;
+    }
+
+
+    // ======================================================
+    // VALIDAR FECHA CONTRA FECHA DESDE
+    // ======================================================
+
+    $fechaDesde =
+        date(
+            'Y-m-d',
+            strtotime(
+                $espacio['fecha_desde']
+            )
+        );
+
+
+    if (
+        $fechaTransferencia <=
+        $fechaDesde
+    ) {
+
+        $conexion->rollBack();
+
+        header(
+            "Location: " .
+            $urlRetorno .
+            (
+                strpos($urlRetorno, '?') !== false
+                    ? '&'
+                    : '?'
+            ) .
+            "tipo=warning&texto=" .
+            urlencode(
+                "La fecha de transferencia debe ser posterior a la fecha desde del registro actual."
             )
         );
 
@@ -288,6 +291,7 @@ try {
 
     $sqlUsuario = "
         SELECT
+
             id,
             nombres,
             apellidos,
@@ -309,10 +313,8 @@ try {
 
 
     $stmtUsuario->execute([
-
-        ':numero_documento'
-            => $numeroDocumento
-
+        ':numero_documento' =>
+            $numeroDocumento
     ]);
 
 
@@ -329,7 +331,12 @@ try {
         header(
             "Location: " .
             $urlRetorno .
-            "&tipo=warning&texto=" .
+            (
+                strpos($urlRetorno, '?') !== false
+                    ? '&'
+                    : '?'
+            ) .
+            "tipo=warning&texto=" .
             urlencode(
                 "No existe un usuario con el documento " .
                 $numeroDocumento .
@@ -341,10 +348,6 @@ try {
     }
 
 
-    // ======================================================
-    // VALIDAR USUARIO ACTIVO
-    // ======================================================
-
     if (
         isset($nuevoPropietario['estado']) &&
         (int)$nuevoPropietario['estado'] !== 1
@@ -355,9 +358,14 @@ try {
         header(
             "Location: " .
             $urlRetorno .
-            "&tipo=warning&texto=" .
+            (
+                strpos($urlRetorno, '?') !== false
+                    ? '&'
+                    : '?'
+            ) .
+            "tipo=warning&texto=" .
             urlencode(
-                "El usuario seleccionado está inactivo."
+                "El nuevo propietario está inactivo."
             )
         );
 
@@ -370,16 +378,14 @@ try {
 
 
     // ======================================================
-    // VALIDAR UNIDAD NUEVA SI FUE SELECCIONADA
+    // VALIDAR NUEVA UNIDAD
     // ======================================================
 
-    if ($idUnidadNueva !== null) {
+    if ($idNuevaUnidad !== null) {
 
-
-        $sqlUnidadNueva = "
+        $sqlUnidad = "
             SELECT
                 id_unidad,
-                codigo,
                 activo
 
             FROM unidades
@@ -390,45 +396,27 @@ try {
         ";
 
 
-        $stmtUnidadNueva =
+        $stmtUnidad =
             $conexion->prepare(
-                $sqlUnidadNueva
+                $sqlUnidad
             );
 
 
-        $stmtUnidadNueva->execute([
-
-            ':id_unidad'
-                => $idUnidadNueva
-
+        $stmtUnidad->execute([
+            ':id_unidad' =>
+                $idNuevaUnidad
         ]);
 
 
-        $unidadNueva =
-            $stmtUnidadNueva->fetch(
+        $nuevaUnidad =
+            $stmtUnidad->fetch(
                 PDO::FETCH_ASSOC
             );
 
 
-        if (!$unidadNueva) {
-
-            $conexion->rollBack();
-
-            header(
-                "Location: " .
-                $urlRetorno .
-                "&tipo=warning&texto=" .
-                urlencode(
-                    "La nueva unidad seleccionada no existe."
-                )
-            );
-
-            exit;
-        }
-
-
         if (
-            (int)$unidadNueva['activo'] !== 1
+            !$nuevaUnidad ||
+            (int)$nuevaUnidad['activo'] !== 1
         ) {
 
             $conexion->rollBack();
@@ -436,9 +424,14 @@ try {
             header(
                 "Location: " .
                 $urlRetorno .
-                "&tipo=warning&texto=" .
+                (
+                    strpos($urlRetorno, '?') !== false
+                        ? '&'
+                        : '?'
+                ) .
+                "tipo=warning&texto=" .
                 urlencode(
-                    "La nueva unidad seleccionada está inactiva."
+                    "La unidad seleccionada no existe o está inactiva."
                 )
             );
 
@@ -448,8 +441,7 @@ try {
 
 
     // ======================================================
-    // VALIDAR QUE NO EXISTA OTRA VIGENCIA ACTUAL
-    // DEL MISMO ESPACIO
+    // VALIDAR DUPLICADO VIGENTE
     // ======================================================
 
     $sqlDuplicado = "
@@ -459,7 +451,7 @@ try {
         FROM espacios_unidad
 
         WHERE
-            tipo_espacio = :tipo_espacio
+            tipo_espacio = :tipo
             AND codigo = :codigo
             AND activo = 1
             AND fecha_hasta IS NULL
@@ -477,14 +469,14 @@ try {
 
     $stmtDuplicado->execute([
 
-        ':tipo_espacio'
-            => $espacioActual['tipo_espacio'],
+        ':tipo' =>
+            $espacio['tipo_espacio'],
 
-        ':codigo'
-            => $espacioActual['codigo'],
+        ':codigo' =>
+            $espacio['codigo'],
 
-        ':id_actual'
-            => $idEspacioUnidad
+        ':id_actual' =>
+            $idEspacio
 
     ]);
 
@@ -500,9 +492,14 @@ try {
         header(
             "Location: " .
             $urlRetorno .
-            "&tipo=error&texto=" .
+            (
+                strpos($urlRetorno, '?') !== false
+                    ? '&'
+                    : '?'
+            ) .
+            "tipo=warning&texto=" .
             urlencode(
-                "Existe otra vigencia activa para este espacio. Revise el histórico."
+                "Ya existe otro registro vigente para este espacio."
             )
         );
 
@@ -511,21 +508,28 @@ try {
 
 
     // ======================================================
-    // CALCULAR FECHA HASTA DEL REGISTRO ANTERIOR
+    // FECHA HASTA DEL PROPIETARIO ANTERIOR
     // ======================================================
 
+    $fechaHastaAnteriorObj =
+        new DateTime(
+            $fechaTransferencia
+        );
+
+
+    $fechaHastaAnteriorObj->modify(
+        '-1 day'
+    );
+
+
     $fechaHastaAnterior =
-        date(
-            'Y-m-d',
-            strtotime(
-                $fechaTransferencia .
-                ' -1 day'
-            )
+        $fechaHastaAnteriorObj->format(
+            'Y-m-d'
         );
 
 
     // ======================================================
-    // CERRAR REGISTRO ACTUAL
+    // CERRAR REGISTRO ANTERIOR
     // ======================================================
 
     $sqlCerrar = "
@@ -535,7 +539,7 @@ try {
             fecha_hasta = :fecha_hasta
 
         WHERE
-            id_espacio_unidad = :id_espacio_unidad
+            id_espacio_unidad = :id
             AND activo = 1
             AND fecha_hasta IS NULL
     ";
@@ -549,11 +553,11 @@ try {
 
     $stmtCerrar->execute([
 
-        ':fecha_hasta'
-            => $fechaHastaAnterior,
+        ':fecha_hasta' =>
+            $fechaHastaAnterior,
 
-        ':id_espacio_unidad'
-            => $idEspacioUnidad
+        ':id' =>
+            $idEspacio
 
     ]);
 
@@ -561,40 +565,16 @@ try {
     if ($stmtCerrar->rowCount() !== 1) {
 
         throw new Exception(
-            "No fue posible cerrar la vigencia anterior."
+            "No fue posible cerrar el registro anterior."
         );
     }
 
 
     // ======================================================
-    // PREPARAR OBSERVACIONES
+    // CREAR NUEVO REGISTRO VIGENTE
     // ======================================================
 
-    $observacionesFinales = null;
-
-
-    if (
-        $observacionesNuevas !== null &&
-        $observacionesNuevas !== ''
-    ) {
-
-        $observacionesFinales =
-            $observacionesNuevas;
-
-    } elseif (
-        !empty($espacioActual['observaciones'])
-    ) {
-
-        $observacionesFinales =
-            $espacioActual['observaciones'];
-    }
-
-
-    // ======================================================
-    // CREAR NUEVO REGISTRO HISTÓRICO
-    // ======================================================
-
-    $sqlNuevo = "
+    $sqlInsertar = "
         INSERT INTO espacios_unidad
         (
             id_unidad,
@@ -622,67 +602,62 @@ try {
     ";
 
 
-    $stmtNuevo =
+    $stmtInsertar =
         $conexion->prepare(
-            $sqlNuevo
+            $sqlInsertar
         );
 
 
-    $stmtNuevo->execute([
+    $stmtInsertar->execute([
 
-        ':id_unidad'
-            => $idUnidadNueva,
+        ':id_unidad' =>
+            $idNuevaUnidad,
 
-        ':usuario_id'
-            => $nuevoUsuarioId,
+        ':usuario_id' =>
+            $nuevoUsuarioId,
 
-        ':tipo_espacio'
-            => $espacioActual['tipo_espacio'],
+        ':tipo_espacio' =>
+            $espacio['tipo_espacio'],
 
-        ':codigo'
-            => $espacioActual['codigo'],
+        ':codigo' =>
+            $espacio['codigo'],
 
-        ':area'
-            => $espacioActual['area'],
+        ':area' =>
+            $espacio['area'],
 
-        ':fecha_desde'
-            => $fechaTransferencia,
+        ':fecha_desde' =>
+            $fechaTransferencia,
 
-        ':observaciones'
-            => $observacionesFinales
+        ':observaciones' =>
+            $observaciones !== ''
+                ? $observaciones
+                : null
 
     ]);
 
 
     // ======================================================
-    // CONFIRMAR TRANSACCIÓN
+    // COMMIT
     // ======================================================
 
     $conexion->commit();
 
 
     // ======================================================
-    // REDIRECCIÓN FINAL
+    // REDIRECCIÓN
     // ======================================================
-
-    $nombrePropietario =
-        trim(
-            ($nuevoPropietario['nombres'] ?? '') .
-            ' ' .
-            ($nuevoPropietario['apellidos'] ?? '')
-        );
-
 
     header(
         "Location: " .
         $urlRetorno .
-        "&tipo=success&texto=" .
+        (
+            strpos($urlRetorno, '?') !== false
+                ? '&'
+                : '?'
+        ) .
+        "tipo=success&texto=" .
         urlencode(
-            "El espacio " .
-            $espacioActual['codigo'] .
-            " fue transferido correctamente a " .
-            $nombrePropietario .
-            "."
+            "Espacio transferido correctamente."
         )
     );
 
@@ -692,33 +667,17 @@ try {
 } catch (Throwable $e) {
 
 
-    // ======================================================
-    // ROLLBACK
-    // ======================================================
-
     if ($conexion->inTransaction()) {
 
         $conexion->rollBack();
     }
 
 
-    // ======================================================
-    // RETORNO
-    // ======================================================
-
     $urlError =
-        BASE_URL .
-        "configuracion/unidades.php";
-
-
-    if (
-        isset($urlRetorno) &&
-        !empty($urlRetorno)
-    ) {
-
-        $urlError =
-            $urlRetorno;
-    }
+        isset($urlRetorno)
+            ? $urlRetorno
+            : BASE_URL .
+              "configuracion/espacios.php";
 
 
     header(

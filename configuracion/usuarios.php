@@ -36,7 +36,7 @@ try {
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
         <main class="contenido">
             <!-- ==========================================
-                 ENCABEZADO
+                    ENCABEZADO
             ========================================== -->
 
             <div class="acciones-superior">
@@ -51,7 +51,7 @@ try {
             </div>
 
             <!-- ==========================================
-                 TABLA DE USUARIOS
+                    TABLA DE USUARIOS
             ========================================== -->
             <table class="tabla">
                 <thead>
