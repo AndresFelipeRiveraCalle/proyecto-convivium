@@ -14,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Tu ID real en la base de datos para evitar el error 1452
     $id_usuario = 7; 
     
+    // Impide registrar movimientos con cantidades iguales o menores que cero.
     if ($cantidad <= 0) {
         die("La cantidad debe ser mayor a cero.");
     }
