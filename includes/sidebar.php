@@ -218,6 +218,15 @@
                 </ul>
             </li>
 
+            <!-- Módulo de Mascotas -->
+            <li>
+                    <!-- Asegúrate de usar tu ruta absoluta o ROOT_PATH si lo tienes configurado así en el sidebar -->
+                    <a href="/proyecto-convivium/mascotas/listar_mascotas.php">
+                    <!-- Puedes usar un icono de FontAwesome si los tienes integrados, como una huellita -->
+                    <i class="icono fa-solid fa-paw"></i> Mascotas
+                    </a>
+            </li>
+
             <li>
                 <a href="<?= BASE_URL ?>inventario/listar.php">
                     <i class="fa-solid fa-boxes-stacked icono"></i>
