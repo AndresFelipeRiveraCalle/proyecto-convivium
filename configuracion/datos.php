@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // CARGAR PAÍSES
-// ==========================================================
+// ========
 
 $stmtPais = $conexion->query("
     SELECT
@@ -19,9 +19,9 @@ $stmtPais = $conexion->query("
 $paises = $stmtPais->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // CARGAR DEPARTAMENTOS
-// ==========================================================
+// ========
 
 $stmtDepartamentos = $conexion->query("
     SELECT
@@ -36,9 +36,9 @@ $stmtDepartamentos = $conexion->query("
 $departamentos = $stmtDepartamentos->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // CARGAR CIUDADES
-// ==========================================================
+// ========
 
 $stmtCiudades = $conexion->query("
     SELECT
@@ -53,9 +53,9 @@ $stmtCiudades = $conexion->query("
 $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // TIPOS DE COPROPIEDAD
-// ==========================================================
+// ========
 
 $stmtTipoCopropiedad = $conexion->query("
     SELECT
@@ -70,9 +70,9 @@ $tiposCopropiedad = $stmtTipoCopropiedad->fetchAll(
 );
 
 
-// ==========================================================
+// ========
 // CARGAR DATOS ACTUALES DE LA COPROPIEDAD
-// ==========================================================
+// ========
 
 $stmtUnidad = $conexion->query("
     SELECT *
@@ -86,22 +86,22 @@ $stmtUnidad = $conexion->query("
 $unidad = $stmtUnidad->fetch(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // SI EXISTE INFORMACIÓN, INICIAR BLOQUEADO
-// ==========================================================
+// ========
 
 $bloqueado = ($unidad !== false);
 
 
-// ==========================================================
+// ========
 // CALCULAR CANTIDAD TOTAL DE UNIDADES
-// ==========================================================
+// ========
 //
 // Este dato ya no se escribe manualmente.
 //
 // Se obtiene de los grupos configurados en
 // detalle_tipos_unidad.
-// ==========================================================
+// ========
 
 $stmtCantidadUnidades = $conexion->query("
     SELECT
@@ -159,9 +159,9 @@ $cantidadTotalUnidades =
         >
 
 
-            <!-- ==================================================
+            <!-- 
                  ID REGISTRO ACTUAL
-            =================================================== -->
+            = -->
 
             <input
                 type="hidden"
@@ -172,9 +172,9 @@ $cantidadTotalUnidades =
             >
 
 
-            <!-- ==================================================
+            <!-- 
                  ENCABEZADO
-            =================================================== -->
+            = -->
 
             <h2 align="center">
                 DATOS DE LA COPROPIEDAD
@@ -192,9 +192,9 @@ $cantidadTotalUnidades =
 
             <br>
 
-            <!-- ==================================================
+            <!-- 
                  DATOS GENERALES
-            =================================================== -->
+            = -->
 
             <h3>Datos generales</h3>
             <div class="bloque filtros">
@@ -300,9 +300,9 @@ $cantidadTotalUnidades =
             </div>
 
             
-            <!-- ==================================================
+            <!-- 
                  RESUMEN ESTRUCTURA FÍSICA
-            =================================================== -->
+            = -->
             <h3> Estructura de la copropiedad </h3>
             
             <div class="bloque filtros">            
@@ -353,9 +353,9 @@ $cantidadTotalUnidades =
                 </div>
             </div>
 
-            <!-- ==================================================
+            <!-- 
                  UBICACIÓN
-            =================================================== -->
+            = -->
 
             <h3>
                 Ubicación
@@ -541,9 +541,9 @@ $cantidadTotalUnidades =
                 </div>
             </div>
 
-            <!-- ==================================================
+            <!-- 
                  CONTACTO
-            =================================================== -->
+            = -->
 
             <h3>Datos de contacto</h3>
 
@@ -556,7 +556,7 @@ $cantidadTotalUnidades =
                         Correo electrónico
                     </label>
 
-                    <input
+                    <input style="text-align: center";
                         type="email" id="correo_propiedad" name="correo_propiedad"
                         maxlength="150" placeholder="administracion@copropiedad.com"
                         value="<?= htmlspecialchars(
@@ -574,7 +574,7 @@ $cantidadTotalUnidades =
                         Teléfono de contacto
                     </label>
 
-                    <input
+                    <input style="text-align: center";
                         type="tel" id="telefono_propiedad" name="telefono_propiedad"
                         maxlength="30" placeholder="Teléfono de contacto"
                         value="<?= htmlspecialchars(
@@ -585,9 +585,9 @@ $cantidadTotalUnidades =
                 </div>
             </div>
 
-            <!-- ==================================================
+            <!-- 
                  DOCUMENTOS
-            =================================================== -->
+            = -->
 
             <h3>Documentos</h3>
 
@@ -655,9 +655,9 @@ $cantidadTotalUnidades =
                 </div>
             </div>
 
-            <!-- ==================================================
+            <!-- 
                  IDENTIDAD VISUAL
-            =================================================== -->
+            = -->
 
             <h3>LOGO</h3>
 
@@ -699,9 +699,9 @@ $cantidadTotalUnidades =
                 </div>
             </div>
 
-            <!-- ==================================================
+            <!-- 
                  ACCIONES
-            =================================================== -->
+            = -->
 
             <div class="form-actions">
 

@@ -4,10 +4,10 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // FUNCIONES
 // Formatea texto, valores monetarios y fechas.
-// ==========================================================
+// ========
 
 if (
     !function_exists(
@@ -72,10 +72,10 @@ if (
 }
 
 
-// ==========================================================
+// ========
 // VALIDAR FACTURA
 // Obtiene y valida la factura solicitada.
-// ==========================================================
+// ========
 
 $idFactura =
     isset($_GET['id'])
@@ -99,10 +99,10 @@ if ($idFactura <= 0) {
 }
 
 
-// ==========================================================
+// ========
 // FACTURA
 // Obtiene los datos principales de la factura y la unidad.
-// ==========================================================
+// ========
 
 $sqlFactura = "
     SELECT
@@ -187,10 +187,10 @@ if (!$factura) {
 }
 
 
-// ==========================================================
+// ========
 // DATOS DE LA COPROPIEDAD
 // Obtiene la versión activa de los datos generales.
-// ==========================================================
+// ========
 
 $sqlCopropiedad = "
     SELECT
@@ -243,10 +243,10 @@ if (!$copropiedad) {
 }
 
 
-// ==========================================================
+// ========
 // PERSONA PRINCIPAL DE FACTURACIÓN
 // Prioriza la persona configurada para recibir factura.
-// ==========================================================
+// ========
 
 $sqlPersona = "
     SELECT
@@ -330,10 +330,10 @@ if (!$persona) {
     ];
 }
 
-// ==========================================================
+// ========
 // DESTINATARIOS DE CORREO
 // Obtiene las personas activas con correo asociadas a la unidad.
-// ==========================================================
+// ========
 
 $sqlDestinatariosCorreo = "
 
@@ -376,10 +376,10 @@ $destinatariosCorreo =
         PDO::FETCH_ASSOC
     );
 
-// ==========================================================
+// ========
 // ESPACIOS VIGENTES
 // Obtiene los espacios asociados a la unidad.
-// ==========================================================
+// ========
 
 $sqlEspacios = "
     SELECT
@@ -448,10 +448,10 @@ foreach ($espacios as $espacio) {
     }
 }
 
-// ==========================================================
+// ========
 // DATOS DEL PERÍODO DE LA FACTURA
 // Prepara la fecha de corte y el período mensual.
-// ==========================================================
+// ========
 
 $periodoFactura =
     sprintf(
@@ -465,10 +465,10 @@ $fechaCorteFactura =
     $factura['fecha_generacion'];
 
 
-// ==========================================================
+// ========
 // SALDOS ANTERIORES
 // Obtiene las obligaciones pendientes de períodos anteriores.
-// ==========================================================
+// ========
 
 $sqlSaldosAnteriores = "
     SELECT
@@ -583,10 +583,10 @@ $saldosAnteriores =
     );
 
 
-// ==========================================================
+// ========
 // TOTAL DE SALDOS ANTERIORES
 // Verifica el total que se mostrará en la factura.
-// ==========================================================
+// ========
 
 $saldoAnteriorTotal = 0;
 
@@ -601,10 +601,10 @@ foreach ($saldosAnteriores as $saldoAnterior) {
 
 $saldoAnteriorTotal = round($saldoAnteriorTotal,2);
 
-// ==========================================================
+// ========
 // RESUMEN DEL SALDO ANTERIOR
 // Prepara un único registro para mostrar la cartera previa.
-// ==========================================================
+// ========
 
 $cantidadSaldosAnteriores =
     count(
@@ -667,10 +667,10 @@ $periodoAnteriorTexto =
         )
     );
 
-// ==========================================================
+// ========
 // TOTAL VISUAL DE LA FACTURA
 // Suma el saldo anterior reconstruido y los cargos del mes.
-// ==========================================================
+// ========
 
 $valorMesFactura =
     round(
@@ -690,10 +690,10 @@ $totalPagarFactura =
     );
 
 
-// ==========================================================
+// ========
 // DETALLES DE FACTURA
 // Obtiene conceptos, cargos e información de mora.
-// ==========================================================
+// ========
 
 $sqlDetalles = "
     SELECT
@@ -836,10 +836,10 @@ $detalles =
     );
 
 
-// ==========================================================
+// ========
 // RESUMEN DE INTERESES
 // Calcula los intereses incluidos en esta factura.
-// ==========================================================
+// ========
 
 $cantidadIntereses = 0;
 
@@ -862,10 +862,10 @@ foreach ($detalles as $detalle) {
 }
 
 
-// ==========================================================
+// ========
 // TEXTOS
 // Prepara datos para presentación.
-// ==========================================================
+// ========
 
 $meses = [
     1 => 'ENERO',
@@ -934,10 +934,10 @@ $documentoPersona =
     );
 
 
-// ==========================================================
+// ========
 // LOGO
 // Construye la URL del logo configurado.
-// ==========================================================
+// ========
 
 $logoUrl = '';
 
@@ -976,10 +976,10 @@ if (
 }
 
 
-// ==========================================================
+// ========
 // RETORNO
 // Conserva la navegación según la pantalla de origen.
-// ==========================================================
+// ========
 
 $urlVolver =
     BASE_URL .
@@ -1031,10 +1031,10 @@ if (
 }
 
 
-// ==========================================================
+// ========
 // HISTORIAL DE ENVÍOS
 // Obtiene los correos enviados para esta factura.
-// ==========================================================
+// ========
 
 $sqlEnviosFactura = "
 
@@ -1083,9 +1083,9 @@ $enviosFactura =
     );
 
 
-// ==========================================================
+// ========
 // RESUMEN DE ENVÍOS
-// ==========================================================
+// ========
 
 $totalEnviosCorrectos = 0;
 
@@ -1132,9 +1132,9 @@ foreach (
     <main class="contenido">
 
 
-        <!-- ======================================================
+        <!-- ====
              BARRA SUPERIOR
-        ======================================================= -->
+        ===== -->
 
         <div class="factura-toolbar">
 
@@ -1248,14 +1248,14 @@ foreach (
 
         <?php endif; ?>
 
-        <!-- ======================================================
+        <!-- ====
              DOCUMENTO
-        ======================================================= -->
+        ===== -->
 
         <section class="factura-documento">
-            <!-- ==================================================
+            <!-- 
                  CABECERA
-            =================================================== -->
+            = -->
             <div class="factura-cabecera">
                 <div class="factura-logo">
 
@@ -1387,9 +1387,9 @@ foreach (
             </div>
 
 
-            <!-- ==================================================
+            <!-- 
                  DATOS PRINCIPALES
-            =================================================== -->
+            = -->
 
             <div class="factura-meta">
                 <div class="factura-meta-item">
@@ -1471,9 +1471,9 @@ foreach (
             </div>
 
 
-            <!-- ==================================================
+            <!-- 
                  PERSONA Y UNIDAD
-            =================================================== -->
+            = -->
 
             <div class="factura-cliente">
 
@@ -1656,9 +1656,9 @@ foreach (
             </div>
 
 
-            <!-- ==================================================
+            <!-- 
                  RESUMEN DE MORA
-            =================================================== -->
+            = -->
 
             <?php if (
                 $cantidadIntereses > 0
@@ -1692,9 +1692,9 @@ foreach (
             <?php endif; ?>
 
 
-            <!-- ==================================================
+            <!-- 
                  CONCEPTOS
-            =================================================== -->
+            = -->
 
             <table class="factura-tabla">
 
@@ -1730,9 +1730,9 @@ foreach (
 
                 <tbody>
 
-                <!-- ==================================================
+                <!-- 
                     SALDO ANTERIOR ACUMULADO
-                =================================================== -->
+                = -->
 
                 <?php if (
                     $saldoAnteriorTotal > 0.009
@@ -2253,9 +2253,9 @@ foreach (
             </table>
 
 
-            <!-- ==================================================
+            <!-- 
                  MENSAJE
-            =================================================== -->
+            = -->
 
             <?php if (
                 $factura[
@@ -2275,9 +2275,9 @@ foreach (
             <?php endif; ?>
 
 
-            <!-- ==================================================
+            <!-- 
                  PARTE INFERIOR
-            =================================================== -->
+            = -->
 
             <div class="factura-inferior">
 
@@ -2393,9 +2393,9 @@ foreach (
             </div>
 
 
-            <!-- ==================================================
+            <!-- 
                  OBSERVACIONES
-            =================================================== -->
+            = -->
 
             <?php if (
                 !empty(
@@ -2434,9 +2434,9 @@ foreach (
 
 </div>
 
-<!-- =========================================================
+<!-- =======
      MODAL ENVIAR FACTURA
-========================================================= -->
+======= -->
 
 <div
     id="modalEnviarFactura"
@@ -2675,9 +2675,9 @@ foreach (
 
 </div>
 
-<!-- =========================================================
+<!-- =======
      MODAL HISTORIAL DE ENVÍOS
-========================================================= -->
+======= -->
 
 <div
     id="modalHistorialEnvios"
@@ -2945,19 +2945,19 @@ foreach (
 </div>
 <script>
 
-// ==========================================================
+// ========
 // MODALES DE FACTURA
 // Controla envío e historial desde un solo bloque.
-// ==========================================================
+// ========
 
 document.addEventListener(
     'DOMContentLoaded',
     function () {
 
 
-        // ==================================================
+        // 
         // MODAL ENVIAR FACTURA
-        // ==================================================
+        // 
 
         const modalEnvio =
             document.getElementById(
@@ -2995,9 +2995,9 @@ document.addEventListener(
             );
 
 
-        // ==================================================
+        // 
         // ABRIR ENVÍO
-        // ==================================================
+        // 
 
         function abrirModalEnvio() {
 
@@ -3011,9 +3011,9 @@ document.addEventListener(
         }
 
 
-        // ==================================================
+        // 
         // CERRAR ENVÍO
-        // ==================================================
+        // 
 
         function cerrarModalEnvio() {
 
@@ -3036,9 +3036,9 @@ document.addEventListener(
         }
 
 
-        // ==================================================
+        // 
         // EVENTOS ENVÍO
-        // ==================================================
+        // 
 
         if (
             btnAbrirEnvio
@@ -3093,9 +3093,9 @@ document.addEventListener(
         }
 
 
-        // ==================================================
+        // 
         // VALIDAR ENVÍO
-        // ==================================================
+        // 
 
         if (
             formularioEnvio
@@ -3166,9 +3166,9 @@ document.addEventListener(
 
 
 
-        // ==================================================
+        // 
         // MODAL HISTORIAL DE ENVÍOS
-        // ==================================================
+        // 
 
         const modalHistorial =
             document.getElementById(
@@ -3194,9 +3194,9 @@ document.addEventListener(
             );
 
 
-        // ==================================================
+        // 
         // ABRIR HISTORIAL
-        // ==================================================
+        // 
 
         function abrirHistorialEnvios() {
 
@@ -3210,9 +3210,9 @@ document.addEventListener(
         }
 
 
-        // ==================================================
+        // 
         // CERRAR HISTORIAL
-        // ==================================================
+        // 
 
         function cerrarHistorialEnvios() {
 
@@ -3226,9 +3226,9 @@ document.addEventListener(
         }
 
 
-        // ==================================================
+        // 
         // EVENTOS HISTORIAL
-        // ==================================================
+        // 
 
         if (
             btnHistorial
@@ -3284,9 +3284,9 @@ document.addEventListener(
 
 
 
-        // ==================================================
+        // 
         // CERRAR CON ESC
-        // ==================================================
+        // 
 
         document.addEventListener(
             'keydown',

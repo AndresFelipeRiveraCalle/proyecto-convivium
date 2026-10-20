@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // REDIRECCIONAR
-// ==========================================================
+// ========
 
 function redireccionarPago($idPago, $tipo, $texto)
 {
@@ -25,9 +25,9 @@ function redireccionarPago($idPago, $tipo, $texto)
 }
 
 
-// ==========================================================
+// ========
 // ACTUALIZAR ESTADO DE FACTURA
-// ==========================================================
+// ========
 
 function actualizarEstadoFactura(PDO $conexion, int $idFactura): void
 {
@@ -87,10 +87,10 @@ function actualizarEstadoFactura(PDO $conexion, int $idFactura): void
 
 
 
-// ==========================================================
+// ========
 // CREAR SALDO A FAVOR
 // Convierte el excedente cuando la unidad ya no tiene cartera pendiente.
-// ==========================================================
+// ========
 
 function crearSaldoFavorSiCorresponde(
     PDO $conexion,
@@ -183,9 +183,9 @@ function crearSaldoFavorSiCorresponde(
     return $disponible;
 }
 
-// ==========================================================
+// ========
 // VALIDAR MÉTODO
-// ==========================================================
+// ========
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -199,9 +199,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ==========================================================
+// ========
 // ID PAGO
-// ==========================================================
+// ========
 
 $idPago =
     isset($_POST['id_pago'])
@@ -227,16 +227,16 @@ if ($idPago <= 0) {
 
 try {
 
-    // ======================================================
+    // ====
     // TRANSACCIÓN
-    // ======================================================
+    // ====
 
     $conexion->beginTransaction();
 
 
-    // ======================================================
+    // ====
     // BLOQUEAR PAGO
-    // ======================================================
+    // ====
 
     $sqlPago = "
         SELECT
@@ -275,9 +275,9 @@ try {
     }
 
 
-    // ======================================================
+    // ====
     // VALOR YA APLICADO
-    // ======================================================
+    // ====
 
     $sqlAplicado = "
         SELECT
@@ -296,10 +296,10 @@ try {
         (float)$stmtAplicado->fetchColumn();
 
 
-    // ======================================================
+    // ====
     // SALDO YA CONVERTIDO
     // Resta el excedente que ya pasó a saldo a favor.
-    // ======================================================
+    // ====
 
     $sqlSaldoConvertido = "
         SELECT
@@ -339,10 +339,10 @@ try {
         );
     }
 
-    // ======================================================
+    // ====
     // CARTERA PENDIENTE DE LA UNIDAD
     // Aplica primero a la deuda con vencimiento más antiguo.
-    // ======================================================
+    // ====
 
     $sqlCartera = "
 
@@ -408,10 +408,10 @@ try {
     $obligaciones =
         $stmtCartera->fetchAll(PDO::FETCH_ASSOC);
 
-    // ======================================================
+    // ====
     // SIN OBLIGACIONES PENDIENTES
     // Convierte todo el disponible en saldo a favor.
-    // ======================================================
+    // ====
 
     if (
         empty(
@@ -467,9 +467,9 @@ try {
         );
     }
 
-    // ======================================================
+    // ====
     // INSERT APLICACIÓN
-    // ======================================================
+    // ====
 
     $sqlInsertAplicacion = "
         INSERT INTO aplicaciones_pagos
@@ -496,9 +496,9 @@ try {
         $conexion->prepare($sqlInsertAplicacion);
 
 
-    // ======================================================
+    // ====
     // ACTUALIZAR CARTERA
-    // ======================================================
+    // ====
 
     $sqlUpdateCartera = "
         UPDATE cartera
@@ -532,9 +532,9 @@ try {
         $conexion->prepare($sqlUpdateCartera);
 
 
-    // ======================================================
+    // ====
     // APLICAR
-    // ======================================================
+    // ====
 
     $totalAplicadoAhora = 0;
     $cantidadAplicaciones = 0;
@@ -611,11 +611,11 @@ try {
                 '.'
             );
         }
-        // ======================================================
+        // ====
         // SINCRONIZAR INTERÉS DE MORA
         // Si esta cartera representa interés, actualiza también
         // intereses_cartera.
-        // ======================================================
+        // ====
 
         if (
             !empty(
@@ -789,9 +789,9 @@ try {
     }
 
 
-    // ======================================================
+    // ====
     // ACTUALIZAR ESTADOS DE FACTURAS
-    // ======================================================
+    // ====
 
     foreach (
         array_keys($facturasAfectadas)
@@ -805,10 +805,10 @@ try {
     }
 
 
-    // ======================================================
+    // ====
     // SALDO A FAVOR
     // Convierte el excedente si ya no quedan obligaciones pendientes.
-    // ======================================================
+    // ====
 
     $saldoFavorGenerado =
         crearSaldoFavorSiCorresponde(
@@ -823,10 +823,10 @@ try {
     }
 
 
-    // ======================================================
+    // ====
     // COMMIT
     // Confirma las aplicaciones y el posible saldo a favor.
-    // ======================================================
+    // ====
 
     $conexion->commit();
 

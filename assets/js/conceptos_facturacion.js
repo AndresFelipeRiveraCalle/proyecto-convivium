@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // =====================================================
+    // ===
     // NUEVO CONCEPTO
-    // =====================================================
+    // ===
 
     const btnNuevo = document.getElementById("btnNuevoConcepto");
     const modalNuevo = document.getElementById("modalNuevoConcepto");
@@ -60,9 +60,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-    // =====================================================
+    // ===
     // EDITAR CONCEPTO
-    // =====================================================
+    // ===
 
     const modalEditar =
         document.getElementById("modalEditarConcepto");
@@ -162,9 +162,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    // =====================================================
+    // ===
     // CERRAR EDITAR
-    // =====================================================
+    // ===
 
     if (cerrarEditar && modalEditar) {
 

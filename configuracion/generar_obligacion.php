@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // CONSULTAR CALENDARIOS DISPONIBLES
-// ==========================================================
+// ========
 
 $sql = "
     SELECT
@@ -29,16 +29,16 @@ $stmt->execute();
 $calendarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // PERÍODO SELECCIONADO
-// ==========================================================
+// ========
 
 $idCalendarioSeleccionado = $_GET['id_calendario'] ?? '';
 
 
-// ==========================================================
+// ========
 // BUSCAR CALENDARIO SELECCIONADO
-// ==========================================================
+// ========
 
 $calendarioSeleccionado = null;
 
@@ -60,9 +60,9 @@ if (!empty($idCalendarioSeleccionado)) {
 }
 
 
-// ==========================================================
+// ========
 // FORMATEAR FECHA
-// ==========================================================
+// ========
 
 function formatoFecha($fecha)
 {
@@ -77,9 +77,9 @@ function formatoFecha($fecha)
 }
 
 
-// ==========================================================
+// ========
 // FORMATEAR PERÍODO
-// ==========================================================
+// ========
 
 function formatoPeriodo($periodo)
 {
@@ -130,9 +130,9 @@ function formatoPeriodo($periodo)
         <div class="form-card">
 
 
-            <!-- ==================================================
+            <!-- 
                  ENCABEZADO
-            =================================================== -->
+            = -->
 
             <div class="form-header">
 
@@ -164,9 +164,9 @@ function formatoPeriodo($periodo)
             </div>
 
 
-            <!-- ==================================================
+            <!-- 
                  SELECCIÓN DE PERÍODO
-            =================================================== -->
+            = -->
 
             <div class="form-group">
 
@@ -238,9 +238,9 @@ function formatoPeriodo($periodo)
             <?php if ($calendarioSeleccionado): ?>
 
 
-                <!-- ==================================================
+                <!-- 
                      INFORMACIÓN DEL PERÍODO
-                =================================================== -->
+                = -->
 
                 <div class="info-box">
 
@@ -371,9 +371,9 @@ function formatoPeriodo($periodo)
                 </div>
 
 
-                <!-- ==================================================
+                <!-- 
                      EXPLICACIÓN DEL PROCESO
-                =================================================== -->
+                = -->
 
                 <div class="info-box">
 
@@ -410,9 +410,9 @@ function formatoPeriodo($periodo)
                 </div>
 
 
-                <!-- ==================================================
+                <!-- 
                      BOTÓN GENERAR
-                =================================================== -->
+                = -->
 
 
                 <form
@@ -452,9 +452,9 @@ function formatoPeriodo($periodo)
             <?php else: ?>
 
 
-                <!-- ==================================================
+                <!-- 
                      SIN PERÍODO
-                =================================================== -->
+                = -->
 
                 <div class="alerta-info">
 

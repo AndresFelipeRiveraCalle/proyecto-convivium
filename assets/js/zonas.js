@@ -1,11 +1,11 @@
 /**
- * ============================================================================================
+ * ==========================================
  * MÓDULO: Zonas Comunes - Convivium
  * ARCHIVO: zonas.js
  * DESCRIPCIÓN: Archivo JavaScript para manejo de eventos de los elemenos de las Zonas comunes.
  * AUTOR: Andrés Felipe Rivera Calle
  * FECHA: 2026-08-08
- * ============================================================================================
+ * ==========================================
  */
 
 // Identificar todos los elementos que contienen la clase .btn-eliminar

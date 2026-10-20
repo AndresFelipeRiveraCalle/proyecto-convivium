@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // CARGAR TARIFAS DE FACTURACIÓN
-// ==========================================================
+// ========
 
 $sql = "
     SELECT
@@ -35,9 +35,9 @@ $stmt = $conexion->query($sql);
 $tarifas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // CARGAR CONCEPTOS ACTIVOS
-// ==========================================================
+// ========
 
 $sqlConceptos = "
     SELECT
@@ -90,9 +90,9 @@ $conceptos = $stmtConceptos->fetchAll(PDO::FETCH_ASSOC);
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              LISTADO
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 
@@ -370,9 +370,9 @@ $conceptos = $stmtConceptos->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      MODAL NUEVA TARIFA
-========================================================== -->
+======== -->
 
 <div id="modalNuevaTarifa" class="modal">
 
@@ -600,9 +600,9 @@ $conceptos = $stmtConceptos->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      MODAL EDITAR TARIFA
-========================================================== -->
+======== -->
 
 <div id="modalEditarTarifa" class="modal">
 
@@ -830,9 +830,9 @@ $conceptos = $stmtConceptos->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      MODAL MENSAJE
-========================================================== -->
+======== -->
 
 <div id="modalMensaje" class="modal">
 
