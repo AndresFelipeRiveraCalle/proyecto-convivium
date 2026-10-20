@@ -1,8 +1,8 @@
 <?php
 /**
- * ==============================================================
+ * ============
  * CONVIVIUM - LISTADO GENERAL DE PAGOS
- * ==============================================================
+ * ============
  * Archivo: configuracion/pagos.php
  *
  * Objetivo:
@@ -24,7 +24,7 @@
  * Un registro de la tabla `pagos` representa dinero recibido.
  * No debe confundirse con una aplicación a cartera. Un mismo pago puede
  * distribuirse entre varias obligaciones mientras conserve saldo disponible.
- * ==============================================================
+ * ============
  */
 
 
@@ -32,9 +32,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // FUNCIONES DE PRESENTACIÓN
-// ==========================================================
+// ========
 // e(): protege las salidas HTML.
 // dinero(): unifica el formato monetario colombiano usado en la vista.
 
@@ -58,9 +58,9 @@ function dinero($valor)
 }
 
 
-// ==========================================================
+// ========
 // FILTROS RECIBIDOS POR GET
-// ==========================================================
+// ========
 // Todos son opcionales. Se usan más abajo para construir el WHERE dinámico.
 
 $buscar =
@@ -89,9 +89,9 @@ $fechaHasta =
     );
 
 
-// ==========================================================
+// ========
 // CONSTRUCCIÓN DEL WHERE DINÁMICO
-// ==========================================================
+// ========
 // Se agregan condiciones únicamente cuando el usuario diligencia un filtro.
 // Los valores siempre viajan como parámetros preparados para evitar inyección SQL.
 
@@ -191,9 +191,9 @@ $whereSql =
     );
 
 
-// ==========================================================
+// ========
 // RESUMEN GENERAL DE PAGOS SEGÚN LOS FILTROS
-// ==========================================================
+// ========
 // Estos totales alimentan las tarjetas/resumen de la parte superior.
 
 $sqlResumen = "
@@ -266,9 +266,9 @@ $resumen =
     );
 
 
-// ==========================================================
+// ========
 // LISTADO DETALLADO DE PAGOS DE PAGOS
-// ==========================================================
+// ========
 
 $sql = "
     SELECT
@@ -416,9 +416,9 @@ $pagos =
     <main class="contenido">
 
 
-        <!-- ======================================================
+        <!-- ====
              ENCABEZADO
-        ======================================================= -->
+        ===== -->
 
         <div
             style="
@@ -458,9 +458,9 @@ $pagos =
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              RESUMEN
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 
@@ -551,9 +551,9 @@ $pagos =
         </div>
 
         
-        <!-- ======================================================
+        <!-- ====
              FILTROS
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
             
@@ -721,9 +721,9 @@ $pagos =
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              LISTADO
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 

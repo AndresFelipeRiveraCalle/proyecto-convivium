@@ -3,9 +3,9 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
-// ==========================================================
+// ========
 // VALIDAR MÉTODO
-// ==========================================================
+// ========
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header(
@@ -16,9 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
 
-    // ==========================================================
+    // ========
     // DATOS DEL FORMULARIO
-    // ==========================================================
+    // ========
 
     $id_concepto = isset($_POST["id_concepto"]) ? (int) $_POST["id_concepto"] : 0;
     $nombre = isset($_POST["nombre"]) ? trim($_POST["nombre"]) : "";
@@ -29,9 +29,9 @@ try {
     $obligatorio = isset($_POST["obligatorio"]) ? (int) $_POST["obligatorio"] : 0;
     $estado = isset($_POST["estado"]) ? (int) $_POST["estado"] : 1;
 
-    // ==========================================================
+    // ========
     // FUNCIÓN DE REDIRECCIÓN
-    // ==========================================================
+    // ========
 
     function redireccionarConceptos(
         $tipo, $mensaje
@@ -44,17 +44,17 @@ try {
         exit;
     }
 
-    // ==========================================================
+    // ========
     // VALIDAR ID
-    // ==========================================================
+    // ========
     if ($id_concepto <= 0) {
         redireccionarConceptos(
             "warning", "El concepto de facturación no es válido.");
     }
 
-    // ==========================================================
+    // ========
     // VALIDAR NOMBRE
-    // ==========================================================
+    // ========
     if ($nombre === "") {
         redireccionarConceptos(
             "warning", "Debe ingresar el nombre del concepto.");
@@ -66,9 +66,9 @@ try {
     }
 
 
-    // ==========================================================
+    // ========
     // VALIDAR DESCRIPCIÓN
-    // ==========================================================
+    // ========
 
     if (
         $descripcion !== null && mb_strlen($descripcion) > 255
@@ -80,9 +80,9 @@ try {
     }
 
 
-    // ==========================================================
+    // ========
     // VALIDAR TIPO DE CÁLCULO
-    // ==========================================================
+    // ========
 
     $tiposPermitidos = [
         "FIJO", "METRO_CUADRADO", "COEFICIENTE", "PORCENTAJE"
@@ -100,9 +100,9 @@ try {
     }
 
 
-    // ==========================================================
+    // ========
     // VALIDAR TIPO DE OBLIGACIÓN
-    // ==========================================================
+    // ========
 
     if ($id_tipo_obligacion <= 0) {
         redireccionarConceptos(
@@ -110,9 +110,9 @@ try {
         );
     }
 
-    // ==========================================================
+    // ========
     // VALIDAR OBLIGATORIO
-    // ==========================================================
+    // ========
     if (
         !in_array(
             $obligatorio, [0, 1], true
@@ -123,9 +123,9 @@ try {
         );
     }
 
-    // ==========================================================
+    // ========
     // VALIDAR ESTADO
-    // ==========================================================
+    // ========
 
     if (
         !in_array(
@@ -137,9 +137,9 @@ try {
         );
     }
 
-    // ==========================================================
+    // ========
     // VERIFICAR QUE EL CONCEPTO EXISTA
-    // ==========================================================
+    // ========
 
     $sqlExisteConcepto = "SELECT id_concepto FROM conceptos_facturacion
         WHERE id_concepto = :id_concepto LIMIT 1";
@@ -156,9 +156,9 @@ try {
         );
     }
 
-    // ==========================================================
+    // ========
     // VERIFICAR TIPO DE OBLIGACIÓN
-    // ==========================================================
+    // ========
 
     $sqlTipoObligacion = "SELECT id_tipo_obligacion FROM tipos_obligacion
         WHERE id_tipo_obligacion = :id_tipo_obligacion LIMIT 1";
@@ -175,9 +175,9 @@ try {
             "warning","El tipo de obligación seleccionado no existe.");
     }
 
-    // ==========================================================
+    // ========
     // VERIFICAR CUENTA CONTABLE
-    // ==========================================================
+    // ========
     //
     // La cuenta es opcional.
     //
@@ -201,9 +201,9 @@ try {
         }
     }
 
-    // ==========================================================
+    // ========
     // VALIDAR DUPLICADO
-    // ==========================================================
+    // ========
     //
     // Excluye el concepto que se está editando.
     //
@@ -227,9 +227,9 @@ try {
     }
 
 
-    // ==========================================================
+    // ========
     // ACTUALIZAR
-    // ==========================================================
+    // ========
 
     $sql = "UPDATE conceptos_facturacion
         SET nombre = :nombre,
@@ -256,27 +256,27 @@ try {
         ":id_concepto" => $id_concepto
     ]);
 
-    // ==========================================================
+    // ========
     // MENSAJE DE ÉXITO
-    // ==========================================================
+    // ========
     redireccionarConceptos(
         "success", "Concepto de facturación actualizado correctamente."
     );
 
 } catch (PDOException $e) {
 
-    // ==========================================================
+    // ========
     // REGISTRAR ERROR REAL
-    // ==========================================================
+    // ========
 
     error_log(
         "Error actualizando concepto de facturación: " .
         $e->getMessage()
     );
 
-    // ==========================================================
+    // ========
     // MENSAJE AL USUARIO
-    // ==========================================================
+    // ========
 
     header(
         "Location: " . BASE_URL . "configuracion/conceptos_facturacion.php" .

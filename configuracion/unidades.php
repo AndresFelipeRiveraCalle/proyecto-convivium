@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // CARGAR GRUPOS DE UNIDADES
-// ==========================================================
+// ========
 
 $sqlGrupos = "
     SELECT
@@ -34,9 +34,9 @@ $grupos = $stmtGrupos->fetchAll(
 );
 
 
-// ==========================================================
+// ========
 // GRUPO SELECCIONADO
-// ==========================================================
+// ========
 
 $idGrupoSeleccionado =
     isset($_GET['id'])
@@ -44,9 +44,9 @@ $idGrupoSeleccionado =
         : 0;
 
 
-// ==========================================================
+// ========
 // SI NO HAY GRUPO, TOMAR EL PRIMERO
-// ==========================================================
+// ========
 
 if (
     $idGrupoSeleccionado === 0 &&
@@ -58,9 +58,9 @@ if (
 }
 
 
-// ==========================================================
+// ========
 // BUSCAR GRUPO SELECCIONADO
-// ==========================================================
+// ========
 
 $grupoSeleccionado = null;
 
@@ -79,16 +79,16 @@ foreach ($grupos as $grupo) {
 }
 
 
-// ==========================================================
+// ========
 // CARGAR UNIDADES
-// ==========================================================
+// ========
 //
 // También calculamos:
 //
 // - personas relacionadas actualmente
 // - espacios asociados actualmente
 //
-// ==========================================================
+// ========
 
 $unidades = [];
 
@@ -163,9 +163,9 @@ if ($idGrupoSeleccionado > 0) {
 }
 
 
-// ==========================================================
+// ========
 // CANTIDADES DEL GRUPO
-// ==========================================================
+// ========
 
 $cantidadConfigurada =
     $grupoSeleccionado
@@ -206,54 +206,57 @@ $puedeCrearUnidad =
 
 
 <?php include ROOT_PATH . "/includes/header.php"; ?>
-
 <?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
 
-
 <div class="contenedor">
-
 
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
 
 
     <main class="contenido">
 
-
-        <!-- ======================================================
+        <!-- ====
              ENCABEZADO
-        ======================================================= -->
+        ===== -->
 
-        <h2 align="center">
-            Unidades
-        </h2>
-
+        <h2 align="center">Unidades</h2>
 
         <br>
 
-
-        <p>
-
-            Administra las unidades de la copropiedad
-            y las personas y espacios asociados a cada una.
-
-        </p>
-
+        <p>Administra las unidades de la copropiedad y las personas y espacios asociados a cada una.</p>
 
         <br>
 
+        <!-- ====
+             ACCIONES
+        ===== -->
 
-        <!-- ======================================================
+        <div class="form-actions">
+            <?php if ($grupoSeleccionado): ?>
+                <button
+                    type="button"
+                    class="btn-filtrar"
+                    id="btnNuevaUnidad"
+                    <?= !$puedeCrearUnidad
+                        ? 'disabled'
+                        : ''
+                    ?>
+                >
+                    Nueva unidad
+                </button>
+            <?php endif; ?>
+        </div>
+        
+        <br>
+
+        <!-- ====
              TABS
-        ======================================================= -->
+        ===== -->
 
         <?php if (!empty($grupos)): ?>
-
-
             <div class="tabs-container">
 
-
                 <?php foreach ($grupos as $grupo): ?>
-
 
                     <a
                         href="unidades.php?id=<?= (int)$grupo['id_tipo_config'] ?>"
@@ -271,155 +274,58 @@ $puedeCrearUnidad =
                         ) ?>
 
                     </a>
-
-
                 <?php endforeach; ?>
-
-
             </div>
-
-
-            <br>
-
-
+            
         <?php endif; ?>
 
-
-        <!-- ======================================================
+        <!-- ====
              INFORMACIÓN SIMPLE DEL GRUPO
-        ======================================================= -->
+        ===== -->
 
         <?php if ($grupoSeleccionado): ?>
-
-
             <div class="bloque filtros">
-
-
                 <div class="card">
-
-
-                    <label>
-                        Grupo
-                    </label>
-
-
+                    <label>Grupo</label>
                     <strong>
-
                         <?= htmlspecialchars(
                             $grupoSeleccionado['nombre_grupo']
                         ) ?>
-
                     </strong>
-
-
                 </div>
 
-
                 <div class="card">
-
-
-                    <label>
-                        Tipo
-                    </label>
-
+                    <label>Tipo</label>
 
                     <strong>
-
                         <?= htmlspecialchars(
                             $grupoSeleccionado['tipo_unidad']
                         ) ?>
-
                     </strong>
-
-
                 </div>
-
 
                 <div class="card">
-
-
-                    <label>
-                        Configuradas
-                    </label>
-
-
-                    <strong>
-                        <?= $cantidadConfigurada ?>
-                    </strong>
-
-
+                    <label>Configuradas</label>
+                    <strong><?= $cantidadConfigurada ?></strong>
                 </div>
-
 
                 <div class="card">
-
-
-                    <label>
-                        Creadas
-                    </label>
-
-
-                    <strong>
-                        <?= $cantidadCreadas ?>
-                    </strong>
-
-
+                    <label>Creadas</label>
+                    <strong><?= $cantidadCreadas ?></strong>
                 </div>
-
 
                 <div class="card">
-
-
-                    <label>
-                        Pendientes
-                    </label>
-
-
-                    <strong>
-                        <?= $cantidadPendientes ?>
-                    </strong>
-
-
+                    <label>Pendientes</label>
+                    <strong><?= $cantidadPendientes ?></strong>
                 </div>
-
-
             </div>
-
-
-            <br>
-
+            
 
         <?php endif; ?>
 
-
-        <!-- ======================================================
-             ACCIONES
-        ======================================================= -->
-
-        <div class="acciones-superior">
-
-
-            <?php if ($grupoSeleccionado): ?>
-
-
-                <button
-                    type="button"
-                    class="btn-filtrar btn-derecha"
-                    id="btnNuevaUnidad"
-                    <?= !$puedeCrearUnidad
-                        ? 'disabled'
-                        : ''
-                    ?>
-                >
-                    Nueva unidad
-                </button>
-            <?php endif; ?>
-        </div>
-
-        <br>
-        <!-- ======================================================
+        <!-- ====
              TABLA DE UNIDADES
-        ======================================================= -->
+        ===== -->
         <div class="bloque filtros">
             <div class="form-card">
                 <h3>
@@ -661,29 +567,20 @@ $puedeCrearUnidad =
     </main>
 
 
-    <!-- ==========================================================
+    <!-- ========
          MODAL NUEVA UNIDAD
-    ========================================================== -->
+    ======== -->
 
     <?php if ($grupoSeleccionado): ?>
-
 
         <div
             id="modalUnidad"
             class="modal"
         >
-
-
             <div class="modal-contenido">
 
-
                 <div class="modal-header">
-
-
-                    <h3>
-                        Nueva unidad
-                    </h3>
-
+                    <h3>Nueva unidad</h3>
 
                     <button
                         type="button"
@@ -966,9 +863,9 @@ $puedeCrearUnidad =
     <?php endif; ?>
 
 
-    <!-- ==========================================================
+    <!-- ========
          MODAL EDITAR UNIDAD
-    ========================================================== -->
+    ======== -->
 
     <div
         id="modalEditarUnidad"
@@ -1282,9 +1179,9 @@ $puedeCrearUnidad =
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      JAVASCRIPT
-========================================================== -->
+======== -->
 
 <script>
 
@@ -1292,9 +1189,9 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
-        // ======================================================
+        // ====
         // NUEVA UNIDAD
-        // ======================================================
+        // ====
 
         const btnNuevaUnidad =
             document.getElementById(
@@ -1393,9 +1290,9 @@ document.addEventListener(
         }
 
 
-        // ======================================================
+        // ====
         // EDITAR UNIDAD
-        // ======================================================
+        // ====
 
         const modalEditar =
             document.getElementById(

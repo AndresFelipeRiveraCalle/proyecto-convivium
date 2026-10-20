@@ -1,6 +1,6 @@
-// ==========================================================
+// ========
 // EDITAR CONCEPTO DE FACTURACIÓN
-// ==========================================================
+// ========
 
 const botonesEditarConcepto =
     document.querySelectorAll(".btnEditarConcepto");
@@ -15,9 +15,9 @@ const cancelarModalEditarConcepto =
     document.getElementById("cancelarModalEditarConcepto");
 
 
-// ==========================================================
+// ========
 // ABRIR MODAL
-// ==========================================================
+// ========
 
 botonesEditarConcepto.forEach(function (boton) {
 
@@ -60,9 +60,9 @@ botonesEditarConcepto.forEach(function (boton) {
             const concepto = data.concepto;
 
 
-            // ==================================================
+            // 
             // CARGAR DATOS
-            // ==================================================
+            // 
 
             document.getElementById(
                 "editar_id_concepto"
@@ -112,9 +112,9 @@ botonesEditarConcepto.forEach(function (boton) {
                 concepto.estado ?? 1;
 
 
-            // ==================================================
+            // 
             // MOSTRAR MODAL
-            // ==================================================
+            // 
 
             modalEditarConcepto.style.display =
                 "flex";
@@ -139,9 +139,9 @@ botonesEditarConcepto.forEach(function (boton) {
 });
 
 
-// ==========================================================
+// ========
 // CERRAR MODAL
-// ==========================================================
+// ========
 
 function cerrarModalConcepto()
 {
@@ -153,9 +153,9 @@ function cerrarModalConcepto()
 }
 
 
-// ==========================================================
+// ========
 // CERRAR CON X
-// ==========================================================
+// ========
 
 if (cerrarModalEditarConcepto) {
 
@@ -166,9 +166,9 @@ if (cerrarModalEditarConcepto) {
 }
 
 
-// ==========================================================
+// ========
 // CERRAR CON CANCELAR
-// ==========================================================
+// ========
 
 if (cancelarModalEditarConcepto) {
 
@@ -179,9 +179,9 @@ if (cancelarModalEditarConcepto) {
 }
 
 
-// ==========================================================
+// ========
 // CERRAR HACIENDO CLICK FUERA
-// ==========================================================
+// ========
 
 if (modalEditarConcepto) {
 

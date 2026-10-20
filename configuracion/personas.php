@@ -27,9 +27,9 @@ $stmtCiudades = $conexion->query("
 ");
 $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
 
-/* =========================================================
+/* =======
    ONSULTA TIPOS DE DOCUMENTO
-   ========================================================= */
+   ======= */
 $stmtTipos = $conexion->query("
     SELECT id_tipo_documento, codigo, nombre
     FROM tipos_documento
@@ -37,9 +37,9 @@ $stmtTipos = $conexion->query("
 ");
 $tiposDocumento = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 
-/* =========================================================
+/* =======
    GÉNEROS
-========================================================= */
+======= */
 $stmtGeneros = $conexion->query("
     SELECT id_genero, codigo, nombre
     FROM generos
@@ -48,9 +48,9 @@ $stmtGeneros = $conexion->query("
 ");
 $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
-/* =========================================================
+/* =======
    Estados civiles
-   ========================================================= */
+   ======= */
    $stmtEstadosCiviles = $conexion->query("
     SELECT id_estado_civil, nombre 
     FROM estados_civiles
@@ -59,9 +59,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 ");
 $estadosCiviles = $stmtEstadosCiviles->fetchAll(PDO::FETCH_ASSOC);
 
-/* =========================================================
+/* =======
    Ocupaciones
-   ========================================================= */
+   ======= */
    $stmtOcupaciones = $conexion->query("
     SELECT id_ocupacion, nombre 
     FROM ocupaciones
@@ -70,17 +70,17 @@ $estadosCiviles = $stmtEstadosCiviles->fetchAll(PDO::FETCH_ASSOC);
 ");
 $ocupaciones = $stmtOcupaciones->fetchAll(PDO::FETCH_ASSOC);
 
-/* =========================================================
+/* =======
    BÚSQUEDA
-   ========================================================= */
+   ======= */
 
 $buscar = isset($_GET['buscar'])
     ? trim($_GET['buscar'])
     : '';
 
-/* =========================================================
+/* =======
    CONSULTA DE PERSONAS
-   ========================================================= */
+   ======= */
 
 $sql = "
     SELECT  u.id, u.nombres, u.apellidos, u.id_tipo_documento, u.numero_documento, u.correo, u.telefono,
@@ -93,9 +93,9 @@ $sql = "
     LEFT JOIN tipos_documento td ON td.id_tipo_documento = u.id_tipo_documento
 ";
 
-/* =========================================================
+/* =======
    FILTRO DE BÚSQUEDA
-   ========================================================= */
+   ======= */
 
 if ($buscar !== '') {
 
@@ -109,17 +109,17 @@ if ($buscar !== '') {
     ";
 }
 
-/* =========================================================
+/* =======
    ORDEN
-   ========================================================= */
+   ======= */
 
 $sql .= "
     ORDER BY u.id asc
 ";
 
-/* =========================================================
+/* =======
    EJECUTAR CONSULTA
-   ========================================================= */
+   ======= */
 
 $stmt = $conexion->prepare($sql);
 
@@ -160,9 +160,9 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <main class="contenido">
 
-        <!-- =====================================================
+        <!-- ===
              ENCABEZADO
-        ====================================================== -->
+        ==== -->
 
         <div class="form-actions">
 
@@ -177,9 +177,9 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <br>
 
-        <!-- =====================================================
+        <!-- ===
              BÚSQUEDA
-        ====================================================== -->
+        ==== -->
 
         <div class="bloque filtros">
 
@@ -211,9 +211,9 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <br>
 
-        <!-- =====================================================
+        <!-- ===
              TABLA DE PERSONAS
-        ====================================================== -->
+        ==== -->
 
         <div class="bloque">
             <div class="table-responsive">
@@ -342,9 +342,9 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </main>
 </div>
 
-<!-- =========================================================
+<!-- =======
      MODAL NUEVA PERSONA
-========================================================= -->
+======= -->
 
 <div id="modalPersona" class="modal">
     <div class="modal-contenido">

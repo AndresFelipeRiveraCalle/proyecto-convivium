@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // FILTROS
-// ==========================================================
+// ========
 
 $buscar = isset($_GET['buscar'])
     ? trim($_GET['buscar'])
@@ -18,125 +18,68 @@ $tipoFiltro = isset($_GET['tipo_espacio'])
     : '';
 
 
-// ==========================================================
+// ========
 // TIPOS PERMITIDOS
-// ==========================================================
+// ========
 
-$tiposPermitidos = [
-    'PARQUEADERO',
-    'CUARTO_UTIL',
-    'DEPOSITO',
-    'BODEGA',
-    'OTRO'
-];
+$tiposPermitidos = ['PARQUEADERO', 'CUARTO_UTIL', 'DEPOSITO', 'BODEGA', 'OTRO' ];
 
 
-// ==========================================================
+// ========
 // UNIDADES ACTIVAS
-// ==========================================================
+// ========
 
 $sqlUnidades = "
-    SELECT
-        u.id_unidad,
-        u.codigo,
-        u.nombre,
-        d.nombre_grupo
-
+    SELECT u.id_unidad, u.codigo, u.nombre, d.nombre_grupo
     FROM unidades u
-
-    LEFT JOIN detalle_tipos_unidad d
-        ON d.id_tipo_config = u.id_tipo_config
-
+    LEFT JOIN detalle_tipos_unidad d ON d.id_tipo_config = u.id_tipo_config
     WHERE u.activo = 1
 
-    ORDER BY
-        d.nombre_grupo,
-        u.codigo
+    ORDER BY d.nombre_grupo, u.codigo
 ";
 
+$stmtUnidades = $conexion->query($sqlUnidades);
+$unidadesDisponibles = $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
 
-$stmtUnidades =
-    $conexion->query($sqlUnidades);
-
-
-$unidadesDisponibles =
-    $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
-
-
-// ==========================================================
+// ========
 // CONSULTAR ESPACIOS ACTUALES
-// ==========================================================
+// ========
 
 $sqlEspacios = "
-    SELECT
-
-        eu.id_espacio_unidad,
-        eu.id_unidad,
-        eu.usuario_id,
-        eu.tipo_espacio,
-        eu.codigo,
-        eu.area,
-        eu.fecha_desde,
-        eu.fecha_hasta,
-        eu.activo,
-        eu.observaciones,
-        eu.fecha_creacion,
-
-        u.codigo AS codigo_unidad,
-        u.nombre AS nombre_unidad,
-
-        d.nombre_grupo,
-
-        us.nombres,
-        us.apellidos,
-        us.numero_documento
-
+    SELECT eu.id_espacio_unidad, eu.id_unidad, eu.usuario_id, eu.tipo_espacio, eu.codigo, eu.area,
+        eu.fecha_desde, eu.fecha_hasta, eu.activo, eu.observaciones, eu.fecha_creacion,
+        u.codigo AS codigo_unidad, u.nombre AS nombre_unidad, d.nombre_grupo, us.nombres,
+        us.apellidos, us.numero_documento
     FROM espacios_unidad eu
+    LEFT JOIN unidades u ON u.id_unidad = eu.id_unidad
+    LEFT JOIN detalle_tipos_unidad d ON d.id_tipo_config = u.id_tipo_config
+    LEFT JOIN usuario us ON us.id = eu.usuario_id
 
-    LEFT JOIN unidades u
-        ON u.id_unidad = eu.id_unidad
-
-    LEFT JOIN detalle_tipos_unidad d
-        ON d.id_tipo_config = u.id_tipo_config
-
-    LEFT JOIN usuario us
-        ON us.id = eu.usuario_id
-
-    WHERE
-        eu.activo = 1
-        AND eu.fecha_hasta IS NULL
+    WHERE eu.activo = 1 AND eu.fecha_hasta IS NULL
 ";
-
 
 $parametros = [];
 
 
-// ==========================================================
+// ========
 // FILTRO TIPO
-// ==========================================================
+// ========
 
 if (
-    $tipoFiltro !== '' &&
-    in_array($tipoFiltro, $tiposPermitidos, true)
+    $tipoFiltro !== '' && in_array($tipoFiltro, $tiposPermitidos, true)
 ) {
-
-    $sqlEspacios .= "
-        AND eu.tipo_espacio = :tipo_espacio
-    ";
-
-    $parametros[':tipo_espacio'] =
-        $tipoFiltro;
+    $sqlEspacios .= " AND eu.tipo_espacio = :tipo_espacio ";
+    $parametros[':tipo_espacio'] = $tipoFiltro;
 }
 
 
-// ==========================================================
+// ========
 // BUSCADOR
-// ==========================================================
+// ========
 
 if ($buscar !== '') {
 
-    $sqlEspacios .= "
-        AND
+    $sqlEspacios .= " AND
         (
             eu.codigo LIKE :buscar_codigo
             OR us.numero_documento LIKE :buscar_documento
@@ -147,39 +90,21 @@ if ($buscar !== '') {
         )
     ";
 
-
-    $textoBuscar =
-        '%' . $buscar . '%';
-
-
-    $parametros[':buscar_codigo'] =
-        $textoBuscar;
-
-    $parametros[':buscar_documento'] =
-        $textoBuscar;
-
-    $parametros[':buscar_nombres'] =
-        $textoBuscar;
-
-    $parametros[':buscar_apellidos'] =
-        $textoBuscar;
-
-    $parametros[':buscar_unidad'] =
-        $textoBuscar;
-
-    $parametros[':buscar_nombre_unidad'] =
-        $textoBuscar;
+    $textoBuscar = '%' . $buscar . '%';
+    $parametros[':buscar_codigo'] = $textoBuscar;
+    $parametros[':buscar_documento'] = $textoBuscar;
+    $parametros[':buscar_nombres'] = $textoBuscar;
+    $parametros[':buscar_apellidos'] = $textoBuscar;
+    $parametros[':buscar_unidad'] = $textoBuscar;
+    $parametros[':buscar_nombre_unidad'] = $textoBuscar;
 }
 
 
-// ==========================================================
+// ========
 // ORDEN
-// ==========================================================
+// ========
 
-$sqlEspacios .= "
-    ORDER BY
-
-        CASE eu.tipo_espacio
+$sqlEspacios .= " ORDER BY CASE eu.tipo_espacio
             WHEN 'PARQUEADERO' THEN 1
             WHEN 'CUARTO_UTIL' THEN 2
             WHEN 'DEPOSITO' THEN 3
@@ -191,9 +116,9 @@ $sqlEspacios .= "
 ";
 
 
-// ==========================================================
+// ========
 // EJECUTAR CONSULTA
-// ==========================================================
+// ========
 
 $stmtEspacios =
     $conexion->prepare($sqlEspacios);
@@ -206,9 +131,9 @@ $espacios =
     $stmtEspacios->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // RESUMEN
-// ==========================================================
+// ========
 
 $sqlResumen = "
     SELECT
@@ -279,9 +204,9 @@ $resumen =
     $stmtResumen->fetch(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // HISTÓRICO GENERAL
-// ==========================================================
+// ========
 
 $sqlHistorico = "
     SELECT
@@ -336,9 +261,9 @@ $historicoGeneral =
     $stmtHistorico->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // AGRUPAR HISTÓRICO
-// ==========================================================
+// ========
 
 $historicos = [];
 
@@ -362,9 +287,9 @@ foreach ($historicoGeneral as $registro) {
 }
 
 
-// ==========================================================
+// ========
 // NOMBRE DEL TIPO
-// ==========================================================
+// ========
 
 function nombreTipoEspacio($tipo)
 {
@@ -421,9 +346,9 @@ function nombreTipoEspacio($tipo)
     <main class="contenido">
 
 
-        <!-- ==================================================
+        <!-- 
              ACCIONES SUPERIORES
-        =================================================== -->
+        = -->
 
         <div class="form-actions">
 
@@ -433,7 +358,7 @@ function nombreTipoEspacio($tipo)
                 class="btn-limpiar"
                 onclick="window.location.href='unidades.php'"
             >
-                ← Volver a unidades
+                Volver a unidades
             </button>
 
 
@@ -452,9 +377,9 @@ function nombreTipoEspacio($tipo)
         <br>
 
 
-        <!-- ==================================================
+        <!-- 
              ENCABEZADO
-        =================================================== -->
+        = -->
 
         <h2 align="center">
             Espacios
@@ -476,9 +401,9 @@ function nombreTipoEspacio($tipo)
         <br>
 
 
-        <!-- ==================================================
+        <!-- 
              RESUMEN
-        =================================================== -->
+        = -->
 
         <div class="bloque filtros">
 
@@ -558,9 +483,9 @@ function nombreTipoEspacio($tipo)
         <br>
 
 
-        <!-- ==================================================
+        <!-- 
              FILTROS
-        =================================================== -->
+        = -->
 
         <div class="bloque">
 
@@ -693,9 +618,9 @@ function nombreTipoEspacio($tipo)
         <br>
 
 
-        <!-- ==================================================
+        <!-- 
              ESPACIOS ACTUALES
-        =================================================== -->
+        = -->
 
         <div class="bloque">
 
@@ -1358,9 +1283,9 @@ function nombreTipoEspacio($tipo)
 </div>
 
 
-<!-- =========================================================
+<!-- =======
      MODAL NUEVO ESPACIO
-========================================================= -->
+======= -->
 
 <div
     id="modalNuevoEspacio"
@@ -1608,9 +1533,9 @@ function nombreTipoEspacio($tipo)
 </div>
 
 
-<!-- =========================================================
+<!-- =======
      MODAL EDITAR ESPACIO
-========================================================= -->
+======= -->
 
 <div
     id="modalEditarEspacio"
@@ -1787,9 +1712,9 @@ function nombreTipoEspacio($tipo)
 </div>
 
 
-<!-- =========================================================
+<!-- =======
      MODAL TRANSFERIR ESPACIO
-========================================================= -->
+======= -->
 
 <div
     id="modalTransferirEspacio"
@@ -2027,16 +1952,16 @@ function nombreTipoEspacio($tipo)
 </div>
 
 
-<!-- =========================================================
+<!-- =======
      JAVASCRIPT
-========================================================= -->
+======= -->
 
 <script>
 
 
-// ==========================================================
+// ========
 // NUEVO ESPACIO
-// ==========================================================
+// ========
 
 function abrirModalNuevoEspacio()
 {
@@ -2072,9 +1997,9 @@ function cerrarModalNuevoEspacio()
 }
 
 
-// ==========================================================
+// ========
 // EDITAR
-// ==========================================================
+// ========
 
 function cerrarModalEditarEspacio()
 {
@@ -2093,9 +2018,9 @@ function cerrarModalEditarEspacio()
 }
 
 
-// ==========================================================
+// ========
 // TRANSFERIR
-// ==========================================================
+// ========
 
 function cerrarModalTransferirEspacio()
 {
@@ -2114,18 +2039,18 @@ function cerrarModalTransferirEspacio()
 }
 
 
-// ==========================================================
+// ========
 // DOM READY
-// ==========================================================
+// ========
 
 document.addEventListener(
     "DOMContentLoaded",
     function () {
 
 
-        // ==================================================
+        // 
         // EDITAR ESPACIO
-        // ==================================================
+        // 
 
         document
             .querySelectorAll(
@@ -2184,9 +2109,9 @@ document.addEventListener(
             );
 
 
-        // ==================================================
+        // 
         // TRANSFERIR ESPACIO
-        // ==================================================
+        // 
 
         document
             .querySelectorAll(
@@ -2311,9 +2236,9 @@ document.addEventListener(
             );
 
 
-        // ==================================================
+        // 
         // HISTÓRICO
-        // ==================================================
+        // 
 
         document
             .querySelectorAll(
@@ -2415,9 +2340,9 @@ document.addEventListener(
             );
 
 
-        // ==================================================
+        // 
         // CERRAR MODALES HACIENDO CLIC FUERA
-        // ==================================================
+        // 
 
         window.addEventListener(
             "click",

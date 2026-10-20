@@ -42,7 +42,8 @@ try {
             <div class="form-actions">
                 <div>
                     <h2>Usuarios</h2>
-                    <small> Personas registradas en el sistema </small>
+                    <br>
+                    <h4> Personas registradas en el sistema </h4>
                 </div>
 
                 <button type="button"
@@ -381,9 +382,9 @@ try {
             </div>
         </div>
 
-        <!-- =========================================================
+        <!-- =======
             MODAL EDITAR USUARIO
-        ========================================================= -->
+        ======= -->
         <div id="modalEditarUsuario" class="modal">
             <div class="modal-contenido">
                 <span id="cerrarEditarUsuario" class="cerrar">
@@ -397,9 +398,9 @@ try {
                     <!-- ID -->
                     <input type="hidden" name="id"id="editar_id">
 
-                    <!-- ==================================================
+                    <!-- 
                         DATOS PERSONALES
-                    =================================================== -->
+                    = -->
                     <h3>Datos personales</h3>
                     <div class="bloque filtros">
                         <div class="card">
@@ -597,9 +598,9 @@ try {
 
                         </div>
                     </div>
-                    <!-- ==================================================
+                    <!-- 
                         DIRECCIÓN
-                    =================================================== -->
+                    = -->
 
                     <div class="bloque filtros">
                         <h3>Dirección</h3>
@@ -609,9 +610,9 @@ try {
 
                     </div>
 
-                    <!-- ==================================================
+                    <!-- 
                         FOTO
-                    =================================================== -->
+                    = -->
 
                     <div class="bloque filtros";>
                         <div id="editar_foto_actual" ></div>
@@ -652,9 +653,9 @@ try {
 
 
 
-                    <!-- ==================================================
+                    <!-- 
                         BOTONES
-                    =================================================== -->
+                    = -->
 
                     <div class="botones-persona">
 
