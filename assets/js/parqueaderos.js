@@ -21,9 +21,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const activo = document.getElementById("activo");
 
 
-    // ==========================================================
+    // ========
     // ABRIR MODAL - NUEVO
-    // ==========================================================
+    // ========
 
     if (btnNuevo) {
 
@@ -49,9 +49,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ==========================================================
+    // ========
     // CERRAR MODAL
-    // ==========================================================
+    // ========
 
     function cerrarModal() {
 
@@ -86,9 +86,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ==========================================================
+    // ========
     // CERRAR AL HACER CLICK FUERA DEL MODAL
-    // ==========================================================
+    // ========
 
     if (modal) {
 
@@ -105,9 +105,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ==========================================================
+    // ========
     // EDITAR PARQUEADERO
-    // ==========================================================
+    // ========
 
     document.querySelectorAll(".btnEditarParqueadero").forEach(function (boton) {
 

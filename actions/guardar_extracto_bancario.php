@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // CONFIGURACIÓN
-// ==========================================================
+// ========
 
 $carpetaRelativa = "uploads/documentos_bancarios/";
 $carpetaFisica = ROOT_PATH . "/" . $carpetaRelativa;
@@ -28,17 +28,17 @@ if (!is_dir($carpetaFisica)) {
 }
 
 
-// ==========================================================
+// ========
 // DATOS DEL FORMULARIO
-// ==========================================================
+// ========
 
 $id_cuenta_bancaria = filter_input(INPUT_POST,"id_cuenta_bancaria",FILTER_VALIDATE_INT);
 
 $observaciones = trim($_POST["observaciones"] ?? "");
 
-// ==========================================================
+// ========
 // VALIDAR CUENTA
-// ==========================================================
+// ========
 
 if (!$id_cuenta_bancaria) {
 
@@ -52,9 +52,9 @@ if (!$id_cuenta_bancaria) {
     exit;
 }
 
-// ==========================================================
+// ========
 // VALIDAR ARCHIVO
-// ==========================================================
+// ========
 
 if (
     !isset($_FILES["archivo"]) ||$_FILES["archivo"]["error"] !== UPLOAD_ERR_OK) {
@@ -70,9 +70,9 @@ if (
 
 $archivo = $_FILES["archivo"];
 
-// ==========================================================
+// ========
 // TAMAÑO MÁXIMO
-// ==========================================================
+// ========
 
 $maximo = 10 * 1024 * 1024;
 
@@ -86,17 +86,17 @@ if ($archivo["size"] > $maximo) {
     exit;
 }
 
-// ==========================================================
+// ========
 // DATOS DEL ARCHIVO
-// ==========================================================
+// ========
 
 $nombreOriginal = basename($archivo["name"]);
 $extension = strtolower(pathinfo($nombreOriginal,PATHINFO_EXTENSION));
 
 
-// ==========================================================
+// ========
 // EXTENSIONES PERMITIDAS
-// ==========================================================
+// ========
 
 $extensionesPermitidas = [
     "pdf",
@@ -119,9 +119,9 @@ if (!in_array($extension,$extensionesPermitidas,
     exit;
 }
 
-// ==========================================================
+// ========
 // VALIDAR MIME REAL
-// ==========================================================
+// ========
 $finfo = new finfo(FILEINFO_MIME_TYPE);
 
 $tipoArchivo = $finfo->file($archivo["tmp_name"]);
@@ -152,15 +152,15 @@ if (
     exit;
 }
 
-// ==========================================================
+// ========
 // HASH DEL ARCHIVO
-// ==========================================================
+// ========
 
 $hashArchivo = hash_file("sha256",$archivo["tmp_name"]);
 
-// ==========================================================
+// ========
 // EVITAR ARCHIVO DUPLICADO
-// ==========================================================
+// ========
 
 $sqlDuplicado = "SELECT id_documento FROM documentos_bancarios
     WHERE hash_archivo = :hash LIMIT 1";
@@ -184,18 +184,18 @@ if ($documentoExistente) {
 }
 
 
-// ==========================================================
+// ========
 // NOMBRE FÍSICO DEL ARCHIVO
-// ==========================================================
+// ========
 
 $nombreArchivo =date("Ymd_His") ."_" . bin2hex(random_bytes(8)) . "." . $extension;
 $rutaFisica =$carpetaFisica . $nombreArchivo;
 $rutaBaseDatos = $carpetaRelativa . $nombreArchivo;
 
 
-// ==========================================================
+// ========
 // MOVER ARCHIVO
-// ==========================================================
+// ========
 
 if (
     !move_uploaded_file(
@@ -212,16 +212,16 @@ if (
     exit;
 }
 
-// ==========================================================
+// ========
 // TRANSACCIÓN
-// ==========================================================
+// ========
 
 try {
     $conexion->beginTransaction();
 
-    // ======================================================
+    // ====
     // INSERTAR DOCUMENTO
-    // ======================================================
+    // ====
 
     $sqlDocumento = "INSERT INTO documentos_bancarios (
             id_cuenta_bancaria,
@@ -263,7 +263,7 @@ try {
 
     $idDocumento = $conexion->lastInsertId();
 
-    // ======================================================
+    // ====
     // IMPORTANTE
     //
     // Todavía no insertamos un movimiento en
@@ -271,13 +271,13 @@ try {
     // contener muchos movimientos.
     //
     // El OCR/procesador será quien cree esos movimientos.
-    // ======================================================
+    // ====
 
     $conexion->commit();
 
-    // ======================================================
+    // ====
     // REDIRECCIÓN
-    // ======================================================
+    // ====
     header(
         "Location: " . BASE_URL .
         "configuracion/extractos_bancarios.php" .
@@ -292,27 +292,27 @@ try {
 
 } catch (Throwable $e) {
 
-    // ======================================================
+    // ====
     // DESHACER TRANSACCIÓN
-    // ======================================================
+    // ====
     if (
         $conexion->inTransaction()
     ) {
         $conexion->rollBack();
     }
 
-    // ======================================================
+    // ====
     // ELIMINAR ARCHIVO SI FALLÓ LA BASE DE DATOS
-    // ======================================================
+    // ====
     if (
         file_exists($rutaFisica)
     ) {
         unlink($rutaFisica);
     }
 
-    // ======================================================
+    // ====
     // ERROR
-    // ======================================================
+    // ====
 
     header(
         "Location: " . BASE_URL .

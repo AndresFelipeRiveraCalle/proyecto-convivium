@@ -409,9 +409,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
         </main>
     </div>
 
-    <!-- =====================================================
+    <!-- ===
         MODAL NUEVO PAIS
-    ====================================================== -->
+    ==== -->
     <div id="modalPais" class="modal">
         <div class="modal-contenido">
             <span class="cerrar-modal" id="cerrarPais">
@@ -454,9 +454,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
 
-    <!-- =====================================================
+    <!-- ===
         MODAL NUEVO DEPARTAMENTO
-    ====================================================== -->
+    ==== -->
     <div id="modalDepartamento" class="modal">
         <div class="modal-contenido">
             <span class="cerrar-modal" id="cerrarDepartamento">
@@ -472,7 +472,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
                 <!-- =================================================
                     PAÍS
-                ================================================== -->
+                 -->
 
                 <div class="form-group">
                     <label for="id_pais">
@@ -498,7 +498,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
                 <!-- =================================================
                     NOMBRE
-                ================================================== -->
+                 -->
                 <div class="form-group">
                     <label for="nombreDepartamento">
                         Departamento
@@ -509,7 +509,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
                 <!-- =================================================
                     CÓDIGO
-                ================================================== -->
+                 -->
 
                 <div class="form-group">
                     <label for="codigoDepartamento">
@@ -521,7 +521,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
                 <!-- =================================================
                     ESTADO
-                ================================================== -->
+                 -->
                 <div class="form-group">
                     <label for="estadoDepartamento">
                         Estado
@@ -540,7 +540,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
                 <!-- =================================================
                     BOTONES
-                ================================================== -->
+                 -->
 
                 <div class="acciones-modal">
                     <button type="submit" class="btn-primary">
@@ -555,9 +555,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- =====================================================
+    <!-- ===
         MODAL NUEVA CIUDAD
-    ====================================================== -->
+    ==== -->
 
     <div id="modalCiudad" class="modal">
         <div class="modal-contenido">
@@ -571,7 +571,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
                 <!-- =================================================
                     DEPARTAMENTO
-                ================================================== -->
+                 -->
                 <div class="form-group">
                     <label for="id_departamento_ciudad">
                         Departamento
@@ -594,7 +594,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
                 <!-- =================================================
                     NOMBRE CIUDAD
-                ================================================== -->
+                 -->
                 <div class="form-group">
                     <label for="nombre_ciudad">
                         Ciudad
@@ -605,7 +605,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
                 <!-- =================================================
                     CÓDIGO DANE
-                ================================================== -->
+                 -->
                 <div class="form-group">
                     <label for="codigo_dane">
                         Código DANE
@@ -615,7 +615,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
                 <!-- =================================================
                     ESTADO
-                ================================================== -->
+                 -->
                 <div class="form-group">
                     <label for="estado_ciudad">
                         Estado
@@ -633,7 +633,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
                 <!-- =================================================
                     BOTONES
-                ================================================== -->
+                 -->
                 <div class="acciones-modal">
                     <button type="submit" class="btn-primary">
                         Guardar
@@ -648,9 +648,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
 
-    <!-- =====================================================
+    <!-- ===
         MODAL EDITAR CIUDAD
-    ====================================================== -->
+    ==== -->
 
     <div id="modalEditarCiudad" class="modal">
         <div class="modal-contenido">
@@ -726,9 +726,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
 
-    <!-- =====================================================
+    <!-- ===
         MODAL NUEVO TIPO DE DOCUMENTO
-    ====================================================== -->
+    ==== -->
 
     <div id="modalNuevoTipoDocumento" class="modal">
         <div class="modal-contenido">
@@ -815,9 +815,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- =====================================================
+    <!-- ===
         MODAL NUEVA OCUPACIÓN
-    ====================================================== -->
+    ==== -->
 
     <div id="modalNuevaOcupacion" class="modal">
         <div class="modal-contenido">
@@ -858,9 +858,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- =====================================================
+    <!-- ===
         MODAL NUEVO GÉNERO
-    ====================================================== -->
+    ==== -->
 
     <div id="modalNuevoGenero" class="modal">
         <div class="modal-contenido">
@@ -896,9 +896,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
 
-    <!-- =====================================================
+    <!-- ===
         MODAL EDITAR PAÍS
-    ====================================================== -->
+    ==== -->
     <div id="modalEditarPais" class="modal">
         <div class="modal-contenido">
             <span class="cerrar-modal" id="cerrarEditarPais">&times;</span>
@@ -941,9 +941,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
 
-    <!-- =====================================================
+    <!-- ===
         MODAL EDITAR DEPARTAMENTO
-    ====================================================== -->
+    ==== -->
     <div id="modalEditarDepartamento" class="modal">
 
         <div class="modal-contenido">
@@ -1071,9 +1071,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
 
-    <!-- =====================================================
+    <!-- ===
         MODAL EDITAR TIPO DE DOCUMENTO
-    ====================================================== -->
+    ==== -->
     <div id="modalEditarTipoDocumento" class="modal">
         <div class="modal-contenido">
             <span class="cerrar-modal" id="cerrarEditarTipoDocumento">
@@ -1127,9 +1127,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
 
-    <!-- =====================================================
+    <!-- ===
         MODAL EDITAR ESTADO CIVIL
-    ====================================================== -->
+    ==== -->
     <div id="modalEditarEstadoCivil" class="modal">
 
         <div class="modal-contenido">
@@ -1175,9 +1175,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- =====================================================
+    <!-- ===
         MODAL EDITAR OCUPACIÓN
-    ====================================================== -->
+    ==== -->
 
     <div id="modalEditarOcupacion" class="modal">
         <div class="modal-contenido">
@@ -1220,9 +1220,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- =====================================================
+    <!-- ===
         MODAL EDITAR GÉNERO
-    ====================================================== -->
+    ==== -->
 
     <div id="modalEditarGenero" class="modal">
         <div class="modal-contenido">

@@ -6,9 +6,9 @@ require_once ROOT_PATH . "/config/conexion.php";
 header('Content-Type: application/json; charset=utf-8');
 
 
-// ==========================================================
+// ========
 // VALIDAR ID
-// ==========================================================
+// ========
 
 $idRelacion = isset($_GET['id'])
     ? (int)$_GET['id']
@@ -28,9 +28,9 @@ if ($idRelacion <= 0) {
 
 try {
 
-    // ======================================================
+    // ====
     // CONSULTAR RELACIÓN
-    // ======================================================
+    // ====
 
     $sql = "
         SELECT

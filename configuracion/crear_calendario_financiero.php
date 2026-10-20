@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // OBTENER CONFIGURACIÓN FINANCIERA ACTIVA
-// ==========================================================
+// ========
 
 $sql = "
     SELECT
@@ -31,9 +31,9 @@ $stmt->execute();
 $configuracion = $stmt->fetch(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // VERIFICAR CONFIGURACIÓN
-// ==========================================================
+// ========
 
 if (!$configuracion) {
 
@@ -51,9 +51,9 @@ if (!$configuracion) {
 }
 
 
-// ==========================================================
+// ========
 // FUNCIÓN PARA OBTENER FECHA VÁLIDA DEL MES
-// ==========================================================
+// ========
 //
 // Si el día configurado supera el último día real del mes,
 // utilizamos el último día disponible.
@@ -91,9 +91,9 @@ function generarFechaPeriodo($anio, $mes, $dia)
 }
 
 
-// ==========================================================
+// ========
 // PERÍODO POR DEFECTO
-// ==========================================================
+// ========
 
 $periodo = date('Y-m');
 
@@ -101,9 +101,9 @@ $anio = (int)date('Y');
 $mes  = (int)date('m');
 
 
-// ==========================================================
+// ========
 // DÍAS CONFIGURADOS
-// ==========================================================
+// ========
 
 $diaInicioCierre = (int)$configuracion[
     'dia_inicio_cierre'
@@ -122,9 +122,9 @@ $diaVencimiento = (int)$configuracion[
 ];
 
 
-// ==========================================================
+// ========
 // GENERAR FECHAS PROPUESTAS
-// ==========================================================
+// ========
 
 $fechaInicioCierre = generarFechaPeriodo(
     $anio,
@@ -151,9 +151,9 @@ $fechaVencimiento = generarFechaPeriodo(
 );
 
 
-// ==========================================================
+// ========
 // FECHA GENERACIÓN INTERESES
-// ==========================================================
+// ========
 //
 // Por ahora se propone el día siguiente al cierre.
 //
@@ -197,9 +197,9 @@ $fechaGeneracionIntereses = date(
         <div class="form-card">
 
 
-            <!-- ==================================================
+            <!-- 
                  ENCABEZADO
-            =================================================== -->
+            = -->
 
             <div class="form-header">
 
@@ -232,9 +232,9 @@ $fechaGeneracionIntereses = date(
             </div>
 
 
-            <!-- ==================================================
+            <!-- 
                  INFORMACIÓN
-            =================================================== -->
+            = -->
 
             <div class="info-box">
 
@@ -255,9 +255,9 @@ $fechaGeneracionIntereses = date(
             </div>
 
 
-            <!-- ==================================================
+            <!-- 
                  FORMULARIO
-            =================================================== -->
+            = -->
 
             <form
                 action="<?= BASE_URL ?>actions/guardar_calendario_financiero.php"
@@ -266,9 +266,9 @@ $fechaGeneracionIntereses = date(
             >
 
 
-                <!-- ==================================================
+                <!-- 
                      PERÍODO
-                =================================================== -->
+                = -->
 
                 <div class="form-group">
 
@@ -292,9 +292,9 @@ $fechaGeneracionIntereses = date(
                 </div>
 
 
-                <!-- ==================================================
+                <!-- 
                      FECHAS
-                =================================================== -->
+                = -->
 
                 <div class="form-grid">
 
@@ -425,9 +425,9 @@ $fechaGeneracionIntereses = date(
                 </div>
 
 
-                <!-- ==================================================
+                <!-- 
                      ESTADO INICIAL
-                =================================================== -->
+                = -->
 
                 <div class="form-group">
 
@@ -449,9 +449,9 @@ $fechaGeneracionIntereses = date(
                 </div>
 
 
-                <!-- ==================================================
+                <!-- 
                      INFORMACIÓN DE CONFIGURACIÓN
-                =================================================== -->
+                = -->
 
                 <div class="info-box">
 
@@ -512,9 +512,9 @@ $fechaGeneracionIntereses = date(
                 </div>
 
 
-                <!-- ==================================================
+                <!-- 
                      OBSERVACIONES
-                =================================================== -->
+                = -->
 
                 <div class="form-group">
 
@@ -533,9 +533,9 @@ $fechaGeneracionIntereses = date(
                 </div>
 
 
-                <!-- ==================================================
+                <!-- 
                      BOTONES
-                =================================================== -->
+                = -->
 
                 <div class="form-actions">
 
@@ -566,9 +566,9 @@ $fechaGeneracionIntereses = date(
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      DATOS DE CONFIGURACIÓN PARA JAVASCRIPT
-=========================================================== -->
+========= -->
 
 <script>
 

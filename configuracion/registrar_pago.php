@@ -1,8 +1,8 @@
 <?php
-// ==========================================================
+// ========
 // REGISTRAR PAGO
 // Muestra el formulario para registrar un nuevo pago.
-// ==========================================================
+// ========
 
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
@@ -13,16 +13,16 @@ function e($valor)
     return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
 }
 
-// ==========================================================
+// ========
 // UNIDAD PRESELECCIONADA
 // Recibe la unidad cuando se abre desde cartera.
-// ==========================================================
+// ========
 $idUnidadSeleccionada = isset($_GET['id_unidad']) ? (int)$_GET['id_unidad'] : 0;
 
-// ==========================================================
+// ========
 // UNIDADES ACTIVAS
 // Carga las unidades disponibles para registrar el pago.
-// ==========================================================
+// ========
 $sqlUnidades = "
     SELECT
         u.id_unidad,
@@ -39,10 +39,10 @@ $sqlUnidades = "
 $stmtUnidades = $conexion->query($sqlUnidades);
 $unidades = $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
 
-// ==========================================================
+// ========
 // MENSAJE DE RETORNO
 // Recibe el resultado enviado por guardar_pago.php.
-// ==========================================================
+// ========
 $tipo = trim($_GET['tipo'] ?? '');
 $texto = trim($_GET['texto'] ?? $_GET['mensaje'] ?? '');
 ?>
@@ -176,10 +176,10 @@ $texto = trim($_GET['texto'] ?? $_GET['mensaje'] ?? '');
 
 <?php if ($texto !== ''): ?>
 
-    <!-- ======================================================
+    <!-- ====
          MENSAJE DE RESULTADO
          Muestra el resultado del registro en una ventana emergente.
-    ======================================================= -->
+    ===== -->
     <div
         id="modalMensajePago"
         style="
@@ -270,10 +270,10 @@ $texto = trim($_GET['texto'] ?? $_GET['mensaje'] ?? '');
             const btnCerrar = document.getElementById('cerrarModalMensajePago');
             const btnAceptar = document.getElementById('aceptarModalMensajePago');
 
-            // ======================================================
+            // ====
             // CERRAR MENSAJE
             // Oculta el popup y limpia el mensaje de la URL.
-            // ======================================================
+            // ====
             function cerrarMensaje() {
                 if (modal) {
                     modal.style.display = 'none';

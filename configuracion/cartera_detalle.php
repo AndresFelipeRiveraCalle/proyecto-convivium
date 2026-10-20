@@ -1,8 +1,8 @@
 <?php
 /**
- * ==============================================================
+ * ============
  * CONVIVIUM - DETALLE DE CARTERA POR UNIDAD
- * ==============================================================
+ * ============
  * Archivo: configuracion/cartera_detalle.php
  *
  * Objetivo:
@@ -19,7 +19,7 @@
  *
  * La mora se identifica mediante `facturas_detalle.id_interes`.
  * Si ese campo tiene valor, la obligación corresponde a intereses.
- * ==============================================================
+ * ============
  */
 
 
@@ -27,9 +27,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // FUNCIONES DE PRESENTACIÓN
-// ==========================================================
+// ========
 // e(): salida HTML segura.
 // dinero(): formato monetario uniforme para toda la pantalla.
 
@@ -53,9 +53,9 @@ function dinero($valor)
 }
 
 
-// ==========================================================
+// ========
 // 1. VALIDAR LA UNIDAD SOLICITADA
-// ==========================================================
+// ========
 // Toda la pantalla depende de id_unidad. Si no es válido regresamos a cartera.php.
 
 $idUnidad =
@@ -80,9 +80,9 @@ if ($idUnidad <= 0) {
 }
 
 
-// ==========================================================
+// ========
 // 2. DATOS GENERALES DE LA UNIDAD
-// ==========================================================
+// ========
 // Recuperamos información descriptiva para el encabezado de la cartera.
 
 $sqlUnidad = "
@@ -151,9 +151,9 @@ if (!$unidad) {
 }
 
 
-// ==========================================================
+// ========
 // 3. RESUMEN FINANCIERO DE LA UNIDAD
-// ==========================================================
+// ========
 // Calcula total original, pagado, saldo y saldo vencido.
 // No incluye obligaciones anuladas.
 
@@ -219,9 +219,9 @@ $resumen =
     );
 
 
-// ==========================================================
+// ========
 // 4. OBLIGACIONES AGRUPADAS POR FACTURA
-// ==========================================================
+// ========
 // Una factura puede generar varias filas en `cartera` (una por detalle).
 // Aquí se agrupan para presentar una sola fila resumen por factura.
 
@@ -468,12 +468,12 @@ $obligaciones =
     );
 
 
-// ==========================================================
+// ========
 // 5. DETALLE INDIVIDUAL DE OBLIGACIONES
-// ==========================================================
+// ========
 // Este bloque permite ver cada concepto por separado y distinguir mora de capital.
 // fd.id_interes != NULL significa que la obligación proviene de intereses de mora.
-// ==========================================================
+// ========
 
 $sqlDetalleObligaciones = "
     SELECT
@@ -570,12 +570,12 @@ foreach ($detalleObligaciones as $detalleObligacion) {
 }
 
 
-// ==========================================================
+// ========
 // 6. PAGOS RECIBIDOS POR LA UNIDAD
-// ==========================================================
+// ========
 // `valor_disponible` se obtiene restando al valor del pago las aplicaciones realizadas.
 // Si queda disponible, ese mismo pago todavía puede distribuirse a otras obligaciones.
-// ==========================================================
+// ========
 
 $sqlPagos = "
     SELECT
@@ -668,11 +668,11 @@ $pagos =
     );
 
 
-// ==========================================================
+// ========
 // 7. HISTORIAL DE APLICACIONES
-// ==========================================================
+// ========
 // Cada fila indica qué pago afectó qué obligación y por qué valor. DE PAGOS
-// ==========================================================
+// ========
 
 $sqlAplicaciones = "
     SELECT
@@ -744,9 +744,9 @@ $aplicaciones =
     );
 
 
-// ==========================================================
+// ========
 // SALDOS A FAVOR DE LA UNIDAD
-// ==========================================================
+// ========
 
 $sqlSaldosFavor = "
     SELECT
@@ -929,9 +929,9 @@ $saldosFavor =
     <main class="contenido">
 
 
-        <!-- ======================================================
+        <!-- ====
              ENCABEZADO
-        ======================================================= -->
+        ===== -->
 
         <div
             style="
@@ -973,9 +973,9 @@ $saldosFavor =
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              DATOS UNIDAD
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 
@@ -1067,9 +1067,9 @@ $saldosFavor =
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              RESUMEN
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 
@@ -1177,9 +1177,9 @@ $saldosFavor =
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              CARTERA
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 
@@ -1636,9 +1636,9 @@ $saldosFavor =
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              SALDOS A FAVOR
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 
@@ -1802,9 +1802,9 @@ $saldosFavor =
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              PAGOS
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 
@@ -1989,9 +1989,9 @@ $saldosFavor =
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              APLICACIONES
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 

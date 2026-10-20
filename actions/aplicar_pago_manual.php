@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // REDIRECCIONAR
-// ==========================================================
+// ========
 
 function redireccionarPago($idPago, $tipo, $texto)
 {
@@ -25,9 +25,9 @@ function redireccionarPago($idPago, $tipo, $texto)
 }
 
 
-// ==========================================================
+// ========
 // NORMALIZAR VALOR
-// ==========================================================
+// ========
 
 function normalizarValor($valor)
 {
@@ -53,9 +53,9 @@ function normalizarValor($valor)
 }
 
 
-// ==========================================================
+// ========
 // ACTUALIZAR ESTADO DE FACTURA
-// ==========================================================
+// ========
 
 function actualizarEstadoFactura(PDO $conexion, int $idFactura): void
 {
@@ -116,10 +116,10 @@ function actualizarEstadoFactura(PDO $conexion, int $idFactura): void
 
 
 
-// ==========================================================
+// ========
 // CREAR SALDO A FAVOR
 // Convierte el excedente cuando la unidad ya no tiene cartera pendiente.
-// ==========================================================
+// ========
 
 function crearSaldoFavorSiCorresponde(
     PDO $conexion,
@@ -212,9 +212,9 @@ function crearSaldoFavorSiCorresponde(
     return $disponible;
 }
 
-// ==========================================================
+// ========
 // VALIDAR MÉTODO
-// ==========================================================
+// ========
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -228,9 +228,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ==========================================================
+// ========
 // DATOS
-// ==========================================================
+// ========
 
 $idPago =
     isset($_POST['id_pago'])
@@ -279,9 +279,9 @@ try {
     $conexion->beginTransaction();
 
 
-    // ======================================================
+    // ====
     // BLOQUEAR PAGO
-    // ======================================================
+    // ====
 
     $sqlPago = "
         SELECT
@@ -318,9 +318,9 @@ try {
     }
 
 
-    // ======================================================
+    // ====
     // DISPONIBLE DEL PAGO
-    // ======================================================
+    // ====
 
     $sqlAplicado = "
         SELECT
@@ -339,10 +339,10 @@ try {
         (float)$stmtAplicado->fetchColumn();
 
 
-    // ======================================================
+    // ====
     // SALDO YA CONVERTIDO
     // Resta el excedente que ya pasó a saldo a favor.
-    // ======================================================
+    // ====
 
     $sqlSaldoConvertido = "
         SELECT
@@ -387,9 +387,9 @@ try {
     }
 
 
-    // ======================================================
+    // ====
     // BLOQUEAR CARTERA
-    // ======================================================
+    // ====
 
     $sqlCartera = "
         SELECT
@@ -463,9 +463,9 @@ try {
     }
 
 
-    // ======================================================
+    // ====
     // INSERTAR APLICACIÓN
-    // ======================================================
+    // ====
 
     $sqlInsert = "
         INSERT INTO aplicaciones_pagos
@@ -506,9 +506,9 @@ try {
     ]);
 
 
-    // ======================================================
+    // ====
     // ACTUALIZAR CARTERA
-    // ======================================================
+    // ====
 
     $nuevoSaldo =
         round(
@@ -561,9 +561,9 @@ try {
     ]);
 
 
-    // ======================================================
+    // ====
     // SI LA OBLIGACIÓN ES MORA, SINCRONIZAR intereses_cartera
-    // ======================================================
+    // ====
 
     if (!empty($cartera['id_interes'])) {
 
@@ -623,9 +623,9 @@ try {
     }
 
 
-    // ======================================================
+    // ====
     // ESTADO FACTURA
-    // ======================================================
+    // ====
 
     if (!empty($cartera['id_factura'])) {
 
@@ -636,10 +636,10 @@ try {
     }
 
 
-    // ======================================================
+    // ====
     // SALDO A FAVOR
     // Convierte el excedente si ya no quedan obligaciones pendientes.
-    // ======================================================
+    // ====
 
     $remanentePago =
         round(

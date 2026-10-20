@@ -1,8 +1,8 @@
 <?php
 /**
- * ==============================================================
+ * ============
  * CONVIVIUM - GUARDAR PAGO
- * ==============================================================
+ * ============
  * Archivo: actions/guardar_pago.php
  *
  * Objetivo:
@@ -16,7 +16,7 @@
  * filas en `aplicaciones_pagos`. Esa responsabilidad pertenece a las acciones
  * de aplicación de pagos. Mantener esta separación permite registrar varios
  * abonos independientes sobre una misma obligación.
- * ==============================================================
+ * ============
  */
 
 require_once dirname(__DIR__) . "/config/config.php";
@@ -35,9 +35,9 @@ function redireccionar($tipo, $texto, $idUnidad = 0)
         $params['id_unidad'] = $idUnidad;
     }
 
-    // ======================================================
+    // ====
     // 5. REDIRIGIR AL DETALLE DEL NUEVO PAGO
-    // ======================================================
+    // ====
     header(
         "Location: " .
         BASE_URL .
@@ -52,9 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redireccionar('error', 'Solicitud no válida.');
 }
 
-// ==========================================================
+// ========
 // 1. RECIBIR Y NORMALIZAR DATOS DEL FORMULARIO
-// ==========================================================
+// ========
 // FILTER_VALIDATE_INT evita aceptar una unidad con un identificador inválido.
 $idUnidad = filter_input(INPUT_POST, 'id_unidad', FILTER_VALIDATE_INT);
 $fechaPago = trim($_POST['fecha_pago'] ?? '');
@@ -66,9 +66,9 @@ $referenciaExterna = trim($_POST['referencia_externa'] ?? '');
 $idExterno = trim($_POST['id_externo'] ?? '');
 $observaciones = trim($_POST['observaciones'] ?? '');
 
-// ==========================================================
+// ========
 // 2. VALIDACIONES DE NEGOCIO BÁSICAS
-// ==========================================================
+// ========
 if (!$idUnidad) {
     redireccionar('warning', 'Debe seleccionar una unidad.');
 }
@@ -100,9 +100,9 @@ if (!in_array($origenPago, $origenesPermitidos, true)) {
     redireccionar('warning', 'El origen del pago no es válido.', (int)$idUnidad);
 }
 
-// ==========================================================
+// ========
 // 3. VALIDAR QUE LA UNIDAD EXISTA Y ESTÉ ACTIVA
-// ==========================================================
+// ========
 try {
     $stmtUnidad = $conexion->prepare(
         "SELECT id_unidad FROM unidades WHERE id_unidad = :id_unidad AND activo = 1 LIMIT 1"
@@ -120,9 +120,9 @@ try {
      * Así podemos tener varios pagos/abonos independientes y decidir
      * posteriormente cómo aplicarlos desde aplicar_pago.php.
      */
-    // ======================================================
+    // ====
     // 4. INSERTAR EL PAGO SIN APLICARLO A CARTERA
-    // ======================================================
+    // ====
     // El valor completo queda disponible hasta que se creen aplicaciones.
     $sql = "
         INSERT INTO pagos
