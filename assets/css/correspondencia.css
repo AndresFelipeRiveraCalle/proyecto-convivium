@@ -1,0 +1,86 @@
+/* assets/css/correspondencia.css */
+
+/* Estilos para las etiquetas de estado */
+.estado-etiqueta {
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.estado-pendiente {
+    background-color: #fef08a;
+    color: #854d0e;
+}
+
+.estado-entregado {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+/* Estilos para los botones de acción en la tabla */
+.btn-accion-tabla {
+    padding: 5px 10px;
+    font-size: 12px;
+    margin-left: 5px;
+    display: inline-block;
+    text-decoration: none;
+    border-radius: 4px; /* Ajusta según tu diseño general */
+}
+
+.btn-whatsapp {
+    background-color: #25D366;
+    color: white;
+    border: 1px solid #25D366;
+}
+
+.btn-whatsapp:hover {
+    background-color: #128C7E;
+    border-color: #128C7E;
+    color: white;
+}
+
+.btn-entregar {
+    background-color: #007bff; /* Ajusta a tu azul principal */
+    color: white;
+    border: 1px solid #007bff;
+}
+
+.btn-entregar:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    color: white;
+}
+
+.sin-accion {
+    color: #ccc;
+    font-size: 13px;
+}
+
+/* Ajustes menores de layout específicos para correspondencia */
+.subtitulo-pagina {
+    color: #64748b;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.alerta-exito {
+    background-color: #dcfce7;
+    border: 1px solid #2ecc71;
+    color: #166534;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.campo-solo-lectura {
+    background-color: #f1f1f1;
+    cursor: not-allowed;
+    color: #666;
+}
+
+.modal-separador {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #333;
+}
