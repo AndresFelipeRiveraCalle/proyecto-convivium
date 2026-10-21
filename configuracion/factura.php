@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // CARGAR CALENDARIOS FINANCIEROS
-// ==========================================================
+// ========
 
 $sqlCalendarios = "
     SELECT
@@ -31,9 +31,9 @@ $calendarios = $stmtCalendarios->fetchAll(
 );
 
 
-// ==========================================================
+// ========
 // CARGAR TIPOS DE UNIDAD ACTIVOS
-// ==========================================================
+// ========
 
 $sqlTipos = "
     SELECT
@@ -60,9 +60,9 @@ $tiposUnidad = $stmtTipos->fetchAll(
 
 
 
-// ==========================================================
+// ========
 // FUNCIÓN NOMBRE TIPO DE CÁLCULO
-// ==========================================================
+// ========
 
 function nombreTipoCalculo($tipo)
 {
@@ -115,9 +115,9 @@ function nombreTipoCalculo($tipo)
     <main class="contenido">
 
 
-        <!-- ======================================================
+        <!-- ====
              ENCABEZADO
-        ======================================================= -->
+        ===== -->
 
         <h2 align="center">
             Generación de facturación
@@ -137,9 +137,9 @@ function nombreTipoCalculo($tipo)
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              INFORMACIÓN
-        ======================================================= -->
+        ===== -->
 
         <div class="info-box">
 
@@ -168,9 +168,9 @@ function nombreTipoCalculo($tipo)
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              FORMULARIO DE PREVISUALIZACIÓN
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 
@@ -496,9 +496,9 @@ function nombreTipoCalculo($tipo)
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              CONCEPTOS ACTIVOS
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 
@@ -733,9 +733,9 @@ function nombreTipoCalculo($tipo)
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      JAVASCRIPT
-========================================================== -->
+======== -->
 
 <script>
 

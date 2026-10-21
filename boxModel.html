@@ -1,0 +1,60 @@
+<!--
+El modelo de caja se compono de 4 elementos
+
+1. Contenido: Es la parte interna donde se muestra la informacion del elemento.
+
+2. PAdding: Es el espacio ue existe enetre el contenido y el borde.
+
+3. Border: Es la linea que rodea el contenido y el padding.
+
+4. Margin: Es el espacio que separa un elento de otroe elemnto
+
+
+
+
+
+
+COLAPSO DE MARGENES
+
+* Sucede cuando hay dos elementos in-Block adyacentes
+* No sucede con FlexBlox, grid y elementos que no sean BLOCK.(inline/inline-block)
+
+Ejemplo:
+
+
+
+
+-->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        div {
+            height: 200px;
+            width: 200px;
+            padding: 50px;
+            border: 5px solid black;
+            margin: 30px;
+        }
+
+        .container{
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <section class="container">
+        <h1>Lo que hay entre las etiquetas</h1>
+        <div class="estilo">
+            SENA
+        </div>
+        <div>ADSO</div>
+    </section>
+</body>
+</html>

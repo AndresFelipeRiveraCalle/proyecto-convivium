@@ -7,10 +7,10 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 
 
-// ==========================================================
+// ========
 // GENERAR PDF DE FACTURA
 // Devuelve el PDF como contenido binario.
-// ==========================================================
+// ========
 
 function generarPdfFactura(
     int $idFactura
@@ -25,9 +25,9 @@ function generarPdfFactura(
     }
 
 
-    // ======================================================
+    // ====
     // CONSERVAR GET ORIGINAL
-    // ======================================================
+    // ====
 
     $getOriginal =
         $_GET;
@@ -37,10 +37,10 @@ function generarPdfFactura(
         $idFactura;
 
 
-    // ======================================================
+    // ====
     // GENERAR HTML
     // Reutiliza factura_detalle.php.
-    // ======================================================
+    // ====
 
     ob_start();
 
@@ -69,9 +69,9 @@ function generarPdfFactura(
     }
 
 
-    // ======================================================
+    // ====
     // EXTRAER DOCUMENTO
-    // ======================================================
+    // ====
 
     libxml_use_internal_errors(
         true
@@ -131,10 +131,10 @@ function generarPdfFactura(
         $nodos->item(0);
 
 
-    // ======================================================
+    // ====
     // CONVERTIR IMÁGENES
     // Incluye el logo directamente dentro del PDF.
-    // ======================================================
+    // ====
 
     $imagenes =
         $xpath->query(
@@ -286,9 +286,9 @@ function generarPdfFactura(
     }
 
 
-    // ======================================================
+    // ====
     // HTML DE LA FACTURA
-    // ======================================================
+    // ====
 
     $htmlFactura =
         $dom->saveHTML(
@@ -308,10 +308,10 @@ function generarPdfFactura(
     }
 
 
-    // ======================================================
+    // ====
     // ESTILOS PDF
     // Usa la versión que ya dejamos aprobada.
-    // ======================================================
+    // ====
 
     $cssPdf = '
 
@@ -382,9 +382,9 @@ function generarPdfFactura(
         }
 
 
-        /* ==================================================
+        /* 
            CABECERA
-        ================================================== */
+         */
 
         .factura-cabecera {
 
@@ -519,9 +519,9 @@ function generarPdfFactura(
         }
 
 
-        /* ==================================================
+        /* 
            DATOS PRINCIPALES
-        ================================================== */
+         */
 
         .factura-meta {
 
@@ -594,9 +594,9 @@ function generarPdfFactura(
         }
 
 
-        /* ==================================================
+        /* 
            CLIENTE / UNIDAD
-        ================================================== */
+         */
 
         .factura-cliente {
 
@@ -706,9 +706,9 @@ function generarPdfFactura(
         }
 
 
-        /* ==================================================
+        /* 
            RESUMEN MORA
-        ================================================== */
+         */
 
         .factura-resumen-mora {
 
@@ -735,9 +735,9 @@ function generarPdfFactura(
         }
 
 
-        /* ==================================================
+        /* 
            TABLA
-        ================================================== */
+         */
 
         .factura-tabla {
 
@@ -951,9 +951,9 @@ function generarPdfFactura(
         }
 
 
-        /* ==================================================
+        /* 
            BLOQUE INFERIOR
-        ================================================== */
+         */
 
         .factura-inferior {
 
@@ -1076,9 +1076,9 @@ function generarPdfFactura(
         }
 
 
-        /* ==================================================
+        /* 
            CONTROL DE CORTES
-        ================================================== */
+         */
 
         .factura-cabecera,
         .factura-meta,
@@ -1101,9 +1101,9 @@ function generarPdfFactura(
     ';
 
 
-    // ======================================================
+    // ====
     // HTML PDF
-    // ======================================================
+    // ====
 
     $htmlPdf = '
         <!DOCTYPE html>
@@ -1134,9 +1134,9 @@ function generarPdfFactura(
     ';
 
 
-    // ======================================================
+    // ====
     // DOMPDF
-    // ======================================================
+    // ====
 
     $options =
         new Options();

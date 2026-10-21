@@ -42,9 +42,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-    // ==========================================================
+    // ========
     // CERRAR
-    // ==========================================================
+    // ========
 
     if (cerrar) {
         cerrar.addEventListener("click", function () {
@@ -58,9 +58,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // ==========================================================
+    // ========
     // CLICK FUERA
-    // ==========================================================
+    // ========
 
     if (modal) {
         modal.addEventListener("click", function (e) {

@@ -1,13 +1,13 @@
 <?php
 
 /**
- * =========================================================================
+ * =======================
  * MÓDULO: Zonas Comunes - Convivium
  * ARCHIVO: eliminar.php
  * DESCRIPCIÓN: Permite eliminar una zona común por el campo ID.
  * AUTOR: Andrés Felipe Rivera Calle
  * FECHA: 2026-08-04
- * =========================================================================
+ * =======================
  */
 
 // Importar la conexión a la base de datos 

@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // ==========================================================
+    // ========
     // ELEMENTOS
-    // ==========================================================
+    // ========
 
     const modal = document.getElementById("modalEditarUsuario");
 
@@ -11,9 +11,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnCancelar = document.getElementById("cancelarEditarUsuario");
 
 
-    // ==========================================================
+    // ========
     // BOTONES EDITAR
-    // ==========================================================
+    // ========
 
     const botonesEditar = document.querySelectorAll(".btnEditarUsuario");
 
@@ -36,9 +36,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    // ==========================================================
+    // ========
     // CARGAR USUARIO
-    // ==========================================================
+    // ========
 
     function cargarUsuario(id) {
 
@@ -75,9 +75,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 const usuario = data.usuario;
 
 
-                // ==================================================
+                // 
                 // DATOS
-                // ==================================================
+                // 
 
                 document.getElementById("editar_id").value =
                     usuario.id ?? "";
@@ -135,9 +135,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     usuario.estado ?? "1";
 
 
-                // ==================================================
+                // 
                 // FOTO ACTUAL
-                // ==================================================
+                // 
 
                 const fotoActual =
                     document.getElementById("editar_foto_actual");
@@ -167,9 +167,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
 
-                // ==================================================
+                // 
                 // MOSTRAR MODAL
-                // ==================================================
+                // 
 
                 modal.style.display = "flex";
 
@@ -191,9 +191,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ==========================================================
+    // ========
     // CERRAR
-    // ==========================================================
+    // ========
 
     if (btnCerrar) {
 
@@ -206,9 +206,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ==========================================================
+    // ========
     // CANCELAR
-    // ==========================================================
+    // ========
 
     if (btnCancelar) {
 
@@ -221,9 +221,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ==========================================================
+    // ========
     // CERRAR AL HACER CLICK FUERA
-    // ==========================================================
+    // ========
 
     window.addEventListener("click", function (event) {
 
