@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // VALIDAR UNIDAD
-// ==========================================================
+// ========
 
 $idUnidad = isset($_GET['id_unidad'])
     ? (int)$_GET['id_unidad']
@@ -24,9 +24,9 @@ if ($idUnidad <= 0) {
 }
 
 
-// ==========================================================
+// ========
 // CONSULTAR UNIDAD
-// ==========================================================
+// ========
 
 $sqlUnidad = "
     SELECT
@@ -63,9 +63,9 @@ $stmtUnidad->execute([
 $unidad = $stmtUnidad->fetch(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // VALIDAR QUE EXISTA
-// ==========================================================
+// ========
 
 if (!$unidad) {
 
@@ -78,9 +78,9 @@ if (!$unidad) {
 }
 
 
-// ==========================================================
+// ========
 // CONSULTAR PERSONAS ACTIVAS DE LA UNIDAD
-// ==========================================================
+// ========
 
 $sqlPersonas = "
     SELECT
@@ -144,9 +144,9 @@ $stmtPersonas->execute([
 $personas = $stmtPersonas->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // SEPARAR PERSONAS
-// ==========================================================
+// ========
 
 $propietarios = [];
 $inquilinos = [];
@@ -170,9 +170,9 @@ foreach ($personas as $persona) {
 }
 
 
-// ==========================================================
+// ========
 // CONSULTAR ESPACIOS ACTUALES DE LA UNIDAD
-// ==========================================================
+// ========
 
 $sqlEspacios = "
     SELECT
@@ -230,9 +230,9 @@ $stmtEspacios->execute([
 $espacios = $stmtEspacios->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // UNIDADES ACTIVAS PARA TRANSFERENCIA
-// ==========================================================
+// ========
 
 $sqlUnidadesTransferencia = "
     SELECT
@@ -266,9 +266,9 @@ $unidadesTransferencia =
     );
 
 
-// ==========================================================
+// ========
 // FUNCIÓN NOMBRE TIPO ESPACIO
-// ==========================================================
+// ========
 
 function nombreTipoEspacio($tipo)
 {
@@ -296,9 +296,9 @@ function nombreTipoEspacio($tipo)
 }
 
 
-// ==========================================================
+// ========
 // FUNCIÓN PARA TABLA DE PERSONAS
-// ==========================================================
+// ========
 
 function imprimirTablaPersonas($lista)
 {
@@ -539,9 +539,9 @@ function imprimirTablaPersonas($lista)
     <main class="contenido">
 
 
-        <!-- ==================================================
+        <!-- 
              ACCIONES SUPERIORES
-        =================================================== -->
+        = -->
 
         <div class="form-actions">
 
@@ -585,9 +585,9 @@ function imprimirTablaPersonas($lista)
         <br>
 
 
-        <!-- ==================================================
+        <!-- 
              INFORMACIÓN UNIDAD
-        =================================================== -->
+        = -->
 
         <div class="bloque">
 
@@ -726,9 +726,9 @@ function imprimirTablaPersonas($lista)
         <br>
 
 
-        <!-- ==================================================
+        <!-- 
              ESPACIOS
-        =================================================== -->
+        = -->
 
         <h3>
             Espacios asociados
@@ -1022,9 +1022,9 @@ function imprimirTablaPersonas($lista)
         <br>
 
 
-        <!-- ==================================================
+        <!-- 
              PROPIETARIOS
-        =================================================== -->
+        = -->
 
         <h3>
             Propietarios
@@ -1053,9 +1053,9 @@ function imprimirTablaPersonas($lista)
         <br>
 
 
-        <!-- ==================================================
+        <!-- 
              INQUILINOS
-        =================================================== -->
+        = -->
 
         <h3>
             Inquilinos
@@ -1084,9 +1084,9 @@ function imprimirTablaPersonas($lista)
         <br>
 
 
-        <!-- ==================================================
+        <!-- 
              RESIDENTES
-        =================================================== -->
+        = -->
 
         <h3>
             Residentes
@@ -1118,9 +1118,9 @@ function imprimirTablaPersonas($lista)
 </div>
 
 
-<!-- =========================================================
+<!-- =======
      MODAL AGREGAR PERSONA
-========================================================= -->
+======= -->
 
 <div
     id="modalAgregarPersonaUnidad"
@@ -1287,9 +1287,9 @@ function imprimirTablaPersonas($lista)
 </div>
 
 
-<!-- =========================================================
+<!-- =======
      MODAL EDITAR RELACIÓN
-========================================================= -->
+======= -->
 
 <div
     id="modalEditarRelacion"
@@ -1481,9 +1481,9 @@ function imprimirTablaPersonas($lista)
 </div>
 
 
-<!-- =========================================================
+<!-- =======
      MODAL RETIRAR PERSONA
-========================================================= -->
+======= -->
 
 <div
     id="modalRetirarRelacion"
@@ -1609,12 +1609,12 @@ function imprimirTablaPersonas($lista)
 </div>
 
 
-<!-- =========================================================
+<!-- =======
      MODAL AGREGAR ESPACIO
-========================================================= -->
-<!-- =========================================================
+======= -->
+<!-- =======
      MODAL AGREGAR ESPACIO
-========================================================= -->
+======= -->
 
 <div
     id="modalAgregarEspacioUnidad"
@@ -1824,9 +1824,9 @@ function imprimirTablaPersonas($lista)
 </div>
 
 
-<!-- =========================================================
+<!-- =======
      MODAL EDITAR ESPACIO
-========================================================= -->
+======= -->
 
 <div
     id="modalEditarEspacio"
@@ -2012,9 +2012,9 @@ function imprimirTablaPersonas($lista)
 </div>
 
 
-<!-- =========================================================
+<!-- =======
      MODAL TRANSFERIR ESPACIO
-========================================================= -->
+======= -->
 
 <div
     id="modalTransferirEspacio"
@@ -2266,9 +2266,9 @@ function imprimirTablaPersonas($lista)
 </div>
 
 
-<!-- =========================================================
+<!-- =======
      JAVASCRIPT
-========================================================= -->
+======= -->
 
 <script>
 
@@ -2276,9 +2276,9 @@ const BASE_URL =
     <?= json_encode(BASE_URL) ?>;
 
 
-// ==========================================================
+// ========
 // AGREGAR PERSONA
-// ==========================================================
+// ========
 
 function abrirModalPersona()
 {
@@ -2312,9 +2312,9 @@ function cerrarModalPersona()
 }
 
 
-// ==========================================================
+// ========
 // EDITAR RELACIÓN
-// ==========================================================
+// ========
 
 function cerrarModalEditarRelacion()
 {
@@ -2332,9 +2332,9 @@ function cerrarModalEditarRelacion()
 }
 
 
-// ==========================================================
+// ========
 // RETIRAR RELACIÓN
-// ==========================================================
+// ========
 
 function cerrarModalRetirarRelacion()
 {
@@ -2352,9 +2352,9 @@ function cerrarModalRetirarRelacion()
 }
 
 
-// ==========================================================
+// ========
 // AGREGAR ESPACIO
-// ==========================================================
+// ========
 
 function abrirModalEspacio()
 {
@@ -2388,9 +2388,9 @@ function cerrarModalEspacio()
 }
 
 
-// ==========================================================
+// ========
 // EDITAR ESPACIO
-// ==========================================================
+// ========
 
 function cerrarModalEditarEspacio()
 {
@@ -2408,9 +2408,9 @@ function cerrarModalEditarEspacio()
 }
 
 
-// ==========================================================
+// ========
 // TRANSFERIR
-// ==========================================================
+// ========
 
 function cerrarModalTransferirEspacio()
 {
@@ -2428,18 +2428,18 @@ function cerrarModalTransferirEspacio()
 }
 
 
-// ==========================================================
+// ========
 // DOM READY
-// ==========================================================
+// ========
 
 document.addEventListener(
     "DOMContentLoaded",
     function () {
 
 
-        // ==================================================
+        // 
         // EDITAR RELACIÓN
-        // ==================================================
+        // 
 
         document
             .querySelectorAll(
@@ -2570,9 +2570,9 @@ document.addEventListener(
             );
 
 
-        // ==================================================
+        // 
         // RETIRAR RELACIÓN
-        // ==================================================
+        // 
 
         document
             .querySelectorAll(
@@ -2634,9 +2634,9 @@ document.addEventListener(
             );
 
 
-        // ==================================================
+        // 
         // EDITAR ESPACIO
-        // ==================================================
+        // 
 
         document
             .querySelectorAll(
@@ -2695,9 +2695,9 @@ document.addEventListener(
             );
 
 
-        // ==================================================
+        // 
         // TRANSFERIR ESPACIO
-        // ==================================================
+        // 
 
         document
             .querySelectorAll(
@@ -2823,9 +2823,9 @@ document.addEventListener(
             );
 
 
-        // ==================================================
+        // 
         // CERRAR MODALES AL HACER CLIC FUERA
-        // ==================================================
+        // 
 
         window.addEventListener(
             "click",

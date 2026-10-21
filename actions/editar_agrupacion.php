@@ -16,9 +16,9 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 try {
 
-    // ==========================================================
+    // ========
     // DATOS
-    // ==========================================================
+    // ========
 
     $id_agrupacion = intval($_POST["id_agrupacion"] ?? 0);
     $id_tipo_agrupacion =intval($_POST["id_tipo_agrupacion"] ?? 0);
@@ -26,9 +26,9 @@ try {
     $descripcion =trim($_POST["descripcion"] ?? "");
 
 
-    // ==========================================================
+    // ========
     // VALIDACIONES
-    // ==========================================================
+    // ========
 
     if ($id_agrupacion <= 0) {
         throw new Exception(
@@ -49,9 +49,9 @@ try {
     }
 
 
-    // ==========================================================
+    // ========
     // VERIFICAR DUPLICADO
-    // ==========================================================
+    // ========
 
     $sql = " SELECT COUNT(*) FROM agrupaciones WHERE id_tipo_agrupacion = :tipo AND nombre = :nombre
           AND activo = 1 AND id_agrupacion <> :id";
@@ -77,9 +77,9 @@ $stmt = $conexion->prepare($sql);
     }
 
 
-    // ==========================================================
+    // ========
     // ACTUALIZAR
-    // ==========================================================
+    // ========
 
     $sql = "
         UPDATE agrupaciones
@@ -118,9 +118,9 @@ $stmt = $conexion->prepare($sql);
 
     $stmt->execute();
 
-    // ==========================================================
+    // ========
     // ÉXITO
-    // ==========================================================
+    // ========
 
     $mensaje = urlencode("La agrupación fue actualizada correctamente.");
 

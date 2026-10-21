@@ -3,63 +3,176 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
-    header("Location: " . BASE_URL . "pagos.php");
+// ========
+// VALIDAR MÉTODO
+// ========
+
+if (
+    $_SERVER["REQUEST_METHOD"]
+    !== "POST"
+) {
+
+    header(
+        "Location: " .
+        BASE_URL .
+        "configuracion/pagos.php"
+    );
 
     exit;
 }
 
 
+// ========
+// FUNCIÓN DE REDIRECCIÓN
+// ========
+
+function redirigirPago(
+    string $tipo,
+    string $mensaje,
+    int $idUnidad = 0
+): void {
+
+    $url =
+        BASE_URL .
+        "configuracion/registrar_pago.php";
+
+
+    $parametros = [
+
+        'tipo'
+            => $tipo,
+
+        'mensaje'
+            => $mensaje
+
+    ];
+
+
+    if (
+        $idUnidad > 0
+    ) {
+
+        $parametros[
+            'id_unidad'
+        ] =
+            $idUnidad;
+    }
+
+
+    header(
+        "Location: " .
+        $url .
+        "?" .
+        http_build_query(
+            $parametros
+        )
+    );
+
+    exit;
+}
+
+
+// ========
+// PROCESAR
+// ========
+
 try {
 
-    // ==========================================================
+
+    // ====
     // ID PAGO
-    // ==========================================================
+    // Se usa cuando el formulario también sirve para editar.
+    // ====
 
-    $id_pago = isset($_POST["id_pago"])
-        ? (int) $_POST["id_pago"]
-        : 0;
-
-
-    // ==========================================================
-    // DATOS
-    // ==========================================================
-
-    $id_unidad = isset($_POST["id_unidad"])
-        ? (int) $_POST["id_unidad"]
-        : 0;
-
-    $fecha_pago = trim(
-        $_POST["fecha_pago"] ?? ""
-    );
-
-    $valor = isset($_POST["valor"])
-        ? (float) $_POST["valor"]
-        : 0;
-
-    $medio_pago = trim(
-        $_POST["medio_pago"] ?? ""
-    );
-
-    $origen_pago = trim(
-        $_POST["origen_pago"] ?? ""
-    );
-
-    $referencia = trim(
-        $_POST["referencia"] ?? ""
-    );
-
-    $observaciones = trim(
-        $_POST["observaciones"] ?? ""
-    );
+    $idPago =
+        isset(
+            $_POST["id_pago"]
+        )
+            ? (int)$_POST["id_pago"]
+            : 0;
 
 
-    // ==========================================================
-    // VALIDACIONES
-    // ==========================================================
+    // ====
+    // DATOS DEL PAGO
+    // ====
 
-    if ($id_unidad <= 0) {
+    $idUnidad =
+        isset(
+            $_POST["id_unidad"]
+        )
+            ? (int)$_POST["id_unidad"]
+            : 0;
+
+
+    $fechaPago =
+        trim(
+            $_POST["fecha_pago"]
+            ?? ""
+        );
+
+
+    $valor =
+        isset(
+            $_POST["valor"]
+        )
+            ? (float)$_POST["valor"]
+            : 0;
+
+
+    $medioPago =
+        strtoupper(
+            trim(
+                $_POST["medio_pago"]
+                ?? ""
+            )
+        );
+
+
+    $origenPago =
+        strtoupper(
+            trim(
+                $_POST["origen_pago"]
+                ?? ""
+            )
+        );
+
+
+    $referencia =
+        trim(
+            $_POST["referencia"]
+            ?? ""
+        );
+
+
+    $referenciaExterna =
+        trim(
+            $_POST["referencia_externa"]
+            ?? ""
+        );
+
+
+    $idExterno =
+        trim(
+            $_POST["id_externo"]
+            ?? ""
+        );
+
+
+    $observaciones =
+        trim(
+            $_POST["observaciones"]
+            ?? ""
+        );
+
+
+    // ====
+    // VALIDACIONES GENERALES
+    // ====
+
+    if (
+        $idUnidad <= 0
+    ) {
 
         throw new Exception(
             "Debe seleccionar una unidad."
@@ -67,7 +180,9 @@ try {
     }
 
 
-    if ($fecha_pago === "") {
+    if (
+        $fechaPago === ""
+    ) {
 
         throw new Exception(
             "Debe indicar la fecha del pago."
@@ -75,7 +190,38 @@ try {
     }
 
 
-    if ($valor <= 0) {
+    // ====
+    // VALIDAR FECHA
+    // ====
+
+    $fechaObjeto =
+        DateTime::createFromFormat(
+            'Y-m-d',
+            $fechaPago
+        );
+
+
+    if (
+        !$fechaObjeto
+        ||
+        $fechaObjeto->format(
+            'Y-m-d'
+        ) !== $fechaPago
+    ) {
+
+        throw new Exception(
+            "La fecha del pago no es válida."
+        );
+    }
+
+
+    // ====
+    // VALIDAR VALOR
+    // ====
+
+    if (
+        $valor <= 0
+    ) {
 
         throw new Exception(
             "El valor del pago debe ser mayor que cero."
@@ -83,21 +229,36 @@ try {
     }
 
 
+    $valor =
+        round(
+            $valor,
+            2
+        );
+
+
+    // ====
+    // MEDIOS PERMITIDOS
+    // ====
+
     $mediosPermitidos = [
+
         "EFECTIVO",
         "TRANSFERENCIA",
         "CONSIGNACION",
         "PSE",
         "TARJETA",
         "OTRO"
+
     ];
 
 
-    if (!in_array(
-        $medio_pago,
-        $mediosPermitidos,
-        true
-    )) {
+    if (
+        !in_array(
+            $medioPago,
+            $mediosPermitidos,
+            true
+        )
+    ) {
 
         throw new Exception(
             "El medio de pago no es válido."
@@ -105,18 +266,26 @@ try {
     }
 
 
+    // ====
+    // ORÍGENES PERMITIDOS
+    // ====
+
     $origenesPermitidos = [
+
         "MANUAL",
         "BANCO",
         "PASARELA"
+
     ];
 
 
-    if (!in_array(
-        $origen_pago,
-        $origenesPermitidos,
-        true
-    )) {
+    if (
+        !in_array(
+            $origenPago,
+            $origenesPermitidos,
+            true
+        )
+    ) {
 
         throw new Exception(
             "El origen del pago no es válido."
@@ -124,30 +293,106 @@ try {
     }
 
 
-    // ==========================================================
+    // ====
+    // VALIDAR LONGITUDES
+    // ====
+
+    if (
+        mb_strlen(
+            $referencia,
+            'UTF-8'
+        ) > 100
+    ) {
+
+        throw new Exception(
+            "La referencia no puede superar los 100 caracteres."
+        );
+    }
+
+
+    if (
+        mb_strlen(
+            $referenciaExterna,
+            'UTF-8'
+        ) > 150
+    ) {
+
+        throw new Exception(
+            "La referencia externa no puede superar los 150 caracteres."
+        );
+    }
+
+
+    if (
+        mb_strlen(
+            $idExterno,
+            'UTF-8'
+        ) > 150
+    ) {
+
+        throw new Exception(
+            "El ID externo no puede superar los 150 caracteres."
+        );
+    }
+
+
+    if (
+        mb_strlen(
+            $observaciones,
+            'UTF-8'
+        ) > 255
+    ) {
+
+        throw new Exception(
+            "Las observaciones no pueden superar los 255 caracteres."
+        );
+    }
+
+
+    // ====
     // VERIFICAR UNIDAD
-    // ==========================================================
+    // ====
 
     $sqlUnidad = "
-        SELECT id_unidad
+
+        SELECT
+            id_unidad
+
         FROM unidades
-        WHERE id_unidad = :id_unidad
-          AND activo = 1
+
+        WHERE
+            id_unidad =
+                :id_unidad
+
+            AND activo = 1
+
         LIMIT 1
     ";
 
-    $stmtUnidad = $conexion->prepare(
-        $sqlUnidad
-    );
+
+    $stmtUnidad =
+        $conexion->prepare(
+            $sqlUnidad
+        );
+
 
     $stmtUnidad->execute([
-        ":id_unidad" => $id_unidad
+
+        ":id_unidad"
+            => $idUnidad
+
     ]);
 
-    $unidad = $stmtUnidad->fetch();
+
+    $unidad =
+        $stmtUnidad->fetch(
+            PDO::FETCH_ASSOC
+        );
 
 
-    if (!$unidad) {
+    if (
+        !$unidad
+    ) {
 
         throw new Exception(
             "La unidad seleccionada no existe o está inactiva."
@@ -155,39 +400,68 @@ try {
     }
 
 
-    // ==========================================================
+    // ====
     // VERIFICAR REFERENCIA DUPLICADA
-    //
-    // IMPORTANTE:
-    // Si estamos editando, excluimos el mismo id_pago.
-    // ==========================================================
+    // La referencia debe ser única dentro de la misma unidad.
+    // ====
 
-    if ($referencia !== "") {
+    if (
+        $referencia !== ""
+    ) {
 
         $sqlDuplicado = "
-            SELECT id_pago
+
+            SELECT
+                id_pago
+
             FROM pagos
-            WHERE id_unidad = :id_unidad
-              AND referencia = :referencia
-              AND estado = 'REGISTRADO'
-              AND id_pago <> :id_pago
+
+            WHERE
+                id_unidad =
+                    :id_unidad
+
+                AND referencia =
+                    :referencia
+
+                AND estado =
+                    'REGISTRADO'
+
+                AND id_pago <>
+                    :id_pago
+
             LIMIT 1
         ";
 
-        $stmtDuplicado = $conexion->prepare(
-            $sqlDuplicado
-        );
+
+        $stmtDuplicado =
+            $conexion->prepare(
+                $sqlDuplicado
+            );
+
 
         $stmtDuplicado->execute([
-            ":id_unidad"  => $id_unidad,
-            ":referencia" => $referencia,
-            ":id_pago"    => $id_pago
+
+            ":id_unidad"
+                => $idUnidad,
+
+            ":referencia"
+                => $referencia,
+
+            ":id_pago"
+                => $idPago
+
         ]);
 
-        $pagoExistente = $stmtDuplicado->fetch();
+
+        $pagoExistente =
+            $stmtDuplicado->fetch(
+                PDO::FETCH_ASSOC
+            );
 
 
-        if ($pagoExistente) {
+        if (
+            $pagoExistente
+        ) {
 
             throw new Exception(
                 "Ya existe un pago registrado para esta unidad con la referencia indicada."
@@ -196,220 +470,383 @@ try {
     }
 
 
-    // ==========================================================
-    // ACTUALIZAR
-    // ==========================================================
+    // ====
+    // EDITAR PAGO
+    // ====
 
-    if ($id_pago > 0) {
+    if (
+        $idPago > 0
+    ) {
 
 
-        // ------------------------------------------------------
-        // Verificar que el pago exista
-        // ------------------------------------------------------
+        // 
+        // CONSULTAR PAGO ACTUAL
+        // 
 
-        $sqlExiste = "
-            SELECT id_pago
-            FROM pagos
-            WHERE id_pago = :id_pago
-              AND estado = 'REGISTRADO'
+        $sqlPagoActual = "
+
+            SELECT
+
+                p.id_pago,
+                p.id_unidad,
+                p.valor,
+                p.estado,
+
+                COALESCE(
+                    (
+                        SELECT
+                            SUM(
+                                ap.valor_aplicado
+                            )
+
+                        FROM aplicaciones_pagos ap
+
+                        WHERE
+                            ap.id_pago =
+                                p.id_pago
+                    ),
+                    0
+                ) AS valor_aplicado,
+
+                COALESCE(
+                    (
+                        SELECT
+                            SUM(
+                                sf.valor_original
+                            )
+
+                        FROM saldo_favor sf
+
+                        WHERE
+                            sf.id_pago =
+                                p.id_pago
+
+                            AND sf.estado <>
+                                'ANULADO'
+                    ),
+                    0
+                ) AS saldo_favor_generado
+
+            FROM pagos p
+
+            WHERE
+                p.id_pago =
+                    :id_pago
+
             LIMIT 1
         ";
 
-        $stmtExiste = $conexion->prepare(
-            $sqlExiste
-        );
 
-        $stmtExiste->execute([
-            ":id_pago" => $id_pago
+        $stmtPagoActual =
+            $conexion->prepare(
+                $sqlPagoActual
+            );
+
+
+        $stmtPagoActual->execute([
+
+            ":id_pago"
+                => $idPago
+
         ]);
 
-        $pagoExiste = $stmtExiste->fetch();
+
+        $pagoActual =
+            $stmtPagoActual->fetch(
+                PDO::FETCH_ASSOC
+            );
 
 
-        if (!$pagoExiste) {
+        if (
+            !$pagoActual
+        ) {
 
             throw new Exception(
-                "El pago que intenta editar no existe o está anulado."
+                "El pago que intenta editar no existe."
             );
         }
 
 
-        // ------------------------------------------------------
-        // UPDATE
-        // ------------------------------------------------------
+        if (
+            $pagoActual[
+                'estado'
+            ] !== 'REGISTRADO'
+        ) {
 
-        $sql = "
+            throw new Exception(
+                "El pago está anulado y no puede ser editado."
+            );
+        }
+
+
+        $valorAplicado =
+            (float)$pagoActual[
+                'valor_aplicado'
+            ];
+
+
+        $saldoFavorGenerado =
+            (float)$pagoActual[
+                'saldo_favor_generado'
+            ];
+
+
+        $tieneMovimientos =
+            $valorAplicado > 0.009
+            ||
+            $saldoFavorGenerado > 0.009;
+
+
+        // 
+        // PROTEGER PAGO CON MOVIMIENTOS
+        // No permite cambiar unidad o valor si ya fue usado.
+        // 
+
+        if (
+            $tieneMovimientos
+        ) {
+
+
+            if (
+                $idUnidad !==
+                (int)$pagoActual[
+                    'id_unidad'
+                ]
+            ) {
+
+                throw new Exception(
+                    "No puede cambiar la unidad porque el pago ya tiene aplicaciones o saldo a favor."
+                );
+            }
+
+
+            if (
+                abs(
+                    $valor -
+                    (float)$pagoActual[
+                        'valor'
+                    ]
+                ) > 0.009
+            ) {
+
+                throw new Exception(
+                    "No puede cambiar el valor porque el pago ya tiene aplicaciones o saldo a favor."
+                );
+            }
+        }
+
+
+        // 
+        // ACTUALIZAR
+        // 
+
+        $sqlActualizar = "
+
             UPDATE pagos
+
             SET
-                id_unidad = :id_unidad,
-                fecha_pago = :fecha_pago,
-                valor = :valor,
-                medio_pago = :medio_pago,
-                origen_pago = :origen_pago,
-                referencia = :referencia,
-                observaciones = :observaciones
-            WHERE id_pago = :id_pago
+
+                id_unidad =
+                    :id_unidad,
+
+                fecha_pago =
+                    :fecha_pago,
+
+                valor =
+                    :valor,
+
+                medio_pago =
+                    :medio_pago,
+
+                origen_pago =
+                    :origen_pago,
+
+                referencia =
+                    :referencia,
+
+                referencia_externa =
+                    :referencia_externa,
+
+                id_externo =
+                    :id_externo,
+
+                observaciones =
+                    :observaciones
+
+            WHERE
+                id_pago =
+                    :id_pago
         ";
 
 
-        $stmt = $conexion->prepare($sql);
+        $stmtActualizar =
+            $conexion->prepare(
+                $sqlActualizar
+            );
 
 
-        $stmt->execute([
+        $stmtActualizar->execute([
 
-            ":id_unidad" =>
-                $id_unidad,
+            ":id_unidad"
+                => $idUnidad,
 
-            ":fecha_pago" =>
-                $fecha_pago,
+            ":fecha_pago"
+                => $fechaPago,
 
-            ":valor" =>
-                $valor,
+            ":valor"
+                => $valor,
 
-            ":medio_pago" =>
-                $medio_pago,
+            ":medio_pago"
+                => $medioPago,
 
-            ":origen_pago" =>
-                $origen_pago,
+            ":origen_pago"
+                => $origenPago,
 
-            ":referencia" =>
-                $referencia !== ""
+            ":referencia"
+                => $referencia !== ""
                     ? $referencia
                     : null,
 
-            ":observaciones" =>
-                $observaciones !== ""
+            ":referencia_externa"
+                => $referenciaExterna !== ""
+                    ? $referenciaExterna
+                    : null,
+
+            ":id_externo"
+                => $idExterno !== ""
+                    ? $idExterno
+                    : null,
+
+            ":observaciones"
+                => $observaciones !== ""
                     ? $observaciones
                     : null,
 
-            ":id_pago" =>
-                $id_pago
+            ":id_pago"
+                => $idPago
+
         ]);
 
 
-        $mensaje =
-            "Pago actualizado correctamente.";
-
+        redirigirPago(
+            'success',
+            'Pago actualizado correctamente.',
+            $idUnidad
+        );
     }
 
 
-    // ==========================================================
+    // ====
     // NUEVO PAGO
-    // ==========================================================
+    // ====
 
-    else {
+    $sqlInsertar = "
+
+        INSERT INTO pagos
+        (
+            id_unidad,
+            fecha_pago,
+            valor,
+            medio_pago,
+            origen_pago,
+            estado_conciliacion,
+            referencia,
+            referencia_externa,
+            id_externo,
+            observaciones,
+            estado
+        )
+        VALUES
+        (
+            :id_unidad,
+            :fecha_pago,
+            :valor,
+            :medio_pago,
+            :origen_pago,
+            'PENDIENTE',
+            :referencia,
+            :referencia_externa,
+            :id_externo,
+            :observaciones,
+            'REGISTRADO'
+        )
+    ";
 
 
-        $sql = "
-            INSERT INTO pagos (
-                id_unidad,
-                fecha_pago,
-                valor,
-                medio_pago,
-                origen_pago,
-                estado_conciliacion,
-                referencia,
-                observaciones,
-                estado
-            )
-            VALUES (
-                :id_unidad,
-                :fecha_pago,
-                :valor,
-                :medio_pago,
-                :origen_pago,
-                'PENDIENTE',
-                :referencia,
-                :observaciones,
-                'REGISTRADO'
-            )
-        ";
-
-
-        $stmt = $conexion->prepare(
-            $sql
+    $stmtInsertar =
+        $conexion->prepare(
+            $sqlInsertar
         );
 
 
-        $stmt->execute([
+    $stmtInsertar->execute([
 
-            ":id_unidad" =>
-                $id_unidad,
+        ":id_unidad"
+            => $idUnidad,
 
-            ":fecha_pago" =>
-                $fecha_pago,
+        ":fecha_pago"
+            => $fechaPago,
 
-            ":valor" =>
-                $valor,
+        ":valor"
+            => $valor,
 
-            ":medio_pago" =>
-                $medio_pago,
+        ":medio_pago"
+            => $medioPago,
 
-            ":origen_pago" =>
-                $origen_pago,
+        ":origen_pago"
+            => $origenPago,
 
-            ":referencia" =>
-                $referencia !== ""
-                    ? $referencia
-                    : null,
+        ":referencia"
+            => $referencia !== ""
+                ? $referencia
+                : null,
 
-            ":observaciones" =>
-                $observaciones !== ""
-                    ? $observaciones
-                    : null
-        ]);
+        ":referencia_externa"
+            => $referenciaExterna !== ""
+                ? $referenciaExterna
+                : null,
+
+        ":id_externo"
+            => $idExterno !== ""
+                ? $idExterno
+                : null,
+
+        ":observaciones"
+            => $observaciones !== ""
+                ? $observaciones
+                : null
+
+    ]);
 
 
-        $mensaje =
-            "Pago registrado correctamente.";
-    }
+    $nuevoIdPago =
+        (int)$conexion->lastInsertId();
 
 
-    // ==========================================================
+    // ====
     // REDIRECCIÓN
-    // ==========================================================
+    // ====
 
-    $url = $_SERVER['HTTP_REFERER'] ?? BASE_URL;
-
-    $separador =
-        (strpos($url, '?') !== false)
-        ? '&'
-        : '?';
-
-
-    header(
-        "Location: " .
-        $url .
-        $separador .
-        "tipo=success&mensaje=" .
-        urlencode($mensaje)
+    redirigirPago(
+        'success',
+        'Pago registrado correctamente. ID de pago: #' .
+        $nuevoIdPago,
+        $idUnidad
     );
 
-    exit;
+
+} catch (Throwable $e) {
 
 
-} catch (Exception $e) {
-
-
-    // ==========================================================
+    // ====
     // ERROR
-    // ==========================================================
+    // ====
 
-    $url = $_SERVER['HTTP_REFERER'] ?? BASE_URL;
-
-    $separador =
-        (strpos($url, '?') !== false)
-        ? '&'
-        : '?';
-
-
-    header(
-        "Location: " .
-        $url .
-        $separador .
-        "tipo=error&mensaje=" .
-        urlencode($e->getMessage())
+    redirigirPago(
+        'error',
+        $e->getMessage(),
+        isset($idUnidad)
+            ? (int)$idUnidad
+            : 0
     );
-
-    exit;
 }

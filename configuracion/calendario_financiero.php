@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // CONFIGURACIÓN FINANCIERA ACTIVA
-// ==========================================================
+// ========
 
 $sqlConfig = "
     SELECT
@@ -23,9 +23,9 @@ $stmtConfig->execute();
 $configuracion = $stmtConfig->fetch(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // CONSULTAR CALENDARIO
-// ==========================================================
+// ========
 
 $sql = "
     SELECT
@@ -48,9 +48,9 @@ $stmt->execute();
 $calendarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // FORMATEAR FECHA
-// ==========================================================
+// ========
 
 function formatoFecha($fecha)
 {
@@ -65,9 +65,9 @@ function formatoFecha($fecha)
 }
 
 
-// ==========================================================
+// ========
 // FORMATEAR PERÍODO
-// ==========================================================
+// ========
 
 function formatoPeriodo($periodo)
 {
@@ -127,9 +127,9 @@ function formatoPeriodo($periodo)
         <div class="calendario-financiero-container">
 
 
-            <!-- ==================================================
+            <!-- 
                 ENCABEZADO
-            =================================================== -->
+            = -->
 
             <div class="calendario-header">
 
@@ -161,9 +161,9 @@ function formatoPeriodo($periodo)
             </div>
 
 
-            <!-- ==================================================
+            <!-- 
                 CONFIGURACIÓN ACTUAL
-            =================================================== -->
+            = -->
 
             <?php if ($configuracion): ?>
 
@@ -232,9 +232,9 @@ function formatoPeriodo($periodo)
             <?php endif; ?>
 
 
-            <!-- ==================================================
+            <!-- 
                 TABLA
-            =================================================== -->
+            = -->
 
             <div class="tabla-card">
 

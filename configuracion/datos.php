@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // CARGAR PAÍSES
-// ==========================================================
+// ========
 
 $stmtPais = $conexion->query("
     SELECT
@@ -19,9 +19,9 @@ $stmtPais = $conexion->query("
 $paises = $stmtPais->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // CARGAR DEPARTAMENTOS
-// ==========================================================
+// ========
 
 $stmtDepartamentos = $conexion->query("
     SELECT
@@ -36,9 +36,9 @@ $stmtDepartamentos = $conexion->query("
 $departamentos = $stmtDepartamentos->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // CARGAR CIUDADES
-// ==========================================================
+// ========
 
 $stmtCiudades = $conexion->query("
     SELECT
@@ -53,9 +53,9 @@ $stmtCiudades = $conexion->query("
 $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // TIPOS DE COPROPIEDAD
-// ==========================================================
+// ========
 
 $stmtTipoCopropiedad = $conexion->query("
     SELECT
@@ -70,9 +70,9 @@ $tiposCopropiedad = $stmtTipoCopropiedad->fetchAll(
 );
 
 
-// ==========================================================
+// ========
 // CARGAR DATOS ACTUALES DE LA COPROPIEDAD
-// ==========================================================
+// ========
 
 $stmtUnidad = $conexion->query("
     SELECT *
@@ -86,22 +86,22 @@ $stmtUnidad = $conexion->query("
 $unidad = $stmtUnidad->fetch(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // SI EXISTE INFORMACIÓN, INICIAR BLOQUEADO
-// ==========================================================
+// ========
 
 $bloqueado = ($unidad !== false);
 
 
-// ==========================================================
+// ========
 // CALCULAR CANTIDAD TOTAL DE UNIDADES
-// ==========================================================
+// ========
 //
 // Este dato ya no se escribe manualmente.
 //
 // Se obtiene de los grupos configurados en
 // detalle_tipos_unidad.
-// ==========================================================
+// ========
 
 $stmtCantidadUnidades = $conexion->query("
     SELECT
@@ -159,9 +159,9 @@ $cantidadTotalUnidades =
         >
 
 
-            <!-- ==================================================
+            <!-- 
                  ID REGISTRO ACTUAL
-            =================================================== -->
+            = -->
 
             <input
                 type="hidden"
@@ -172,12 +172,12 @@ $cantidadTotalUnidades =
             >
 
 
-            <!-- ==================================================
+            <!-- 
                  ENCABEZADO
-            =================================================== -->
+            = -->
 
             <h2 align="center">
-                Datos de la copropiedad
+                DATOS DE LA COPROPIEDAD
             </h2>
 
 
@@ -185,39 +185,27 @@ $cantidadTotalUnidades =
 
 
             <p>
-
-                Configure la información general,
-                ubicación, datos de contacto,
-                documentos e identidad visual de la
-                copropiedad.
-
+                Configure la información general, ubicación, datos de contacto,
+                documentos e identidad visual de la copropiedad.
             </p>
 
 
             <br>
 
-
-            <!-- ==================================================
+            <!-- 
                  DATOS GENERALES
-            =================================================== -->
+            = -->
 
-            <h3>
-                Datos generales
-            </h3>
-
-
+            <h3>Datos generales</h3>
             <div class="bloque filtros">
-
 
                 <!-- NOMBRE -->
 
                 <div class="card">
 
-
                     <label for="nombre_unidad">
                         Nombre de la copropiedad *
                     </label>
-
 
                     <input
                         type="text"
@@ -229,9 +217,8 @@ $cantidadTotalUnidades =
                             $unidad['nombre'] ?? ''
                         ) ?>"
                         <?= $bloqueado ? 'readonly' : '' ?>
-                        required
+                        required style="text-align: center";
                     >
-
 
                 </div>
 
@@ -239,87 +226,58 @@ $cantidadTotalUnidades =
                 <!-- NIT -->
 
                 <div class="card">
-
-
                     <label for="nit_unidad">
                         NIT *
                     </label>
 
-
                     <input
-                        type="text"
-                        id="nit_unidad"
-                        name="nit_unidad"
-                        placeholder="Ingrese el NIT"
+                        type="text" id="nit_unidad" name="nit_unidad" placeholder="Ingrese el NIT"
                         maxlength="30"
                         value="<?= htmlspecialchars(
                             $unidad['nit'] ?? ''
                         ) ?>"
                         <?= $bloqueado ? 'readonly' : '' ?>
-                        required
+                        required style="text-align: center";
                     >
-
-
                 </div>
 
-
                 <!-- REPRESENTANTE LEGAL -->
-
                 <div class="card">
-
-
                     <label for="representante_legal">
                         Representante legal *
                     </label>
 
-
                     <input
-                        type="text"
-                        id="representante_legal"
-                        name="representante_legal"
-                        placeholder="Nombre del representante legal"
-                        maxlength="150"
+                        type="text" id="representante_legal" name="representante_legal"
+                        placeholder="Nombre del representante legal" maxlength="150"
                         value="<?= htmlspecialchars(
                             $unidad['representante_legal'] ?? ''
                         ) ?>"
                         <?= $bloqueado ? 'readonly' : '' ?>
-                        required
+                        required style="text-align: center";
                     >
-
-
                 </div>
 
 
                 <!-- TIPO DE COPROPIEDAD -->
 
                 <div class="card">
-
-
                     <label for="tipo_copropiedad">
                         Tipo de copropiedad *
                     </label>
 
-
                     <select
-                        name="tipo_copropiedad"
-                        id="tipo_copropiedad"
-                        class="form-control"
+                        name="tipo_copropiedad" id="tipo_copropiedad" class="form-control"
                         <?= $bloqueado ? 'disabled' : '' ?>
                         required
                     >
-
-
-                        <option value="">
-                            Seleccione un tipo
-                        </option>
-
+                        <option value="" style="text-align: center";>Seleccione un tipo</option>
 
                         <?php foreach (
                             $tiposCopropiedad as $propiedad
                         ): ?>
 
-
-                            <option
+                            <option style="text-align: center";
                                 value="<?= (int)$propiedad['id'] ?>"
                                 <?= (
                                     isset($unidad['id_tipo_copropiedad']) &&
@@ -330,70 +288,42 @@ $cantidadTotalUnidades =
                                     : ''
                                 ?>
                             >
-
                                 <?= htmlspecialchars(
                                     $propiedad['nombre']
                                 ) ?>
 
                             </option>
 
-
                         <?php endforeach; ?>
-
-
                     </select>
-
-
                 </div>
-
-
             </div>
 
-
-            <br>
-
-
-            <!-- ==================================================
+            
+            <!-- 
                  RESUMEN ESTRUCTURA FÍSICA
-            =================================================== -->
-
-            <h3>
-                Estructura de la copropiedad
-            </h3>
-
-
-            <div class="bloque filtros">
-
-
-                <div class="card">
-
-
-                    <label>
-                        Cantidad total de unidades
-                    </label>
-
+            = -->
+            <h3> Estructura de la copropiedad </h3>
+            
+            <div class="bloque filtros">            
+                <div class="form-card">
+                <label>Cantidad total de unidades</label>
 
                     <input
                         type="number"
                         id="cantidad_total_unidades"
                         value="<?= $cantidadTotalUnidades ?>"
-                        readonly
+                        readonly style="text-align: center";
                     >
 
-
-                    <small>
-
-                        Este valor se calcula automáticamente
-                        a partir de los grupos de unidades
-                        configurados.
-
-                    </small>
+                    <P>Este valor se calcula automáticamente a partir de los grupos de unidades
+                        configurados.</P>
 
 
                 </div>
 
 
-                <div class="card">
+                <div class="form-card">
 
 
                     <label>
@@ -402,11 +332,9 @@ $cantidadTotalUnidades =
 
 
                     <p>
-
                         Los grupos, cantidades, áreas y
                         coeficientes se administran desde
                         Configuración de áreas.
-
                     </p>
 
 
@@ -415,27 +343,19 @@ $cantidadTotalUnidades =
 
                     <button
                         type="button"
-                        class="btn-secondary"
+                        class="btn-filtrar"
                         onclick="window.location.href='<?= BASE_URL ?>configuracion/basico.php'"
                     >
 
                         Ir a configuración de áreas
 
                     </button>
-
-
                 </div>
-
-
             </div>
 
-
-            <br>
-
-
-            <!-- ==================================================
+            <!-- 
                  UBICACIÓN
-            =================================================== -->
+            = -->
 
             <h3>
                 Ubicación
@@ -444,33 +364,25 @@ $cantidadTotalUnidades =
 
             <div class="bloque filtros">
 
-
                 <!-- PAÍS -->
 
                 <div class="card">
-
 
                     <label for="id_pais">
                         País
                     </label>
 
 
-                    <select
-                        name="id_pais"
-                        id="id_pais"
+                    <select style="text-align: center"; name="id_pais" id="id_pais"
                         class="form-control"
                         <?= $bloqueado ? 'disabled' : '' ?>
                     >
-
-
-                        <option value="">
+                        <option value="" style="text-align: center";>
                             Seleccione un país
                         </option>
 
 
                         <?php foreach ($paises as $pais): ?>
-
-
                             <option
                                 value="<?= (int)$pais['id_pais'] ?>"
                                 <?= (
@@ -481,50 +393,34 @@ $cantidadTotalUnidades =
                                     : ''
                                 ?>
                             >
-
                                 <?= htmlspecialchars(
                                     $pais['nombre']
                                 ) ?>
-
                             </option>
-
-
                         <?php endforeach; ?>
-
-
                     </select>
-
-
                 </div>
 
-
                 <!-- DEPARTAMENTO -->
-
                 <div class="card">
-
 
                     <label for="id_departamento">
                         Departamento
                     </label>
 
-
-                    <select
+                    <select style="text-align: center";
                         name="id_departamento"
                         id="id_departamento"
-                        class="form-control"
+                        class="form-control" 
                         <?= $bloqueado ? 'disabled' : '' ?>
                     >
-
-
                         <option value="">
                             Seleccione un departamento
                         </option>
 
-
                         <?php foreach (
                             $departamentos as $departamento
                         ): ?>
-
 
                             <option
                                 value="<?= (int)$departamento['id_departamento'] ?>"
@@ -537,7 +433,6 @@ $cantidadTotalUnidades =
                                     : ''
                                 ?>
                             >
-
                                 <?php if (
                                     !empty($departamento['codigo'])
                                 ): ?>
@@ -545,24 +440,15 @@ $cantidadTotalUnidades =
                                     <?= htmlspecialchars(
                                         $departamento['codigo']
                                     ) ?>
-
                                     -
-
                                 <?php endif; ?>
 
                                 <?= htmlspecialchars(
                                     $departamento['nombre']
                                 ) ?>
-
                             </option>
-
-
                         <?php endforeach; ?>
-
-
                     </select>
-
-
                 </div>
 
 
@@ -570,28 +456,21 @@ $cantidadTotalUnidades =
 
                 <div class="card">
 
-
                     <label for="id_ciudad">
                         Ciudad
                     </label>
 
-
-                    <select
+                    <select style="text-align: center";
                         name="id_ciudad"
                         id="id_ciudad"
                         class="form-control"
                         <?= $bloqueado ? 'disabled' : '' ?>
                     >
-
-
                         <option value="">
                             Seleccione una ciudad
                         </option>
 
-
                         <?php foreach ($ciudades as $ciudad): ?>
-
-
                             <option
                                 value="<?= (int)$ciudad['id_ciudad'] ?>"
                                 data-departamento="<?= (int)$ciudad['id_departamento'] ?>"
@@ -611,9 +490,7 @@ $cantidadTotalUnidades =
                                     <?= htmlspecialchars(
                                         $ciudad['codigo_dane']
                                     ) ?>
-
                                     -
-
                                 <?php endif; ?>
 
                                 <?= htmlspecialchars(
@@ -621,32 +498,19 @@ $cantidadTotalUnidades =
                                 ) ?>
 
                             </option>
-
-
                         <?php endforeach; ?>
-
-
                     </select>
-
-
                 </div>
-
 
                 <!-- DIRECCIÓN -->
 
                 <div class="card">
-
-
                     <label for="direccion">
                         Dirección *
                     </label>
 
-
-                    <input
-                        type="text"
-                        id="direccion"
-                        name="direccion"
-                        maxlength="200"
+                    <input style="text-align: center";
+                        type="text" id="direccion" name="direccion" maxlength="200"
                         placeholder="Ej. Vía Las Palmas Km 4"
                         value="<?= htmlspecialchars(
                             $unidad['direccion'] ?? ''
@@ -654,22 +518,16 @@ $cantidadTotalUnidades =
                         <?= $bloqueado ? 'readonly' : '' ?>
                         required
                     >
-
-
                 </div>
 
-
                 <!-- SECTOR -->
-
                 <div class="card">
-
-
                     <label for="sector">
                         Sector
                     </label>
 
 
-                    <input
+                    <input style="text-align: center";
                         type="text"
                         id="sector"
                         name="sector"
@@ -680,222 +538,136 @@ $cantidadTotalUnidades =
                         ) ?>"
                         <?= $bloqueado ? 'readonly' : '' ?>
                     >
-
-
                 </div>
-
-
             </div>
 
-
-            <br>
-
-
-            <!-- ==================================================
+            <!-- 
                  CONTACTO
-            =================================================== -->
+            = -->
 
-            <h3>
-                Datos de contacto
-            </h3>
-
+            <h3>Datos de contacto</h3>
 
             <div class="bloque filtros">
 
-
                 <!-- CORREO -->
-
                 <div class="card">
-
 
                     <label for="correo_propiedad">
                         Correo electrónico
                     </label>
 
-
-                    <input
-                        type="email"
-                        id="correo_propiedad"
-                        name="correo_propiedad"
-                        maxlength="150"
-                        placeholder="administracion@copropiedad.com"
+                    <input style="text-align: center";
+                        type="email" id="correo_propiedad" name="correo_propiedad"
+                        maxlength="150" placeholder="administracion@copropiedad.com"
                         value="<?= htmlspecialchars(
                             $unidad['correo'] ?? ''
                         ) ?>"
                         <?= $bloqueado ? 'readonly' : '' ?>
                     >
-
-
                 </div>
-
 
                 <!-- TELÉFONO -->
 
                 <div class="card">
 
-
                     <label for="telefono_propiedad">
                         Teléfono de contacto
                     </label>
 
-
-                    <input
-                        type="tel"
-                        id="telefono_propiedad"
-                        name="telefono_propiedad"
-                        maxlength="30"
-                        placeholder="Teléfono de contacto"
+                    <input style="text-align: center";
+                        type="tel" id="telefono_propiedad" name="telefono_propiedad"
+                        maxlength="30" placeholder="Teléfono de contacto"
                         value="<?= htmlspecialchars(
                             $unidad['telefono'] ?? ''
                         ) ?>"
                         <?= $bloqueado ? 'readonly' : '' ?>
                     >
-
-
                 </div>
-
-
             </div>
 
-
-            <br>
-
-
-            <!-- ==================================================
+            <!-- 
                  DOCUMENTOS
-            =================================================== -->
+            = -->
 
-            <h3>
-                Documentos
-            </h3>
-
+            <h3>Documentos</h3>
 
             <div class="bloque filtros">
 
-
                 <!-- REGLAMENTO -->
-
                 <div class="form-card">
-
-
                     <label for="reglamento">
-
-                        Reglamento de propiedad horizontal
-                        (PDF)
-
+                        Reglamento de propiedad horizontal (PDF)
                     </label>
 
-
-                    <input
-                        type="file"
-                        id="reglamento"
-                        name="reglamento"
+                    <input type="file" id="reglamento" name="reglamento"
                         accept="application/pdf"
                         <?= $bloqueado ? 'disabled' : '' ?>
                     >
-
-
                     <?php if (
                         !empty($unidad['reglamento'])
                     ): ?>
 
-
                         <br>
-
-
                         <a
                             href="<?= BASE_URL ?>assets/documentos/<?= htmlspecialchars(
                                 $unidad['reglamento']
                             ) ?>"
                             target="_blank"
-                            class="btn-secondary"
+                            class="btn-filtrar"
                         >
-
                             Ver reglamento
-
                         </a>
 
 
                     <?php endif; ?>
 
-
                 </div>
 
-
                 <!-- MANUAL -->
-
                 <div class="form-card">
 
-
                     <label for="manual">
-
-                        Manual de convivencia
-                        (PDF)
+                        Manual de convivencia (PDF)
 
                     </label>
 
-
                     <input
-                        type="file"
-                        id="manual"
-                        name="manual"
-                        accept="application/pdf"
+                        type="file" id="manual" name="manual" accept="application/pdf"
                         <?= $bloqueado ? 'disabled' : '' ?>
                     >
-
 
                     <?php if (
                         !empty($unidad['manual'])
                     ): ?>
 
-
                         <br>
-
 
                         <a
                             href="<?= BASE_URL ?>assets/documentos/<?= htmlspecialchars(
                                 $unidad['manual']
                             ) ?>"
                             target="_blank"
-                            class="btn-secondary"
+                            class="btn-filtrar"
                         >
-
                             Ver manual
-
                         </a>
-
-
                     <?php endif; ?>
-
-
                 </div>
-
-
             </div>
 
-
-            <br>
-
-
-            <!-- ==================================================
+            <!-- 
                  IDENTIDAD VISUAL
-            =================================================== -->
+            = -->
 
-            <h3>
-                LOGO
-            </h3>
-
+            <h3>LOGO</h3>
 
             <div class="bloque filtros">
 
-
                 <div class="form-card">
-
 
                     <label for="logo">
                         Logo de la copropiedad
                     </label>
-
 
                     <input
                         type="file"
@@ -906,12 +678,7 @@ $cantidadTotalUnidades =
                     >
 
 
-                    <br><br>
-
-
                     <?php if (!empty($unidad['logo'])): ?>
-
-
                         <img
                             src="<?= BASE_URL ?>assets/logos/<?= htmlspecialchars(
                                 $unidad['logo']
@@ -921,33 +688,20 @@ $cantidadTotalUnidades =
                             class="preview-logo"
                         >
 
-
                     <?php else: ?>
-
-
                         <img
                             src="<?= BASE_URL ?>assets/img/user.png"
                             alt="Logo por defecto"
                             id="logoPreview"
                             class="preview-logo"
                         >
-
-
                     <?php endif; ?>
-
-
                 </div>
-
-
             </div>
 
-
-            <br>
-
-
-            <!-- ==================================================
+            <!-- 
                  ACCIONES
-            =================================================== -->
+            = -->
 
             <div class="form-actions">
 
@@ -1021,7 +775,6 @@ $cantidadTotalUnidades =
                     class="btn-filtrar btn-derecha"
                     onclick="window.location.href='<?= BASE_URL ?>configuracion/basico.php'"
                 >
-
                     Configuración de áreas
 
                 </button>

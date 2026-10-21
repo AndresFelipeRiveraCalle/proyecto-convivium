@@ -4,10 +4,10 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // CONFIGURACIÓN ACTUAL
 // Obtiene la configuración de correo activa.
-// ==========================================================
+// ========
 
 $sqlConfiguracion = "
     SELECT
@@ -60,62 +60,43 @@ $configuracion =
     );
 
 
-// ==========================================================
+// ========
 // VALORES POR DEFECTO
 // Prepara el formulario cuando no existe configuración.
-// ==========================================================
+// ========
 
 if (!$configuracion) {
 
     $configuracion = [
 
         'id_configuracion_correo' => 0,
-
         'nombre_configuracion' => '',
-
         'correo_remitente' => '',
-
         'nombre_remitente' => '',
-
         'correo_respuesta' => '',
-
         'smtp_host' => '',
-
         'smtp_puerto' => 587,
-
         'smtp_seguridad' => 'TLS',
-
         'smtp_autenticacion' => 1,
-
         'smtp_usuario' => '',
-
         'imap_host' => '',
-
         'imap_puerto' => 993,
-
         'imap_seguridad' => 'SSL',
-
         'imap_usuario' => '',
-
         'imap_carpeta' => 'INBOX',
-
         'activo' => 1,
-
         'ultima_prueba_smtp' => null,
-
         'resultado_prueba_smtp' => null,
-
         'ultima_prueba_imap' => null,
-
         'resultado_prueba_imap' => null
     ];
 }
 
 
-// ==========================================================
+// ========
 // FUNCIÓN ESCAPE
 // Protege los valores mostrados en pantalla.
-// ==========================================================
+// ========
 
 function e($valor)
 {
@@ -156,18 +137,13 @@ function e($valor)
     <main class="contenido">
 
 
-        <!-- ======================================================
+        <!-- ====
              ENCABEZADO
-        ======================================================= -->
+        ===== -->
 
         <div class="form-card">
-
-
             <div class="form-header">
-
-
                 <div>
-
                     <h1>
                         Configuración de correo
                     </h1>
@@ -176,36 +152,24 @@ function e($valor)
                         Configure la cuenta y los servidores utilizados
                         para el envío y recepción de correos del sistema.
                     </p>
-
                 </div>
-
-
             </div>
 
-
-            <!-- ==================================================
+            <!-- 
                  FORMULARIO
-            =================================================== -->
+            = -->
 
-            <form
-                method="POST"
-                action="<?= BASE_URL ?>actions/guardar_configuracion_correo.php"
+            <form method="POST" action="<?= BASE_URL ?>actions/guardar_configuracion_correo.php"
             >
-
-
-                <input
-                    type="hidden"
-                    name="id_configuracion_correo"
+                <input type="hidden" name="id_configuracion_correo"
                     value="<?= (int)$configuracion['id_configuracion_correo'] ?>"
                 >
 
-
-                <!-- ==================================================
+                <!-- 
                      DATOS GENERALES
-                =================================================== -->
+                = -->
 
                 <div class="form-section">
-
                     <h3>
                         Datos generales
                     </h3>
@@ -215,12 +179,8 @@ function e($valor)
                         mensajes enviados desde Convivium.
                     </p>
 
-
                     <div class="form-grid">
-
-
                         <div class="form-group">
-
                             <label for="nombre_configuracion">
                                 Nombre de configuración *
                             </label>
@@ -284,7 +244,6 @@ function e($valor)
                                 placeholder="administracion@dominio.com"
                                 required
                             >
-
                         </div>
 
 
@@ -311,21 +270,15 @@ function e($valor)
                                 Dirección a la que llegarán las respuestas
                                 de los destinatarios.
                             </small>
-
                         </div>
-
-
                     </div>
-
                 </div>
-
-
                 <br>
 
 
-                <!-- ==================================================
+                <!-- 
                      SERVIDOR SMTP
-                =================================================== -->
+                = -->
 
                 <div class="form-section">
 
@@ -529,9 +482,9 @@ function e($valor)
                     </div>
 
 
-                    <!-- ==================================================
+                    <!-- 
                          ESTADO SMTP
-                    =================================================== -->
+                    = -->
 
                     <?php if (
                         !empty(
@@ -581,9 +534,9 @@ function e($valor)
                 <br>
 
 
-                <!-- ==================================================
+                <!-- 
                      SERVIDOR IMAP
-                =================================================== -->
+                = -->
 
                 <div class="form-section">
 
@@ -770,9 +723,9 @@ function e($valor)
                     </div>
 
 
-                    <!-- ==================================================
+                    <!-- 
                          ESTADO IMAP
-                    =================================================== -->
+                    = -->
 
                     <?php if (
                         !empty(
@@ -822,9 +775,9 @@ function e($valor)
                 <br>
 
 
-                <!-- ==================================================
+                <!-- 
                      ESTADO
-                =================================================== -->
+                = -->
 
                 <div class="form-section">
 
@@ -881,9 +834,9 @@ function e($valor)
                 <br>
 
 
-                <!-- ==================================================
+                <!-- 
                      ACCIONES
-                =================================================== -->
+                = -->
 
                 <div class="form-actions">
 
@@ -898,7 +851,7 @@ function e($valor)
 
                     <button
                         type="submit"
-                        class="btn-primary"
+                        class="btn-filtrar"
                     >
                         Guardar configuración
                     </button>
@@ -916,17 +869,15 @@ function e($valor)
             ): ?>
 
 
-                <!-- ==================================================
+                <!-- 
                     PRUEBA SMTP
-                =================================================== -->
+                = -->
 
                 <form
                     method="POST"
                     action="<?= BASE_URL ?>actions/probar_smtp.php"
                     style="margin-top:15px;"
                 >
-
-
                     <input
                         type="hidden"
                         name="id_configuracion_correo"
@@ -935,9 +886,7 @@ function e($valor)
                         ] ?>"
                     >
 
-
                     <div class="form-actions">
-
 
                         <button
                             type="submit"
@@ -945,13 +894,8 @@ function e($valor)
                         >
                             Probar SMTP
                         </button>
-
-
                     </div>
-
-
                 </form>
-
 
             <?php endif; ?>
 

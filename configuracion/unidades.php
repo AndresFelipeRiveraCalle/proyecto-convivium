@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // CARGAR GRUPOS DE UNIDADES
-// ==========================================================
+// ========
 
 $sqlGrupos = "
     SELECT
@@ -34,9 +34,9 @@ $grupos = $stmtGrupos->fetchAll(
 );
 
 
-// ==========================================================
+// ========
 // GRUPO SELECCIONADO
-// ==========================================================
+// ========
 
 $idGrupoSeleccionado =
     isset($_GET['id'])
@@ -44,9 +44,9 @@ $idGrupoSeleccionado =
         : 0;
 
 
-// ==========================================================
+// ========
 // SI NO HAY GRUPO, TOMAR EL PRIMERO
-// ==========================================================
+// ========
 
 if (
     $idGrupoSeleccionado === 0 &&
@@ -58,9 +58,9 @@ if (
 }
 
 
-// ==========================================================
+// ========
 // BUSCAR GRUPO SELECCIONADO
-// ==========================================================
+// ========
 
 $grupoSeleccionado = null;
 
@@ -79,16 +79,16 @@ foreach ($grupos as $grupo) {
 }
 
 
-// ==========================================================
+// ========
 // CARGAR UNIDADES
-// ==========================================================
+// ========
 //
 // También calculamos:
 //
 // - personas relacionadas actualmente
 // - espacios asociados actualmente
 //
-// ==========================================================
+// ========
 
 $unidades = [];
 
@@ -163,9 +163,9 @@ if ($idGrupoSeleccionado > 0) {
 }
 
 
-// ==========================================================
+// ========
 // CANTIDADES DEL GRUPO
-// ==========================================================
+// ========
 
 $cantidadConfigurada =
     $grupoSeleccionado
@@ -206,54 +206,57 @@ $puedeCrearUnidad =
 
 
 <?php include ROOT_PATH . "/includes/header.php"; ?>
-
 <?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
 
-
 <div class="contenedor">
-
 
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
 
 
     <main class="contenido">
 
-
-        <!-- ======================================================
+        <!-- ====
              ENCABEZADO
-        ======================================================= -->
+        ===== -->
 
-        <h2 align="center">
-            Unidades
-        </h2>
-
+        <h2 align="center">Unidades</h2>
 
         <br>
 
-
-        <p>
-
-            Administra las unidades de la copropiedad
-            y las personas y espacios asociados a cada una.
-
-        </p>
-
+        <p>Administra las unidades de la copropiedad y las personas y espacios asociados a cada una.</p>
 
         <br>
 
+        <!-- ====
+             ACCIONES
+        ===== -->
 
-        <!-- ======================================================
+        <div class="form-actions">
+            <?php if ($grupoSeleccionado): ?>
+                <button
+                    type="button"
+                    class="btn-filtrar"
+                    id="btnNuevaUnidad"
+                    <?= !$puedeCrearUnidad
+                        ? 'disabled'
+                        : ''
+                    ?>
+                >
+                    Nueva unidad
+                </button>
+            <?php endif; ?>
+        </div>
+        
+        <br>
+
+        <!-- ====
              TABS
-        ======================================================= -->
+        ===== -->
 
         <?php if (!empty($grupos)): ?>
-
-
             <div class="tabs-container">
 
-
                 <?php foreach ($grupos as $grupo): ?>
-
 
                     <a
                         href="unidades.php?id=<?= (int)$grupo['id_tipo_config'] ?>"
@@ -271,476 +274,184 @@ $puedeCrearUnidad =
                         ) ?>
 
                     </a>
-
-
                 <?php endforeach; ?>
-
-
             </div>
-
-
-            <br>
-
-
+            
         <?php endif; ?>
 
-
-        <!-- ======================================================
+        <!-- ====
              INFORMACIÓN SIMPLE DEL GRUPO
-        ======================================================= -->
+        ===== -->
 
         <?php if ($grupoSeleccionado): ?>
-
-
             <div class="bloque filtros">
-
-
                 <div class="card">
-
-
-                    <label>
-                        Grupo
-                    </label>
-
-
+                    <label>Grupo</label>
                     <strong>
-
                         <?= htmlspecialchars(
                             $grupoSeleccionado['nombre_grupo']
                         ) ?>
-
                     </strong>
-
-
                 </div>
 
-
                 <div class="card">
-
-
-                    <label>
-                        Tipo
-                    </label>
-
+                    <label>Tipo</label>
 
                     <strong>
-
                         <?= htmlspecialchars(
                             $grupoSeleccionado['tipo_unidad']
                         ) ?>
-
                     </strong>
-
-
                 </div>
-
 
                 <div class="card">
-
-
-                    <label>
-                        Configuradas
-                    </label>
-
-
-                    <strong>
-                        <?= $cantidadConfigurada ?>
-                    </strong>
-
-
+                    <label>Configuradas</label>
+                    <strong><?= $cantidadConfigurada ?></strong>
                 </div>
-
 
                 <div class="card">
-
-
-                    <label>
-                        Creadas
-                    </label>
-
-
-                    <strong>
-                        <?= $cantidadCreadas ?>
-                    </strong>
-
-
+                    <label>Creadas</label>
+                    <strong><?= $cantidadCreadas ?></strong>
                 </div>
-
 
                 <div class="card">
-
-
-                    <label>
-                        Pendientes
-                    </label>
-
-
-                    <strong>
-                        <?= $cantidadPendientes ?>
-                    </strong>
-
-
+                    <label>Pendientes</label>
+                    <strong><?= $cantidadPendientes ?></strong>
                 </div>
-
-
             </div>
-
-
-            <br>
-
+            
 
         <?php endif; ?>
 
-
-        <!-- ======================================================
-             ACCIONES
-        ======================================================= -->
-
-        <div class="acciones-superior">
-
-
-            <?php if ($grupoSeleccionado): ?>
-
-
-                <button
-                    type="button"
-                    class="btn-filtrar btn-derecha"
-                    id="btnNuevaUnidad"
-                    <?= !$puedeCrearUnidad
-                        ? 'disabled'
-                        : ''
-                    ?>
-                >
-
-                    + Nueva unidad
-
-                </button>
-
-
-            <?php endif; ?>
-
-
-        </div>
-
-
-        <br>
-
-
-        <!-- ======================================================
+        <!-- ====
              TABLA DE UNIDADES
-        ======================================================= -->
-
+        ===== -->
         <div class="bloque filtros">
-
-
             <div class="form-card">
-
-
                 <h3>
                     Unidades registradas
                 </h3>
-
-
                 <br>
-
-
                 <div class="tabla-responsive">
-
-
                     <table class="tabla">
-
-
                         <thead>
-
-
                             <tr>
-
-
-                                <th>
-                                    Código
-                                </th>
-
-
-                                <th>
-                                    Nombre
-                                </th>
-
-
-                                <th>
-                                    Piso
-                                </th>
-
-
-                                <th>
-                                    Área
-                                </th>
-
-
-                                <th>
-                                    Coeficiente
-                                </th>
-
-
-                                <th>
-                                    Estado
-                                </th>
-
-
-                                <th>
-                                    Personas
-                                </th>
-
-
-                                <th>
-                                    Espacios
-                                </th>
-
-
-                                <th>
-                                    Registro
-                                </th>
-
-
-                                <th>
-                                    Acciones
-                                </th>
-
-
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Piso</th>
+                                <th>Área</th>
+                                <th>Coeficiente</th>
+                                <th>Estado</th>
+                                <th>Personas</th>
+                                <th>Espacios</th>
+                                <th>Registro</th>
+                                <th>Acciones</th>
                             </tr>
-
-
                         </thead>
-
-
                         <tbody>
-
-
                         <?php if (empty($unidades)): ?>
-
-
                             <tr>
-
-
                                 <td
-                                    colspan="10"
-                                    style="text-align:center;"
+                                    colspan="10" style="text-align:center;"
                                 >
-
-                                    No existen unidades registradas
-                                    para este grupo.
-
+                                    No existen unidades registradas para este grupo.
                                 </td>
-
-
                             </tr>
-
-
                         <?php else: ?>
 
-
                             <?php foreach ($unidades as $u): ?>
-
-
                                 <tr>
-
-
                                     <!-- ==========================
                                          CÓDIGO
                                     =========================== -->
-
                                     <td>
-
-
                                         <strong>
-
-                                            <?= htmlspecialchars(
-                                                $u['codigo']
-                                            ) ?>
-
+                                            <?= htmlspecialchars($u['codigo']) ?>
                                         </strong>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          NOMBRE
                                     =========================== -->
-
                                     <td>
-
-
-                                        <?= htmlspecialchars(
-                                            $u['nombre'] ?? ''
-                                        ) ?>
-
-
+                                        <?= htmlspecialchars($u['nombre'] ?? '') ?>
                                     </td>
-
 
                                     <!-- ==========================
                                          PISO
                                     =========================== -->
 
                                     <td>
-
-
-                                        <?= $u['piso'] !== null
-                                            ? htmlspecialchars(
-                                                $u['piso']
-                                            )
+                                        <?= $u['piso'] !== null ? htmlspecialchars($u['piso'])
                                             : '-'
                                         ?>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          ÁREA
                                     =========================== -->
-
                                     <td>
-
-
-                                        <?php if (
-                                            $u['area'] !== null &&
-                                            $u['area'] !== ''
-                                        ): ?>
-
-
-                                            <?= number_format(
-                                                (float)$u['area'],
-                                                2,
-                                                ',',
-                                                '.'
-                                            ) ?>
-
+                                        <?php if ($u['area'] !== null && $u['area'] !== ''): ?>
+                                            <?= number_format((float)$u['area'],2,',','.') ?>
                                             m²
-
-
                                         <?php else: ?>
-
-
                                             -
-
-
                                         <?php endif; ?>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          COEFICIENTE
                                     =========================== -->
 
                                     <td>
+                                        <?php if ($u['coeficiente'] !== null && $u['coeficiente'] !== ''): ?>
 
-
-                                        <?php if (
-                                            $u['coeficiente'] !== null &&
-                                            $u['coeficiente'] !== ''
-                                        ): ?>
-
-
-                                            <?= number_format(
-                                                (float)$u['coeficiente'],
-                                                8,
-                                                '.',
-                                                ''
-                                            ) ?>
-
+                                            <?= number_format((float)$u['coeficiente'],8, '.','') ?>
 
                                         <?php else: ?>
-
-
                                             -
-
-
                                         <?php endif; ?>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          ESTADO
                                     =========================== -->
-
                                     <td>
-
-
-                                        <?= htmlspecialchars(
-                                            $u['estado']
-                                        ) ?>
-
-
+                                        <?= htmlspecialchars($u['estado']) ?>
                                     </td>
-
 
                                     <!-- ==========================
                                          PERSONAS
                                     =========================== -->
-
                                     <td style="text-align:center;">
-
-
                                         <strong>
-
                                             <?= (int)$u['cantidad_personas'] ?>
-
                                         </strong>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          ESPACIOS
                                     =========================== -->
-
                                     <td style="text-align:center;">
-
-
                                         <strong>
-
                                             <?= (int)$u['cantidad_espacios'] ?>
-
                                         </strong>
-
-
                                     </td>
-
 
                                     <!-- ==========================
                                          REGISTRO
                                     =========================== -->
-
                                     <td>
-
-
-                                        <?php if (
-                                            (int)$u['activo'] === 1
-                                        ): ?>
-
-
+                                        <?php if ((int)$u['activo'] === 1): ?>
                                             <span class="activo">
                                                 Activa
                                             </span>
-
-
                                         <?php else: ?>
-
 
                                             <span class="inactivo">
                                                 Inactiva
                                             </span>
-
-
                                         <?php endif; ?>
-
-
                                     </td>
 
 
@@ -755,7 +466,7 @@ $puedeCrearUnidad =
 
                                         <a
                                             href="<?= BASE_URL ?>configuracion/personas_unidad.php?id_unidad=<?= (int)$u['id_unidad'] ?>"
-                                            class="btn-secondary"
+                                            class="btn-filtrar"
                                         >
 
                                             Personas
@@ -767,7 +478,7 @@ $puedeCrearUnidad =
 
                                         <a
                                             href="<?= BASE_URL ?>configuracion/espacios_unidad.php?id_unidad=<?= (int)$u['id_unidad'] ?>"
-                                            class="btn-secondary"
+                                            class="btn-filtrar"
                                         >
 
                                             Espacios
@@ -779,7 +490,7 @@ $puedeCrearUnidad =
 
                                         <button
                                             type="button"
-                                            class="btn-secondary btnEditarUnidad"
+                                            class="btn-filtrar btnEditarUnidad"
 
                                             data-id="<?= (int)$u['id_unidad'] ?>"
 
@@ -856,29 +567,20 @@ $puedeCrearUnidad =
     </main>
 
 
-    <!-- ==========================================================
+    <!-- ========
          MODAL NUEVA UNIDAD
-    ========================================================== -->
+    ======== -->
 
     <?php if ($grupoSeleccionado): ?>
-
 
         <div
             id="modalUnidad"
             class="modal"
         >
-
-
             <div class="modal-contenido">
 
-
                 <div class="modal-header">
-
-
-                    <h3>
-                        Nueva unidad
-                    </h3>
-
+                    <h3>Nueva unidad</h3>
 
                     <button
                         type="button"
@@ -1161,9 +863,9 @@ $puedeCrearUnidad =
     <?php endif; ?>
 
 
-    <!-- ==========================================================
+    <!-- ========
          MODAL EDITAR UNIDAD
-    ========================================================== -->
+    ======== -->
 
     <div
         id="modalEditarUnidad"
@@ -1477,9 +1179,9 @@ $puedeCrearUnidad =
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      JAVASCRIPT
-========================================================== -->
+======== -->
 
 <script>
 
@@ -1487,9 +1189,9 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
-        // ======================================================
+        // ====
         // NUEVA UNIDAD
-        // ======================================================
+        // ====
 
         const btnNuevaUnidad =
             document.getElementById(
@@ -1588,9 +1290,9 @@ document.addEventListener(
         }
 
 
-        // ======================================================
+        // ====
         // EDITAR UNIDAD
-        // ======================================================
+        // ====
 
         const modalEditar =
             document.getElementById(
