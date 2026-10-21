@@ -11,9 +11,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            // ==================================================
+            // 
             // RUTA ABSOLUTA DEL PROYECTO
-            // ==================================================
+            // 
 
             const url =
                 "/proyecto-convivium/actions/editar_pago.php?id=" +
@@ -49,9 +49,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
 
                     const pago = data.pago;
-                    // ==========================================================
+                    // ========
                     // MODO EDITAR
-                    // ==========================================================
+                    // ========
 
                     form.action =
                         "/proyecto-convivium/actions/actualizar_pago.php";

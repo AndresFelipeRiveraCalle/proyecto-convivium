@@ -7,9 +7,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!btnEditar) return;
 
 
-    // ==========================================================
+    // ========
     // EDITAR DATOS DE LA COPROPIEDAD
-    // ==========================================================
+    // ========
 
     btnEditar.addEventListener("click", function () {
 
@@ -57,9 +57,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    // ==========================================================
+    // ========
     // CANCELAR EDICIÓN
-    // ==========================================================
+    // ========
 
     if (btnCancelar) {
 

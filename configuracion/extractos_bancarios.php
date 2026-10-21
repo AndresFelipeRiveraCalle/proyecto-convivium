@@ -6,9 +6,9 @@ require_once ROOT_PATH . "/config/conexion.php";
 $tipoMensaje = $_GET["tipo"] ?? null;
 $mensaje = $_GET["mensaje"] ?? null;
 
-// ==========================================================
+// ========
 // CARGAR CUENTAS BANCARIAS
-// ==========================================================
+// ========
 
 $sqlCuentas = " SELECT id_cuenta_bancaria,banco, tipo_cuenta, numero_cuenta, titular
     FROM cuentas_bancarias WHERE estado = 1
@@ -18,9 +18,9 @@ $sqlCuentas = " SELECT id_cuenta_bancaria,banco, tipo_cuenta, numero_cuenta, tit
 $stmtCuentas = $conexion->query($sqlCuentas);
 $cuentasBancarias = $stmtCuentas->fetchAll(PDO::FETCH_ASSOC);
 
-// ==========================================================
+// ========
 // CARGAR DOCUMENTOS BANCARIOS
-// ==========================================================
+// ========
 
 $sqlDocumentos = "SELECT db.id_documento, db.nombre_archivo, db.nombre_original, db.ruta_archivo, db.tipo_archivo,
         db.metodo_extraccion, db.estado_procesamiento, db.observaciones, db.fecha_procesamiento, db.fecha_creacion,
@@ -32,9 +32,9 @@ $sqlDocumentos = "SELECT db.id_documento, db.nombre_archivo, db.nombre_original,
 $stmtDocumentos = $conexion->query($sqlDocumentos);
 $documentosBancarios = $stmtDocumentos->fetchAll(PDO::FETCH_ASSOC );
 
-// ==========================================================
+// ========
 // CARGAR EXTRACTOS BANCARIOS
-// ==========================================================
+// ========
 
 $sql = "SELECT eb.id_extracto, eb.id_documento, eb.id_cuenta_bancaria, eb.fecha_movimiento, eb.fecha_valor,
         eb.descripcion, eb.referencia, eb.numero_documento, eb.valor, eb.tipo_movimiento, eb.estado_conciliacion,
@@ -73,9 +73,9 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             copropiedad.</p>
         <br>
 
-               <!-- ==================================================
+               <!-- 
                      BOTÓN NUEVO
-                =================================================== -->
+                = -->
                 <button type="button" id="btnNuevoExtracto" class="btn-filtrar">
                     Cargar extracto bancario
                 </button>
@@ -315,9 +315,9 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
         
-        <!-- ======================================================
+        <!-- ====
              LISTADO
-        ======================================================= -->
+        ===== -->
         <div class="bloque filtros">
             <div class="form-card">
                 <h3>Movimientos bancarios</h3>
@@ -517,9 +517,9 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-<!-- ==========================================================
+<!-- ========
      MODAL NUEVO EXTRACTO
-========================================================== -->
+======== -->
 
 <div
     id="modalNuevoExtracto"
@@ -555,9 +555,9 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             enctype="multipart/form-data">
 
 
-            <!-- ==================================================
+            <!-- 
                  CUENTA BANCARIA
-            =================================================== -->
+            = -->
 
             <div class="form-group">
 
@@ -627,9 +627,9 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-            <!-- ==================================================
+            <!-- 
                  ARCHIVO
-            =================================================== -->
+            = -->
 
             <div class="form-group">
 
@@ -659,9 +659,9 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-            <!-- ==================================================
+            <!-- 
                  OBSERVACIONES
-            =================================================== -->
+            = -->
 
             <div class="form-group">
 
@@ -683,9 +683,9 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 
-            <!-- ==================================================
+            <!-- 
                  BOTONES
-            =================================================== -->
+            = -->
 
             <div class="form-actions">
 
@@ -720,9 +720,9 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      MODAL MENSAJE
-========================================================== -->
+======== -->
 
 
 

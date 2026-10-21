@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // REDIRECCIÓN
-// ==========================================================
+// ========
 
 function redireccionarSaldo($idSaldoFavor, $tipo, $texto)
 {
@@ -25,9 +25,9 @@ function redireccionarSaldo($idSaldoFavor, $tipo, $texto)
 }
 
 
-// ==========================================================
+// ========
 // ACTUALIZAR ESTADO DE FACTURA
-// ==========================================================
+// ========
 
 function actualizarEstadoFactura(PDO $conexion, int $idFactura): void
 {
@@ -87,9 +87,9 @@ function actualizarEstadoFactura(PDO $conexion, int $idFactura): void
 }
 
 
-// ==========================================================
+// ========
 // VALIDAR MÉTODO
-// ==========================================================
+// ========
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -103,9 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ==========================================================
+// ========
 // ID SALDO FAVOR
-// ==========================================================
+// ========
 
 $idSaldoFavor =
     isset($_POST['id_saldo_favor'])
@@ -134,9 +134,9 @@ try {
     $conexion->beginTransaction();
 
 
-    // ======================================================
+    // ====
     // BLOQUEAR SALDO A FAVOR
-    // ======================================================
+    // ====
 
     $sqlSaldo = "
         SELECT
@@ -184,9 +184,9 @@ try {
         );
 
 
-    // ======================================================
+    // ====
     // CARTERA PENDIENTE
-    // ======================================================
+    // ====
 
     $sqlCartera = "
         SELECT
@@ -224,9 +224,9 @@ try {
     }
 
 
-    // ======================================================
+    // ====
     // PREPARAR INSERT APLICACIÓN
-    // ======================================================
+    // ====
 
     $sqlInsert = "
         INSERT INTO aplicaciones_saldo_favor
@@ -252,9 +252,9 @@ try {
     $stmtInsert = $conexion->prepare($sqlInsert);
 
 
-    // ======================================================
+    // ====
     // PREPARAR UPDATE CARTERA
-    // ======================================================
+    // ====
 
     $sqlUpdateCartera = "
         UPDATE cartera
@@ -288,9 +288,9 @@ try {
         $conexion->prepare($sqlUpdateCartera);
 
 
-    // ======================================================
+    // ====
     // APLICAR
-    // ======================================================
+    // ====
 
     $totalAplicado = 0;
     $cantidadAplicaciones = 0;
@@ -387,9 +387,9 @@ try {
     }
 
 
-    // ======================================================
+    // ====
     // ACTUALIZAR SALDO A FAVOR
-    // ======================================================
+    // ====
 
     $nuevoUtilizado =
         round(
@@ -440,9 +440,9 @@ try {
     ]);
 
 
-    // ======================================================
+    // ====
     // ACTUALIZAR ESTADO FACTURAS
-    // ======================================================
+    // ====
 
     foreach (
         array_keys($facturasAfectadas)

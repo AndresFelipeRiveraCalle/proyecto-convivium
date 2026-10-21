@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // CARGAR TARIFAS
-// ==========================================================
+// ========
 //
 // Para el listado NO filtramos por estado del concepto ni
 // por estado del tipo de unidad.
@@ -14,7 +14,7 @@ require_once ROOT_PATH . "/config/conexion.php";
 // Esto permite conservar y visualizar correctamente el
 // histórico aunque posteriormente un concepto o grupo
 // sea inactivado.
-// ==========================================================
+// ========
 
 
 $sql = "
@@ -55,9 +55,9 @@ $stmt = $conexion->query($sql);
 $tarifas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // CARGAR CONCEPTOS ACTIVOS
-// ==========================================================
+// ========
 
 $sqlConceptos = "
     SELECT
@@ -78,9 +78,9 @@ $stmtConceptos = $conexion->query($sqlConceptos);
 $conceptos = $stmtConceptos->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // CARGAR TIPOS DE UNIDAD ACTIVOS
-// ==========================================================
+// ========
 
 $sqlTiposUnidad = "
     SELECT
@@ -101,9 +101,9 @@ $stmtTiposUnidad = $conexion->query($sqlTiposUnidad);
 $tiposUnidad = $stmtTiposUnidad->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// ========
 // FUNCIÓN TIPO DE CÁLCULO
-// ==========================================================
+// ========
 
 function nombreTipoCalculo($tipo)
 {
@@ -127,9 +127,9 @@ function nombreTipoCalculo($tipo)
 }
 
 
-// ==========================================================
+// ========
 // FORMATO VALOR TARIFA
-// ==========================================================
+// ========
 
 function formatoValorTarifa($valor, $tipoCalculo)
 {
@@ -213,9 +213,9 @@ function formatoValorTarifa($valor, $tipoCalculo)
     <main class="contenido">
 
 
-        <!-- ======================================================
+        <!-- ====
              ENCABEZADO
-        ======================================================= -->
+        ===== -->
 
         <h2 align="center">
             Tarifas de facturación
@@ -237,9 +237,9 @@ function formatoValorTarifa($valor, $tipoCalculo)
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              INFORMACIÓN
-        ======================================================= -->
+        ===== -->
 
         <div class="info-box">
 
@@ -272,9 +272,9 @@ function formatoValorTarifa($valor, $tipoCalculo)
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              LISTADO
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 
@@ -597,9 +597,9 @@ function formatoValorTarifa($valor, $tipoCalculo)
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      MODAL NUEVA TARIFA
-========================================================== -->
+======== -->
 
 <div
     id="modalNuevaTarifa"
@@ -742,9 +742,9 @@ function formatoValorTarifa($valor, $tipoCalculo)
             </div>
 
 
-            <!-- ==================================================
+            <!-- 
                  TIPO DE UNIDAD
-            =================================================== -->
+            = -->
 
             <div class="form-group">
 
@@ -1025,9 +1025,9 @@ function formatoValorTarifa($valor, $tipoCalculo)
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      MODAL EDITAR TARIFA
-========================================================== -->
+======== -->
 
 <div
     id="modalEditarTarifa"
@@ -1418,9 +1418,9 @@ function formatoValorTarifa($valor, $tipoCalculo)
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      MODAL MENSAJE
-========================================================== -->
+======== -->
 
 <div
     id="modalMensaje"
@@ -1466,9 +1466,9 @@ function formatoValorTarifa($valor, $tipoCalculo)
 </div>
 
 
-<!-- ==========================================================
+<!-- ========
      JAVASCRIPT
-========================================================== -->
+======== -->
 
 <script>
 

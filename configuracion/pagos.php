@@ -1,8 +1,8 @@
 <?php
 /**
- * ==============================================================
+ * ============
  * CONVIVIUM - LISTADO GENERAL DE PAGOS
- * ==============================================================
+ * ============
  * Archivo: configuracion/pagos.php
  *
  * Objetivo:
@@ -24,7 +24,7 @@
  * Un registro de la tabla `pagos` representa dinero recibido.
  * No debe confundirse con una aplicación a cartera. Un mismo pago puede
  * distribuirse entre varias obligaciones mientras conserve saldo disponible.
- * ==============================================================
+ * ============
  */
 
 
@@ -32,9 +32,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // FUNCIONES DE PRESENTACIÓN
-// ==========================================================
+// ========
 // e(): protege las salidas HTML.
 // dinero(): unifica el formato monetario colombiano usado en la vista.
 
@@ -58,9 +58,9 @@ function dinero($valor)
 }
 
 
-// ==========================================================
+// ========
 // FILTROS RECIBIDOS POR GET
-// ==========================================================
+// ========
 // Todos son opcionales. Se usan más abajo para construir el WHERE dinámico.
 
 $buscar =
@@ -89,9 +89,9 @@ $fechaHasta =
     );
 
 
-// ==========================================================
+// ========
 // CONSTRUCCIÓN DEL WHERE DINÁMICO
-// ==========================================================
+// ========
 // Se agregan condiciones únicamente cuando el usuario diligencia un filtro.
 // Los valores siempre viajan como parámetros preparados para evitar inyección SQL.
 
@@ -191,9 +191,9 @@ $whereSql =
     );
 
 
-// ==========================================================
+// ========
 // RESUMEN GENERAL DE PAGOS SEGÚN LOS FILTROS
-// ==========================================================
+// ========
 // Estos totales alimentan las tarjetas/resumen de la parte superior.
 
 $sqlResumen = "
@@ -266,9 +266,9 @@ $resumen =
     );
 
 
-// ==========================================================
+// ========
 // LISTADO DETALLADO DE PAGOS DE PAGOS
-// ==========================================================
+// ========
 
 $sql = "
     SELECT
@@ -416,9 +416,9 @@ $pagos =
     <main class="contenido">
 
 
-        <!-- ======================================================
+        <!-- ====
              ENCABEZADO
-        ======================================================= -->
+        ===== -->
 
         <div
             style="
@@ -448,7 +448,7 @@ $pagos =
                     class="btn-filtrar"
                     style="text-decoration:none; display:inline-block;"
                 >
-                    + Registrar pago
+                    Registrar pago
                 </a>
             </div>
 
@@ -458,9 +458,9 @@ $pagos =
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              RESUMEN
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 
@@ -550,58 +550,30 @@ $pagos =
 
         </div>
 
-
-        <br>
-
-
-        <!-- ======================================================
+        
+        <!-- ====
              FILTROS
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
-
+            
             <div class="form-card">
+            <h3>Filtros</h3>
+                <Div class="form-card">
+                <form method="GET" action="">
+                    <label>
+                        Buscar
+                    </label>
 
-                <h3>
-                    Filtros
-                </h3>
-
-                <br>
-
-                <form
-                    method="GET"
-                    action=""
-                >
-
-                    <div
-                        style="
-                            display:grid;
-                            grid-template-columns:
-                                repeat(
-                                    auto-fit,
-                                    minmax(200px, 1fr)
-                                );
-                            gap:15px;
-                        "
+                    <input
+                        type="text"
+                        name="buscar"
+                        value="<?= e($buscar) ?>"
+                        placeholder="Unidad, referencia..."
                     >
 
-                        <div>
-
-                            <label>
-                                Buscar
-                            </label>
-
-                            <input
-                                type="text"
-                                name="buscar"
-                                value="<?= e($buscar) ?>"
-                                placeholder="Unidad, referencia..."
-                            >
-
-                        </div>
 
 
-                        <div>
 
                             <label>
                                 Conciliación
@@ -657,11 +629,6 @@ $pagos =
 
                             </select>
 
-                        </div>
-
-
-                        <div>
-
                             <label>
                                 Estado
                             </label>
@@ -694,10 +661,6 @@ $pagos =
 
                             </select>
 
-                        </div>
-
-
-                        <div>
 
                             <label>
                                 Desde
@@ -709,10 +672,8 @@ $pagos =
                                 value="<?= e($fechaDesde) ?>"
                             >
 
-                        </div>
 
 
-                        <div>
 
                             <label>
                                 Hasta
@@ -724,22 +685,20 @@ $pagos =
                                 value="<?= e($fechaHasta) ?>"
                             >
 
-                        </div>
-
-                    </div>
-
+                        
 
                     <br>
 
+                </Div>
 
                     <div class="form-actions">
 
-                        <button
-                            type="submit"
+                        <a
+                            type="button"
                             class="btn-filtrar"
                         >
-                            Filtrar
-                        </button>
+                            Filtrar 
+                        </a>
 
 
                         <a
@@ -755,15 +714,16 @@ $pagos =
 
             </div>
 
+
         </div>
 
 
         <br>
 
 
-        <!-- ======================================================
+        <!-- ====
              LISTADO
-        ======================================================= -->
+        ===== -->
 
         <div class="bloque filtros">
 

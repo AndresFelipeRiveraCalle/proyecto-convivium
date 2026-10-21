@@ -4,34 +4,40 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ==========================================================
+// ========
 // FUNCIONES
-// ==========================================================
+// ========
 
-function e($valor)
-{
-    return htmlspecialchars(
-        (string)$valor,
-        ENT_QUOTES,
-        'UTF-8'
-    );
+if (!function_exists('e')) {
+
+    function e($valor)
+    {
+        return htmlspecialchars(
+            (string)$valor,
+            ENT_QUOTES,
+            'UTF-8'
+        );
+    }
 }
 
 
-function dinero($valor)
-{
-    return '$' . number_format(
-        (float)$valor,
-        2,
-        ',',
-        '.'
-    );
+if (!function_exists('dinero')) {
+
+    function dinero($valor)
+    {
+        return '$' . number_format(
+            (float)$valor,
+            2,
+            ',',
+            '.'
+        );
+    }
 }
 
 
-// ==========================================================
+// ========
 // FILTROS
-// ==========================================================
+// ========
 
 $anio =
     isset($_GET['anio'])
@@ -44,7 +50,30 @@ $mes =
         ? (int)$_GET['mes']
         : (int)date('n');
 
+$estadoEnvio =
+    $_GET['estado_envio']
+    ?? 'TODAS';
 
+
+$estadosPermitidos = [
+    'TODAS',
+    'PENDIENTES',
+    'ENVIADAS',
+    'SIN_DESTINATARIO'
+];
+
+
+if (
+    !in_array(
+        $estadoEnvio,
+        $estadosPermitidos,
+        true
+    )
+) {
+
+    $estadoEnvio =
+        'TODAS';
+}
 if (
     $mes < 1
     ||
@@ -56,9 +85,9 @@ if (
 }
 
 
-// ==========================================================
+// ========
 // MESES
-// ==========================================================
+// ========
 
 $meses = [
 
@@ -78,10 +107,10 @@ $meses = [
 ];
 
 
-// ==========================================================
+// ========
 // FACTURAS DEL PERÍODO
-// Obtiene facturas y cantidad de destinatarios configurados.
-// ==========================================================
+// Obtiene facturas, destinatarios y último envío.
+// ========
 
 $sqlFacturas = "
 
@@ -134,7 +163,16 @@ $sqlFacturas = "
         ) AS tiene_envio_exitoso,
 
         MAX(
-            ef.fecha_envio
+            CASE
+
+                WHEN
+                    ef.estado = 'ENVIADO'
+
+                THEN ef.fecha_envio
+
+                ELSE NULL
+
+            END
         ) AS ultimo_envio
 
     FROM facturas f
@@ -207,10 +245,80 @@ $facturas =
         PDO::FETCH_ASSOC
     );
 
+$facturasFiltradas = [];
 
-// ==========================================================
+
+foreach (
+    $facturas
+    as $factura
+) {
+
+    $cantidadDestinatarios =
+        (int)$factura[
+            'cantidad_destinatarios'
+        ];
+
+
+    $yaEnviada =
+        (int)$factura[
+            'tiene_envio_exitoso'
+        ] === 1;
+
+
+    $mostrar =
+        false;
+
+
+    switch (
+        $estadoEnvio
+    ) {
+
+        case 'PENDIENTES':
+
+            $mostrar =
+                !$yaEnviada
+                &&
+                $cantidadDestinatarios > 0;
+
+            break;
+
+
+        case 'ENVIADAS':
+
+            $mostrar =
+                $yaEnviada;
+
+            break;
+
+
+        case 'SIN_DESTINATARIO':
+
+            $mostrar =
+                $cantidadDestinatarios === 0;
+
+            break;
+
+
+        default:
+
+            $mostrar =
+                true;
+
+            break;
+    }
+
+
+    if (
+        $mostrar
+    ) {
+
+        $facturasFiltradas[] =
+            $factura;
+    }
+}
+// ========
 // RESUMEN
-// ==========================================================
+// ========
 
 $totalFacturas =
     count(
@@ -218,15 +326,20 @@ $totalFacturas =
     );
 
 
-$facturasListas = 0;
+$facturasListas =
+    0;
 
-$facturasSinCorreo = 0;
 
-$facturasEnviadas = 0;
+$facturasSinCorreo =
+    0;
+
+
+$facturasEnviadas =
+    0;
 
 
 foreach (
-    $facturas
+    $facturasFiltradas
     as $factura
 ) {
 
@@ -270,7 +383,20 @@ foreach (
 <body>
 
 <?php include ROOT_PATH . "/includes/header.php"; ?>
-<?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
+
+<?php
+if (
+    file_exists(
+        ROOT_PATH .
+        "/includes/mensajes.php"
+    )
+) {
+
+    include ROOT_PATH .
+        "/includes/mensajes.php";
+}
+?>
+
 
 <div class="contenedor">
 
@@ -280,9 +406,9 @@ foreach (
     <main class="contenido">
 
 
-        <!-- ======================================================
-             ENCABEZADO
-        ======================================================= -->
+        <!-- ====
+             FILTROS
+        ===== -->
 
         <div class="form-card">
 
@@ -304,10 +430,6 @@ foreach (
             </div>
 
 
-            <!-- ==================================================
-                 FILTROS
-            =================================================== -->
-
             <form
                 method="GET"
                 class="form-grid envio-masivo-filtros"
@@ -325,8 +447,8 @@ foreach (
                     >
 
                         <?php for (
-                            $a = date('Y') - 3;
-                            $a <= date('Y') + 1;
+                            $a = (int)date('Y') - 3;
+                            $a <= (int)date('Y') + 1;
                             $a++
                         ): ?>
 
@@ -379,6 +501,63 @@ foreach (
 
                 </div>
 
+            <div class="form-group">
+
+                <label for="estado_envio">
+                    Estado de envío
+                </label>
+
+                <select
+                    name="estado_envio"
+                    id="estado_envio"
+                >
+
+                    <option
+                        value="TODAS"
+                        <?= $estadoEnvio === 'TODAS'
+                            ? 'selected'
+                            : ''
+                        ?>
+                    >
+                        Todas
+                    </option>
+
+
+                    <option
+                        value="PENDIENTES"
+                        <?= $estadoEnvio === 'PENDIENTES'
+                            ? 'selected'
+                            : ''
+                        ?>
+                    >
+                        Pendientes de envío
+                    </option>
+
+
+                    <option
+                        value="ENVIADAS"
+                        <?= $estadoEnvio === 'ENVIADAS'
+                            ? 'selected'
+                            : ''
+                        ?>
+                    >
+                        Enviadas
+                    </option>
+
+
+                    <option
+                        value="SIN_DESTINATARIO"
+                        <?= $estadoEnvio === 'SIN_DESTINATARIO'
+                            ? 'selected'
+                            : ''
+                        ?>
+                    >
+                        Sin destinatario
+                    </option>
+
+                </select>
+
+            </div>
 
                 <div class="form-actions">
 
@@ -396,11 +575,12 @@ foreach (
         </div>
 
 
-        <!-- ======================================================
-             RESUMEN
-        ======================================================= -->
+        <!-- ====
+             RESUMEN DEL PERÍODO
+        ===== -->
 
         <div class="envio-masivo-resumen">
+
 
             <div class="envio-resumen-item">
 
@@ -453,14 +633,16 @@ foreach (
 
             </div>
 
+
         </div>
 
 
-        <!-- ======================================================
-             LISTADO
-        ======================================================= -->
+        <!-- ====
+             FACTURAS
+        ===== -->
 
         <div class="form-card">
+
 
             <form
                 method="POST"
@@ -481,23 +663,31 @@ foreach (
                 >
 
 
+                <!-- 
+                     BARRA DE ACCIONES
+                = -->
+
                 <div class="envio-masivo-toolbar">
 
                     <div>
 
                         <strong>
+
                             <?= e(
                                 strtoupper(
                                     $meses[$mes]
                                 )
                             ) ?>
+
                             <?= (int)$anio ?>
+
                         </strong>
 
                     </div>
 
 
                     <div class="envio-masivo-acciones">
+
 
                         <button
                             type="button"
@@ -525,10 +715,146 @@ foreach (
                             Enviar seleccionadas
                         </button>
 
+
                     </div>
 
                 </div>
 
+
+                <!-- 
+                     PANEL PERMANENTE DE PROGRESO
+                = -->
+
+                <div
+                    id="panelProgresoEnvio"
+                    class="envio-progreso-panel"
+                >
+
+                    <div class="envio-progreso-encabezado">
+
+
+                        <div>
+
+                            <strong id="tituloProgresoEnvio">
+                                Estado del envío de facturas
+                            </strong>
+
+
+                            <div
+                                id="textoProgresoEnvio"
+                                class="envio-progreso-texto"
+                            >
+                                No hay un envío en proceso.
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="porcentajeProgresoEnvio"
+                            class="envio-progreso-porcentaje"
+                        >
+                            0%
+                        </div>
+
+
+                    </div>
+
+
+                    <div class="envio-progreso-barra">
+
+                        <div
+                            id="barraProgresoEnvio"
+                            class="envio-progreso-avance"
+                            style="width:0%;"
+                        ></div>
+
+                    </div>
+
+
+                    <div class="envio-progreso-resumen">
+
+
+                        <div>
+
+                            <span>
+                                Procesadas
+                            </span>
+
+                            <strong id="resumenProcesadas">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Facturas enviadas
+                            </span>
+
+                            <strong id="resumenFacturasEnviadas">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Correos enviados
+                            </span>
+
+                            <strong id="resumenCorreosEnviados">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Errores
+                            </span>
+
+                            <strong id="resumenErrores">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <div
+                        id="resultadoEnvioMasivo"
+                        class="envio-progreso-resultado"
+                    ></div>
+
+
+                </div>
+
+
+                <!-- 
+                     MENSAJE DE VALIDACIÓN
+                = -->
+
+                <div
+                    id="mensajeSeleccionMasiva"
+                    class="envio-masivo-validacion"
+                    style="display:none;"
+                >
+                    Debe seleccionar al menos una factura.
+                </div>
+
+
+                <!-- 
+                     TABLA
+                = -->
 
                 <?php if (
                     empty(
@@ -536,12 +862,14 @@ foreach (
                     )
                 ): ?>
 
+
                     <div class="envio-masivo-vacio">
 
                         No se encontraron facturas
                         para este período.
 
                     </div>
+
 
                 <?php else: ?>
 
@@ -554,7 +882,7 @@ foreach (
 
                                 <tr>
 
-                                    <th style="width:45px;">
+                                    <th>
                                         Seleccionar
                                     </th>
 
@@ -616,14 +944,12 @@ foreach (
                                 ?>
 
 
-                                <tr>
+                                <tr
+                                    data-id-factura="<?= (int)$factura['id_factura'] ?>"
+                                >
 
 
-                                    <td
-                                        style="
-                                            text-align:center;
-                                        "
-                                    >
+                                    <td>
 
                                         <input
                                             type="checkbox"
@@ -642,11 +968,13 @@ foreach (
                                     <td>
 
                                         <strong>
+
                                             <?= e(
                                                 $factura[
                                                     'numero_factura'
                                                 ]
                                             ) ?>
+
                                         </strong>
 
                                     </td>
@@ -700,12 +1028,14 @@ foreach (
                                             <span
                                                 class="envio-estado-listo"
                                             >
+
                                                 <?= $cantidadDestinatarios ?>
 
                                                 <?= $cantidadDestinatarios === 1
                                                     ? 'destinatario'
                                                     : 'destinatarios'
                                                 ?>
+
                                             </span>
 
                                         <?php else: ?>
@@ -733,6 +1063,7 @@ foreach (
                                                 ENVIADA
                                             </span>
 
+
                                             <?php if (
                                                 !empty(
                                                     $factura[
@@ -741,9 +1072,7 @@ foreach (
                                                 )
                                             ): ?>
 
-                                                <div
-                                                    class="envio-fecha"
-                                                >
+                                                <div class="envio-fecha">
 
                                                     <?= date(
                                                         'd/m/Y H:i',
@@ -757,6 +1086,7 @@ foreach (
                                                 </div>
 
                                             <?php endif; ?>
+
 
                                         <?php else: ?>
 
@@ -787,110 +1117,8 @@ foreach (
                 <?php endif; ?>
 
 
-                <div
-                    id="mensajeSeleccionMasiva"
-                    class="envio-masivo-validacion"
-                    style="display:none;"
-                >
-                    Debe seleccionar al menos una factura.
-                </div>
-
-                <!-- ======================================================
-                    PROGRESO DEL ENVÍO
-                ======================================================= -->
-
-                <div
-                    id="panelProgresoEnvio"
-                    class="envio-progreso-panel"
-                    style="display:none;"
-                >
-
-                    <div class="envio-progreso-encabezado">
-
-                        <div>
-
-                            <strong>
-                                Enviando facturas
-                            </strong>
-
-                            <div
-                                id="textoProgresoEnvio"
-                                class="envio-progreso-texto"
-                            >
-                                Preparando envío...
-                            </div>
-
-                        </div>
-
-
-                        <div
-                            id="porcentajeProgresoEnvio"
-                            class="envio-progreso-porcentaje"
-                        >
-                            0%
-                        </div>
-
-                    </div>
-
-
-                    <div class="envio-progreso-barra">
-
-                        <div
-                            id="barraProgresoEnvio"
-                            class="envio-progreso-avance"
-                            style="width:0%;"
-                        ></div>
-
-                    </div>
-
-
-                    <div class="envio-progreso-resumen">
-
-                        <div>
-                            <span>Procesadas</span>
-
-                            <strong id="resumenProcesadas">
-                                0
-                            </strong>
-                        </div>
-
-
-                        <div>
-                            <span>Facturas enviadas</span>
-
-                            <strong id="resumenFacturasEnviadas">
-                                0
-                            </strong>
-                        </div>
-
-
-                        <div>
-                            <span>Correos enviados</span>
-
-                            <strong id="resumenCorreosEnviados">
-                                0
-                            </strong>
-                        </div>
-
-
-                        <div>
-                            <span>Errores</span>
-
-                            <strong id="resumenErrores">
-                                0
-                            </strong>
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        id="resultadoEnvioMasivo"
-                        class="envio-progreso-resultado"
-                    ></div>
-
-                </div>
             </form>
+
 
         </div>
 
@@ -902,15 +1130,19 @@ foreach (
 
 <script>
 
-// ==========================================================
+// ========
 // ENVÍO MASIVO POR LOTES
-// Procesa hasta 10 facturas por petición.
-// ==========================================================
+// Procesa facturas en grupos de 10 y conserva el estado.
+// ========
 
 document.addEventListener(
     'DOMContentLoaded',
     function () {
 
+
+        // 
+        // ELEMENTOS
+        // 
 
         const formulario =
             document.getElementById(
@@ -942,9 +1174,9 @@ document.addEventListener(
             );
 
 
-        const panelProgreso =
+        const tituloProgreso =
             document.getElementById(
-                'panelProgresoEnvio'
+                'tituloProgresoEnvio'
             );
 
 
@@ -996,6 +1228,10 @@ document.addEventListener(
             );
 
 
+        // 
+        // CONFIGURACIÓN
+        // 
+
         const urlProcesarLote =
             <?= json_encode(
                 BASE_URL .
@@ -1003,13 +1239,197 @@ document.addEventListener(
             ) ?>;
 
 
+        const anioActual =
+            <?= (int)$anio ?>;
+
+
+        const mesActual =
+            <?= (int)$mes ?>;
+
+
+        // Guarda un estado diferente para cada período.
+        const claveEstadoEnvio =
+            'convivium_envio_facturas_'
+            +
+            anioActual
+            +
+            '_'
+            +
+            mesActual;
+
+
         let envioEnProceso =
             false;
 
 
-        // ==================================================
+        // 
+        // GUARDAR ESTADO
+        // 
+
+        function guardarEstadoEnvio(
+            estado
+        ) {
+
+            try {
+
+                localStorage.setItem(
+                    claveEstadoEnvio,
+                    JSON.stringify(
+                        estado
+                    )
+                );
+
+            } catch (error) {
+
+                console.error(
+                    'No fue posible guardar el estado del envío.',
+                    error
+                );
+            }
+        }
+
+
+        // 
+        // RECUPERAR ESTADO
+        // 
+
+        function recuperarEstadoEnvio() {
+
+            let guardado;
+
+
+            try {
+
+                guardado =
+                    localStorage.getItem(
+                        claveEstadoEnvio
+                    );
+
+            } catch (error) {
+
+                return;
+            }
+
+
+            if (
+                !guardado
+            ) {
+
+                return;
+            }
+
+
+            try {
+
+                const estado =
+                    JSON.parse(
+                        guardado
+                    );
+
+
+                let porcentaje =
+                    Number(
+                        estado.porcentaje
+                        || 0
+                    );
+
+
+                if (
+                    porcentaje < 0
+                ) {
+
+                    porcentaje =
+                        0;
+                }
+
+
+                if (
+                    porcentaje > 100
+                ) {
+
+                    porcentaje =
+                        100;
+                }
+
+
+                barraProgreso.style.width =
+                    porcentaje + '%';
+
+
+                porcentajeProgreso.textContent =
+                    porcentaje + '%';
+
+
+                resumenProcesadas.textContent =
+                    estado.procesadas
+                    || '0';
+
+
+                resumenFacturasEnviadas.textContent =
+                    estado.facturas_enviadas
+                    || '0';
+
+
+                resumenCorreosEnviados.textContent =
+                    estado.correos_enviados
+                    || '0';
+
+
+                resumenErrores.textContent =
+                    estado.errores
+                    || '0';
+
+
+                if (
+                    estado.titulo
+                ) {
+
+                    tituloProgreso.textContent =
+                        estado.titulo;
+                }
+
+
+                if (
+                    estado.texto
+                ) {
+
+                    textoProgreso.textContent =
+                        estado.texto;
+                }
+
+
+                resultadoFinal.textContent =
+                    estado.resultado
+                    || '';
+
+
+                resultadoFinal.className =
+                    'envio-progreso-resultado';
+
+
+                if (
+                    estado.clase
+                ) {
+
+                    resultadoFinal.classList.add(
+                        estado.clase
+                    );
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    'No fue posible recuperar el estado del envío.',
+                    error
+                );
+            }
+        }
+
+
+        // 
         // SELECCIONAR TODAS
-        // ==================================================
+        // 
 
         if (
             btnSeleccionarTodas
@@ -1022,6 +1442,7 @@ document.addEventListener(
                     if (
                         envioEnProceso
                     ) {
+
                         return;
                     }
 
@@ -1053,9 +1474,9 @@ document.addEventListener(
         }
 
 
-        // ==================================================
+        // 
         // QUITAR SELECCIÓN
-        // ==================================================
+        // 
 
         if (
             btnDeseleccionarTodas
@@ -1068,6 +1489,7 @@ document.addEventListener(
                     if (
                         envioEnProceso
                     ) {
+
                         return;
                     }
 
@@ -1090,16 +1512,17 @@ document.addEventListener(
         }
 
 
-        // ==================================================
-        // DIVIDIR EN LOTES
-        // ==================================================
+        // 
+        // DIVIDIR FACTURAS EN LOTES
+        // 
 
         function dividirEnLotes(
             elementos,
             tamano
         ) {
 
-            const lotes = [];
+            const lotes =
+                [];
 
 
             for (
@@ -1121,9 +1544,9 @@ document.addEventListener(
         }
 
 
-        // ==================================================
-        // ACTUALIZAR PROGRESO
-        // ==================================================
+        // 
+        // ACTUALIZAR BARRA
+        // 
 
         function actualizarProgreso(
             procesadas,
@@ -1159,12 +1582,15 @@ document.addEventListener(
 
             porcentajeProgreso.textContent =
                 porcentaje + '%';
+
+
+            return porcentaje;
         }
 
 
-        // ==================================================
+        // 
         // BLOQUEAR CONTROLES
-        // ==================================================
+        // 
 
         function bloquearPantalla(
             bloquear
@@ -1210,13 +1636,15 @@ document.addEventListener(
             checks.forEach(
                 function (check) {
 
+
                     if (
                         bloquear
                     ) {
 
+
                         if (
-                            check.dataset.disabledOriginal ===
-                            undefined
+                            check.dataset.disabledOriginal
+                            === undefined
                         ) {
 
                             check.dataset.disabledOriginal =
@@ -1229,12 +1657,13 @@ document.addEventListener(
                         check.disabled =
                             true;
 
+
                     } else {
 
 
                         check.disabled =
-                            check.dataset.disabledOriginal ===
-                            '1';
+                            check.dataset.disabledOriginal
+                            === '1';
 
 
                         delete check.dataset.disabledOriginal;
@@ -1246,9 +1675,9 @@ document.addEventListener(
         }
 
 
-        // ==================================================
-        // ENVIAR LOTE
-        // ==================================================
+        // 
+        // PROCESAR LOTE
+        // 
 
         async function procesarLote(
             lote
@@ -1273,6 +1702,7 @@ document.addEventListener(
                 await fetch(
                     urlProcesarLote,
                     {
+
                         method:
                             'POST',
 
@@ -1280,9 +1710,12 @@ document.addEventListener(
                             datos,
 
                         headers: {
+
                             'X-Requested-With':
                                 'XMLHttpRequest'
+
                         }
+
                     }
                 );
 
@@ -1292,7 +1725,8 @@ document.addEventListener(
             ) {
 
                 throw new Error(
-                    'Error HTTP ' +
+                    'Error HTTP '
+                    +
                     respuesta.status
                 );
             }
@@ -1314,7 +1748,9 @@ document.addEventListener(
 
             } catch (error) {
 
+
                 console.error(
+                    'Respuesta del servidor:',
                     texto
                 );
 
@@ -1341,9 +1777,9 @@ document.addEventListener(
         }
 
 
-        // ==================================================
+        // 
         // ENVÍO MASIVO
-        // ==================================================
+        // 
 
         if (
             formulario
@@ -1352,6 +1788,7 @@ document.addEventListener(
             formulario.addEventListener(
                 'submit',
                 async function (event) {
+
 
                     event.preventDefault();
 
@@ -1364,6 +1801,10 @@ document.addEventListener(
                     }
 
 
+                    // ==========================================
+                    // FACTURAS SELECCIONADAS
+                    // ==========================================
+
                     const seleccionadas =
                         Array.from(
                             formulario.querySelectorAll(
@@ -1375,6 +1816,7 @@ document.addEventListener(
                     if (
                         seleccionadas.length === 0
                     ) {
+
 
                         if (
                             mensajeSeleccion
@@ -1401,6 +1843,10 @@ document.addEventListener(
                     const cantidad =
                         seleccionadas.length;
 
+
+                    // ==========================================
+                    // CONFIRMACIÓN
+                    // ==========================================
 
                     const confirmar =
                         confirm(
@@ -1440,6 +1886,10 @@ document.addEventListener(
                         );
 
 
+                    // ==========================================
+                    // LOTES DE 10
+                    // ==========================================
+
                     const lotes =
                         dividirEnLotes(
                             idsFacturas,
@@ -1447,13 +1897,13 @@ document.addEventListener(
                         );
 
 
-                    // ==========================================
-                    // RESULTADO ACUMULADO
-                    // ==========================================
-
                     const totalSeleccionadas =
                         idsFacturas.length;
 
+
+                    // ==========================================
+                    // ACUMULADOS
+                    // ==========================================
 
                     let procesadasCliente =
                         0;
@@ -1483,19 +1933,15 @@ document.addEventListener(
 
 
                     // ==========================================
-                    // PREPARAR PANTALLA
+                    // PREPARAR PANEL
                     // ==========================================
 
-                    panelProgreso.style.display =
-                        'block';
+                    tituloProgreso.textContent =
+                        'Enviando facturas';
 
 
-                    resultadoFinal.className =
-                        'envio-progreso-resultado';
-
-
-                    resultadoFinal.textContent =
-                        '';
+                    textoProgreso.textContent =
+                        'Preparando envío...';
 
 
                     barraProgreso.style.width =
@@ -1507,7 +1953,8 @@ document.addEventListener(
 
 
                     resumenProcesadas.textContent =
-                        '0 / ' +
+                        '0 / '
+                        +
                         totalSeleccionadas;
 
 
@@ -1523,6 +1970,48 @@ document.addEventListener(
                         '0';
 
 
+                    resultadoFinal.className =
+                        'envio-progreso-resultado';
+
+
+                    resultadoFinal.textContent =
+                        '';
+
+
+                    guardarEstadoEnvio({
+
+                        titulo:
+                            'Enviando facturas',
+
+                        texto:
+                            'Preparando envío...',
+
+                        porcentaje:
+                            0,
+
+                        procesadas:
+                            '0 / '
+                            +
+                            totalSeleccionadas,
+
+                        facturas_enviadas:
+                            0,
+
+                        correos_enviados:
+                            0,
+
+                        errores:
+                            0,
+
+                        resultado:
+                            '',
+
+                        clase:
+                            ''
+
+                    });
+
+
                     bloquearPantalla(
                         true
                     );
@@ -1532,7 +2021,7 @@ document.addEventListener(
 
 
                         // ======================================
-                        // PROCESAR LOTES
+                        // PROCESAR TODOS LOS LOTES
                         // ======================================
 
                         for (
@@ -1561,7 +2050,7 @@ document.addEventListener(
 
 
                             // ==================================
-                            // ACUMULAR
+                            // ACUMULAR RESULTADOS
                             // ==================================
 
                             acumulado.facturas_procesadas +=
@@ -1611,13 +2100,14 @@ document.addEventListener(
 
 
                             // ==================================
-                            // ACTUALIZAR PANTALLA
+                            // ACTUALIZAR INTERFAZ
                             // ==================================
 
-                            actualizarProgreso(
-                                procesadasCliente,
-                                totalSeleccionadas
-                            );
+                            const porcentajeActual =
+                                actualizarProgreso(
+                                    procesadasCliente,
+                                    totalSeleccionadas
+                                );
 
 
                             resumenProcesadas.textContent =
@@ -1641,12 +2131,66 @@ document.addEventListener(
                                 +
                                 acumulado.correos_error;
 
+
+                            // ==================================
+                            // GUARDAR PROGRESO
+                            // ==================================
+
+                            guardarEstadoEnvio({
+
+                                titulo:
+                                    'Enviando facturas',
+
+                                texto:
+                                    'Procesado lote '
+                                    +
+                                    (i + 1)
+                                    +
+                                    ' de '
+                                    +
+                                    lotes.length
+                                    +
+                                    '.',
+
+                                porcentaje:
+                                    porcentajeActual,
+
+                                procesadas:
+                                    procesadasCliente
+                                    +
+                                    ' / '
+                                    +
+                                    totalSeleccionadas,
+
+                                facturas_enviadas:
+                                    acumulado.facturas_enviadas,
+
+                                correos_enviados:
+                                    acumulado.correos_enviados,
+
+                                errores:
+                                    acumulado.facturas_error
+                                    +
+                                    acumulado.correos_error,
+
+                                resultado:
+                                    '',
+
+                                clase:
+                                    ''
+
+                            });
+
                         }
 
 
                         // ======================================
-                        // FINALIZADO
+                        // PROCESO TERMINADO
                         // ======================================
+
+                        tituloProgreso.textContent =
+                            'Último envío masivo';
+
 
                         textoProgreso.textContent =
                             'Proceso terminado.';
@@ -1658,6 +2202,18 @@ document.addEventListener(
                         );
 
 
+                        resumenProcesadas.textContent =
+                            totalSeleccionadas
+                            +
+                            ' / '
+                            +
+                            totalSeleccionadas;
+
+
+                        // ======================================
+                        // RESULTADO EXITOSO
+                        // ======================================
+
                         if (
                             acumulado.facturas_error === 0
                             &&
@@ -1665,6 +2221,7 @@ document.addEventListener(
                             &&
                             acumulado.facturas_sin_destinatario === 0
                         ) {
+
 
                             resultadoFinal.classList.add(
                                 'exito'
@@ -1682,7 +2239,49 @@ document.addEventListener(
                                 +
                                 ' correo(s) enviados.';
 
+
+                            guardarEstadoEnvio({
+
+                                titulo:
+                                    'Último envío masivo',
+
+                                texto:
+                                    'Proceso terminado.',
+
+                                porcentaje:
+                                    100,
+
+                                procesadas:
+                                    totalSeleccionadas
+                                    +
+                                    ' / '
+                                    +
+                                    totalSeleccionadas,
+
+                                facturas_enviadas:
+                                    acumulado.facturas_enviadas,
+
+                                correos_enviados:
+                                    acumulado.correos_enviados,
+
+                                errores:
+                                    0,
+
+                                resultado:
+                                    resultadoFinal.textContent,
+
+                                clase:
+                                    'exito'
+
+                            });
+
+
                         } else {
+
+
+                            // ==================================
+                            // RESULTADO CON NOVEDADES
+                            // ==================================
 
                             resultadoFinal.classList.add(
                                 'advertencia'
@@ -1713,25 +2312,132 @@ document.addEventListener(
                                 acumulado.correos_error
                                 +
                                 '.';
+
+
+                            guardarEstadoEnvio({
+
+                                titulo:
+                                    'Último envío masivo',
+
+                                texto:
+                                    'Proceso terminado con novedades.',
+
+                                porcentaje:
+                                    100,
+
+                                procesadas:
+                                    totalSeleccionadas
+                                    +
+                                    ' / '
+                                    +
+                                    totalSeleccionadas,
+
+                                facturas_enviadas:
+                                    acumulado.facturas_enviadas,
+
+                                correos_enviados:
+                                    acumulado.correos_enviados,
+
+                                errores:
+                                    acumulado.facturas_error
+                                    +
+                                    acumulado.correos_error,
+
+                                resultado:
+                                    resultadoFinal.textContent,
+
+                                clase:
+                                    'advertencia'
+
+                            });
+
                         }
 
 
                     } catch (error) {
 
 
+                        // ======================================
+                        // ERROR GENERAL
+                        // ======================================
+
+                        tituloProgreso.textContent =
+                            'Envío interrumpido';
+
+
                         textoProgreso.textContent =
-                            'El proceso fue interrumpido.';
+                            'El proceso no pudo continuar.';
 
 
-                        resultadoFinal.classList.add(
-                            'error'
-                        );
+                        resultadoFinal.className =
+                            'envio-progreso-resultado error';
 
 
                         resultadoFinal.textContent =
                             'Error: '
                             +
                             error.message;
+
+
+                        let porcentajeActual =
+                            0;
+
+
+                        if (
+                            totalSeleccionadas > 0
+                        ) {
+
+                            porcentajeActual =
+                                Math.round(
+                                    (
+                                        procesadasCliente
+                                        /
+                                        totalSeleccionadas
+                                    )
+                                    *
+                                    100
+                                );
+                        }
+
+
+                        guardarEstadoEnvio({
+
+                            titulo:
+                                'Envío interrumpido',
+
+                            texto:
+                                'El proceso no pudo continuar.',
+
+                            porcentaje:
+                                porcentajeActual,
+
+                            procesadas:
+                                procesadasCliente
+                                +
+                                ' / '
+                                +
+                                totalSeleccionadas,
+
+                            facturas_enviadas:
+                                acumulado.facturas_enviadas,
+
+                            correos_enviados:
+                                acumulado.correos_enviados,
+
+                            errores:
+                                acumulado.facturas_error
+                                +
+                                acumulado.correos_error
+                                +
+                                1,
+
+                            resultado:
+                                resultadoFinal.textContent,
+
+                            clase:
+                                'error'
+
+                        });
 
 
                         console.error(
@@ -1742,6 +2448,10 @@ document.addEventListener(
                     } finally {
 
 
+                        // ======================================
+                        // HABILITAR CONTROLES
+                        // ======================================
+
                         bloquearPantalla(
                             false
                         );
@@ -1751,6 +2461,15 @@ document.addEventListener(
                 }
             );
         }
+
+
+        // 
+        // RECUPERAR ÚLTIMO ESTADO
+        // Se ejecuta al cargar la página.
+        // 
+
+        recuperarEstadoEnvio();
+
 
     }
 );
