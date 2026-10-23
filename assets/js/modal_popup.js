@@ -3,9 +3,9 @@
 document.addEventListener("DOMContentLoaded", function () {
 
 
-    // ==========================// ==========================
+    // ==// ==
     //  TABLAS MAESTRAS - MODALES DEL SISTEMA
-    // ==========================
+    // ==
     configurarModal(
         "btnNuevoPais",
         "modalPais",
@@ -81,9 +81,9 @@ document.addEventListener("DOMContentLoaded", function () {
     "cerrarModalParqueadero",
     "cancelarParqueadero"
     );
-    // ========
+    // 
     // MODAL NUEVA TARIFA
-    // ========
+    // 
 
     configurarModal(
         "btnNuevaTarifa",
@@ -126,9 +126,9 @@ function configurarModal(
     }
 
 
-    // ========
+    // 
     // ABRIR MODAL
-    // ========
+    // 
 
     if (boton) {
 
@@ -144,9 +144,9 @@ function configurarModal(
     }
 
 
-    // ========
+    // 
     // CERRAR CON X
-    // ========
+    // 
 
     if (cerrar) {
 
@@ -161,9 +161,9 @@ function configurarModal(
     }
 
 
-    // ========
+    // 
     // CANCELAR
-    // ========
+    // 
 
     if (cancelar) {
 
@@ -188,9 +188,9 @@ function configurarModal(
     }
 
 
-    // ========
+    // 
     // CERRAR HACIENDO CLICK FUERA
-    // ========
+    // 
 
     modal.addEventListener(
         "click",
@@ -278,9 +278,9 @@ if (modalUsuario) {
 }
 
 
-// ========
+// 
 // MODAL NUEVO TIPO DE DOCUMENTO
-// ========
+// 
 
 const btnNuevoTipoDocumento = document.querySelector(".btnNuevoTipoDocumento");
 const modalNuevoTipoDocumento = document.getElementById("modalNuevoTipoDocumento");
@@ -306,9 +306,9 @@ if (cancelarNuevoTipoDocumento) {
 }
 
 
-// ========
+// 
 // MODAL NUEVO ESTADO CIVIL
-// ========
+// 
 
 const btnNuevoEstadoCivil = document.querySelector(".btnNuevoEstadoCivil");
 const modalNuevoEstadoCivil = document.getElementById("modalNuevoEstadoCivil");
@@ -334,9 +334,9 @@ if (cancelarNuevoEstadoCivil) {
 }
 
 
-// ========
+// 
 // MODAL NUEVA OCUPACIÓN
-// ========
+// 
 
 const btnNuevaOcupacion = document.querySelector(".btnNuevaOcupacion");
 const modalNuevaOcupacion = document.getElementById("modalNuevaOcupacion");
@@ -362,9 +362,9 @@ if (cancelarNuevaOcupacion) {
 }
 
 
-// ========
+// 
 // MODAL NUEVO GÉNERO
-// ========
+// 
 
 const btnNuevoGenero = document.querySelector(".btnNuevoGenero");
 const modalNuevoGenero = document.getElementById("modalNuevoGenero");
@@ -443,9 +443,9 @@ if (btnCerrar) {
 });
 
 
-// ========
+// 
 // EDITAR DEPARTAMENTO
-// ========
+// 
 
 const modalEditarDepartamento = document.getElementById("modalEditarDepartamento");
 const cerrarEditarDepartamento = document.getElementById("cerrarEditarDepartamento");
@@ -527,9 +527,9 @@ document
     });
 
 
-// ========
+// 
 // CERRAR CON X
-// ========
+// 
 
 if (cerrarEditarDepartamento) {
     cerrarEditarDepartamento.addEventListener(
@@ -543,9 +543,9 @@ if (cerrarEditarDepartamento) {
 }
 
 
-// ========
+// 
 // CANCELAR
-// ========
+// 
 
 if (cancelarEditarDepartamento) {
     cancelarEditarDepartamento.addEventListener(
@@ -559,9 +559,9 @@ if (cancelarEditarDepartamento) {
 }
 
 
-// ========
+// 
 // CERRAR HACIENDO CLIC FUERA
-// ========
+// 
 
 if (modalEditarDepartamento) {
     window.addEventListener(
@@ -580,9 +580,9 @@ if (modalEditarDepartamento) {
 }
 
 
-// ========
+// 
 // EDITAR CIUDAD
-// ========
+// 
 
 const modalEditarCiudad = document.getElementById("modalEditarCiudad");
 const cerrarEditarCiudad = document.getElementById("cerrarEditarCiudad");
@@ -666,9 +666,9 @@ document
     });
 
 
-// ========
+// 
 // CERRAR CON X
-// ========
+// 
 
 if (cerrarEditarCiudad) {
     cerrarEditarCiudad.addEventListener(
@@ -682,9 +682,9 @@ if (cerrarEditarCiudad) {
 }
 
 
-// ========
+// 
 // CANCELAR
-// ========
+// 
 
 if (cancelarEditarCiudad) {
     cancelarEditarCiudad.addEventListener(
@@ -698,9 +698,9 @@ if (cancelarEditarCiudad) {
 }
 
 
-// ========
+// 
 // CERRAR HACIENDO CLIC FUERA
-// ========
+// 
 
 if (modalEditarCiudad) {
     window.addEventListener(
@@ -718,9 +718,9 @@ if (modalEditarCiudad) {
     );
 }
 
-// ========
+// 
 // EDITAR TIPO DE DOCUMENTO
-// ========
+// 
 const modalEditarTipoDocumento = document.getElementById("modalEditarTipoDocumento");
 const cerrarEditarTipoDocumento = document.getElementById("cerrarEditarTipoDocumento");
 const cancelarEditarTipoDocumento = document.getElementById("cancelarEditarTipoDocumento");
@@ -788,9 +788,9 @@ document
     });
 
 
-// ========
+// 
 // CERRAR CON X
-// ========
+// 
 
 if (cerrarEditarTipoDocumento) {
     cerrarEditarTipoDocumento.addEventListener(
@@ -804,9 +804,9 @@ if (cerrarEditarTipoDocumento) {
 }
 
 
-// ========
+// 
 // CANCELAR
-// ========
+// 
 
 if (cancelarEditarTipoDocumento) {
     cancelarEditarTipoDocumento.addEventListener(
@@ -820,9 +820,9 @@ if (cancelarEditarTipoDocumento) {
 }
 
 
-// ========
+// 
 // CERRAR AL HACER CLIC FUERA
-// ========
+// 
 
 if (modalEditarTipoDocumento) {
     window.addEventListener(
@@ -842,9 +842,9 @@ if (modalEditarTipoDocumento) {
 
 
 
-// ========
+// 
 // EDITAR ESTADO CIVIL
-// ========
+// 
 
 const modalEditarEstadoCivil = document.getElementById("modalEditarEstadoCivil");
 const cerrarEditarEstadoCivil = document.getElementById("cerrarEditarEstadoCivil");
@@ -921,9 +921,9 @@ if (modalEditarEstadoCivil) {
 
 }
 
-// ========
+// 
 // EDITAR OCUPACIÓN
-// ========
+// 
 
 const modalEditarOcupacion = document.getElementById("modalEditarOcupacion");
 const cerrarEditarOcupacion = document.getElementById("cerrarEditarOcupacion");
@@ -1004,9 +1004,9 @@ if (modalEditarOcupacion) {
     });
 }
 
-// ========
+// 
 // EDITAR GÉNERO
-// ========
+// 
 
 const modalEditarGenero = document.getElementById("modalEditarGenero");
 const cerrarEditarGenero = document.getElementById("cerrarEditarGenero");
@@ -1134,9 +1134,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-// ========
+// 
 // MODAL PARQUEADERO
-// ========
+// 
 
 const btnNuevoParqueadero = document.getElementById("btnNuevoParqueadero");
 const modalParqueadero = document.getElementById("modalParqueadero");
@@ -1182,9 +1182,9 @@ if (modalParqueadero) {
     );
 }
 
-// ========
+// 
 // EDITAR PARQUEADERO
-// ========
+// 
 
 document.addEventListener("DOMContentLoaded", function () {
 

@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // ========
+    // 
     // MODAL NUEVO EXTRACTO
-    // ========
+    // 
 
     const modal = document.getElementById("modalNuevoExtracto");
     const btnNuevo = document.getElementById("btnNuevoExtracto");
@@ -10,18 +10,18 @@ document.addEventListener("DOMContentLoaded", function () {
         "cancelarNuevoExtracto"
     );
 
-    // ========
+    // 
     // ABRIR MODAL
-    // ========
+    // 
     if (btnNuevo) {
         btnNuevo.addEventListener("click", function () {
             modal.style.display = "flex";
         });
     }
 
-    // ========
+    // 
     // CERRAR MODAL
-    // ========
+    // 
     function cerrarModal() {
         modal.style.display = "none";
     }
@@ -40,18 +40,18 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
-    // ========
+    // 
     // CERRAR AL HACER CLICK FUERA DEL MODAL
-    // ========
+    // 
     window.addEventListener("click", function (event) {
         if (event.target === modal) {
             cerrarModal();
         }
     });
 
-    // ========
+    // 
     // VALIDACIÓN DEL ARCHIVO
-    // ========
+    // 
 
     const inputArchivo =
         document.getElementById("archivo");
@@ -91,9 +91,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                // ==============================================
+                // ======
                 // TAMAÑO MÁXIMO
-                // ==============================================
+                // ======
                 const maximo =
                     10 * 1024 * 1024;
 

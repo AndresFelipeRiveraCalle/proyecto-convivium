@@ -4,17 +4,17 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FILTROS
-// ========
+// 
 
 $buscar = trim($_GET['buscar'] ?? '');
 $estado = trim($_GET['estado'] ?? '');
 
 
-// ========
+// 
 // CARGAR CONCEPTOS DISPONIBLES PARA CARGOS
-// ========
+// 
 //
 // Excluimos:
 //
@@ -24,7 +24,7 @@ $estado = trim($_GET['estado'] ?? '');
 // Estos conceptos tienen proceso automático y no deben
 // generarse como cargos particulares.
 //
-// ========
+// 
 
 $sqlConceptos = "
     SELECT
@@ -50,9 +50,9 @@ $conceptos = $stmtConceptos->fetchAll(
 );
 
 
-// ========
+// 
 // CARGAR GRUPOS / TIPOS DE UNIDAD
-// ========
+// 
 
 $sqlGrupos = "
     SELECT
@@ -74,9 +74,9 @@ $grupos = $stmtGrupos->fetchAll(
 );
 
 
-// ========
+// 
 // CARGAR UNIDADES
-// ========
+// 
 
 $sqlUnidades = "
     SELECT
@@ -107,9 +107,9 @@ $unidades = $stmtUnidades->fetchAll(
 );
 
 
-// ========
+// 
 // CONSULTA DE CARGOS
-// ========
+// 
 
 $sql = "
     SELECT
@@ -192,9 +192,9 @@ $sql = "
 $parametros = [];
 
 
-// ========
+// 
 // FILTRO BUSCAR
-// ========
+// 
 
 if ($buscar !== '') {
 
@@ -213,9 +213,9 @@ if ($buscar !== '') {
 }
 
 
-// ========
+// 
 // FILTRO ESTADO
-// ========
+// 
 
 $estadosPermitidos = [
     'BORRADOR',
@@ -241,9 +241,9 @@ if (
 }
 
 
-// ========
+// 
 // ORDEN
-// ========
+// 
 
 $sql .= "
     ORDER BY
@@ -260,9 +260,9 @@ $cargos = $stmt->fetchAll(
 );
 
 
-// ========
+// 
 // FUNCIONES AUXILIARES
-// ========
+// 
 
 function nombreTipoAplicacion($tipo)
 {
@@ -913,9 +913,9 @@ function nombreEstadoCargo($estado)
 
 
 
-<!-- ========
+<!-- 
      MODAL NUEVO CARGO
-========= -->
+= -->
 
 <div
     id="modalNuevoCargo"
@@ -1406,9 +1406,9 @@ function nombreEstadoCargo($estado)
 
 
 
-<!-- ========
+<!-- 
      JAVASCRIPT
-========= -->
+= -->
 
 <script>
 

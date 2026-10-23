@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FUNCIONES
-// ========
+// 
 
 function e($valor)
 {
@@ -47,9 +47,9 @@ function estadoVigencia($fechaInicio, $fechaFin)
 }
 
 
-// ========
+// 
 // TASAS DISPONIBLES
-// ========
+// 
 
 $sqlTasas = "
     SELECT
@@ -77,9 +77,9 @@ $tasas =
     $stmtTasas->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // CONCEPTOS DISPONIBLES
-// ========
+// 
 
 $sqlConceptos = "
     SELECT
@@ -102,9 +102,9 @@ $conceptos =
     $stmtConceptos->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // CONFIGURACIONES DE MORA
-// ========
+// 
 
 $sql = "
     SELECT
@@ -541,9 +541,9 @@ $configuraciones =
 </div>
 
 
-<!-- ========
+<!-- 
      MODAL NUEVA CONFIGURACIÓN
-========= -->
+= -->
 
 <div
     id="modalNuevaConfiguracion"
@@ -807,9 +807,9 @@ $configuraciones =
 </div>
 
 
-<!-- ========
+<!-- 
      MODAL EDITAR CONFIGURACIÓN
-========= -->
+= -->
 
 <div
     id="modalEditarConfiguracion"

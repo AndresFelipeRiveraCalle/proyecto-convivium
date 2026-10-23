@@ -7,10 +7,10 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 
 
-// ========
+// 
 // GENERAR PDF DE FACTURA
 // Devuelve el PDF como contenido binario.
-// ========
+// 
 
 function generarPdfFactura(
     int $idFactura

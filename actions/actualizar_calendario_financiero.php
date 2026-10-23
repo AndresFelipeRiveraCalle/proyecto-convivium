@@ -3,9 +3,9 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header(
@@ -14,9 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// ========
+// 
 // FUNCIÓN DE REDIRECCIÓN CON ERROR
-// ========
+// 
 
 function redireccionarError($idCalendario, $mensaje)
 {
@@ -27,9 +27,9 @@ function redireccionarError($idCalendario, $mensaje)
     exit;
 }
 
-// ========
+// 
 // DATOS DEL FORMULARIO
-// ========
+// 
 
 $idCalendario = filter_input(INPUT_POST,'id_calendario',FILTER_VALIDATE_INT);
 $fechaInicioCierre = trim($_POST['fecha_inicio_cierre'] ?? '');
@@ -40,9 +40,9 @@ $fechaVencimiento = trim($_POST['fecha_vencimiento'] ?? '');
 $estado = trim($_POST['estado'] ?? '');
 $observaciones = trim($_POST['observaciones'] ?? '');
 
-// ========
+// 
 // VALIDAR ID
-// ========
+// 
 
 if (!$idCalendario) {
 
@@ -53,9 +53,9 @@ if (!$idCalendario) {
     exit;
 }
 
-// ========
+// 
 // FUNCIÓN PARA VALIDAR FECHAS
-// ========
+// 
 
 function fechaValida($fecha)
 {
@@ -81,9 +81,9 @@ function fechaValida($fecha)
     return $fechaObj->format('Y-m-d') === $fecha;
 }
 
-// ========
+// 
 // VALIDAR FECHAS
-// ========
+// 
 
 $camposFecha = [
     'Inicio de cierre' => $fechaInicioCierre,
@@ -101,9 +101,9 @@ foreach ($camposFecha as $nombreCampo => $fecha) {
     }
 }
 
-// ========
+// 
 // VALIDAR ORDEN DE FECHAS
-// ========
+// 
 
 // ----------------------------------------------------------
 // Facturación <= vencimiento
@@ -129,9 +129,9 @@ if ($fechaInicioCierre > $fechaFinCierre) {
     );
 }
 
-// ========
+// 
 // VALIDAR ESTADO
-// ========
+// 
 
 $estadosPermitidos = ['ABIERTO', 'EN_CIERRE','CERRADO'];
 
@@ -146,9 +146,9 @@ if (
     );
 }
 
-// ========
+// 
 // ACTUALIZAR
-// ========
+// 
 
 try {
     // ====
@@ -176,7 +176,7 @@ try {
 
     // ====
     // VALIDAR AÑO DEL PERÍODO
-    // ========
+    // 
 
     $anioPeriodo = date(
         'Y',  strtotime($calendario['periodo'])

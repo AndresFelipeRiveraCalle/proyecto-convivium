@@ -1,5 +1,5 @@
 Symfony Polyfill / Mbstring
-===========================
+===
 
 This component provides a partial, native PHP implementation for the
 [Mbstring](https://php.net/mbstring) extension.

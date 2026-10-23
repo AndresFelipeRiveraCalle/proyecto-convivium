@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -24,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS
-// ========
+// 
 
 $idExtracto =
     isset($_POST['id_extracto'])
@@ -55,9 +55,9 @@ if ($idExtracto <= 0 || $idPago <= 0) {
 }
 
 
-// ========
+// 
 // TRANSACCIÓN
-// ========
+// 
 
 try {
 

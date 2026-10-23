@@ -10,9 +10,9 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 try {
 
-    // ========
+    // 
     // DATOS
-    // ========
+    // 
 
     $codigo = trim($_POST["codigo"] ?? "");
     $tipo = $_POST["tipo"] ?? "";
@@ -27,18 +27,18 @@ try {
         : 1;
 
 
-    // ========
+    // 
     // VALIDAR CÓDIGO
-    // ========
+    // 
 
     if ($codigo === "") {
         throw new Exception("El código del parqueadero es obligatorio.");
     }
 
 
-    // ========
+    // 
     // VALIDAR TIPO
-    // ========
+    // 
 
     $tiposPermitidos = [
         "PRIVADO",
@@ -52,9 +52,9 @@ try {
     }
 
 
-    // ========
+    // 
     // VALIDAR ESTADO
-    // ========
+    // 
 
     $estadosPermitidos = [
         "DISPONIBLE",
@@ -67,18 +67,18 @@ try {
     }
 
 
-    // ========
+    // 
     // VALIDAR ACTIVO
-    // ========
+    // 
 
     if (!in_array($activo, [0, 1], true)) {
         $activo = 1;
     }
 
 
-    // ========
+    // 
     // VALIDAR CÓDIGO DUPLICADO
-    // ========
+    // 
 
     $sql = "
         SELECT id_parqueadero
@@ -100,9 +100,9 @@ try {
     }
 
 
-    // ========
+    // 
     // VALIDAR UNIDAD
-    // ========
+    // 
 
     if ($id_unidad !== null) {
 
@@ -128,9 +128,9 @@ try {
     }
 
 
-    // ========
+    // 
     // INSERTAR
-    // ========
+    // 
 
     $sql = "
         INSERT INTO parqueaderos (
@@ -168,9 +168,9 @@ try {
     ]);
 
 
-    // ========
+    // 
     // REDIRECCIÓN
-    // ========
+    // 
 
     header(
         "Location: " .

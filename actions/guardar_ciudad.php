@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
@@ -18,9 +18,9 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 }
 
 
-// ========
+// 
 // DATOS DEL FORMULARIO
-// ========
+// 
 
 $id_departamento = (int) (
     $_POST["id_departamento"] ?? 0
@@ -39,17 +39,17 @@ $activo = isset($_POST["estado"])
     : 1;
 
 
-// ========
+// 
 // PÁGINA DE RETORNO
-// ========
+// 
 
 $paginaRetorno =
     "../configuracion/tablas_maestras.php";
 
 
-// ========
+// 
 // VALIDAR DEPARTAMENTO
-// ========
+// 
 
 if ($id_departamento <= 0) {
 
@@ -68,9 +68,9 @@ if ($id_departamento <= 0) {
 }
 
 
-// ========
+// 
 // VALIDAR NOMBRE
-// ========
+// 
 
 if ($nombre === "") {
 

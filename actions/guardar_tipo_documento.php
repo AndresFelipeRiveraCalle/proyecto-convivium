@@ -10,9 +10,9 @@ try {
     $estado = isset($_POST["estado"]) ? (int) $_POST["estado"] : 1;
 
 
-    // ==========================================
+    // ==
     // VALIDACIONES
-    // ==========================================
+    // ==
 
     if ($codigo === "") {
         throw new Exception("El código es obligatorio.");
@@ -23,9 +23,9 @@ try {
     }
 
 
-    // ==========================================
+    // ==
     // VERIFICAR CÓDIGO DUPLICADO
-    // ==========================================
+    // ==
 
     $sql = "
         SELECT COUNT(*)
@@ -41,9 +41,9 @@ try {
     }
 
 
-    // ==========================================
+    // ==
     // VERIFICAR NOMBRE DUPLICADO
-    // ==========================================
+    // ==
 
     $sql = "
         SELECT COUNT(*)
@@ -59,9 +59,9 @@ try {
     }
 
 
-    // ==========================================
+    // ==
     // GUARDAR
-    // ==========================================
+    // ==
 
     $sql = "
         INSERT INTO tipos_documento
@@ -87,9 +87,9 @@ try {
     ]);
 
 
-    // ==========================================
+    // ==
     // REGRESAR
-    // ==========================================
+    // ==
 
     header(
         "Location: ../configuracion/tablas_maestras.php?tipo=success&texto=Tipo de documento creado correctamente"

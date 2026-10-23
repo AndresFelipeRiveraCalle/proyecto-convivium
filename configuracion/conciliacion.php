@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FUNCIONES
-// ========
+// 
 
 function e($valor)
 {
@@ -38,9 +38,9 @@ function diferenciaDias($fecha1, $fecha2)
 }
 
 
-// ========
+// 
 // FILTROS
-// ========
+// 
 
 $buscar =
     trim(
@@ -79,9 +79,9 @@ $fechaHasta =
     );
 
 
-// ========
+// 
 // WHERE DE MOVIMIENTOS
-// ========
+// 
 
 $where = [
     "eb.tipo_movimiento = 'INGRESO'",
@@ -138,10 +138,10 @@ $whereSql =
     );
 
 
-// ========
+// 
 // MOVIMIENTOS BANCARIOS
 // Obtiene una sola fila por movimiento bancario.
-// ========
+// 
 
 $sqlMovimientos = "
     SELECT
@@ -195,9 +195,9 @@ $movimientos =
     );
 
 
-// ========
+// 
 // PREPARAR DATOS SEGÚN ESTADO
-// ========
+// 
 
 $filas = [];
 
@@ -213,9 +213,9 @@ $conteo = [
 
 if ($estadoConciliacion === 'PENDIENTE') {
 
-// ========
+// 
 // PREPARAR BÚSQUEDA DE CANDIDATOS
-// ========
+// 
 
 $sqlCandidatos = "
     SELECT
@@ -284,9 +284,9 @@ $stmtCandidatos =
     );
 
 
-// ========
+// 
 // CLASIFICAR MOVIMIENTOS
-// ========
+// 
 
 
 
@@ -344,9 +344,9 @@ foreach ($movimientos as $movimiento) {
 }
 
 
-// ========
+// 
 // CLASIFICAR TENIENDO EN CUENTA CONFLICTOS GLOBALES
-// ========
+// 
 
 foreach ($filas as $indice => $fila) {
 
@@ -427,9 +427,9 @@ foreach ($filas as $indice => $fila) {
 }
 
 
-// ========
+// 
 // FILTRO DE VISTA
-// ========
+// 
 
 if (
     in_array(
@@ -460,9 +460,9 @@ if (
 }
 
 
-// ========
+// 
 // DETALLE DE CONCILIACIÓN RECIENTE
-// ========
+// 
 
 if (
     isset($_GET['conciliado']) &&
@@ -555,9 +555,9 @@ if (
 }
 
 
-// ========
+// 
 // DETALLE DE MOVIMIENTO RECHAZADO RECIENTE
-// ========
+// 
 
 $rechazoReciente = null;
 
@@ -617,9 +617,9 @@ if (
         );
 }
 
-// ========
+// 
 // URLS DE EXPORTACIÓN
-// ========
+// 
 
 $queryExportacion = [
     'estado_conciliacion' => $estadoConciliacion,

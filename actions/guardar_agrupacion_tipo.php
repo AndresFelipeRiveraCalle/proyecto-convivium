@@ -26,9 +26,9 @@ try {
         throw new Exception("La cantidad debe ser mayor que cero.");
     }
 
-    // ========
+    // 
     // VERIFICAR QUE EL TIPO DE UNIDAD EXISTA
-    // ========
+    // 
 
     $stmt = $conexion->prepare("
         SELECT id_tipo_config, cantidad_unidades
@@ -47,9 +47,9 @@ try {
         throw new Exception("El tipo de unidad seleccionado no existe.");
     }
 
-    // ========
+    // 
     // VERIFICAR SI YA EXISTE EN LA AGRUPACIÓN
-    // ========
+    // 
 
     $stmt = $conexion->prepare("
         SELECT id_agrupacion_tipo
@@ -70,9 +70,9 @@ try {
         );
     }
 
-    // ========
+    // 
     // VERIFICAR CANTIDAD GLOBAL
-    // ========
+    // 
 
     $stmt = $conexion->prepare("
         SELECT COALESCE(SUM(cantidad), 0)
@@ -98,9 +98,9 @@ try {
         );
     }
 
-    // ========
+    // 
     // INSERTAR
-    // ========
+    // 
 
     $stmt = $conexion->prepare("
         INSERT INTO agrupacion_tipos_unidad

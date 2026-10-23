@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // SOLO POST
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // FUNCIÓN PARA REDIRECCIONAR CON MENSAJE
-// ========
+// 
 
 function redireccionarCargo($tipo, $texto)
 {
@@ -40,9 +40,9 @@ function redireccionarCargo($tipo, $texto)
 }
 
 
-// ========
+// 
 // FUNCIÓN PARA SUMAR MESES A UN PERÍODO
-// ========
+// 
 
 function sumarMeses($fecha, $meses)
 {
@@ -56,9 +56,9 @@ function sumarMeses($fecha, $meses)
 }
 
 
-// ========
+// 
 // DISTRIBUIR EN CUOTAS
-// ========
+// 
 
 function distribuirEnCuotas(
     $valor,
@@ -103,9 +103,9 @@ function distribuirEnCuotas(
 }
 
 
-// ========
+// 
 // DISTRIBUCIÓN PROPORCIONAL EXACTA
-// ========
+// 
 
 function distribuirProporcional(
     array $unidades,
@@ -257,9 +257,9 @@ function distribuirProporcional(
 }
 
 
-// ========
+// 
 // RECIBIR DATOS
-// ========
+// 
 
 $idConcepto =
     isset($_POST['id_concepto'])
@@ -335,9 +335,9 @@ $observaciones =
     );
 
 
-// ========
+// 
 // VALIDACIONES BÁSICAS
-// ========
+// 
 
 if ($idConcepto <= 0) {
 
@@ -378,9 +378,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR TIPO DE APLICACIÓN
-// ========
+// 
 
 $tiposAplicacionPermitidos = [
 
@@ -405,9 +405,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR TIPO DE DISTRIBUCIÓN
-// ========
+// 
 
 $tiposDistribucionPermitidos = [
 
@@ -432,9 +432,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR ESTADO
-// ========
+// 
 
 $estadosPermitidos = [
 
@@ -455,9 +455,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR PERÍODO
-// ========
+// 
 
 if (
     !preg_match(
@@ -499,9 +499,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR CAMPOS SEGÚN APLICACIÓN
-// ========
+// 
 
 if (
     $tipoAplicacion === 'TIPO_UNIDAD'
@@ -533,9 +533,9 @@ if (
 }
 
 
-// ========
+// 
 // LIMPIAR IDs QUE NO CORRESPONDEN
-// ========
+// 
 
 if (
     $tipoAplicacion
@@ -565,9 +565,9 @@ if (
 }
 
 
-// ========
+// 
 // INICIAR TRANSACCIÓN
-// ========
+// 
 
 try {
 
@@ -1135,9 +1135,9 @@ try {
     exit;
 
 
-// ========
+// 
 // ERROR
-// ========
+// 
 
 } catch (Throwable $e) {
 

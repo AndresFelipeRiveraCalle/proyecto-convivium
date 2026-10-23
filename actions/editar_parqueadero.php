@@ -10,9 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
 
-    // ========
+    // 
     // DATOS DEL FORMULARIO
-    // ========
+    // 
 
     $id_parqueadero = (int)($_POST['id_parqueadero'] ?? 0);
 
@@ -35,9 +35,9 @@ try {
         : 1;
 
 
-    // ========
+    // 
     // VALIDACIONES
-    // ========
+    // 
 
     if ($id_parqueadero <= 0) {
         throw new Exception("Parqueadero no válido.");
@@ -75,9 +75,9 @@ try {
     }
 
 
-    // ========
+    // 
     // VERIFICAR QUE EXISTA
-    // ========
+    // 
 
     $stmt = $conexion->prepare("
         SELECT id_parqueadero
@@ -95,9 +95,9 @@ try {
     }
 
 
-    // ========
+    // 
     // VERIFICAR CÓDIGO DUPLICADO
-    // ========
+    // 
 
     $stmt = $conexion->prepare("
         SELECT id_parqueadero
@@ -119,9 +119,9 @@ try {
     }
 
 
-    // ========
+    // 
     // ACTUALIZAR
-    // ========
+    // 
 
     $sql = "
         UPDATE parqueaderos
@@ -201,9 +201,9 @@ try {
     $stmt->execute();
 
 
-    // ========
+    // 
     // REDIRECCIÓN
-    // ========
+    // 
 
     header(
         "Location: " .

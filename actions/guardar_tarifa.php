@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // REDIRECCIÓN
-// ========
+// 
 
 function redireccionarTarifas(
     $tipo,
@@ -43,9 +43,9 @@ function redireccionarTarifas(
 }
 
 
-// ========
+// 
 // VALIDAR FECHA
-// ========
+// 
 
 function fechaValida($fecha)
 {
@@ -63,9 +63,9 @@ function fechaValida($fecha)
 }
 
 
-// ========
+// 
 // DATOS RECIBIDOS
-// ========
+// 
 
 $idConcepto = isset($_POST['id_concepto'])
     ? (int)$_POST['id_concepto']
@@ -118,9 +118,9 @@ $observaciones = isset($_POST['observaciones'])
     : '';
 
 
-// ========
+// 
 // NORMALIZAR OPCIONALES
-// ========
+// 
 
 $nombre =
     $nombre !== ''
@@ -140,9 +140,9 @@ $observaciones =
         : null;
 
 
-// ========
+// 
 // VALIDACIONES BÁSICAS
-// ========
+// 
 
 if ($idConcepto <= 0) {
 

@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // SOLO POST
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS
-// ========
+// 
 
 $idRelacion = isset($_POST['id_relacion'])
     ? (int)$_POST['id_relacion']
@@ -34,9 +34,9 @@ $fechaHasta = isset($_POST['fecha_hasta'])
     : date('Y-m-d');
 
 
-// ========
+// 
 // VALIDAR ID
-// ========
+// 
 
 if ($idRelacion <= 0) {
 
@@ -51,9 +51,9 @@ if ($idRelacion <= 0) {
 }
 
 
-// ========
+// 
 // VALIDAR FECHA
-// ========
+// 
 
 $fechaObj = DateTime::createFromFormat(
     'Y-m-d',

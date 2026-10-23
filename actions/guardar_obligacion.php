@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS DEL FORMULARIO
-// ========
+// 
 
 $idUnidad = (int)($_POST['id_unidad'] ?? 0);
 
@@ -47,9 +47,9 @@ $observaciones = trim(
 );
 
 
-// ========
+// 
 // VALIDACIONES BÁSICAS
-// ========
+// 
 
 if ($idUnidad <= 0) {
 
@@ -113,16 +113,16 @@ if (
 $valorOriginal = (float)$valorOriginal;
 
 
-// ========
+// 
 // CONVERTIR PERÍODO
-// ========
+// 
 
 $periodoBD = $periodo . '-01';
 
 
-// ========
+// 
 // VALIDAR FECHA DEL PERÍODO
-// ========
+// 
 
 $fechaPeriodo = DateTime::createFromFormat(
     'Y-m-d',
@@ -145,9 +145,9 @@ if (
 }
 
 
-// ========
+// 
 // BUSCAR CALENDARIO FINANCIERO DEL PERÍODO
-// ========
+// 
 
 $sqlCalendario = "
 
@@ -179,9 +179,9 @@ $calendario = $stmtCalendario->fetch(
 );
 
 
-// ========
+// 
 // VALIDAR CALENDARIO
-// ========
+// 
 
 if (!$calendario) {
 
@@ -198,9 +198,9 @@ if (!$calendario) {
 }
 
 
-// ========
+// 
 // VALIDAR ESTADO DEL CALENDARIO
-// ========
+// 
 //
 // No permitimos generar obligaciones de un período
 // que ya esté cerrado.
@@ -226,9 +226,9 @@ $fechaVencimiento = $calendario[
 ];
 
 
-// ========
+// 
 // VALIDAR UNIDAD
-// ========
+// 
 
 $sqlUnidad = "
 
@@ -263,9 +263,9 @@ if (!$stmtUnidad->fetch(PDO::FETCH_ASSOC)) {
 }
 
 
-// ========
+// 
 // VALIDAR TIPO DE OBLIGACIÓN
-// ========
+// 
 
 $sqlTipo = "
 
@@ -322,9 +322,9 @@ if ((int)$tipoObligacion['activo'] !== 1) {
 }
 
 
-// ========
+// 
 // DESCRIPCIÓN AUTOMÁTICA
-// ========
+// 
 
 if ($descripcion === '') {
 
@@ -335,9 +335,9 @@ if ($descripcion === '') {
 }
 
 
-// ========
+// 
 // EVITAR DUPLICAR OBLIGACIONES
-// ========
+// 
 //
 // Una unidad no debería tener dos obligaciones del mismo
 // tipo para el mismo período.
@@ -394,9 +394,9 @@ if ($stmtExiste->fetch(PDO::FETCH_ASSOC)) {
 }
 
 
-// ========
+// 
 // VALORES INICIALES
-// ========
+// 
 
 $valorPagado = 0.00;
 
@@ -405,9 +405,9 @@ $saldo = $valorOriginal;
 $estado = 'PENDIENTE';
 
 
-// ========
+// 
 // INSERTAR OBLIGACIÓN
-// ========
+// 
 
 try {
 

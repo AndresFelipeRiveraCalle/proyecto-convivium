@@ -357,9 +357,9 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <form
             class="modal-form-persona" action="../actions/guardar_persona.php" method="POST" enctype="multipart/form-data">
 
-            <!-- =====================================
+            <!-- =====
                  DATOS PERSONALES
-            ====================================== -->
+            ====== -->
 
             <h2 class="titulo-seccion-persona">
                 Datos personales
@@ -487,9 +487,9 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
 
-            <!-- =====================================
+            <!-- =====
                  CONTACTO
-            ====================================== -->
+            ====== -->
 
             <h2 class="titulo-seccion-persona">
                 Información de contacto
@@ -525,9 +525,9 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
 
-            <!-- =====================================
+            <!-- =====
                  UBICACIÓN
-            ====================================== -->
+            ====== -->
 
             <h2 class="titulo-seccion-persona">
                 Ubicación
@@ -602,9 +602,9 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
 
-            <!-- =====================================
+            <!-- =====
                  FOTO
-            ====================================== -->
+            ====== -->
 
             <h2 class="titulo-seccion-persona">
                 Agregar una foto
@@ -621,9 +621,9 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
 
-            <!-- =====================================
+            <!-- =====
                  BOTONES
-            ====================================== -->
+            ====== -->
 
             <div class="botones-persona">
                 <button

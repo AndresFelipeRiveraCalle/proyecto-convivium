@@ -49,16 +49,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
 
                     const pago = data.pago;
-                    // ========
+                    // 
                     // MODO EDITAR
-                    // ========
+                    // 
 
                     form.action =
                         "/proyecto-convivium/actions/actualizar_pago.php";
                         
-                    // ==========================================
+                    // ==
                     // CARGAR DATOS
-                    // ==========================================
+                    // ==
 
                     document.getElementById("id_pago").value =
                         pago.id_pago;
@@ -85,9 +85,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         pago.observaciones || "";
 
 
-                    // ==========================================
+                    // ==
                     // CAMBIAR TÍTULO
-                    // ==========================================
+                    // ==
 
                     const titulo =
                         document.querySelector(
@@ -99,9 +99,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
 
 
-                    // ==========================================
+                    // ==
                     // ABRIR MODAL
-                    // ==========================================
+                    // ==
 
                     const modal =
                         document.getElementById("modalPago");

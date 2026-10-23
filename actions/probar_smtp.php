@@ -9,10 +9,10 @@ require_once ROOT_PATH . "/vendor/autoload.php";
 use PHPMailer\PHPMailer\PHPMailer;
 
 
-// ========
+// 
 // VALIDAR MÉTODO
 // La prueba solo se ejecuta mediante POST.
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -26,10 +26,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // ID CONFIGURACIÓN
 // Obtiene la configuración que se desea probar.
-// ========
+// 
 
 $idConfiguracion =
     isset($_POST['id_configuracion_correo'])
@@ -53,10 +53,10 @@ if ($idConfiguracion <= 0) {
 }
 
 
-// ========
+// 
 // OBTENER CONFIGURACIÓN
 // Carga los datos SMTP almacenados.
-// ========
+// 
 
 $sqlConfiguracion = "
     SELECT
@@ -123,10 +123,10 @@ if (!$configuracion) {
 }
 
 
-// ========
+// 
 // VALIDAR CONFIGURACIÓN
 // Comprueba que existan los datos mínimos para SMTP.
-// ========
+// 
 
 if (
     empty($configuracion['smtp_host'])
@@ -150,10 +150,10 @@ if (
 }
 
 
-// ========
+// 
 // DESCIFRAR CONTRASEÑA
 // Recupera la contraseña únicamente durante la conexión.
-// ========
+// 
 
 $smtpPassword = null;
 
@@ -177,10 +177,10 @@ try {
     }
 
 
-// ========
+// 
 // CREAR PHPMailer
 // Prepara la conexión con el servidor SMTP.
-// ========
+// 
 
     $mail =
         new PHPMailer(true);
@@ -581,10 +581,10 @@ try {
     exit;
 
 
-// ========
+// 
 // ERROR SMTP
 // Guarda el error para poder diagnosticarlo.
-// ========
+// 
 
 } catch (Throwable $e) {
 

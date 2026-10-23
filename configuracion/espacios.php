@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FILTROS
-// ========
+// 
 
 $buscar = isset($_GET['buscar'])
     ? trim($_GET['buscar'])
@@ -18,16 +18,16 @@ $tipoFiltro = isset($_GET['tipo_espacio'])
     : '';
 
 
-// ========
+// 
 // TIPOS PERMITIDOS
-// ========
+// 
 
 $tiposPermitidos = ['PARQUEADERO', 'CUARTO_UTIL', 'DEPOSITO', 'BODEGA', 'OTRO' ];
 
 
-// ========
+// 
 // UNIDADES ACTIVAS
-// ========
+// 
 
 $sqlUnidades = "
     SELECT u.id_unidad, u.codigo, u.nombre, d.nombre_grupo
@@ -41,9 +41,9 @@ $sqlUnidades = "
 $stmtUnidades = $conexion->query($sqlUnidades);
 $unidadesDisponibles = $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
 
-// ========
+// 
 // CONSULTAR ESPACIOS ACTUALES
-// ========
+// 
 
 $sqlEspacios = "
     SELECT eu.id_espacio_unidad, eu.id_unidad, eu.usuario_id, eu.tipo_espacio, eu.codigo, eu.area,
@@ -61,9 +61,9 @@ $sqlEspacios = "
 $parametros = [];
 
 
-// ========
+// 
 // FILTRO TIPO
-// ========
+// 
 
 if (
     $tipoFiltro !== '' && in_array($tipoFiltro, $tiposPermitidos, true)
@@ -73,9 +73,9 @@ if (
 }
 
 
-// ========
+// 
 // BUSCADOR
-// ========
+// 
 
 if ($buscar !== '') {
 
@@ -100,9 +100,9 @@ if ($buscar !== '') {
 }
 
 
-// ========
+// 
 // ORDEN
-// ========
+// 
 
 $sqlEspacios .= " ORDER BY CASE eu.tipo_espacio
             WHEN 'PARQUEADERO' THEN 1
@@ -116,9 +116,9 @@ $sqlEspacios .= " ORDER BY CASE eu.tipo_espacio
 ";
 
 
-// ========
+// 
 // EJECUTAR CONSULTA
-// ========
+// 
 
 $stmtEspacios =
     $conexion->prepare($sqlEspacios);
@@ -131,9 +131,9 @@ $espacios =
     $stmtEspacios->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // RESUMEN
-// ========
+// 
 
 $sqlResumen = "
     SELECT
@@ -204,9 +204,9 @@ $resumen =
     $stmtResumen->fetch(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // HISTÓRICO GENERAL
-// ========
+// 
 
 $sqlHistorico = "
     SELECT
@@ -261,9 +261,9 @@ $historicoGeneral =
     $stmtHistorico->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // AGRUPAR HISTÓRICO
-// ========
+// 
 
 $historicos = [];
 
@@ -287,9 +287,9 @@ foreach ($historicoGeneral as $registro) {
 }
 
 
-// ========
+// 
 // NOMBRE DEL TIPO
-// ========
+// 
 
 function nombreTipoEspacio($tipo)
 {
@@ -346,161 +346,96 @@ function nombreTipoEspacio($tipo)
     <main class="contenido">
 
 
-        <!-- 
-             ACCIONES SUPERIORES
-        = -->
+        <!-- ACCIONES SUPERIORES -->
 
         <div class="form-actions">
-
-
-            <button
-                type="button"
-                class="btn-limpiar"
+            <button type="button" class="btn-limpiar"
                 onclick="window.location.href='unidades.php'"
             >
                 Volver a unidades
             </button>
 
 
-            <button
-                type="button"
-                class="btn-filtrar"
+            <button type="button" class="btn-filtrar"
                 onclick="abrirModalNuevoEspacio()"
             >
-                + Nuevo espacio
+                Nuevo espacio
             </button>
-
-
         </div>
 
+        <br>
+
+        <!-- ENCABEZADO -->
+
+        <h2 align="center">Espacios</h2>
 
         <br>
 
-
-        <!-- 
-             ENCABEZADO
-        = -->
-
-        <h2 align="center">
-            Espacios
-        </h2>
-
-
+        <p> Inventario general de parqueaderos, cuartos útiles, depósitos, bodegas
+            y otros espacios de la copropiedad. </p>
         <br>
 
 
-        <p>
-
-            Inventario general de parqueaderos,
-            cuartos útiles, depósitos, bodegas
-            y otros espacios de la copropiedad.
-
-        </p>
-
-
-        <br>
-
-
-        <!-- 
-             RESUMEN
-        = -->
+        <!-- RESUMEN  -->
 
         <div class="bloque filtros">
-
-
             <div class="tabs-container">
-
-
                 <div class="tab-content">
-
                     <strong>Total</strong>
                     <br>
                     <?= (int)($resumen['total'] ?? 0) ?>
-
                 </div>
 
-
                 <div class="tab-content">
-
                     <strong>Parqueaderos</strong>
                     <br>
                     <?= (int)($resumen['parqueaderos'] ?? 0) ?>
-
                 </div>
 
-
                 <div class="tab-content">
-
                     <strong>Cuartos útiles</strong>
                     <br>
                     <?= (int)($resumen['cuartos_utiles'] ?? 0) ?>
-
                 </div>
 
-
                 <div class="tab-content">
-
                     <strong>Depósitos</strong>
                     <br>
                     <?= (int)($resumen['depositos'] ?? 0) ?>
-
                 </div>
 
 
                 <div class="tab-content">
-
                     <strong>Bodegas</strong>
                     <br>
                     <?= (int)($resumen['bodegas'] ?? 0) ?>
-
                 </div>
 
-
                 <div class="tab-content">
-
                     <strong>Sin unidad</strong>
                     <br>
                     <?= (int)($resumen['sin_unidad'] ?? 0) ?>
-
                 </div>
 
-
                 <div class="tab-content">
-
                     <strong>Sin propietario</strong>
                     <br>
                     <?= (int)($resumen['sin_propietario'] ?? 0) ?>
-
                 </div>
-
-
             </div>
-
-
         </div>
 
 
         <br>
 
 
-        <!-- 
-             FILTROS
-        = -->
+        <!-- FILTROS  -->
 
         <div class="bloque">
-
-
-            <form
-                method="GET"
-                action="espacios.php"
+            <form method="GET" action="espacios.php"
             >
-
-
                 <div class="bloque filtros">
-
-
                     <div class="form-group">
-
                         <label for="buscar">
                             Buscar
                         </label>
@@ -512,7 +447,6 @@ function nombreTipoEspacio($tipo)
                             value="<?= htmlspecialchars($buscar) ?>"
                             placeholder="Código, propietario, documento o unidad"
                         >
-
                     </div>
 
 
@@ -580,14 +514,10 @@ function nombreTipoEspacio($tipo)
                             >
                                 Otro
                             </option>
-
                         </select>
-
                     </div>
 
-
                     <div class="form-actions">
-
                         <button
                             type="button"
                             class="btn-limpiar"
@@ -602,61 +532,32 @@ function nombreTipoEspacio($tipo)
                         >
                             Buscar
                         </button>
-
                     </div>
-
-
                 </div>
-
-
             </form>
-
-
         </div>
-
-
         <br>
 
 
-        <!-- 
-             ESPACIOS ACTUALES
-        = -->
+        <!-- ESPACIOS ACTUALES -->
 
         <div class="bloque">
-
-
             <h3>
                 Espacios actuales
             </h3>
-
-
             <br>
 
-
             <?php if (empty($espacios)): ?>
-
-
                 <p>
-
-                    No existen espacios que coincidan
-                    con los filtros seleccionados.
-
+                    No existen espacios que coincidan con los filtros seleccionados.
                 </p>
-
 
             <?php else: ?>
 
-
                 <div class="table-responsive">
-
-
                     <table class="tabla">
-
-
                         <thead>
-
                             <tr>
-
                                 <th>Tipo</th>
                                 <th>Código</th>
                                 <th>Área</th>
@@ -665,82 +566,52 @@ function nombreTipoEspacio($tipo)
                                 <th>Desde</th>
                                 <th>Observaciones</th>
                                 <th>Acciones</th>
-
                             </tr>
-
                         </thead>
-
-
                         <tbody>
 
-
                         <?php foreach ($espacios as $espacio): ?>
-
-
                             <?php
 
-                            $claveHistorico =
-                                $espacio['tipo_espacio'] .
+                            $claveHistorico = $espacio['tipo_espacio'] .
                                 '|' .
                                 $espacio['codigo'];
 
-
-                            $historicoEspacio =
-                                $historicos[$claveHistorico]
+                            $historicoEspacio = $historicos[$claveHistorico]
                                 ?? [];
-
                             ?>
 
-
-                            <!-- ==============================
-                                 FILA PRINCIPAL
-                            =============================== -->
+                            <!-- FILA PRINCIPAL  -->
 
                             <tr>
-
-
                                 <td>
-
                                     <?= htmlspecialchars(
                                         nombreTipoEspacio(
                                             $espacio['tipo_espacio']
                                         )
                                     ) ?>
-
                                 </td>
 
-
                                 <td>
-
                                     <strong>
                                         <?= htmlspecialchars(
                                             $espacio['codigo']
                                         ) ?>
                                     </strong>
-
                                 </td>
 
-
                                 <td>
-
                                     <?php if (
                                         $espacio['area'] !== null &&
                                         $espacio['area'] !== ''
                                     ): ?>
 
-                                        <?= number_format(
-                                            (float)$espacio['area'],
-                                            2,
-                                            ',',
-                                            '.'
+                                        <?= number_format( (float)$espacio['area'], 2, ',', '.'
                                         ) ?> m²
 
                                     <?php else: ?>
-
                                         -
-
                                     <?php endif; ?>
-
                                 </td>
 
 
@@ -749,13 +620,10 @@ function nombreTipoEspacio($tipo)
                                     <?php if (
                                         !empty($espacio['usuario_id'])
                                     ): ?>
-
                                         <strong>
-
                                             <?= htmlspecialchars(
                                                 trim(
-                                                    ($espacio['nombres'] ?? '') .
-                                                    ' ' .
+                                                    ($espacio['nombres'] ?? '') . ' ' .
                                                     ($espacio['apellidos'] ?? '')
                                                 )
                                             ) ?>
@@ -771,15 +639,10 @@ function nombreTipoEspacio($tipo)
                                             <br>
 
                                             <small>
-
-                                                <?= htmlspecialchars(
-                                                    $espacio['numero_documento']
-                                                ) ?>
-
+                                                <?= htmlspecialchars( $espacio['numero_documento'] ) ?>
                                             </small>
 
                                         <?php endif; ?>
-
                                     <?php else: ?>
 
                                         <span class="inactivo">
@@ -859,7 +722,6 @@ function nombreTipoEspacio($tipo)
                                         )
                                         : '-'
                                     ?>
-
                                 </td>
 
 
@@ -873,18 +735,14 @@ function nombreTipoEspacio($tipo)
                                         )
                                         : '-'
                                     ?>
-
                                 </td>
 
-
                                 <td>
-
-
                                     <!-- EDITAR -->
 
                                     <button
                                         type="button"
-                                        class="btn-secondary btnEditarEspacio"
+                                        class="btn-filtrar   btnEditarEspacio"
 
                                         data-id="<?= (int)$espacio['id_espacio_unidad'] ?>"
 
@@ -947,7 +805,7 @@ function nombreTipoEspacio($tipo)
 
                                     <button
                                         type="button"
-                                        class="btn-secondary btnVerHistorico"
+                                        class="btn-limpiar btnVerHistorico"
 
                                         data-id="<?= (int)$espacio['id_espacio_unidad'] ?>"
                                     >
@@ -965,7 +823,7 @@ function nombreTipoEspacio($tipo)
 
                                         <a
                                             href="personas_unidad.php?id_unidad=<?= (int)$espacio['id_unidad'] ?>"
-                                            class="btn-secondary"
+                                            class="btn-filtrar  "
                                         >
 
                                             Ver unidad
@@ -981,9 +839,9 @@ function nombreTipoEspacio($tipo)
                             </tr>
 
 
-                            <!-- ==============================
+                            <!-- ======
                                  HISTÓRICO
-                            =============================== -->
+                            ======= -->
 
                             <tr
                                 id="historico_<?= (int)$espacio['id_espacio_unidad'] ?>"
@@ -1959,9 +1817,9 @@ function nombreTipoEspacio($tipo)
 <script>
 
 
-// ========
+// 
 // NUEVO ESPACIO
-// ========
+// 
 
 function abrirModalNuevoEspacio()
 {
@@ -1997,9 +1855,9 @@ function cerrarModalNuevoEspacio()
 }
 
 
-// ========
+// 
 // EDITAR
-// ========
+// 
 
 function cerrarModalEditarEspacio()
 {
@@ -2018,9 +1876,9 @@ function cerrarModalEditarEspacio()
 }
 
 
-// ========
+// 
 // TRANSFERIR
-// ========
+// 
 
 function cerrarModalTransferirEspacio()
 {
@@ -2039,9 +1897,9 @@ function cerrarModalTransferirEspacio()
 }
 
 
-// ========
+// 
 // DOM READY
-// ========
+// 
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -2275,9 +2133,9 @@ document.addEventListener(
                             ) {
 
 
-                                // ==========================
+                                // ==
                                 // CERRAR OTROS
-                                // ==========================
+                                // ==
 
                                 document
                                     .querySelectorAll(
@@ -2307,9 +2165,9 @@ document.addEventListener(
                                     );
 
 
-                                // ==========================
+                                // ==
                                 // ABRIR ACTUAL
-                                // ==========================
+                                // ==
 
                                 fila.style.display =
                                     "table-row";

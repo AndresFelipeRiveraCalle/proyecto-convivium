@@ -10,9 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ==========================================
+    // ==
     // ACTIVAR MODO EDICIÓN
-    // ==========================================
+    // ==
 
     btnEditar.addEventListener("click", function () {
 
@@ -83,9 +83,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    // ==========================================
+    // ==
     // CANCELAR EDICIÓN
-    // ==========================================
+    // ==
 
     if (btnCancelar) {
 

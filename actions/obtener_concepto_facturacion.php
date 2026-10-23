@@ -6,9 +6,9 @@ require_once ROOT_PATH . "/config/conexion.php";
 header('Content-Type: application/json; charset=utf-8');
 
 
-// ========
+// 
 // VALIDAR ID
-// ========
+// 
 
 $idConcepto = filter_input(
     INPUT_GET,
@@ -28,9 +28,9 @@ if (!$idConcepto || $idConcepto <= 0) {
 }
 
 
-// ========
+// 
 // CONSULTAR CONCEPTO
-// ========
+// 
 
 try {
 

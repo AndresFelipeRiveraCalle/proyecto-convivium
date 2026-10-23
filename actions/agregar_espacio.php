@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // SOLO POST
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS
-// ========
+// 
 
 $numeroDocumento = isset($_POST['numero_documento'])
     ? trim($_POST['numero_documento'])
@@ -66,9 +66,9 @@ $urlRetorno =
     "configuracion/espacios.php";
 
 
-// ========
+// 
 // VALIDACIONES
-// ========
+// 
 
 $tiposPermitidos = [
     'PARQUEADERO',

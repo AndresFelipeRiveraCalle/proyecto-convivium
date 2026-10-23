@@ -1,6 +1,6 @@
-/* ==========================================
+/* ==
    RESET
-========================================== */
+== */
 
 * {
     margin: 0;
@@ -16,9 +16,9 @@ body {
 }
 
 
-/* ==========================================
+/* ==
    HEADER
-========================================== */
+== */
 
 .header {
     height: 50px;
@@ -63,9 +63,9 @@ body {
     
 }
 
-/* ==========================================
+/* ==
    CONTENEDOR GENERAL
-========================================== */
+== */
 
 .contenedor {
     display: flex;
@@ -73,9 +73,9 @@ body {
 }
 
 
-/* ==========================================
+/* ==
    MENÚ LATERAL
-========================================== */
+== */
 
 .menu {
     width: 240px;
@@ -139,9 +139,9 @@ body {
 }
 
 
-/* ===============================
+/* =======
    MENU DESPLEGABLE
-=================================*/
+=*/
 
 .menu nav ul{
     list-style:none;
@@ -197,9 +197,9 @@ body {
 }
 
 
-/* ==========================================
+/* ==
    CALENDARIO
-========================================== */
+== */
 
 .calendar {
     margin-top: 15px;
@@ -280,9 +280,9 @@ body {
 }
 
 
-/* ==========================================
+/* ==
    CONTENIDO
-========================================== */
+== */
 
 .contenido {
     flex: 1;
@@ -290,9 +290,9 @@ body {
     align-items: flex-start;
 }
 
-/* ==========================================
+/* ==
    TITULOS
-========================================== */
+== */
 
 .titulo-pagina {
     font-size: 28px;
@@ -306,9 +306,9 @@ body {
     margin-bottom: 10px;
 }
 
-/* ==========================================
+/* ==
    LOGOS
-========================================== */
+== */
 .logo-group {
     flex: 0 0 220px;
     /* Ancho fijo para el logo */
@@ -324,9 +324,9 @@ body {
     margin-top: 10px;
 }
 
-/* ==========================================
+/* ==
    Foto de la persona
-========================================== */
+== */
 
 .foto-persona-listado{
     width:50px;
@@ -336,9 +336,9 @@ body {
     border:1px solid #ddd;
 }
 
-/* ==========================================
+/* ==
    MODAL pop-up
-========================================== */
+== */
 .modal {
     display: none;
     position: fixed;
@@ -409,9 +409,9 @@ body {
     border-radius: 10px;
 }
 
-/*==========================================
+/*==
     MODAL MENSAJES
-==========================================*/
+==*/
 
 .modal-mensaje {
     max-width: 450px;
@@ -434,9 +434,9 @@ body {
 }
 
 
-/* ==========================================
+/* ==
    BLOQUES
-========================================== */
+== */
 
 .bloque {
     background: white;
@@ -456,8 +456,16 @@ body {
     flex-wrap: nowrap;
     /* Todo en una sola línea */
     border-radius: 15px;
-
 }
+.bloque-superior{
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* Alinea los elementos en la parte superior */
+  gap: 8px;
+  flex-wrap: nowrap; /* Todo en una sola línea */
+  border-radius: 15px;
+}
+
 .bloque.filtros .card {
     box-sizing: border-box;
     min-width: 0;
@@ -540,9 +548,9 @@ body {
 }
 
 
-/* ==========================================
+/* ==
    BOTONES
-========================================== */
+== */
 
 .btn {
     display: inline-block;
@@ -626,9 +634,9 @@ body {
     margin-left: auto;
 }
 
-/* ==========================================
+/* ==
    FILTROS
-========================================== */
+== */
 
 .filtros {
     display: flex;
@@ -669,9 +677,9 @@ body {
     transform: translateY(-2px);
 }
 
-/* ==========================================
+/* ==
    TABLAS
-========================================== */
+== */
 
 .card-tabla {
     background: white;
@@ -679,6 +687,7 @@ body {
     padding: 10px;
     overflow-x: auto;
     box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+    
 }
 
 table {
@@ -713,43 +722,48 @@ tbody td {
     text-align: center;
 }
 
-/* ========
+/* 
    TABLAS DE PERSONAS POR UNIDAD
-======== */
+ */
 
 .table-responsive {
     width: 100%;
     overflow-x: auto;
-    margin-top: 10px;
+    margin: 10px;
 }
 
 .tabla {
     width: 100%;
-    border-collapse: collapse;
-}
+    border-collapse: separate;
+    border-spacing: 5px 0;
+    }
 
 .tabla th{
     padding: 10px;
     vertical-align: middle;
+    border-radius: 5px;
+
 }
 
 .tabla td {
-    padding: 2px;
+    padding: 3px;
     vertical-align: middle;
 }
 
 .tabla th {
     white-space: nowrap;
+
 }
 
 .tabla td {
     white-space: normal;
+    
 }
 
 
-/* ========
+/* 
    FOTO DE PERSONA
-======== */
+ */
 
 .foto-persona-listado {
     width: 50px;
@@ -765,9 +779,9 @@ tbody td {
 }
 
 
-/* ========
+/* 
    BLOQUES DE PROPIETARIOS / INQUILINOS / RESIDENTES
-======== */
+ */
 
 .bloque {
     width: 100%;
@@ -776,18 +790,18 @@ tbody td {
 }
 
 
-/* ========
+/* 
    BOTONES DE ACCIONES
-======== */
+ */
 
 .btnEditarRelacion,
 .btnEliminarRelacion {
     white-space: nowrap;
 }
 
-/* ==========================================
+/* ==
    BADGES
-========================================== */
+== */
 
 .badge {
     padding: 5px 10px;
@@ -827,9 +841,9 @@ tbody td {
 }
 
 
-/* ==========================================
+/* ==
    FORMULARIOS
-========================================== */
+== */
 
 .card {
     width: 260px;
@@ -838,9 +852,13 @@ tbody td {
     border-radius: 12px;
     padding: 5px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    
+    /* Nuevas propiedades para centrar */
+    display: grid;
+    place-items: center;       /* Centra todo vertical y horizontalmente */
     text-align: center;
-    /* Centra el contenido */
 }
+
 
 .form-card {
     background: white;
@@ -911,9 +929,9 @@ tbody td {
 }
 
 
-/* ==========================================
+/* ==
    ACCIONES
-========================================== */
+== */
 
 .acciones {
     display: flex;
@@ -922,9 +940,9 @@ tbody td {
 }
 
 
-/* ======================================
+/* ======
    PESTAÑAS
-====================================== */
+====== */
 
 .tabs-container {
     display: flex;
@@ -979,9 +997,9 @@ tbody td {
 
 }
 
-/* ==========================================
+/* ==
    RESPONSIVE
-========================================== */
+== */
 
 @media(max-width:768px) {
 
@@ -1010,9 +1028,9 @@ tbody td {
     }
 }
 
-/* ========
+/* 
    RESULTADO OCR
-======== */
+ */
 
 .resultado-ocr {
     max-width: 1400px;
@@ -1068,9 +1086,9 @@ tbody td {
     white-space: pre-wrap;
 }
 
-/* ========
+/* 
    CARTERA Y RESUMEN GENERAL
-   ======== */
+    */
 
 .cartera-container {
     padding: 25px;
@@ -1095,9 +1113,9 @@ tbody td {
 }
 
 
-/* ========
+/* 
    TARJETAS DE RESUMEN
-   ======== */
+    */
 
 .resumen-grid {
     display: grid;
@@ -1125,9 +1143,9 @@ tbody td {
 }
 
 
-/* ========
+/* 
    FILTROS
-   ======== */
+    */
 
 .filtros-card {
     background: #fff;
@@ -1169,9 +1187,9 @@ tbody td {
 }
 
 
-/* ========
+/* 
    TABLA DE CARTERA
-   ======== */
+    */
 
 .tabla-card {
     background: #fff;
@@ -1212,9 +1230,9 @@ tbody td {
 }
 
 
-/* ========
+/* 
    VALORES
-   ======== */
+    */
 
 .text-right {
     text-align: right !important;
@@ -1229,9 +1247,9 @@ tbody td {
 }
 
 
-/* ========
+/* 
    SIN DATOS
-   ======== */
+    */
 
 .sin-datos {
     text-align: center;
@@ -1240,9 +1258,9 @@ tbody td {
 }
 
 
-/* ========
+/* 
    BOTÓN VER DETALLE
-   ======== */
+    */
 
 .btn-ver {
     display: inline-block;
@@ -1254,9 +1272,9 @@ tbody td {
 }
 
 
-/* ========
+/* 
    RESPONSIVE
-   ======== */
+    */
 
 @media (max-width: 1000px) {
 
@@ -1284,9 +1302,9 @@ tbody td {
 
 }
 
-/* ========
+/* 
 MODAL PARQUEADEROS
-======== */
+ */
 
 .modal-parqueadero {
 display: none;
@@ -3633,9 +3651,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   TABLA
-===== */
+/* ==== TABLA===== */
 
 .tabla-responsive {
     width: 100%;
@@ -3646,39 +3662,28 @@ vertical-align: center;
 
 .tabla-general {
     width: 100%;
-
     min-width: 900px;
-
     border-collapse: collapse;
 }
 
 
 .tabla-general thead th {
+    
     padding: 10px 12px;
-
     background: #12324a;
-
     color: #ffffff;
-
     font-size: 13px;
-
     font-weight: 600;
-
     text-align: left;
-
-    white-space: nowrap;
+    white-space: nowrap;    
 }
 
 
 .tabla-general tbody td {
     padding: 10px 12px;
-
     border-bottom: 1px solid #e2e8f0;
-
     color: #334155;
-
     font-size: 13px;
-
     vertical-align: middle;
 }
 
@@ -4004,9 +4009,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   TABLA
-===== */
+/* ====TABLA===== */
 
 .tabla-responsive {
     width: 100%;
@@ -4047,9 +4050,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   COLUMNAS
-===== */
+/* ==== COLUMNAS===== */
 
 .tabla-general th:nth-child(1),
 .tabla-general td:nth-child(1) {

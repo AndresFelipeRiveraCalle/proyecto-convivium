@@ -12,9 +12,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ========
+    // 
     // CAMPOS EDITABLES
-    // ========
+    // 
 
     const camposEditables = form.querySelectorAll(
         'input[name="cantidad_unidades"], ' +
@@ -24,9 +24,9 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
 
-    // ========
+    // 
     // GUARDAR VALORES ORIGINALES
-    // ========
+    // 
 
     const valoresOriginales = {};
 
@@ -38,9 +38,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    // ========
+    // 
     // ACTIVAR MODO EDICIÓN
-    // ========
+    // 
 
     function activarEdicion() {
 
@@ -70,9 +70,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ========
+    // 
     // DESACTIVAR MODO EDICIÓN
-    // ========
+    // 
 
     function desactivarEdicion() {
 
@@ -102,9 +102,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ========
+    // 
     // EDITAR
-    // ========
+    // 
 
     btnEditar.addEventListener("click", function () {
 
@@ -113,9 +113,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    // ========
+    // 
     // CANCELAR
-    // ========
+    // 
 
     if (btnCancelar) {
 

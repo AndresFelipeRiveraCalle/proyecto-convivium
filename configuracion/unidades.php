@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // CARGAR GRUPOS DE UNIDADES
-// ========
+// 
 
 $sqlGrupos = "
     SELECT
@@ -34,9 +34,9 @@ $grupos = $stmtGrupos->fetchAll(
 );
 
 
-// ========
+// 
 // GRUPO SELECCIONADO
-// ========
+// 
 
 $idGrupoSeleccionado =
     isset($_GET['id'])
@@ -44,9 +44,9 @@ $idGrupoSeleccionado =
         : 0;
 
 
-// ========
+// 
 // SI NO HAY GRUPO, TOMAR EL PRIMERO
-// ========
+// 
 
 if (
     $idGrupoSeleccionado === 0 &&
@@ -58,9 +58,9 @@ if (
 }
 
 
-// ========
+// 
 // BUSCAR GRUPO SELECCIONADO
-// ========
+// 
 
 $grupoSeleccionado = null;
 
@@ -79,16 +79,16 @@ foreach ($grupos as $grupo) {
 }
 
 
-// ========
+// 
 // CARGAR UNIDADES
-// ========
+// 
 //
 // También calculamos:
 //
 // - personas relacionadas actualmente
 // - espacios asociados actualmente
 //
-// ========
+// 
 
 $unidades = [];
 
@@ -163,9 +163,9 @@ if ($idGrupoSeleccionado > 0) {
 }
 
 
-// ========
+// 
 // CANTIDADES DEL GRUPO
-// ========
+// 
 
 $cantidadConfigurada =
     $grupoSeleccionado
@@ -361,25 +361,25 @@ $puedeCrearUnidad =
 
                             <?php foreach ($unidades as $u): ?>
                                 <tr>
-                                    <!-- ==========================
+                                    <!-- ==
                                          CÓDIGO
-                                    =========================== -->
+                                    === -->
                                     <td>
                                         <strong>
                                             <?= htmlspecialchars($u['codigo']) ?>
                                         </strong>
                                     </td>
 
-                                    <!-- ==========================
+                                    <!-- ==
                                          NOMBRE
-                                    =========================== -->
+                                    === -->
                                     <td>
                                         <?= htmlspecialchars($u['nombre'] ?? '') ?>
                                     </td>
 
-                                    <!-- ==========================
+                                    <!-- ==
                                          PISO
-                                    =========================== -->
+                                    === -->
 
                                     <td>
                                         <?= $u['piso'] !== null ? htmlspecialchars($u['piso'])
@@ -387,9 +387,9 @@ $puedeCrearUnidad =
                                         ?>
                                     </td>
 
-                                    <!-- ==========================
+                                    <!-- ==
                                          ÁREA
-                                    =========================== -->
+                                    === -->
                                     <td>
                                         <?php if ($u['area'] !== null && $u['area'] !== ''): ?>
                                             <?= number_format((float)$u['area'],2,',','.') ?>
@@ -399,9 +399,9 @@ $puedeCrearUnidad =
                                         <?php endif; ?>
                                     </td>
 
-                                    <!-- ==========================
+                                    <!-- ==
                                          COEFICIENTE
-                                    =========================== -->
+                                    === -->
 
                                     <td>
                                         <?php if ($u['coeficiente'] !== null && $u['coeficiente'] !== ''): ?>
@@ -413,34 +413,34 @@ $puedeCrearUnidad =
                                         <?php endif; ?>
                                     </td>
 
-                                    <!-- ==========================
+                                    <!-- ==
                                          ESTADO
-                                    =========================== -->
+                                    === -->
                                     <td>
                                         <?= htmlspecialchars($u['estado']) ?>
                                     </td>
 
-                                    <!-- ==========================
+                                    <!-- ==
                                          PERSONAS
-                                    =========================== -->
+                                    === -->
                                     <td style="text-align:center;">
                                         <strong>
                                             <?= (int)$u['cantidad_personas'] ?>
                                         </strong>
                                     </td>
 
-                                    <!-- ==========================
+                                    <!-- ==
                                          ESPACIOS
-                                    =========================== -->
+                                    === -->
                                     <td style="text-align:center;">
                                         <strong>
                                             <?= (int)$u['cantidad_espacios'] ?>
                                         </strong>
                                     </td>
 
-                                    <!-- ==========================
+                                    <!-- ==
                                          REGISTRO
-                                    =========================== -->
+                                    === -->
                                     <td>
                                         <?php if ((int)$u['activo'] === 1): ?>
                                             <span class="activo">
@@ -455,9 +455,9 @@ $puedeCrearUnidad =
                                     </td>
 
 
-                                    <!-- ==========================
+                                    <!-- ==
                                          ACCIONES
-                                    =========================== -->
+                                    === -->
 
                                     <td>
 
@@ -477,7 +477,7 @@ $puedeCrearUnidad =
                                         <!-- ESPACIOS -->
 
                                         <a
-                                            href="<?= BASE_URL ?>configuracion/espacios_unidad.php?id_unidad=<?= (int)$u['id_unidad'] ?>"
+                                            href="<?= BASE_URL ?>configuracion/espacios.php?id_unidad=<?= (int)$u['id_unidad'] ?>"
                                             class="btn-filtrar"
                                         >
 
@@ -567,9 +567,9 @@ $puedeCrearUnidad =
     </main>
 
 
-    <!-- ========
+    <!-- 
          MODAL NUEVA UNIDAD
-    ======== -->
+     -->
 
     <?php if ($grupoSeleccionado): ?>
 
@@ -603,9 +603,9 @@ $puedeCrearUnidad =
                 >
 
 
-                    <!-- ==============================
+                    <!-- ======
                          GRUPO
-                    =============================== -->
+                    ======= -->
 
                     <input
                         type="hidden"
@@ -634,9 +634,9 @@ $puedeCrearUnidad =
                     </div>
 
 
-                    <!-- ==============================
+                    <!-- ======
                          CÓDIGO
-                    =============================== -->
+                    ======= -->
 
                     <div class="form-group">
 
@@ -658,9 +658,9 @@ $puedeCrearUnidad =
                     </div>
 
 
-                    <!-- ==============================
+                    <!-- ======
                          NOMBRE
-                    =============================== -->
+                    ======= -->
 
                     <div class="form-group">
 
@@ -681,9 +681,9 @@ $puedeCrearUnidad =
                     </div>
 
 
-                    <!-- ==============================
+                    <!-- ======
                          PISO
-                    =============================== -->
+                    ======= -->
 
                     <div class="form-group">
 
@@ -704,9 +704,9 @@ $puedeCrearUnidad =
                     </div>
 
 
-                    <!-- ==============================
+                    <!-- ======
                          ÁREA
-                    =============================== -->
+                    ======= -->
 
                     <div class="form-group">
 
@@ -728,9 +728,9 @@ $puedeCrearUnidad =
                     </div>
 
 
-                    <!-- ==============================
+                    <!-- ======
                          COEFICIENTE
-                    =============================== -->
+                    ======= -->
 
                     <div class="form-group">
 
@@ -752,9 +752,9 @@ $puedeCrearUnidad =
                     </div>
 
 
-                    <!-- ==============================
+                    <!-- ======
                          ESTADO
-                    =============================== -->
+                    ======= -->
 
                     <div class="form-group">
 
@@ -797,9 +797,9 @@ $puedeCrearUnidad =
                     </div>
 
 
-                    <!-- ==============================
+                    <!-- ======
                          OBSERVACIONES
-                    =============================== -->
+                    ======= -->
 
                     <div class="form-group">
 
@@ -820,9 +820,9 @@ $puedeCrearUnidad =
                     </div>
 
 
-                    <!-- ==============================
+                    <!-- ======
                          BOTONES
-                    =============================== -->
+                    ======= -->
 
                     <div class="form-actions">
 
@@ -863,9 +863,9 @@ $puedeCrearUnidad =
     <?php endif; ?>
 
 
-    <!-- ========
+    <!-- 
          MODAL EDITAR UNIDAD
-    ======== -->
+     -->
 
     <div
         id="modalEditarUnidad"
@@ -915,9 +915,9 @@ $puedeCrearUnidad =
                 >
 
 
-                <!-- ==============================
+                <!-- ======
                      CÓDIGO
-                =============================== -->
+                ======= -->
 
                 <div class="form-group">
 
@@ -939,9 +939,9 @@ $puedeCrearUnidad =
                 </div>
 
 
-                <!-- ==============================
+                <!-- ======
                      NOMBRE
-                =============================== -->
+                ======= -->
 
                 <div class="form-group">
 
@@ -962,9 +962,9 @@ $puedeCrearUnidad =
                 </div>
 
 
-                <!-- ==============================
+                <!-- ======
                      PISO
-                =============================== -->
+                ======= -->
 
                 <div class="form-group">
 
@@ -985,9 +985,9 @@ $puedeCrearUnidad =
                 </div>
 
 
-                <!-- ==============================
+                <!-- ======
                      ÁREA
-                =============================== -->
+                ======= -->
 
                 <div class="form-group">
 
@@ -1009,9 +1009,9 @@ $puedeCrearUnidad =
                 </div>
 
 
-                <!-- ==============================
+                <!-- ======
                      COEFICIENTE
-                =============================== -->
+                ======= -->
 
                 <div class="form-group">
 
@@ -1033,9 +1033,9 @@ $puedeCrearUnidad =
                 </div>
 
 
-                <!-- ==============================
+                <!-- ======
                      ESTADO
-                =============================== -->
+                ======= -->
 
                 <div class="form-group">
 
@@ -1078,9 +1078,9 @@ $puedeCrearUnidad =
                 </div>
 
 
-                <!-- ==============================
+                <!-- ======
                      REGISTRO
-                =============================== -->
+                ======= -->
 
                 <div class="form-group">
 
@@ -1113,9 +1113,9 @@ $puedeCrearUnidad =
                 </div>
 
 
-                <!-- ==============================
+                <!-- ======
                      OBSERVACIONES
-                =============================== -->
+                ======= -->
 
                 <div class="form-group">
 
@@ -1136,9 +1136,9 @@ $puedeCrearUnidad =
                 </div>
 
 
-                <!-- ==============================
+                <!-- ======
                      BOTONES
-                =============================== -->
+                ======= -->
 
                 <div class="form-actions">
 
@@ -1179,9 +1179,9 @@ $puedeCrearUnidad =
 </div>
 
 
-<!-- ========
+<!-- 
      JAVASCRIPT
-======== -->
+ -->
 
 <script>
 
@@ -1336,9 +1336,9 @@ document.addEventListener(
                         "click",
                         function () {
 
-                            // ==============================
+                            // ======
                             // ID
-                            // ==============================
+                            // ======
 
                             document.getElementById(
                                 "editar_id_unidad"
@@ -1346,9 +1346,9 @@ document.addEventListener(
                                 this.dataset.id || "";
 
 
-                            // ==============================
+                            // ======
                             // CÓDIGO
-                            // ==============================
+                            // ======
 
                             document.getElementById(
                                 "editar_codigo"
@@ -1356,9 +1356,9 @@ document.addEventListener(
                                 this.dataset.codigo || "";
 
 
-                            // ==============================
+                            // ======
                             // NOMBRE
-                            // ==============================
+                            // ======
 
                             document.getElementById(
                                 "editar_nombre"
@@ -1366,9 +1366,9 @@ document.addEventListener(
                                 this.dataset.nombre || "";
 
 
-                            // ==============================
+                            // ======
                             // PISO
-                            // ==============================
+                            // ======
 
                             document.getElementById(
                                 "editar_piso"
@@ -1376,9 +1376,9 @@ document.addEventListener(
                                 this.dataset.piso || "";
 
 
-                            // ==============================
+                            // ======
                             // ÁREA
-                            // ==============================
+                            // ======
 
                             document.getElementById(
                                 "editar_area"
@@ -1386,9 +1386,9 @@ document.addEventListener(
                                 this.dataset.area || "";
 
 
-                            // ==============================
+                            // ======
                             // COEFICIENTE
-                            // ==============================
+                            // ======
 
                             document.getElementById(
                                 "editar_coeficiente"
@@ -1396,9 +1396,9 @@ document.addEventListener(
                                 this.dataset.coeficiente || "";
 
 
-                            // ==============================
+                            // ======
                             // ESTADO
-                            // ==============================
+                            // ======
 
                             document.getElementById(
                                 "editar_estado"
@@ -1407,9 +1407,9 @@ document.addEventListener(
                                 "Disponible";
 
 
-                            // ==============================
+                            // ======
                             // ACTIVO
-                            // ==============================
+                            // ======
 
                             document.getElementById(
                                 "editar_activo"
@@ -1418,9 +1418,9 @@ document.addEventListener(
                                 "1";
 
 
-                            // ==============================
+                            // ======
                             // OBSERVACIONES
-                            // ==============================
+                            // ======
 
                             document.getElementById(
                                 "editar_observaciones"
@@ -1429,9 +1429,9 @@ document.addEventListener(
                                 "";
 
 
-                            // ==============================
+                            // ======
                             // MOSTRAR
-                            // ==============================
+                            // ======
 
                             if (modalEditar) {
 

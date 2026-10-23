@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FUNCIONES
-// ========
+// 
 
 function e($valor)
 {
@@ -28,9 +28,9 @@ function dinero($valor)
 }
 
 
-// ========
+// 
 // VALIDAR SALDO FAVOR
-// ========
+// 
 
 $idSaldoFavor =
     isset($_GET['id_saldo_favor'])
@@ -54,9 +54,9 @@ if ($idSaldoFavor <= 0) {
 }
 
 
-// ========
+// 
 // DATOS SALDO FAVOR
-// ========
+// 
 
 $sqlSaldo = "
     SELECT
@@ -127,9 +127,9 @@ if (!$saldoFavor) {
 }
 
 
-// ========
+// 
 // CARTERA PENDIENTE
-// ========
+// 
 
 $sqlCartera = "
     SELECT
@@ -193,9 +193,9 @@ $obligaciones =
     $stmtCartera->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // HISTORIAL DE APLICACIONES
-// ========
+// 
 
 $sqlAplicaciones = "
     SELECT

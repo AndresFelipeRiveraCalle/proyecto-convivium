@@ -16,9 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS
-// ========
+// 
 
 $nombre =
     trim($_POST['nombre'] ?? '');
@@ -48,9 +48,9 @@ $observaciones =
     trim($_POST['observaciones'] ?? '');
 
 
-// ========
+// 
 // VALIDACIONES
-// ========
+// 
 
 if (
     $nombre === ''

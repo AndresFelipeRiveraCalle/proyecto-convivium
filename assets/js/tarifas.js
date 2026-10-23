@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    // ========
+    // 
     // CAMPOS DEL FORMULARIO NUEVA TARIFA
-    // ========
+    // 
 
     const selectConcepto =
         document.getElementById(
@@ -34,9 +34,9 @@ document.addEventListener("DOMContentLoaded", function () {
             "nuevo_tipo_calculo"
         );
 
-    // ========
+    // 
     // ACTUALIZAR INFORMACIÓN SEGÚN TIPO DE CÁLCULO
-    // ========
+    // 
 
     function actualizarTipoCalculo(tipoCalculo) {
 
@@ -205,9 +205,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ========
+    // 
     // CAMBIO DE CONCEPTO
-    // ========
+    // 
 
     if (selectConcepto) {
 
@@ -236,9 +236,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ========
+    // 
     // ESTADO INICIAL
-    // ========
+    // 
 
     actualizarTipoCalculo("");
 

@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // OBTENER ID
-// ========
+// 
 
 $idCalendario = filter_input(
     INPUT_GET,
@@ -31,9 +31,9 @@ if (!$idCalendario) {
 }
 
 
-// ========
+// 
 // CONSULTAR PERÍODO
-// ========
+// 
 
 $sql = "
     SELECT
@@ -67,9 +67,9 @@ $calendario = $stmt->fetch(
 );
 
 
-// ========
+// 
 // VERIFICAR EXISTENCIA
-// ========
+// 
 
 if (!$calendario) {
 
@@ -87,9 +87,9 @@ if (!$calendario) {
 }
 
 
-// ========
+// 
 // FORMATEAR PERÍODO
-// ========
+// 
 
 function formatoPeriodoEditar($periodo)
 {
@@ -123,9 +123,9 @@ function formatoPeriodoEditar($periodo)
 }
 
 
-// ========
+// 
 // VALORES
-// ========
+// 
 
 $periodoTexto = formatoPeriodoEditar(
     $calendario['periodo']
@@ -137,9 +137,9 @@ $periodoInput = date(
 );
 
 
-// ========
+// 
 // CONFIGURAR MENSAJE SEGÚN ESTADO
-// ========
+// 
 
 $mensajeEstado = '';
 $claseMensajeEstado = 'alerta-info';

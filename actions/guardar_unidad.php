@@ -11,9 +11,9 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 try {
 
-    //==========================================
+    //==
     // DATOS DEL FORMULARIO
-    //==========================================
+    //==
 
     $idTipoConfig = (int) $_POST["id_tipo_config"];
     $codigo       = trim($_POST["codigo"]);
@@ -24,9 +24,9 @@ try {
     $estado       = trim($_POST["estado"]);
     $observaciones = trim($_POST["observaciones"]);
 
-    //==========================================
+    //==
     // VALIDACIONES
-    //==========================================
+    //==
 
     if ($codigo == "") {
 
@@ -34,10 +34,10 @@ try {
 
     }
 
-    //==========================================
+    //==
     // VALIDAR QUE NO EXISTA EL CÓDIGO
     // DENTRO DEL MISMO GRUPO
-    //==========================================
+    //==
 
     $sql = "SELECT COUNT(*)
             FROM unidades
@@ -57,9 +57,9 @@ try {
 
     }
 
-    //==========================================
+    //==
     // INSERTAR
-    //==========================================
+    //==
 
     $sql = "INSERT INTO unidades
             (

@@ -4,10 +4,10 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // CONFIGURACIÓN ACTUAL
 // Obtiene la configuración de correo activa.
-// ========
+// 
 
 $sqlConfiguracion = "
     SELECT
@@ -60,10 +60,10 @@ $configuracion =
     );
 
 
-// ========
+// 
 // VALORES POR DEFECTO
 // Prepara el formulario cuando no existe configuración.
-// ========
+// 
 
 if (!$configuracion) {
 
@@ -93,10 +93,10 @@ if (!$configuracion) {
 }
 
 
-// ========
+// 
 // FUNCIÓN ESCAPE
 // Protege los valores mostrados en pantalla.
-// ========
+// 
 
 function e($valor)
 {

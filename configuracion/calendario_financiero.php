@@ -4,18 +4,13 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // CONFIGURACIÓN FINANCIERA ACTIVA
-// ========
+// 
 
-$sqlConfig = "
-    SELECT
-        *
-    FROM configuracion_financiera
+$sqlConfig = " SELECT * FROM configuracion_financiera
     WHERE activo = 1
-    ORDER BY id_configuracion DESC
-    LIMIT 1
-";
+    ORDER BY id_configuracion DESC LIMIT 1";
 
 $stmtConfig = $conexion->prepare($sqlConfig);
 $stmtConfig->execute();
@@ -23,21 +18,12 @@ $stmtConfig->execute();
 $configuracion = $stmtConfig->fetch(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // CONSULTAR CALENDARIO
-// ========
+// 
 
-$sql = "
-    SELECT
-        id_calendario,
-        periodo,
-        fecha_inicio_cierre,
-        fecha_fin_cierre,
-        fecha_facturacion,
-        fecha_generacion_intereses,
-        fecha_vencimiento,
-        estado,
-        observaciones
+$sql = "SELECT id_calendario, periodo, fecha_inicio_cierre, fecha_fin_cierre, fecha_facturacion,
+        fecha_generacion_intereses, fecha_vencimiento, estado, observaciones
     FROM calendario_financiero
     ORDER BY periodo DESC
 ";
@@ -48,9 +34,9 @@ $stmt->execute();
 $calendarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // FORMATEAR FECHA
-// ========
+// 
 
 function formatoFecha($fecha)
 {
@@ -65,9 +51,9 @@ function formatoFecha($fecha)
 }
 
 
-// ========
+// 
 // FORMATEAR PERÍODO
-// ========
+// 
 
 function formatoPeriodo($periodo)
 {
@@ -112,93 +98,60 @@ function formatoPeriodo($periodo)
 <body>
 
 <?php include ROOT_PATH . "/includes/header.php"; ?>
-
 <?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
 
-
 <div class="contenedor">
-
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-
 
     <main class="contenido">
 
-
         <div class="calendario-financiero-container">
-
-
-            <!-- 
-                ENCABEZADO
-            = -->
+            <!-- ENCABEZADO -->
 
             <div class="calendario-header">
-
                 <div>
-
-                    <h1>
-                        Calendario financiero
-                    </h1>
-
-                    <p>
-                        Administra las fechas de facturación,
-                        cierre e intereses de cada período.
-                    </p>
-
+                    <h1>Calendario financiero </h1>
+                    <p> Administra las fechas de facturación, cierre e intereses de cada período.</p>
                 </div>
 
-
                 <div>
-
                     <a
                         href="<?= BASE_URL ?>configuracion/crear_calendario_financiero.php"
-                        class="btn-primary"
+                        class="btn-filtrar"
                     >
-                        + Nuevo período
+                        Nuevo período
                     </a>
-
                 </div>
-
             </div>
+            <br>
 
-
-            <!-- 
-                CONFIGURACIÓN ACTUAL
-            = -->
-
+            <!-- CONFIGURACIÓN ACTUAL -->
             <?php if ($configuracion): ?>
 
-                <div class="info-configuracion">
+                <h3>Configuración general</h3>
+                <div class="bloque filtros">
+                    
+                    <div class="card">
 
-                    <div>
-
-                        <strong>
-                            Configuración general
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        Facturación:
+                        <strong> Facturación: </strong>
                         día
                         <?= (int)$configuracion['dia_facturacion'] ?>
 
                     </div>
 
 
-                    <div>
+                    <div class="card">
 
-                        Vencimiento:
+                        <strong>Vencimiento:</strong>
                         día
                         <?= (int)$configuracion['dia_vencimiento'] ?>
 
                     </div>
 
 
-                    <div>
+                    <div class="card">
 
-                        Cierre habitual:
+                        <strong>Cierre habitual:</strong>
                         <?= (int)$configuracion['dia_inicio_cierre'] ?>
                         -
                         <?= (int)$configuracion['dia_fin_cierre'] ?>
@@ -206,9 +159,9 @@ function formatoPeriodo($periodo)
                     </div>
 
 
-                    <div>
+                    <div class="card">
 
-                        Intereses:
+                        <strong>Intereses:</strong>
                         <?= $configuracion['generar_intereses']
                             ? 'Automáticos'
                             : 'Desactivados'
@@ -228,274 +181,134 @@ function formatoPeriodo($periodo)
                     las reglas financieras generales.
 
                 </div>
-
             <?php endif; ?>
 
+            <!-- TABLA  -->
+            <br>
+            <h3>Períodos financieros</h3>
+            <div class="bloque filtros">
+                
+                <div class="tabla">
 
-            <!-- 
-                TABLA
-            = -->
+                    <?php if (empty($calendarios)): ?>
 
-            <div class="tabla-card">
+                        <div class="sin-datos">
 
-                <div class="tabla-header">
+                            No existen períodos financieros configurados.
 
-                    <h2>
-                        Períodos financieros
-                    </h2>
+                            <br>
 
-                </div>
+                            Utilice el botón
+                            <strong>Nuevo período</strong>
+                            para crear el primero.
 
+                        </div>
+                    <?php else: ?>
 
-                <?php if (empty($calendarios)): ?>
-
-                    <div class="sin-datos">
-
-                        No existen períodos financieros configurados.
-
-                        <br><br>
-
-                        Utilice el botón
-                        <strong>+ Nuevo período</strong>
-                        para crear el primero.
-
-                    </div>
-
-                <?php else: ?>
-
-
-                    <div class="tabla-responsive">
-
-                        <table class="tabla-calendario">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th>
-                                        Período
-                                    </th>
-
-                                    <th>
-                                        Facturación
-                                    </th>
-
-                                    <th>
-                                        Vencimiento
-                                    </th>
-
-                                    <th>
-                                        Inicio cierre
-                                    </th>
-
-                                    <th>
-                                        Fin cierre
-                                    </th>
-
-                                    <th>
-                                        Intereses
-                                    </th>
-
-                                    <th>
-                                        Estado
-                                    </th>
-
-                                    <th>
-                                        Acciones
-                                    </th>
-
-                                </tr>
-
-                            </thead>
-
-
-                            <tbody>
-
-                                <?php foreach (
-                                    $calendarios
-                                    as $calendario
-                                ): ?>
-
-
+                        <div class="tabla-responsive">
+                            <table class="tabla">
+                                <thead>
                                     <tr>
-
-
-                                        <!-- PERÍODO -->
-
-                                        <td>
-
-                                            <strong>
-
-                                                <?= htmlspecialchars(
-                                                    formatoPeriodo(
-                                                        $calendario['periodo']
-                                                    )
-                                                ) ?>
-
-                                            </strong>
-
-                                        </td>
-
-
-                                        <!-- FACTURACIÓN -->
-
-                                        <td>
-
-                                            <?= formatoFecha(
-                                                $calendario[
-                                                    'fecha_facturacion'
-                                                ]
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- VENCIMIENTO -->
-
-                                        <td>
-
-                                            <?= formatoFecha(
-                                                $calendario[
-                                                    'fecha_vencimiento'
-                                                ]
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- INICIO CIERRE -->
-
-                                        <td>
-
-                                            <?= formatoFecha(
-                                                $calendario[
-                                                    'fecha_inicio_cierre'
-                                                ]
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- FIN CIERRE -->
-
-                                        <td>
-
-                                            <?= formatoFecha(
-                                                $calendario[
-                                                    'fecha_fin_cierre'
-                                                ]
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- INTERESES -->
-
-                                        <td>
-
-                                            <?= formatoFecha(
-                                                $calendario[
-                                                    'fecha_generacion_intereses'
-                                                ]
-                                            ) ?>
-
-                                        </td>
-
-
-                                        <!-- ESTADO -->
-
-                                        <td>
-
-                                            <?php
-
-                                            $claseEstado = '';
-
-                                            switch (
-                                                $calendario['estado']
-                                            ) {
-
-                                                case 'ABIERTO':
-
-                                                    $claseEstado =
-                                                        'estado-abierto';
-
-                                                    break;
-
-
-                                                case 'EN_CIERRE':
-
-                                                    $claseEstado =
-                                                        'estado-cierre';
-
-                                                    break;
-
-
-                                                case 'CERRADO':
-
-                                                    $claseEstado =
-                                                        'estado-cerrado';
-
-                                                    break;
-
-                                            }
-
-                                            ?>
-
-
-                                            <span
-                                                class="estado-calendario <?= $claseEstado ?>"
-                                            >
-
-                                                <?= htmlspecialchars(
-                                                    $calendario['estado']
-                                                ) ?>
-
-                                            </span>
-
-                                        </td>
-
-
-                                        <!-- ACCIONES -->
-
-                                        <td>
-
-                                            <div
-                                                class="acciones-tabla"
-                                            >
-
-                                                <a
-                                                    href="<?= BASE_URL ?>configuracion/editar_calendario_financiero.php?id=<?= (int)$calendario['id_calendario'] ?>"
-                                                    class="btn-secondary"
-                                                >
-                                                    ✏ Editar
-                                                </a>
-
-                                            </div>
-
-                                        </td>
-
-
+                                        <th>Período</th>
+                                        <th>Facturación</th>
+                                        <th>Vencimiento</th>
+                                        <th>Inicio cierre</th>
+                                        <th> Fin cierre</th>
+                                        <th>Intereses</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
                                     </tr>
+                                </thead>
 
+                                <tbody>
+                                    <?php foreach ($calendarios as $calendario): ?>
+                                        <tr>
+                                            <!-- PERÍODO -->
+                                            <td>
+                                                <strong>
+                                                    <?= htmlspecialchars(formatoPeriodo($calendario['periodo'])) ?>
+                                                </strong>
+                                            </td>
 
-                                <?php endforeach; ?>
+                                            <!-- FACTURACIÓN -->
+                                            <td>
+                                                <?= formatoFecha($calendario['fecha_facturacion']) ?>
+                                            </td>
 
-                            </tbody>
+                                            <!-- VENCIMIENTO -->
+                                            <td>
+                                                <?= formatoFecha($calendario['fecha_vencimiento']) ?>
+                                            </td>
 
-                        </table>
+                                            <!-- INICIO CIERRE -->
+                                            <td>
+                                                <?= formatoFecha($calendario['fecha_inicio_cierre']) ?>
+                                            </td>
 
-                    </div>
+                                            <!-- FIN CIERRE -->
+                                            <td>
+                                                <?= formatoFecha($calendario['fecha_fin_cierre']) ?>
+                                            </td>
 
+                                            <!-- INTERESES -->
+                                            <td>
+                                                <?= formatoFecha($calendario['fecha_generacion_intereses']) ?>
+                                            </td>
 
-                <?php endif; ?>
+                                            <!-- ESTADO -->
+                                            <td>
+                                                <?php $claseEstado = '';
+                                                switch (
+                                                    $calendario['estado']
+                                                ) {
+                                                    case 'ABIERTO':
+                                                        $claseEstado ='estado-abierto';
+                                                        break;
 
+                                                    case 'EN_CIERRE':
+                                                        $claseEstado ='estado-cierre';
+                                                        break;
 
+                                                    case 'CERRADO':
+                                                        $claseEstado ='estado-cerrado';
+
+                                                        break;
+                                                }
+
+                                                ?>
+
+                                                <span
+                                                    class="estado-calendario <?= $claseEstado ?>"
+                                                >
+                                                    <?= htmlspecialchars(
+                                                        $calendario['estado']
+                                                    ) ?>
+
+                                                </span>
+                                            </td>
+
+                                            <!-- ACCIONES -->
+                                            <td>
+                                                <div
+                                                    class="acciones-tabla"
+                                                >
+                                                    <a
+                                                        href="<?= BASE_URL ?>configuracion/editar_calendario_financiero.php?id=<?= (int)$calendario['id_calendario'] ?>"
+                                                        class="btn-filtrar"
+                                                    >
+                                                        Editar
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
-
-
         </div>
-
-
     </main>
 
 </div>

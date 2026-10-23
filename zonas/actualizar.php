@@ -1,13 +1,13 @@
 <?php
 
 /**
- * =======================
+ * =======
  * MÓDULO: Zonas Comunes - Convivium
  * ARCHIVO: actualizar.php
  * DESCRIPCIÓN: Permite guardar una zona común.
  * AUTOR: Andrés Felipe Rivera Calle
  * FECHA: 2026-08-07
- * =======================
+ * =======
  */
 
 // Importar la conexión a la base de datos

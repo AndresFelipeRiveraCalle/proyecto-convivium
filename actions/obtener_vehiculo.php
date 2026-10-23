@@ -7,9 +7,9 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
 
-    // ========
+    // 
     // VALIDAR ID
-    // ========
+    // 
 
     if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
@@ -25,9 +25,9 @@ try {
     $id_vehiculo = (int) $_GET['id'];
 
 
-    // ========
+    // 
     // CONSULTAR VEHÍCULO
-    // ========
+    // 
 
     $sql = "
         SELECT
@@ -59,9 +59,9 @@ try {
     $vehiculo = $stmt->fetch(PDO::FETCH_ASSOC);
 
 
-    // ========
+    // 
     // VEHÍCULO NO ENCONTRADO
-    // ========
+    // 
 
     if (!$vehiculo) {
 
@@ -74,9 +74,9 @@ try {
     }
 
 
-    // ========
+    // 
     // RESPUESTA
-    // ========
+    // 
 
     echo json_encode([
         'success' => true,

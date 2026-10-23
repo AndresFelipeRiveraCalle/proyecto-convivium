@@ -17,9 +17,9 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById(
             "editar_tipo_calculo"
         );
-    // ========
+    // 
     // FUNCIÓN PARA ACTUALIZAR AYUDA DEL VALOR
-    // ========
+    // 
 
     function actualizarAyudaValor(tipoCalculo) {
         if (selectTipoCalculo) {
@@ -102,9 +102,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ========
+    // 
     // ABRIR MODAL DE EDICIÓN
-    // ========
+    // 
 
     document
         .querySelectorAll(".btnEditarTarifa")
@@ -154,9 +154,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             data.tarifa;
 
 
-                        // ==========================================
+                        // ==
                         // CARGAR DATOS
-                        // ==========================================
+                        // ==
 
                         document.getElementById(
                             "editar_id_tarifa"
@@ -212,18 +212,18 @@ document.addEventListener("DOMContentLoaded", function () {
                             tarifa.estado ?? 1;
 
 
-                        // ==========================================
+                        // ==
                         // ACTUALIZAR AYUDA DEL TIPO DE CÁLCULO
-                        // ==========================================
+                        // ==
 
                         actualizarAyudaValor(
                             tarifa.tipo_calculo
                         );
 
 
-                        // ==========================================
+                        // ==
                         // MOSTRAR MODAL
-                        // ==========================================
+                        // ==
 
                         if (modal) {
 
@@ -252,9 +252,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
 
-    // ========
+    // 
     // CAMBIO MANUAL DE CONCEPTO
-    // ========
+    // 
 
     const selectConcepto =
         document.getElementById(
@@ -289,9 +289,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ========
+    // 
     // FUNCIÓN CERRAR MODAL
-    // ========
+    // 
 
     function cerrarModal()
     {
@@ -303,9 +303,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ========
+    // 
     // CERRAR CON X
-    // ========
+    // 
 
     if (cerrar) {
 
@@ -316,9 +316,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ========
+    // 
     // CERRAR CON CANCELAR
-    // ========
+    // 
 
     if (cancelar) {
 
@@ -329,9 +329,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ========
+    // 
     // CERRAR AL HACER CLICK FUERA
-    // ========
+    // 
 
     if (modal) {
 

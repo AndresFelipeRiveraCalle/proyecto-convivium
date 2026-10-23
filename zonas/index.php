@@ -1,14 +1,14 @@
 <?php
 
 /**
- * =======================
+ * =======
  * MÓDULO: Zonas Comunes - Convivium
  * ARCHIVO: index.php
  * DESCRIPCIÓN: Permite registrar nuevas zonas comunes y listar las existentes.
  * AUTOR: Andrés Felipe Rivera Calle
  * FECHA: 2026-07-24
  * HOJA DE ESTILOS: assets/css/zonas.css 
- * =======================
+ * =======
  */
 
 // Incluir la ruta de la conexión a la base de datos y config.php

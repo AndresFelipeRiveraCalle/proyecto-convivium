@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
@@ -18,9 +18,9 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 }
 
 
-// ========
+// 
 // DATOS
-// ========
+// 
 
 $id_ciudad = (int) (
     $_POST["id_ciudad"] ?? 0
@@ -39,9 +39,9 @@ $activo = isset($_POST["estado"])
     : 1;
 
 
-// ========
+// 
 // VALIDAR ID
-// ========
+// 
 
 if ($id_ciudad <= 0) {
 
@@ -59,9 +59,9 @@ if ($id_ciudad <= 0) {
 }
 
 
-// ========
+// 
 // VALIDAR NOMBRE
-// ========
+// 
 
 if ($nombre === "") {
 

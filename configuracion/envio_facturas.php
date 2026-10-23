@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FUNCIONES
-// ========
+// 
 
 if (!function_exists('e')) {
 
@@ -35,9 +35,9 @@ if (!function_exists('dinero')) {
 }
 
 
-// ========
+// 
 // FILTROS
-// ========
+// 
 
 $anio =
     isset($_GET['anio'])
@@ -85,9 +85,9 @@ if (
 }
 
 
-// ========
+// 
 // MESES
-// ========
+// 
 
 $meses = [
 
@@ -107,10 +107,10 @@ $meses = [
 ];
 
 
-// ========
+// 
 // FACTURAS DEL PERÍODO
 // Obtiene facturas, destinatarios y último envío.
-// ========
+// 
 
 $sqlFacturas = "
 
@@ -316,9 +316,9 @@ foreach (
             $factura;
     }
 }
-// ========
+// 
 // RESUMEN
-// ========
+// 
 
 $totalFacturas =
     count(
@@ -1130,10 +1130,10 @@ if (
 
 <script>
 
-// ========
+// 
 // ENVÍO MASIVO POR LOTES
 // Procesa facturas en grupos de 10 y conserva el estado.
-// ========
+// 
 
 document.addEventListener(
     'DOMContentLoaded',
@@ -1801,9 +1801,9 @@ document.addEventListener(
                     }
 
 
-                    // ==========================================
+                    // ==
                     // FACTURAS SELECCIONADAS
-                    // ==========================================
+                    // ==
 
                     const seleccionadas =
                         Array.from(
@@ -1844,9 +1844,9 @@ document.addEventListener(
                         seleccionadas.length;
 
 
-                    // ==========================================
+                    // ==
                     // CONFIRMACIÓN
-                    // ==========================================
+                    // ==
 
                     const confirmar =
                         confirm(
@@ -1870,9 +1870,9 @@ document.addEventListener(
                     }
 
 
-                    // ==========================================
+                    // ==
                     // IDS
-                    // ==========================================
+                    // ==
 
                     const idsFacturas =
                         seleccionadas.map(
@@ -1886,9 +1886,9 @@ document.addEventListener(
                         );
 
 
-                    // ==========================================
+                    // ==
                     // LOTES DE 10
-                    // ==========================================
+                    // ==
 
                     const lotes =
                         dividirEnLotes(
@@ -1901,9 +1901,9 @@ document.addEventListener(
                         idsFacturas.length;
 
 
-                    // ==========================================
+                    // ==
                     // ACUMULADOS
-                    // ==========================================
+                    // ==
 
                     let procesadasCliente =
                         0;
@@ -1932,9 +1932,9 @@ document.addEventListener(
                     };
 
 
-                    // ==========================================
+                    // ==
                     // PREPARAR PANEL
-                    // ==========================================
+                    // ==
 
                     tituloProgreso.textContent =
                         'Enviando facturas';
@@ -2020,9 +2020,9 @@ document.addEventListener(
                     try {
 
 
-                        // ======================================
+                        // ======
                         // PROCESAR TODOS LOS LOTES
-                        // ======================================
+                        // ======
 
                         for (
                             let i = 0;
@@ -2049,9 +2049,9 @@ document.addEventListener(
                                 );
 
 
-                            // ==================================
+                            // ==
                             // ACUMULAR RESULTADOS
-                            // ==================================
+                            // ==
 
                             acumulado.facturas_procesadas +=
                                 Number(
@@ -2099,9 +2099,9 @@ document.addEventListener(
                                 lotes[i].length;
 
 
-                            // ==================================
+                            // ==
                             // ACTUALIZAR INTERFAZ
-                            // ==================================
+                            // ==
 
                             const porcentajeActual =
                                 actualizarProgreso(
@@ -2132,9 +2132,9 @@ document.addEventListener(
                                 acumulado.correos_error;
 
 
-                            // ==================================
+                            // ==
                             // GUARDAR PROGRESO
-                            // ==================================
+                            // ==
 
                             guardarEstadoEnvio({
 
@@ -2184,9 +2184,9 @@ document.addEventListener(
                         }
 
 
-                        // ======================================
+                        // ======
                         // PROCESO TERMINADO
-                        // ======================================
+                        // ======
 
                         tituloProgreso.textContent =
                             'Último envío masivo';
@@ -2210,9 +2210,9 @@ document.addEventListener(
                             totalSeleccionadas;
 
 
-                        // ======================================
+                        // ======
                         // RESULTADO EXITOSO
-                        // ======================================
+                        // ======
 
                         if (
                             acumulado.facturas_error === 0
@@ -2279,9 +2279,9 @@ document.addEventListener(
                         } else {
 
 
-                            // ==================================
+                            // ==
                             // RESULTADO CON NOVEDADES
-                            // ==================================
+                            // ==
 
                             resultadoFinal.classList.add(
                                 'advertencia'
@@ -2357,9 +2357,9 @@ document.addEventListener(
                     } catch (error) {
 
 
-                        // ======================================
+                        // ======
                         // ERROR GENERAL
-                        // ======================================
+                        // ======
 
                         tituloProgreso.textContent =
                             'Envío interrumpido';
@@ -2448,9 +2448,9 @@ document.addEventListener(
                     } finally {
 
 
-                        // ======================================
+                        // ======
                         // HABILITAR CONTROLES
-                        // ======================================
+                        // ======
 
                         bloquearPantalla(
                             false

@@ -10,9 +10,9 @@ require_once ROOT_PATH . "/vendor/autoload.php";
 use PHPMailer\PHPMailer\PHPMailer;
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if (
     $_SERVER['REQUEST_METHOD']
@@ -29,9 +29,9 @@ if (
 }
 
 
-// ========
+// 
 // FACTURA
-// ========
+// 
 
 $idFactura =
     isset($_POST['id_factura'])
@@ -55,9 +55,9 @@ if ($idFactura <= 0) {
 }
 
 
-// ========
+// 
 // DATOS DE LA FACTURA
-// ========
+// 
 
 $sqlFactura = "
     SELECT
@@ -119,10 +119,10 @@ if (!$factura) {
 }
 
 
-// ========
+// 
 // DESTINATARIOS SELECCIONADOS
 // Valida que pertenezcan realmente a la unidad.
-// ========
+// 
 
 $idsDestinatarios =
     $_POST[
@@ -374,9 +374,9 @@ if (
     exit;
 }
 
-// ========
+// 
 // CONFIGURACIÓN SMTP
-// ========
+// 
 
 $sqlCorreo = "
     SELECT
@@ -423,9 +423,9 @@ if (!$configuracionCorreo) {
 }
 
 
-// ========
+// 
 // GENERAR PDF
-// ========
+// 
 
 try {
 
@@ -452,9 +452,9 @@ try {
 }
 
 
-// ========
+// 
 // NOMBRE DEL PDF
-// ========
+// 
 
 $nombrePdf =
     'Factura-' .
@@ -468,9 +468,9 @@ $nombrePdf =
     '.pdf';
 
 
-// ========
+// 
 // PERÍODO
-// ========
+// 
 
 $meses = [
 
@@ -502,9 +502,9 @@ $periodoTexto =
     $factura['periodo'];
 
 
-// ========
+// 
 // CONTRASEÑA SMTP
-// ========
+// 
 
 try {
 
@@ -532,28 +532,28 @@ try {
 }
 
 
-// ========
+// 
 // CONTADORES
-// ========
+// 
 
 $enviados = 0;
 
 $errores = 0;
 
 
-// ========
+// 
 // RESULTADO DE DESTINATARIOS
 // Guarda los correos enviados y los que fallaron.
-// ========
+// 
 
 $correosEnviados = [];
 
 $correosError = [];
 
 
-// ========
+// 
 // ENVIAR A CADA DESTINATARIO
-// ========
+// 
 
 foreach (
     $destinatariosValidos
@@ -1026,10 +1026,10 @@ foreach (
 }
 
 
-// ========
+// 
 // RESULTADO
 // Muestra destinatarios enviados y errores.
-// ========
+// 
 
 if (
     $enviados > 0

@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
@@ -23,18 +23,18 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 try {
 
-    // ========
+    // 
     // DATOS DEL FORMULARIO
-    // ========
+    // 
 
     $id_tipo_agrupacion = intval($_POST["id_tipo_agrupacion"] ?? 0);
     $nombre             = trim($_POST["nombre"] ?? "");
     $descripcion        = trim($_POST["descripcion"] ?? "");
 
 
-    // ========
+    // 
     // VALIDAR TIPO DE AGRUPACIÓN
-    // ========
+    // 
 
     if ($id_tipo_agrupacion <= 0) {
 
@@ -51,9 +51,9 @@ try {
     }
 
 
-    // ========
+    // 
     // VALIDAR NOMBRE
-    // ========
+    // 
 
     if ($nombre === "") {
 
@@ -70,9 +70,9 @@ try {
     }
 
 
-    // ========
+    // 
     // VERIFICAR QUE EL TIPO DE AGRUPACIÓN EXISTA
-    // ========
+    // 
 
     $sql = "
         SELECT COUNT(*)
@@ -106,9 +106,9 @@ try {
     }
 
 
-    // ========
+    // 
     // VERIFICAR DUPLICADO
-    // ========
+    // 
 
     $sql = "
         SELECT COUNT(*)
@@ -149,9 +149,9 @@ try {
     }
 
 
-    // ========
+    // 
     // INSERTAR AGRUPACIÓN
-    // ========
+    // 
 
     $sql = "
         INSERT INTO agrupaciones
@@ -193,9 +193,9 @@ try {
     $stmt->execute();
 
 
-    // ========
+    // 
     // MENSAJE DE ÉXITO
-    // ========
+    // 
 
     $mensaje = urlencode(
         "La agrupación fue registrada correctamente."

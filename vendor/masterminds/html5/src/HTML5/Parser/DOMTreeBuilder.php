@@ -627,9 +627,9 @@ class DOMTreeBuilder implements EventHandler
         $this->current->appendChild($node);
     }
 
-    // ========================
+    // 
     // UTILITIES
-    // ========================
+    // 
 
     /**
      * Apply normalization rules to a tag name.
