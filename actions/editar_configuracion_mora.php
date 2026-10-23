@@ -16,9 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS
-// ========
+// 
 
 $idConfiguracion =
     isset($_POST['id_configuracion_mora'])
@@ -53,9 +53,9 @@ $observaciones =
     trim($_POST['observaciones'] ?? '');
 
 
-// ========
+// 
 // VALIDACIONES
-// ========
+// 
 
 if (
     $idConfiguracion <= 0

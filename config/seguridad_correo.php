@@ -1,9 +1,9 @@
 <?php
 
-// ========
+// 
 // CLAVE DE CIFRADO
 // Usa una clave privada distinta para cada instalación.
-// ========
+// 
 
 if (!defined('CORREO_ENCRYPTION_KEY')) {
 
@@ -13,10 +13,10 @@ if (!defined('CORREO_ENCRYPTION_KEY')) {
 }
 
 
-// ========
+// 
 // OBTENER CLAVE BINARIA
 // Convierte la clave configurada a 256 bits.
-// ========
+// 
 
 function obtenerClaveCorreo(): string
 {
@@ -28,10 +28,10 @@ function obtenerClaveCorreo(): string
 }
 
 
-// ========
+// 
 // CIFRAR
 // Protege contraseñas SMTP e IMAP antes de guardarlas.
-// ========
+// 
 
 function cifrarCredencialCorreo(
     ?string $valor
@@ -102,10 +102,10 @@ function cifrarCredencialCorreo(
 }
 
 
-// ========
+// 
 // DESCIFRAR
 // Recupera la contraseña únicamente cuando será utilizada.
-// ========
+// 
 
 function descifrarCredencialCorreo(
     ?string $valorCifrado

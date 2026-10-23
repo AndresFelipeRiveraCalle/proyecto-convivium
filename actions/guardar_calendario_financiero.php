@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // FUNCIÓN DE REDIRECCIÓN CON ERROR
-// ========
+// 
 
 function redireccionarError($mensaje)
 {
@@ -39,9 +39,9 @@ function redireccionarError($mensaje)
 }
 
 
-// ========
+// 
 // DATOS DEL FORMULARIO
-// ========
+// 
 
 $periodo = trim(
     $_POST['periodo'] ?? ''
@@ -72,9 +72,9 @@ $observaciones = trim(
 );
 
 
-// ========
+// 
 // ESTADO INICIAL
-// ========
+// 
 //
 // Todo período nuevo debe iniciar como ABIERTO.
 //
@@ -84,9 +84,9 @@ $observaciones = trim(
 $estado = 'ABIERTO';
 
 
-// ========
+// 
 // VALIDAR PERÍODO
-// ========
+// 
 
 if (
     $periodo === '' ||
@@ -99,9 +99,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR MES DEL PERÍODO
-// ========
+// 
 
 [$anioPeriodo, $mesPeriodo] = array_map(
     'intval',
@@ -121,9 +121,9 @@ if (
 }
 
 
-// ========
+// 
 // CONVERTIR PERÍODO PARA BASE DE DATOS
-// ========
+// 
 //
 // El input type="month" entrega:
 //
@@ -141,9 +141,9 @@ $periodoBD = sprintf(
 );
 
 
-// ========
+// 
 // FUNCIÓN PARA VALIDAR FECHAS
-// ========
+// 
 
 function fechaValida($fecha)
 {
@@ -176,9 +176,9 @@ function fechaValida($fecha)
 }
 
 
-// ========
+// 
 // VALIDAR FECHAS OBLIGATORIAS
-// ========
+// 
 
 $camposFecha = [
 
@@ -211,9 +211,9 @@ foreach ($camposFecha as $nombreCampo => $fecha) {
 }
 
 
-// ========
+// 
 // VALIDAR ORDEN DE FECHAS
-// ========
+// 
 
 // ----------------------------------------------------------
 // Facturación no puede ser posterior al vencimiento
@@ -241,9 +241,9 @@ if ($fechaInicioCierre > $fechaFinCierre) {
 }
 
 
-// ========
+// 
 // VALIDAR QUE LAS FECHAS CORRESPONDAN AL PERÍODO
-// ========
+// 
 //
 // Dejamos una validación razonable:
 // las fechas principales deben pertenecer al mismo año
@@ -299,9 +299,9 @@ foreach (
 }
 
 
-// ========
+// 
 // GUARDAR
-// ========
+// 
 
 try {
 

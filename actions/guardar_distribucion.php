@@ -14,9 +14,9 @@ try {
     $idTipoConfig = intval($_POST["id_tipo_config"] ?? 0);
     $cantidad     = intval($_POST["cantidad"] ?? 0);
 
-    // ========
+    // 
     // VALIDACIONES
-    // ========
+    // 
 
     if ($idAgrupacion <= 0) {
         throw new Exception("Debe seleccionar una agrupación.");
@@ -30,9 +30,9 @@ try {
         throw new Exception("La cantidad no puede ser negativa.");
     }
 
-    // ========
+    // 
     // VERIFICAR AGRUPACIÓN
-    // ========
+    // 
 
     $stmt = $conexion->prepare("
         SELECT id_agrupacion
@@ -49,9 +49,9 @@ try {
         throw new Exception("La agrupación seleccionada no existe o está inactiva.");
     }
 
-    // ========
+    // 
     // VERIFICAR TIPO DE UNIDAD
-    // ========
+    // 
 
     $stmt = $conexion->prepare("
         SELECT id_tipo_config, nombre_grupo, cantidad_unidades
@@ -70,9 +70,9 @@ try {
         throw new Exception("El tipo de unidad seleccionado no existe o está inactivo.");
     }
 
-    // ========
+    // 
     // VERIFICAR CANTIDAD TOTAL DISPONIBLE
-    // ========
+    // 
 
     $stmt = $conexion->prepare("
         SELECT COALESCE(SUM(cantidad), 0)
@@ -101,9 +101,9 @@ try {
         );
     }
 
-    // ========
+    // 
     // INSERTAR / ACTUALIZAR
-    // ========
+    // 
 
     $stmt = $conexion->prepare("
         INSERT INTO agrupacion_tipos_unidad
@@ -131,9 +131,9 @@ try {
         ":cantidad" => $cantidad
     ]);
 
-    // ========
+    // 
     // FINAL
-    // ========
+    // 
 
     $mensaje = urlencode(
         "La distribución fue guardada correctamente."

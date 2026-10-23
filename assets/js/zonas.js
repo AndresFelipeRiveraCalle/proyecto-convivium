@@ -1,11 +1,11 @@
 /**
- * ==========================================
+ * ==
  * MÓDULO: Zonas Comunes - Convivium
  * ARCHIVO: zonas.js
  * DESCRIPCIÓN: Archivo JavaScript para manejo de eventos de los elemenos de las Zonas comunes.
  * AUTOR: Andrés Felipe Rivera Calle
  * FECHA: 2026-08-08
- * ==========================================
+ * ==
  */
 
 // Identificar todos los elementos que contienen la clase .btn-eliminar
@@ -187,9 +187,9 @@ function actualizarHorarios() {
     // Recorrer los horarios agregados
     horariosAgregados.forEach((horario, indice) => {
 
-        // ==============================
+        // ======
         // REPRESENTACIÓN VISUAL
-        // ==============================
+        // ======
 
         // Crear elemento visual
         const horarioVisual = document.createElement('div');
@@ -238,9 +238,9 @@ function actualizarHorarios() {
         // Agregar al contenedor
         horariosConfigurados.appendChild(horarioVisual);
 
-        // ==============================
+        // ======
         // INPUTS OCULTOS
-        // ==============================
+        // ======
 
         // Crear input oculto para el día
         const inputDia = document.createElement('input');

@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // CARGAR CONCEPTOS DE FACTURACIÓN
-// ========
+// 
 
 $sql = "
     SELECT
@@ -40,9 +40,9 @@ $stmt = $conexion->query($sql);
 $conceptos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // CARGAR CUENTAS CONTABLES
-// ========
+// 
 
 $sqlCuentas = "
     SELECT
@@ -62,9 +62,9 @@ $cuentasContables = $stmtCuentas->fetchAll(
 );
 
 
-// ========
+// 
 // CARGAR TIPOS DE OBLIGACIÓN
-// ========
+// 
 
 $sqlTiposObligacion = "
     SELECT
@@ -457,9 +457,9 @@ $tiposObligacion = $stmtTiposObligacion->fetchAll(
 </div>
 
 
-<!-- ========
+<!-- 
      MODAL NUEVO CONCEPTO
-======== -->
+ -->
 
 <div
     id="modalNuevoConcepto"
@@ -735,9 +735,9 @@ $tiposObligacion = $stmtTiposObligacion->fetchAll(
 </div>
 
 
-<!-- ========
+<!-- 
      MODAL EDITAR CONCEPTO
-======== -->
+ -->
 
 <div
     id="modalEditarConcepto"
@@ -1027,9 +1027,9 @@ $tiposObligacion = $stmtTiposObligacion->fetchAll(
 </div>
 
 
-<!-- ========
+<!-- 
      MODAL MENSAJE
-======== -->
+ -->
 
 <div
     id="modalMensaje"
@@ -1063,9 +1063,9 @@ $tiposObligacion = $stmtTiposObligacion->fetchAll(
 </div>
 
 
-<!-- ========
+<!-- 
      JAVASCRIPT
-======== -->
+ -->
 
 <script>
     const BASE_URL = "<?= BASE_URL ?>";

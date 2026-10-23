@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // CARGAR PAÍSES
-// ========
+// 
 
 $stmtPais = $conexion->query("
     SELECT
@@ -19,9 +19,9 @@ $stmtPais = $conexion->query("
 $paises = $stmtPais->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // CARGAR DEPARTAMENTOS
-// ========
+// 
 
 $stmtDepartamentos = $conexion->query("
     SELECT
@@ -36,9 +36,9 @@ $stmtDepartamentos = $conexion->query("
 $departamentos = $stmtDepartamentos->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // CARGAR CIUDADES
-// ========
+// 
 
 $stmtCiudades = $conexion->query("
     SELECT
@@ -53,9 +53,9 @@ $stmtCiudades = $conexion->query("
 $ciudades = $stmtCiudades->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // TIPOS DE COPROPIEDAD
-// ========
+// 
 
 $stmtTipoCopropiedad = $conexion->query("
     SELECT
@@ -70,9 +70,9 @@ $tiposCopropiedad = $stmtTipoCopropiedad->fetchAll(
 );
 
 
-// ========
+// 
 // CARGAR DATOS ACTUALES DE LA COPROPIEDAD
-// ========
+// 
 
 $stmtUnidad = $conexion->query("
     SELECT *
@@ -86,22 +86,22 @@ $stmtUnidad = $conexion->query("
 $unidad = $stmtUnidad->fetch(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // SI EXISTE INFORMACIÓN, INICIAR BLOQUEADO
-// ========
+// 
 
 $bloqueado = ($unidad !== false);
 
 
-// ========
+// 
 // CALCULAR CANTIDAD TOTAL DE UNIDADES
-// ========
+// 
 //
 // Este dato ya no se escribe manualmente.
 //
 // Se obtiene de los grupos configurados en
 // detalle_tipos_unidad.
-// ========
+// 
 
 $stmtCantidadUnidades = $conexion->query("
     SELECT
@@ -124,44 +124,26 @@ $cantidadTotalUnidades =
 ?>
 
 <!DOCTYPE html>
-
 <html lang="es">
 
 <head>
-
     <?php include ROOT_PATH . "/includes/head.php"; ?>
-
 </head>
-
 
 <body>
 
-
 <?php include ROOT_PATH . "/includes/header.php"; ?>
-
 <?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
 
-
 <div class="contenedor">
-
-
     <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-
 
     <main class="contenido">
 
-
-        <form
-            id="formDatosCopropiedad"
-            action="<?= BASE_URL ?>actions/guardar_datos.php"
-            method="POST"
-            enctype="multipart/form-data"
+        <form id="formDatosCopropiedad" action="<?= BASE_URL ?>actions/guardar_datos.php"
+            method="POST" enctype="multipart/form-data"
         >
-
-
-            <!-- 
-                 ID REGISTRO ACTUAL
-            = -->
+            <!--ID REGISTRO ACTUAL -->
 
             <input
                 type="hidden"
@@ -172,29 +154,20 @@ $cantidadTotalUnidades =
             >
 
 
-            <!-- 
-                 ENCABEZADO
-            = -->
+            <!--ENCABEZADO -->
 
             <h2 align="center">
                 DATOS DE LA COPROPIEDAD
             </h2>
 
+            <br>
+
+            <p>Configure la información general, ubicación, datos de contacto,
+                documentos e identidad visual de la copropiedad.</p>
 
             <br>
 
-
-            <p>
-                Configure la información general, ubicación, datos de contacto,
-                documentos e identidad visual de la copropiedad.
-            </p>
-
-
-            <br>
-
-            <!-- 
-                 DATOS GENERALES
-            = -->
+            <!--DATOS GENERALES -->
 
             <h3>Datos generales</h3>
             <div class="bloque filtros">
@@ -353,9 +326,7 @@ $cantidadTotalUnidades =
                 </div>
             </div>
 
-            <!-- 
-                 UBICACIÓN
-            = -->
+            <!--UBICACIÓN -->
 
             <h3>
                 Ubicación
@@ -541,14 +512,11 @@ $cantidadTotalUnidades =
                 </div>
             </div>
 
-            <!-- 
-                 CONTACTO
-            = -->
+            <!--CONTACTO -->
 
             <h3>Datos de contacto</h3>
 
             <div class="bloque filtros">
-
                 <!-- CORREO -->
                 <div class="card">
 
@@ -585,9 +553,7 @@ $cantidadTotalUnidades =
                 </div>
             </div>
 
-            <!-- 
-                 DOCUMENTOS
-            = -->
+            <!--DOCUMENTOS -->
 
             <h3>Documentos</h3>
 
@@ -655,9 +621,7 @@ $cantidadTotalUnidades =
                 </div>
             </div>
 
-            <!-- 
-                 IDENTIDAD VISUAL
-            = -->
+            <!--IDENTIDAD VISUAL -->
 
             <h3>LOGO</h3>
 
@@ -699,47 +663,34 @@ $cantidadTotalUnidades =
                 </div>
             </div>
 
-            <!-- 
-                 ACCIONES
-            = -->
+            <!--ACCIONES -->
 
             <div class="form-actions">
-
-
                 <?php if (!$bloqueado): ?>
-
 
                     <button
                         type="reset"
                         class="btn-limpiar"
                     >
-
                         Cancelar
-
                     </button>
-
 
                     <button
                         type="submit"
                         class="btn-filtrar"
                     >
-
                         Guardar
-
                     </button>
 
 
                 <?php else: ?>
-
 
                     <button
                         type="button"
                         id="btnEditar"
                         class="btn-filtrar"
                     >
-
                         Editar
-
                     </button>
 
 
@@ -749,9 +700,7 @@ $cantidadTotalUnidades =
                         class="btn-filtrar"
                         style="display:none;"
                     >
-
                         Guardar
-
                     </button>
 
 

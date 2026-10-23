@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // SOLO POST
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS
-// ========
+// 
 
 $idRelacion = isset($_POST['id_relacion'])
     ? (int)$_POST['id_relacion']
@@ -44,9 +44,9 @@ $fechaDesde = isset($_POST['fecha_desde'])
     : '';
 
 
-// ========
+// 
 // VALIDACIONES BÁSICAS
-// ========
+// 
 
 if ($idRelacion <= 0) {
 
@@ -96,9 +96,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR FECHA
-// ========
+// 
 
 if ($fechaDesde === '') {
 

@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
@@ -18,16 +18,16 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 }
 
 
-// ========
+// 
 // DETERMINAR ORIGEN
-// ========
+// 
 
 $origen = $_POST["origen"] ?? "basico";
 
 
-// ========
+// 
 // DETERMINAR DATOS SEGÚN EL FORMULARIO
-// ========
+// 
 
 if ($origen === "tablas_maestras") {
 
@@ -53,9 +53,9 @@ if ($origen === "tablas_maestras") {
 }
 
 
-// ========
+// 
 // DEFINIR PÁGINA DE RETORNO
-// ========
+// 
 
 if ($origen === "tablas_maestras") {
 
@@ -69,9 +69,9 @@ if ($origen === "tablas_maestras") {
 }
 
 
-// ========
+// 
 // VALIDAR NOMBRE
-// ========
+// 
 
 if ($nombre === "") {
 

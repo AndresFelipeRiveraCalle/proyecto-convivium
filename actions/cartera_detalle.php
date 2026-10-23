@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FUNCIONES
-// ========
+// 
 
 function e($valor)
 {
@@ -28,9 +28,9 @@ function dinero($valor)
 }
 
 
-// ========
+// 
 // VALIDAR UNIDAD
-// ========
+// 
 
 $idUnidad =
     isset($_GET['id_unidad'])
@@ -54,9 +54,9 @@ if ($idUnidad <= 0) {
 }
 
 
-// ========
+// 
 // DATOS DE LA UNIDAD
-// ========
+// 
 
 $sqlUnidad = "
     SELECT
@@ -124,9 +124,9 @@ if (!$unidad) {
 }
 
 
-// ========
+// 
 // RESUMEN DE CARTERA
-// ========
+// 
 
 $sqlResumen = "
     SELECT
@@ -190,9 +190,9 @@ $resumen =
     );
 
 
-// ========
+// 
 // OBLIGACIONES DE CARTERA
-// ========
+// 
 
 $sqlCartera = "
     SELECT
@@ -314,9 +314,9 @@ $obligaciones =
     );
 
 
-// ========
+// 
 // PAGOS DE LA UNIDAD
-// ========
+// 
 
 $sqlPagos = "
     SELECT
@@ -388,9 +388,9 @@ $pagos =
     );
 
 
-// ========
+// 
 // APLICACIONES DE PAGOS
-// ========
+// 
 
 $sqlAplicaciones = "
     SELECT
@@ -462,9 +462,9 @@ $aplicaciones =
     );
 
 
-// ========
+// 
 // SALDOS A FAVOR DE LA UNIDAD
-// ========
+// 
 
 $sqlSaldosFavor = "
     SELECT

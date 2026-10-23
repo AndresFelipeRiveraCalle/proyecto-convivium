@@ -4,10 +4,10 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FUNCIONES
 // Permite escapar texto y formatear valores monetarios.
-// ========
+// 
 
 function e($valor)
 {
@@ -30,10 +30,10 @@ function dinero($valor)
 }
 
 
-// ========
+// 
 // FILTROS
 // Obtiene los filtros enviados desde la pantalla.
-// ========
+// 
 
 $buscar =
     trim(
@@ -52,10 +52,10 @@ $periodo =
         $_GET['periodo'] ?? ''
     );
 
-// ========
+// 
 // FECHA DE CORTE
 // Define la fecha usada para evaluar la mora.
-// ========
+// 
 
 if ($periodo !== '') {
 
@@ -73,10 +73,10 @@ if ($periodo !== '') {
         date('Y-m-d');
 }
 
-// ========
+// 
 // WHERE DINÁMICO
 // Construye las condiciones de búsqueda del listado.
-// ========
+// 
 
 $where = [
     "1 = 1"
@@ -86,10 +86,10 @@ $where = [
 $params = [];
 
 
-// ========
+// 
 // FILTRO DE BÚSQUEDA
 // Permite buscar por unidad, factura, descripción o concepto.
-// ========
+// 
 
 if ($buscar !== '') {
 
@@ -124,10 +124,10 @@ if ($buscar !== '') {
 }
 
 
-// ========
+// 
 // FILTRO POR ESTADO
 // Diferencia pendiente, mora, pagada y anulada.
-// ========
+// 
 
 if ($estado === 'EN_MORA') {
 
@@ -168,10 +168,10 @@ if ($estado === 'EN_MORA') {
 }
 
 
-// ========
+// 
 // FILTRO POR PERÍODO
 // Permite consultar obligaciones de un mes específico.
-// ========
+// 
 
 if ($periodo !== '') {
 
@@ -188,10 +188,10 @@ if ($periodo !== '') {
 }
 
 
-// ========
+// 
 // ARMAR WHERE
 // Une todas las condiciones dinámicas.
-// ========
+// 
 
 $whereSql =
     implode(
@@ -200,10 +200,10 @@ $whereSql =
     );
 
 
-// ========
+// 
 // RESUMEN GENERAL
 // Calcula los principales valores de la cartera filtrada.
-// ========
+// 
 
 $sqlResumen = "
     SELECT
@@ -275,10 +275,10 @@ $sqlResumen = "
 ";
 
 
-// ========
+// 
 // EJECUTAR RESUMEN
 // Obtiene los totales de la cartera.
-// ========
+// 
 
 $stmtResumen =
     $conexion->prepare(
@@ -297,10 +297,10 @@ $resumen =
     );
 
 
-// ========
+// 
 // LISTADO
 // Obtiene las obligaciones y calcula su estado visual.
-// ========
+// 
 
 $sql = "
     SELECT
@@ -417,10 +417,10 @@ $sql = "
 ";
 
 
-// ========
+// 
 // EJECUTAR LISTADO
 // Obtiene los registros de cartera.
-// ========
+// 
 
 $stmt =
     $conexion->prepare(

@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // REDIRECCIÓN
-// ========
+// 
 
 function redireccionarSaldo($idSaldoFavor, $tipo, $texto)
 {
@@ -25,9 +25,9 @@ function redireccionarSaldo($idSaldoFavor, $tipo, $texto)
 }
 
 
-// ========
+// 
 // NORMALIZAR VALOR
-// ========
+// 
 
 function normalizarValor($valor)
 {
@@ -53,9 +53,9 @@ function normalizarValor($valor)
 }
 
 
-// ========
+// 
 // ACTUALIZAR ESTADO FACTURA
-// ========
+// 
 
 function actualizarEstadoFactura(PDO $conexion, int $idFactura): void
 {
@@ -115,9 +115,9 @@ function actualizarEstadoFactura(PDO $conexion, int $idFactura): void
 }
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -131,9 +131,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS
-// ========
+// 
 
 $idSaldoFavor =
     isset($_POST['id_saldo_favor'])

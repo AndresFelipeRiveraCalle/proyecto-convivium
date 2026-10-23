@@ -1,8 +1,8 @@
 <?php
 
-// ========
+// 
 // MENSAJES DEL SISTEMA
-// ========
+// 
 
 $tipoMensaje = $_GET['tipo'] ?? null;
 $mensaje = $_GET['mensaje'] ?? ($_GET['texto'] ?? null);

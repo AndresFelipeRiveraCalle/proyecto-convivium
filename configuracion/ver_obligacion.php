@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // ID DE LA OBLIGACIÓN
-// ========
+// 
 
 $idObligacion = (int)($_GET['id'] ?? 0);
 
@@ -23,9 +23,9 @@ if ($idObligacion <= 0) {
 }
 
 
-// ========
+// 
 // BUSCAR OBLIGACIÓN PRINCIPAL
-// ========
+// 
 
 $sqlPrincipal = "
     SELECT
@@ -56,9 +56,9 @@ $stmtPrincipal->execute([
 $principal = $stmtPrincipal->fetch(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // VALIDAR EXISTENCIA
-// ========
+// 
 
 if (!$principal) {
 
@@ -78,9 +78,9 @@ $idUnidad = (int)$principal['id_unidad'];
 $periodo = $principal['periodo'];
 
 
-// ========
+// 
 // BUSCAR TODAS LAS OBLIGACIONES DEL COBRO
-// ========
+// 
 
 $sqlObligaciones = "
     SELECT
@@ -146,9 +146,9 @@ $stmtObligaciones->execute([
 $obligaciones = $stmtObligaciones->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // TOTALES
-// ========
+// 
 
 $totalValor = 0;
 $totalPagado = 0;
@@ -164,9 +164,9 @@ foreach ($obligaciones as $obligacion) {
 }
 
 
-// ========
+// 
 // FORMATO MONEDA
-// ========
+// 
 
 function formatoMoneda($valor)
 {
@@ -179,9 +179,9 @@ function formatoMoneda($valor)
 }
 
 
-// ========
+// 
 // FORMATO FECHA
-// ========
+// 
 
 function formatoFecha($fecha)
 {
@@ -196,9 +196,9 @@ function formatoFecha($fecha)
 }
 
 
-// ========
+// 
 // FORMATO PERÍODO
-// ========
+// 
 
 function formatoPeriodo($periodo)
 {
@@ -229,9 +229,9 @@ function formatoPeriodo($periodo)
 }
 
 
-// ========
+// 
 // CLASE ESTADO
-// ========
+// 
 
 function claseEstado($estado)
 {
@@ -258,9 +258,9 @@ function claseEstado($estado)
 }
 
 
-// ========
+// 
 // IDENTIFICAR GRUPO DEL CONCEPTO
-// ========
+// 
 
 function grupoConcepto($obligacion)
 {
@@ -321,9 +321,9 @@ function grupoConcepto($obligacion)
 }
 
 
-// ========
+// 
 // AGRUPAR OBLIGACIONES
-// ========
+// 
 
 $grupos = [
     'Administración' => [],

@@ -35,9 +35,9 @@ try {
     <div class="contenedor">
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
         <main class="contenido">
-            <!-- ==========================================
+            <!-- ==
                     ENCABEZADO
-            ========================================== -->
+            == -->
 
             <div class="form-actions">
                 <div>
@@ -53,9 +53,9 @@ try {
             </div>
 
             <div class="form-card">
-                <!-- ==========================================
+                <!-- ==
                     TABLA DE USUARIOS
-                ========================================== -->
+                == -->
                 <table class="tabla">
                     <thead>
                         <tr>
@@ -155,9 +155,9 @@ try {
             </div>
         </main>
 
-        <!-- ==========================================
+        <!-- ==
              MODAL NUEVO USUARIO
-        ========================================== -->
+        == -->
 
         <div id="modalUsuario" class="modal">
             <div class="modal-contenido">
@@ -171,9 +171,9 @@ try {
                 <form action="<?= BASE_URL ?>actions/guardar_persona.php" method="POST"
                     enctype="multipart/form-data">
 
-                    <!-- ==================================
+                    <!-- ==
                          DATOS PERSONALES
-                    ================================== -->
+                    == -->
                     <h3>Datos personales</h3>
                     
                     <div class="bloque filtros">
@@ -231,9 +231,9 @@ try {
                     </div>
                     
 
-                    <!-- ==================================
+                    <!-- ==
                          CONTACTO
-                    ================================== -->
+                    == -->
                     <h3>Información de contacto</h3>
 
                     <div class="bloque filtros">
@@ -254,9 +254,9 @@ try {
                         </div>
                     </div>
 
-                    <!-- ==================================
+                    <!-- ==
                          DATOS ADICIONALES
-                    ================================== -->
+                    == -->
 
                     <h3>Información adicional</h3>
                     <div class="bloque filtros">
@@ -331,9 +331,9 @@ try {
                     </div>
                     
 
-                    <!-- ==================================
+                    <!-- ==
                          DIRECCIÓN
-                    ================================== -->
+                    == -->
                     <div class="bloque filtros">
                         
                         <h3>Dirección</h3>
@@ -341,18 +341,18 @@ try {
                         <input type="text" name="direccion" maxlength="200">
                         <br>
                     </div>
-                    <!-- ==================================
+                    <!-- ==
                          FOTO
-                    ================================== -->
+                    == -->
                     <div class="bloque filtros">
                         <h3>Foto</h3>
                     
                         <input type="file" name="foto" accept="image/*">
                     </div>
 
-                    <!-- ==================================
+                    <!-- ==
                          ESTADO
-                    ================================== -->
+                    == -->
                     <div class="bloque filtros">
                         <label>Estado</label>
                         <div class="card" >
@@ -367,9 +367,9 @@ try {
                         </div>
                     </div>
 
-                    <!-- ==================================
+                    <!-- ==
                          BOTONES
-                    ================================== -->
+                    == -->
 
                     <button type="reset" class="btn-limpiar" id="cancelarUsuario">
                         Cancelar

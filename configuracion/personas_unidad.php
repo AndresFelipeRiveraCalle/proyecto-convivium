@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR UNIDAD
-// ========
+// 
 
 $idUnidad = isset($_GET['id_unidad'])
     ? (int)$_GET['id_unidad']
@@ -24,9 +24,9 @@ if ($idUnidad <= 0) {
 }
 
 
-// ========
+// 
 // CONSULTAR UNIDAD
-// ========
+// 
 
 $sqlUnidad = "
     SELECT
@@ -63,9 +63,9 @@ $stmtUnidad->execute([
 $unidad = $stmtUnidad->fetch(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // VALIDAR QUE EXISTA
-// ========
+// 
 
 if (!$unidad) {
 
@@ -78,9 +78,9 @@ if (!$unidad) {
 }
 
 
-// ========
+// 
 // CONSULTAR PERSONAS ACTIVAS DE LA UNIDAD
-// ========
+// 
 
 $sqlPersonas = "
     SELECT
@@ -144,9 +144,9 @@ $stmtPersonas->execute([
 $personas = $stmtPersonas->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // SEPARAR PERSONAS
-// ========
+// 
 
 $propietarios = [];
 $inquilinos = [];
@@ -170,9 +170,9 @@ foreach ($personas as $persona) {
 }
 
 
-// ========
+// 
 // CONSULTAR ESPACIOS ACTUALES DE LA UNIDAD
-// ========
+// 
 
 $sqlEspacios = "
     SELECT
@@ -230,9 +230,9 @@ $stmtEspacios->execute([
 $espacios = $stmtEspacios->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // UNIDADES ACTIVAS PARA TRANSFERENCIA
-// ========
+// 
 
 $sqlUnidadesTransferencia = "
     SELECT
@@ -266,9 +266,9 @@ $unidadesTransferencia =
     );
 
 
-// ========
+// 
 // FUNCIÓN NOMBRE TIPO ESPACIO
-// ========
+// 
 
 function nombreTipoEspacio($tipo)
 {
@@ -296,9 +296,9 @@ function nombreTipoEspacio($tipo)
 }
 
 
-// ========
+// 
 // FUNCIÓN PARA TABLA DE PERSONAS
-// ========
+// 
 
 function imprimirTablaPersonas($lista)
 {
@@ -2276,9 +2276,9 @@ const BASE_URL =
     <?= json_encode(BASE_URL) ?>;
 
 
-// ========
+// 
 // AGREGAR PERSONA
-// ========
+// 
 
 function abrirModalPersona()
 {
@@ -2312,9 +2312,9 @@ function cerrarModalPersona()
 }
 
 
-// ========
+// 
 // EDITAR RELACIÓN
-// ========
+// 
 
 function cerrarModalEditarRelacion()
 {
@@ -2332,9 +2332,9 @@ function cerrarModalEditarRelacion()
 }
 
 
-// ========
+// 
 // RETIRAR RELACIÓN
-// ========
+// 
 
 function cerrarModalRetirarRelacion()
 {
@@ -2352,9 +2352,9 @@ function cerrarModalRetirarRelacion()
 }
 
 
-// ========
+// 
 // AGREGAR ESPACIO
-// ========
+// 
 
 function abrirModalEspacio()
 {
@@ -2388,9 +2388,9 @@ function cerrarModalEspacio()
 }
 
 
-// ========
+// 
 // EDITAR ESPACIO
-// ========
+// 
 
 function cerrarModalEditarEspacio()
 {
@@ -2408,9 +2408,9 @@ function cerrarModalEditarEspacio()
 }
 
 
-// ========
+// 
 // TRANSFERIR
-// ========
+// 
 
 function cerrarModalTransferirEspacio()
 {
@@ -2428,9 +2428,9 @@ function cerrarModalTransferirEspacio()
 }
 
 
-// ========
+// 
 // DOM READY
-// ========
+// 
 
 document.addEventListener(
     "DOMContentLoaded",

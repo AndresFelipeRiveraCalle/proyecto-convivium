@@ -5,10 +5,10 @@ require_once ROOT_PATH . "/config/conexion.php";
 require_once ROOT_PATH . "/config/seguridad_correo.php";
 
 
-// ========
+// 
 // CONFIGURACIÓN ACTIVA
 // Obtiene únicamente los datos necesarios para la prueba.
-// ========
+// 
 
 $sql = "
     SELECT
@@ -44,10 +44,10 @@ if (!$configuracion) {
 }
 
 
-// ========
+// 
 // DESCIFRAR
 // No muestra la contraseña real.
-// ========
+// 
 
 try {
 
@@ -62,7 +62,7 @@ try {
     echo '<pre>';
 
     echo "CONFIGURACIÓN SMTP\n";
-    echo "==================\n\n";
+    echo "==\n\n";
 
     echo "Usuario: "
         . htmlspecialchars(

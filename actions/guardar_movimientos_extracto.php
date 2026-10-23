@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -22,9 +22,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS RECIBIDOS
-// ========
+// 
 
 $idDocumento =
     filter_input(
@@ -44,9 +44,9 @@ $movimientos =
     $_POST['movimientos'] ?? [];
 
 
-// ========
+// 
 // VALIDAR DOCUMENTO
-// ========
+// 
 
 if (!$idDocumento) {
 
@@ -62,9 +62,9 @@ if (!$idDocumento) {
 }
 
 
-// ========
+// 
 // VALIDAR MOVIMIENTOS
-// ========
+// 
 
 if (
     !is_array($movimientos) ||
@@ -83,9 +83,9 @@ if (
 }
 
 
-// ========
+// 
 // BUSCAR DOCUMENTO
-// ========
+// 
 
 $sqlDocumento = "
     SELECT
@@ -120,17 +120,17 @@ if (!$documento) {
 }
 
 
-// ========
+// 
 // CUENTA BANCARIA
-// ========
+// 
 
 $idCuenta =
     (int)$documento['id_cuenta_bancaria'];
 
 
-// ========
+// 
 // TRANSACCIÓN
-// ========
+// 
 
 try {
 

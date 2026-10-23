@@ -2,9 +2,9 @@
 
 document.addEventListener("DOMContentLoaded", function() {
     
-    // ==========================================
+    // ==
     // LÓGICA DEL MODAL: CREAR
-    // ==========================================
+    // ==
     const modalCrear = document.getElementById("modal-crear");
     
     // Abrir modal Crear
@@ -25,9 +25,9 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // ==========================================
+    // ==
     // LÓGICA DEL MODAL: EDITAR
-    // ==========================================
+    // ==
     const modalEditar = document.getElementById("modal-editar");
     const botonesEditar = document.querySelectorAll(".btn-abrir-editar"); // Captura todos los botones de la tabla
 
@@ -66,9 +66,9 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // ==========================================
+    // ==
     // CERRAR MODALES HACIENDO CLIC AFUERA
-    // ==========================================
+    // ==
     window.addEventListener("click", function(evento) {
         if (evento.target == modalCrear) modalCrear.style.display = "none";
         if (evento.target == modalEditar) modalEditar.style.display = "none";

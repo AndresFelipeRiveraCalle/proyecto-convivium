@@ -9,18 +9,18 @@ require_once ROOT_PATH . "/vendor/autoload.php";
 use PHPMailer\PHPMailer\PHPMailer;
 
 
-// ========
+// 
 // RESPUESTA JSON
-// ========
+// 
 
 header(
     'Content-Type: application/json; charset=UTF-8'
 );
 
 
-// ========
+// 
 // FUNCIÓN RESPUESTA
-// ========
+// 
 
 function responderJson(
     bool $success,
@@ -41,9 +41,9 @@ function responderJson(
 }
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if (
     $_SERVER['REQUEST_METHOD']
@@ -60,9 +60,9 @@ if (
 }
 
 
-// ========
+// 
 // FACTURAS
-// ========
+// 
 
 $idsFacturas =
     $_POST[
@@ -82,9 +82,9 @@ if (
 }
 
 
-// ========
+// 
 // NORMALIZAR IDS
-// ========
+// 
 
 $idsFacturas =
     array_values(
@@ -119,10 +119,10 @@ if (
 }
 
 
-// ========
+// 
 // SEGURIDAD DEL LOTE
 // Máximo 10 facturas por petición.
-// ========
+// 
 
 if (
     count(
@@ -140,9 +140,9 @@ if (
 }
 
 
-// ========
+// 
 // CONFIGURACIÓN DE CORREO
-// ========
+// 
 
 $sqlCorreo = "
 
@@ -187,9 +187,9 @@ if (
 }
 
 
-// ========
+// 
 // CREDENCIAL SMTP
-// ========
+// 
 
 try {
 
@@ -212,9 +212,9 @@ try {
 }
 
 
-// ========
+// 
 // MESES
-// ========
+// 
 
 $meses = [
 
@@ -234,9 +234,9 @@ $meses = [
 ];
 
 
-// ========
+// 
 // RESULTADO DEL LOTE
-// ========
+// 
 
 $resultado = [
 
@@ -269,9 +269,9 @@ $resultado = [
 ];
 
 
-// ========
+// 
 // PROCESAR FACTURAS
-// ========
+// 
 
 foreach (
     $idsFacturas
@@ -1158,9 +1158,9 @@ foreach (
 }
 
 
-// ========
+// 
 // RESPUESTA
-// ========
+// 
 
 responderJson(
     true,

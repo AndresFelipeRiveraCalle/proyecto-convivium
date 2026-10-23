@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FUNCIONES
-// ========
+// 
 
 function e($valor)
 {
@@ -28,9 +28,9 @@ function dinero($valor)
 }
 
 
-// ========
+// 
 // VALIDAR PAGO
-// ========
+// 
 
 $idPago =
     isset($_GET['id_pago'])
@@ -54,9 +54,9 @@ if ($idPago <= 0) {
 }
 
 
-// ========
+// 
 // PAGO
-// ========
+// 
 
 $sqlPago = "
     SELECT
@@ -163,9 +163,9 @@ $valorDisponible =
     );
 
 
-// ========
+// 
 // OBLIGACIONES PENDIENTES
-// ========
+// 
 
 $sqlCartera = "
     SELECT
@@ -238,9 +238,9 @@ $obligaciones =
     );
 
 
-// ========
+// 
 // APLICACIONES YA REALIZADAS
-// ========
+// 
 
 $sqlAplicaciones = "
     SELECT
@@ -1013,10 +1013,10 @@ $aplicaciones =
 
 
 <script>
-// ========
+// 
 // CERRAR POPUP DE MENSAJE
 // Oculta el mensaje y limpia los parámetros de la URL.
-// ========
+// 
 
 document.addEventListener('DOMContentLoaded', function () {
     const modal = document.getElementById('modalMensajePago');

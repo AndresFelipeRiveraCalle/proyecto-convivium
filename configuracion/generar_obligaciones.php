@@ -3,9 +3,9 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -19,9 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // ID CALENDARIO
-// ========
+// 
 
 $idCalendario = (int)($_POST['id_calendario'] ?? 0);
 
@@ -38,9 +38,9 @@ if ($idCalendario <= 0) {
 }
 
 
-// ========
+// 
 // BUSCAR CALENDARIO
-// ========
+// 
 
 $sqlCalendario = "
     SELECT
@@ -76,9 +76,9 @@ if (!$calendario) {
 }
 
 
-// ========
+// 
 // VALIDAR ESTADO DEL CALENDARIO
-// ========
+// 
 
 if ($calendario['estado'] === 'CERRADO') {
 
@@ -95,9 +95,9 @@ if ($calendario['estado'] === 'CERRADO') {
 }
 
 
-// ========
+// 
 // DATOS DEL PERÍODO
-// ========
+// 
 
 $periodo = $calendario['periodo'];
 
@@ -106,9 +106,9 @@ $fechaGeneracion = $calendario['fecha_facturacion'];
 $fechaVencimiento = $calendario['fecha_vencimiento'];
 
 
-// ========
+// 
 // BUSCAR UNIDADES ACTIVAS
-// ========
+// 
 
 $sqlUnidades = "
     SELECT
@@ -130,9 +130,9 @@ $stmtUnidades->execute();
 $unidades = $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // CONTADORES
-// ========
+// 
 
 $generadas = 0;
 
@@ -141,9 +141,9 @@ $omitidas = 0;
 $sinTarifa = 0;
 
 
-// ========
+// 
 // INICIAR TRANSACCIÓN
-// ========
+// 
 
 try {
 

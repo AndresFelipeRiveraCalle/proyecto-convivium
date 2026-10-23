@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // FUNCIÓN ESCAPAR HTML
-// ========
+// 
 
 function e($valor)
 {
@@ -34,9 +34,9 @@ function e($valor)
 }
 
 
-// ========
+// 
 // FUNCIÓN TIPO DE CÁLCULO
-// ========
+// 
 
 function nombreTipoCalculo($tipo)
 {
@@ -60,9 +60,9 @@ function nombreTipoCalculo($tipo)
 }
 
 
-// ========
+// 
 // DATOS RECIBIDOS
-// ========
+// 
 
 $idCalendario = isset($_POST['id_calendario'])
     ? (int)$_POST['id_calendario']
@@ -84,14 +84,14 @@ $conceptosOpcionales =
         : [];
 
 
-// ========
+// 
 // EXCLUIR CONCEPTOS QUE NO PERTENECEN A FACTURACIÓN NORMAL
-// ========
+// 
 //
 // Intereses de mora (id_concepto = 4)
 // se procesa posteriormente desde CARTERA.
 //
-// ========
+// 
 
 $conceptosNoFacturablesDirectamente = [
     4
@@ -111,9 +111,9 @@ $observaciones = isset($_POST['observaciones'])
     : '';
 
 
-// ========
+// 
 // LIMPIAR IDS OPCIONALES
-// ========
+// 
 
 $conceptosOpcionales = array_values(
     array_unique(
@@ -127,9 +127,9 @@ $conceptosOpcionales = array_values(
 );
 
 
-// ========
+// 
 // VALIDAR CALENDARIO
-// ========
+// 
 
 if ($idCalendario <= 0) {
 
@@ -147,9 +147,9 @@ if ($idCalendario <= 0) {
 }
 
 
-// ========
+// 
 // VARIABLES DE PREVISUALIZACIÓN
-// ========
+// 
 
 $calendario = null;
 
@@ -184,15 +184,15 @@ $cantidadCargosFacturados = 0;
 $cantidadEspaciosSueltos = 0;
 
 
-// ========
+// 
 // ESPACIOS
-// ========
+// 
 //
 // El generador ya fue preparado para espacios, por lo que
 // no bloquearemos la confirmación solamente por existir
 // espacios asociados.
 //
-// ========
+// 
 
 $tieneCargosEspacios = false;
 
@@ -1004,9 +1004,9 @@ try {
                     $concepto['tipo_calculo'];
 
 
-                // ==============================================
+                // ======
                 // VALIDAR TIPO DE OBLIGACIÓN
-                // ==============================================
+                // ======
 
                 if (
                     empty(
@@ -1060,9 +1060,9 @@ try {
                 }
 
 
-                // ==============================================
+                // ======
                 // BUSCAR TARIFA VIGENTE
-                // ==============================================
+                // ======
 
                 $stmtTarifa->execute([
 
@@ -1086,9 +1086,9 @@ try {
                 );
 
 
-                // ==============================================
+                // ======
                 // SIN TARIFA
-                // ==============================================
+                // ======
 
                 if (!$tarifa) {
 
@@ -1120,9 +1120,9 @@ try {
                 $urlCorregir = null;
 
 
-                // ==============================================
+                // ======
                 // CALCULAR
-                // ==============================================
+                // ======
 
                 switch ($tipoCalculo) {
 
@@ -1847,9 +1847,9 @@ try {
 }
 
 
-// ========
+// 
 // ¿SE PUEDE CONFIRMAR?
-// ========
+// 
 
 $puedeGenerar =
     empty($erroresGenerales) &&

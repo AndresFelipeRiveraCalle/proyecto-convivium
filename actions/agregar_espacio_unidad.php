@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // SOLO POST
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS
-// ========
+// 
 
 $idUnidad = isset($_POST['id_unidad'])
     ? (int)$_POST['id_unidad']
@@ -60,9 +60,9 @@ $observaciones = isset($_POST['observaciones'])
     : null;
 
 
-// ========
+// 
 // RETORNO
-// ========
+// 
 
 if ($idUnidad <= 0) {
 
@@ -83,9 +83,9 @@ $urlRetorno =
     $idUnidad;
 
 
-// ========
+// 
 // VALIDACIONES
-// ========
+// 
 
 $tiposPermitidos = [
     'PARQUEADERO',

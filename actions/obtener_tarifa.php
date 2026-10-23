@@ -6,9 +6,9 @@ require_once ROOT_PATH . "/config/conexion.php";
 header('Content-Type: application/json; charset=utf-8');
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
@@ -21,9 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 
-// ========
+// 
 // VALIDAR ID
-// ========
+// 
 
 $idTarifa = filter_input(
     INPUT_GET,
@@ -43,9 +43,9 @@ if (!$idTarifa || $idTarifa <= 0) {
 }
 
 
-// ========
+// 
 // CONSULTAR TARIFA
-// ========
+// 
 
 try {
 

@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // SOLO POST
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS
-// ========
+// 
 
 $idUnidad = isset($_POST['unidad_id'])
     ? (int)$_POST['unidad_id']
@@ -49,9 +49,9 @@ $fechaDesde = isset($_POST['fecha_desde'])
     : date('Y-m-d');
 
 
-// ========
+// 
 // VALIDAR UNIDAD
-// ========
+// 
 
 if ($idUnidad <= 0) {
 
@@ -72,9 +72,9 @@ $urlRetorno =
     $idUnidad;
 
 
-// ========
+// 
 // VALIDAR DOCUMENTO
-// ========
+// 
 
 if ($numeroDocumento === '') {
 
@@ -91,9 +91,9 @@ if ($numeroDocumento === '') {
 }
 
 
-// ========
+// 
 // VALIDAR TIPO
-// ========
+// 
 
 $tiposPermitidos = [
     'propietario',
@@ -123,9 +123,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR RECIBE FACTURA
-// ========
+// 
 
 if (
     $recibeFactura !== 0 &&
@@ -136,9 +136,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR FECHA
-// ========
+// 
 
 $fechaObj =
     DateTime::createFromFormat(

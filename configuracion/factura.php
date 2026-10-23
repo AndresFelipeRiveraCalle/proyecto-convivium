@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // CARGAR CALENDARIOS FINANCIEROS
-// ========
+// 
 
 $sqlCalendarios = "
     SELECT
@@ -31,9 +31,9 @@ $calendarios = $stmtCalendarios->fetchAll(
 );
 
 
-// ========
+// 
 // CARGAR TIPOS DE UNIDAD ACTIVOS
-// ========
+// 
 
 $sqlTipos = "
     SELECT
@@ -60,9 +60,9 @@ $tiposUnidad = $stmtTipos->fetchAll(
 
 
 
-// ========
+// 
 // FUNCIÓN NOMBRE TIPO DE CÁLCULO
-// ========
+// 
 
 function nombreTipoCalculo($tipo)
 {
@@ -193,9 +193,9 @@ function nombreTipoCalculo($tipo)
                 >
 
 
-                    <!-- ==========================================
+                    <!-- ==
                          PERÍODO FINANCIERO
-                    =========================================== -->
+                    === -->
 
                     <div class="form-group">
 
@@ -267,9 +267,9 @@ function nombreTipoCalculo($tipo)
                     </div>
 
 
-                    <!-- ==========================================
+                    <!-- ==
                          DATOS DEL CALENDARIO
-                    =========================================== -->
+                    === -->
 
                     <div class="form-group">
 
@@ -326,9 +326,9 @@ function nombreTipoCalculo($tipo)
                     </div>
 
 
-                    <!-- ==========================================
+                    <!-- ==
                          TIPO DE UNIDAD
-                    =========================================== -->
+                    === -->
 
                     <div class="form-group">
 
@@ -382,9 +382,9 @@ function nombreTipoCalculo($tipo)
                     </div>
 
 
-                    <!-- ==========================================
+                    <!-- ==
                         CONCEPTOS AUTOMÁTICOS
-                    =========================================== -->
+                    === -->
 
                     <div class="form-group">
 
@@ -430,9 +430,9 @@ function nombreTipoCalculo($tipo)
                     </div>
 
 
-                    <!-- ==========================================
+                    <!-- ==
                          OBSERVACIONES
-                    =========================================== -->
+                    === -->
 
                     <div class="form-group">
 
@@ -454,9 +454,9 @@ function nombreTipoCalculo($tipo)
                     </div>
 
 
-                    <!-- ==========================================
+                    <!-- ==
                          BOTONES
-                    =========================================== -->
+                    === -->
 
                     <div class="form-actions">
 
@@ -733,9 +733,9 @@ function nombreTipoCalculo($tipo)
 </div>
 
 
-<!-- ========
+<!-- 
      JAVASCRIPT
-======== -->
+ -->
 
 <script>
 

@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // TIPOS DE AGRUPACIÓN
-// ========
+// 
 
 $stmtTiposAgrupacion = $conexion->query("
     SELECT
@@ -21,18 +21,18 @@ $tiposAgrupacion =
     $stmtTiposAgrupacion->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // GRUPO SELECCIONADO
-// ========
+// 
 
 $idGrupoSeleccionado = isset($_GET['id'])
     ? (int)$_GET['id']
     : 0;
 
 
-// ========
+// 
 // AGRUPACIÓN SELECCIONADA
-// ========
+// 
 
 $idAgrupacionSeleccionada =
     isset($_GET['agrupacion'])
@@ -40,9 +40,9 @@ $idAgrupacionSeleccionada =
     : 0;
 
 
-// ========
+// 
 // AGRUPACIONES
-// ========
+// 
 
 $stmtAgrupaciones = $conexion->query("
     SELECT
@@ -67,9 +67,9 @@ $agrupaciones =
     $stmtAgrupaciones->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // TOMAR PRIMERA AGRUPACIÓN
-// ========
+// 
 
 if (
     $idAgrupacionSeleccionada === 0 &&
@@ -81,9 +81,9 @@ if (
 }
 
 
-// ========
+// 
 // BUSCAR AGRUPACIÓN SELECCIONADA
-// ========
+// 
 
 $agrupacionSeleccionada = null;
 
@@ -102,9 +102,9 @@ foreach ($agrupaciones as $agrupacion) {
 }
 
 
-// ========
+// 
 // DISTRIBUCIÓN DE UNIDADES
-// ========
+// 
 
 $stmtDistribucion = $conexion->query("
     SELECT
@@ -121,9 +121,9 @@ $distribuciones =
     $stmtDistribucion->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // MAPA DE DISTRIBUCIÓN
-// ========
+// 
 
 $mapaDistribucion = [];
 
@@ -141,9 +141,9 @@ foreach ($distribuciones as $distribucion) {
 }
 
 
-// ========
+// 
 // CARGAR GRUPOS CONFIGURADOS
-// ========
+// 
 
 $sqlGrupos = "
     SELECT
@@ -177,9 +177,9 @@ $tiposVivienda =
     );
 
 
-// ========
+// 
 // TOMAR PRIMER GRUPO
-// ========
+// 
 
 if (
     $idGrupoSeleccionado === 0 &&
@@ -191,9 +191,9 @@ if (
 }
 
 
-// ========
+// 
 // BUSCAR GRUPO SELECCIONADO
-// ========
+// 
 
 $grupoSeleccionado = null;
 
@@ -212,9 +212,9 @@ foreach ($tiposVivienda as $tipo) {
 }
 
 
-// ========
+// 
 // RESUMEN DE UNIDADES REALES
-// ========
+// 
 
 $resumenUnidades = [
 
@@ -283,9 +283,9 @@ if ($idGrupoSeleccionado > 0) {
 }
 
 
-// ========
+// 
 // CONTROLES DEL GRUPO
-// ========
+// 
 
 $cantidadConfigurada =
     $grupoSeleccionado
@@ -335,9 +335,9 @@ $diferenciaCoeficiente =
     $coeficienteReal;
 
 
-// ========
+// 
 // TIPOS DE VIVIENDA
-// ========
+// 
 
 $stmtTiposUnidad = $conexion->query("
     SELECT
@@ -778,9 +778,9 @@ $tiposUnidad =
 </div>
 
 
-<!-- ========
+<!-- 
      MODAL EDITAR GRUPO
-======== -->
+ -->
 
 <?php if ($grupoSeleccionado): ?>
 
@@ -1066,9 +1066,9 @@ $tiposUnidad =
 <?php endif; ?>
 
 
-<!-- ========
+<!-- 
      MODAL NUEVO GRUPO
-======== -->
+ -->
 
 <div
     id="modalGrupo"
@@ -1263,9 +1263,9 @@ $tiposUnidad =
 </div>
 
 
-<!-- ========
+<!-- 
      MODAL NUEVA AGRUPACIÓN
-======== -->
+ -->
 
 <div
     id="modalNuevaAgrupacion"
@@ -1398,9 +1398,9 @@ $tiposUnidad =
 </div>
 
 
-<!-- ========
+<!-- 
      MODAL EDITAR AGRUPACIÓN
-======== -->
+ -->
 
 <div
     id="modalEditarAgrupacion"
@@ -1542,18 +1542,18 @@ $tiposUnidad =
 </div>
 
 
-<!-- ========
+<!-- 
      JAVASCRIPT
-======== -->
+ -->
 
 <script>
     const BASE_URL = "<?= BASE_URL ?>";
 </script>
 
 
-<!-- ========
+<!-- 
      MODAL EDITAR GRUPO
-======== -->
+ -->
 
 <script>
     document.addEventListener(

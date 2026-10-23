@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FILTROS
-// ========
+// 
 
 $buscar = isset($_GET['buscar'])
     ? trim($_GET['buscar'])
@@ -21,9 +21,9 @@ $periodo = isset($_GET['periodo'])
     : '';
 
 
-// ========
+// 
 // CONSULTA BASE
-// ========
+// 
 
 $sql = "
     SELECT
@@ -61,10 +61,10 @@ $sql = "
 $params = [];
 
 
-// ========
+// 
 // FILTRO BUSCAR
 // Busca por factura, unidad, nombre o grupo.
-// ========
+// 
 
 if ($buscar !== '') {
 
@@ -94,9 +94,9 @@ if ($buscar !== '') {
 }
 
 
-// ========
+// 
 // FILTRO ESTADO
-// ========
+// 
 
 if ($estado !== '') {
 
@@ -110,9 +110,9 @@ if ($estado !== '') {
 }
 
 
-// ========
+// 
 // FILTRO PERÍODO
-// ========
+// 
 
 if ($periodo !== '') {
 
@@ -156,9 +156,9 @@ if ($periodo !== '') {
 }
 
 
-// ========
+// 
 // ORDEN
-// ========
+// 
 
 $sql .= "
     ORDER BY
@@ -185,9 +185,9 @@ $facturas =
     );
 
 
-// ========
+// 
 // FUNCIÓN PERÍODO
-// ========
+// 
 
 function formatoPeriodoFactura(
     $anio,

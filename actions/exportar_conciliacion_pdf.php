@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FUNCIONES
-// ========
+// 
 
 function e($valor)
 {
@@ -28,9 +28,9 @@ function dinero($valor)
 }
 
 
-// ========
+// 
 // FILTROS
-// ========
+// 
 
 $estado =
     trim(
@@ -57,9 +57,9 @@ $exportarTodo =
     && (int)$_GET['todos'] === 1;
 
 
-// ========
+// 
 // WHERE
-// ========
+// 
 
 $where = [
     "eb.tipo_movimiento = 'INGRESO'"
@@ -140,9 +140,9 @@ $whereSql =
     );
 
 
-// ========
+// 
 // CONSULTA
-// ========
+// 
 
 $sql = "
     SELECT
@@ -204,9 +204,9 @@ $registros =
     );
 
 
-// ========
+// 
 // TOTALES
-// ========
+// 
 
 $totalBanco = 0;
 $totalPago = 0;

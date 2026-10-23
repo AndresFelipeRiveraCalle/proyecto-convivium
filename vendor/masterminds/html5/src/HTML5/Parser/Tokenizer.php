@@ -924,9 +924,9 @@ class Tokenizer
         return true;
     }
 
-    // ==============
+    // ======
     // Non-HTML5
-    // ==============
+    // ======
 
     /**
      * Handle a processing instruction.
@@ -976,9 +976,9 @@ class Tokenizer
         return true;
     }
 
-    // ==============
+    // ======
     // UTILITY FUNCTIONS
-    // ==============
+    // ======
 
     /**
      * Read from the input stream until we get to the desired sequene

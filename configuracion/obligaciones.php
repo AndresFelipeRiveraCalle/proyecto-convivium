@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FILTROS
-// ========
+// 
 
 $idUnidad = (int)($_GET['id_unidad'] ?? 0);
 
@@ -15,9 +15,9 @@ $estado = trim($_GET['estado'] ?? '');
 $periodo = trim($_GET['periodo'] ?? '');
 
 
-// ========
+// 
 // CONSULTAR UNIDADES
-// ========
+// 
 
 $sqlUnidades = "
     SELECT
@@ -35,9 +35,9 @@ $stmtUnidades->execute();
 $unidades = $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // CONSULTAR PERÍODOS
-// ========
+// 
 
 $sqlPeriodos = "
     SELECT DISTINCT periodo
@@ -51,9 +51,9 @@ $stmtPeriodos->execute();
 $periodos = $stmtPeriodos->fetchAll(PDO::FETCH_COLUMN);
 
 
-// ========
+// 
 // CONSULTAR OBLIGACIONES
-// ========
+// 
 
 $sql = "
     SELECT
@@ -88,9 +88,9 @@ $sql = "
 ";
 
 
-// ========
+// 
 // APLICAR FILTRO UNIDAD
-// ========
+// 
 
 if ($idUnidad > 0) {
 
@@ -100,9 +100,9 @@ if ($idUnidad > 0) {
 }
 
 
-// ========
+// 
 // APLICAR FILTRO ESTADO
-// ========
+// 
 
 if ($estado !== '') {
 
@@ -112,9 +112,9 @@ if ($estado !== '') {
 }
 
 
-// ========
+// 
 // APLICAR FILTRO PERÍODO
-// ========
+// 
 
 if ($periodo !== '') {
 
@@ -124,9 +124,9 @@ if ($periodo !== '') {
 }
 
 
-// ========
+// 
 // ORDEN
-// ========
+// 
 
 $sql .= "
     ORDER BY
@@ -139,9 +139,9 @@ $sql .= "
 $stmt = $conexion->prepare($sql);
 
 
-// ========
+// 
 // PARÁMETROS
-// ========
+// 
 
 $params = [];
 
@@ -161,18 +161,18 @@ if ($periodo !== '') {
 }
 
 
-// ========
+// 
 // EJECUTAR
-// ========
+// 
 
 $stmt->execute($params);
 
 $obligaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // TOTALES
-// ========
+// 
 
 $totalObligaciones = count($obligaciones);
 
@@ -190,9 +190,9 @@ foreach ($obligaciones as $obligacion) {
 }
 
 
-// ========
+// 
 // FORMATO MONEDA
-// ========
+// 
 
 function formatoMoneda($valor)
 {
@@ -205,9 +205,9 @@ function formatoMoneda($valor)
 }
 
 
-// ========
+// 
 // FORMATO FECHA
-// ========
+// 
 
 function formatoFecha($fecha)
 {
@@ -222,9 +222,9 @@ function formatoFecha($fecha)
 }
 
 
-// ========
+// 
 // FORMATO PERÍODO
-// ========
+// 
 
 function formatoPeriodo($periodo)
 {
@@ -255,9 +255,9 @@ function formatoPeriodo($periodo)
 }
 
 
-// ========
+// 
 // CLASE ESTADO
-// ========
+// 
 
 function claseEstado($estado)
 {

@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // FUNCIONES
-// ========
+// 
 
 function e($valor)
 {
@@ -28,9 +28,9 @@ function dinero($valor)
 }
 
 
-// ========
+// 
 // FILTROS
-// ========
+// 
 
 $buscar =
     trim(
@@ -53,9 +53,9 @@ $fechaHasta =
     );
 
 
-// ========
+// 
 // WHERE DINÁMICO
-// ========
+// 
 
 $where = [
     "1 = 1"
@@ -129,9 +129,9 @@ $whereSql =
     );
 
 
-// ========
+// 
 // RESUMEN
-// ========
+// 
 
 $sqlResumen = "
     SELECT
@@ -195,9 +195,9 @@ $resumen =
     );
 
 
-// ========
+// 
 // LISTADO
-// ========
+// 
 
 $sql = "
     SELECT

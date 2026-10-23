@@ -16,9 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS
-// ========
+// 
 
 $idTasa =
     isset($_POST['id_tasa_interes'])
@@ -48,9 +48,9 @@ $observaciones =
     trim($_POST['observaciones'] ?? '');
 
 
-// ========
+// 
 // VALIDACIONES
-// ========
+// 
 
 if (
     $idTasa <= 0

@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
@@ -20,9 +20,9 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 try {
 
-    // ========
+    // 
     // ID
-    // ========
+    // 
 
     $id = !empty($_POST["id"])
         ? (int) $_POST["id"]
@@ -37,9 +37,9 @@ try {
     }
 
 
-    // ========
+    // 
     // DATOS DEL FORMULARIO
-    // ========
+    // 
 
     $nombres = trim(
         $_POST["nombres"] ?? ""
@@ -104,9 +104,9 @@ try {
         : 1;
 
 
-    // ========
+    // 
     // VALIDACIONES
-    // ========
+    // 
 
     if ($nombres === "") {
 
@@ -140,9 +140,9 @@ try {
     }
 
 
-    // ========
+    // 
     // VERIFICAR QUE EL USUARIO EXISTA
-    // ========
+    // 
 
     $sql = "
         SELECT
@@ -179,9 +179,9 @@ try {
     }
 
 
-    // ========
+    // 
     // VALIDAR DOCUMENTO DUPLICADO
-    // ========
+    // 
 
     $sql = "
         SELECT id
@@ -213,17 +213,17 @@ try {
     }
 
 
-    // ========
+    // 
     // CONSERVAR FOTO ACTUAL
-    // ========
+    // 
 
     $foto =
         $usuarioActual["foto"] ?? null;
 
 
-    // ========
+    // 
     // FOTOGRAFÍA NUEVA
-    // ========
+    // 
 
     if (
         isset($_FILES["foto"]) &&
@@ -304,9 +304,9 @@ try {
     }
 
 
-    // ========
+    // 
     // ACTUALIZAR
-    // ========
+    // 
 
     $sql = "
         UPDATE usuario
@@ -384,9 +384,9 @@ try {
     ]);
 
 
-    // ========
+    // 
     // ÉXITO
-    // ========
+    // 
 
     $mensaje = urlencode(
         "Usuario actualizado correctamente."
@@ -404,9 +404,9 @@ try {
 
 } catch (Exception $e) {
 
-    // ========
+    // 
     // ERROR
-    // ========
+    // 
 
     $mensaje = urlencode(
         $e->getMessage()

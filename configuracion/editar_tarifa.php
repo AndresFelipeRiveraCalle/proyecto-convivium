@@ -22,9 +22,9 @@ try {
     }
 
 
-    // ========
+    // 
     // CONSULTAR TARIFA
-    // ========
+    // 
 
     $sql = "
         SELECT
@@ -54,9 +54,9 @@ try {
     $tarifa = $stmt->fetch(PDO::FETCH_ASSOC);
 
 
-    // ========
+    // 
     // VALIDAR
-    // ========
+    // 
 
     if (!$tarifa) {
 
@@ -69,9 +69,9 @@ try {
     }
 
 
-    // ========
+    // 
     // RESPUESTA
-    // ========
+    // 
 
     echo json_encode([
         'success' => true,

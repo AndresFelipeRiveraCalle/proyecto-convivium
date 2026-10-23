@@ -22,9 +22,9 @@ try {
     }
 
 
-    // ========
+    // 
     // CONSULTAR USUARIO
-    // ========
+    // 
 
     $sql = "
         SELECT
@@ -60,9 +60,9 @@ try {
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
 
-    // ========
+    // 
     // VALIDAR
-    // ========
+    // 
 
     if (!$usuario) {
 
@@ -75,9 +75,9 @@ try {
     }
 
 
-    // ========
+    // 
     // RESPUESTA
-    // ========
+    // 
 
     echo json_encode([
         'success' => true,

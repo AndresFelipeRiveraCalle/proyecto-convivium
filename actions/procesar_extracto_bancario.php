@@ -3,16 +3,16 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
-// ========
+// 
 // CONFIGURACIÓN EXTERNA
-// ========
+// 
 
 $tesseract = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe';
 $pdftoppm  = 'C:\\poppler\\Library\\bin\\pdftoppm.exe';
 
-// ========
+// 
 // VALIDAR INSTALACIONES
-// ========
+// 
 
 if (!file_exists($tesseract)) {
     die("No se encontró Tesseract en: " . $tesseract);
@@ -23,9 +23,9 @@ if (!file_exists($pdftoppm)) {
 }
 
 
-// ========
+// 
 // VALIDAR ID
-// ========
+// 
 
 $idDocumento = filter_input( INPUT_GET, 'id_documento',FILTER_VALIDATE_INT);
 
@@ -41,9 +41,9 @@ if (!$idDocumento) {
 }
 
 
-// ========
+// 
 // FUNCIONES
-// ========
+// 
 
 function ejecutarComando($comando, &$salida = null, &$codigo = null)
 {
@@ -56,9 +56,9 @@ function ejecutarComando($comando, &$salida = null, &$codigo = null)
 }
 
 /*------------------------------------------------------------------*/
-// ========
+// 
 // PARSER DE MOVIMIENTOS BANCARIOS
-// ========
+// 
 
 function detectarMovimientosBancarios(
     string $texto,
@@ -231,9 +231,9 @@ function detectarMovimientosBancarios(
     return $movimientos;
 }
 
-// ========
+// 
 // PROCESAMIENTO
-// ========
+// 
 
 try {
 
@@ -509,9 +509,9 @@ try {
             $metodoExtraccion =
                 'TESSERACT';
 
-            // ==============================================
+            // ======
             // DIRECTORIO TEMPORAL
-            // ==============================================
+            // ======
 
             $directorioTemp =
                 sys_get_temp_dir() .
@@ -536,9 +536,9 @@ try {
             }
 
 
-            // ==============================================
+            // ======
             // PREFIJO DE IMÁGENES
-            // ==============================================
+            // ======
 
             $prefijo =
                 $directorioTemp .
@@ -546,9 +546,9 @@ try {
                 'pagina';
 
 
-            // ==============================================
+            // ======
             // PDF -> PNG
-            // ==============================================
+            // ======
 
             $comando =
                 '"' . $pdftoppm . '"' .
@@ -575,9 +575,9 @@ try {
             }
 
 
-            // ==============================================
+            // ======
             // BUSCAR PÁGINAS
-            // ==============================================
+            // ======
 
             $imagenes =
                 glob(
@@ -598,9 +598,9 @@ try {
             natsort($imagenes);
 
 
-            // ==============================================
+            // ======
             // OCR DE CADA PÁGINA
-            // ==============================================
+            // ======
 
             $textoOCR = '';
 
@@ -660,9 +660,9 @@ try {
             }
 
 
-            // ==============================================
+            // ======
             // ELIMINAR TEMPORAL
-            // ==============================================
+            // ======
 
             @rmdir($directorioTemp);
 
@@ -699,9 +699,9 @@ try {
         );
     }
 
-    // ========
+    // 
     // DETECTAR AÑO DEL EXTRACTO
-    // ========
+    // 
 
     $anioExtracto = null;
 
@@ -718,9 +718,9 @@ try {
     }
 
 
-    // ========
+    // 
     // SI NO SE ENCUENTRA AÑO
-    // ========
+    // 
 
     if (!$anioExtracto) {
 
@@ -729,9 +729,9 @@ try {
     }
 
 
-    // ========
+    // 
     // PARSEAR MOVIMIENTOS
-    // ========
+    // 
 
     $movimientosDetectados =
         detectarMovimientosBancarios(
@@ -740,9 +740,9 @@ try {
         );
 
 
-    // ========
+    // 
     // VALIDAR RESULTADO
-    // ========
+    // 
 
     if (
         empty($movimientosDetectados)

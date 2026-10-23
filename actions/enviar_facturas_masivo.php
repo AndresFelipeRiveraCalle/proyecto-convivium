@@ -9,9 +9,9 @@ require_once ROOT_PATH . "/vendor/autoload.php";
 use PHPMailer\PHPMailer\PHPMailer;
 
 
-// ========
+// 
 // VALIDAR MÉTODO
-// ========
+// 
 
 if (
     $_SERVER['REQUEST_METHOD']
@@ -28,9 +28,9 @@ if (
 }
 
 
-// ========
+// 
 // PERÍODO
-// ========
+// 
 
 $anio =
     isset($_POST['anio'])
@@ -44,9 +44,9 @@ $mes =
         : (int)date('n');
 
 
-// ========
+// 
 // FACTURAS SELECCIONADAS
-// ========
+// 
 
 $idsFacturas =
     $_POST['facturas']
@@ -102,9 +102,9 @@ if (
 }
 
 
-// ========
+// 
 // LÍMITE POR EJECUCIÓN
-// ========
+// 
 
 $limitePorEjecucion = 20;
 
@@ -124,9 +124,9 @@ if (
 }
 
 
-// ========
+// 
 // CONFIGURACIÓN SMTP
-// ========
+// 
 
 $sqlCorreo = "
 
@@ -177,9 +177,9 @@ if (
 }
 
 
-// ========
+// 
 // CONTRASEÑA SMTP
-// ========
+// 
 
 try {
 
@@ -208,9 +208,9 @@ try {
 }
 
 
-// ========
+// 
 // MESES
-// ========
+// 
 
 $meses = [
 
@@ -230,9 +230,9 @@ $meses = [
 ];
 
 
-// ========
+// 
 // CONTADORES
-// ========
+// 
 
 $facturasProcesadas = 0;
 
@@ -247,9 +247,9 @@ $correosEnviados = 0;
 $correosError = 0;
 
 
-// ========
+// 
 // PROCESAR FACTURAS
-// ========
+// 
 
 foreach (
     $idsFacturas
@@ -986,9 +986,9 @@ foreach (
 }
 
 
-// ========
+// 
 // RESULTADO
-// ========
+// 
 
 if (
     $facturasConEnvio > 0
@@ -1042,9 +1042,9 @@ if (
 }
 
 
-// ========
+// 
 // RETORNO
-// ========
+// 
 
 header(
     "Location: " .

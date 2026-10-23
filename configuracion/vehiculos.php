@@ -5,9 +5,9 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 try {
 
-    // ========
+    // 
     // LISTAR VEHÍCULOS
-    // ========
+    // 
 
     $sql = "
     SELECT
@@ -54,9 +54,9 @@ try {
 }
 
 
-// ========
+// 
 // CARGAR UNIDADES
-// ========
+// 
 
 try {
 
@@ -78,9 +78,9 @@ try {
 }
 
 
-    // ========
+    // 
     // CARGAR RESIDENTES
-    // ========
+    // 
 
     try {
 
@@ -418,9 +418,9 @@ try {
     </div>
 
 
-    <!-- ========
+    <!-- 
      MODAL NUEVO VEHÍCULO
-========= -->
+= -->
 
     <div
         id="modalVehiculo"
@@ -760,9 +760,9 @@ try {
     </div>
 
 
-    <!-- ========
+    <!-- 
         MODAL EDITAR VEHÍCULO
-    ========= -->
+    = -->
 
     <div
         id="modalEditarVehiculo"
@@ -1122,9 +1122,9 @@ try {
 
 
     
-    <!-- ========
+    <!-- 
      JAVASCRIPT MODAL
-========= -->
+= -->
 
     <script>
         document.addEventListener("DOMContentLoaded",
@@ -1255,9 +1255,9 @@ try {
 
     document.addEventListener("DOMContentLoaded", function () {
 
-        // ========
+        // 
         // ELEMENTOS DEL MODAL
-        // ========
+        // 
 
         const modalEditar = document.getElementById("modalEditarVehiculo");
         const cerrarEditar = document.getElementById("cerrarEditarVehiculo");
@@ -1267,9 +1267,9 @@ try {
         const selectResidenteEditar = document.getElementById("editar_id_residente");
 
 
-        // ========
+        // 
         // VERIFICAR QUE EXISTE EL MODAL
-        // ========
+        // 
 
         if (!modalEditar) {
             console.error("No existe #modalEditarVehiculo");
@@ -1277,9 +1277,9 @@ try {
         }
 
 
-        // ========
+        // 
         // CONVERTIR FECHA MYSQL → DATETIME-LOCAL
-        // ========
+        // 
 
         function convertirFecha(fecha) {
 
@@ -1293,9 +1293,9 @@ try {
         }
 
 
-        // ========
+        // 
         // FILTRAR RESIDENTES POR UNIDAD
-        // ========
+        // 
 
         function filtrarResidentesEditar(
             unidadSeleccionada,
@@ -1360,9 +1360,9 @@ try {
         }
 
 
-        // ========
+        // 
         // CAMBIO DE UNIDAD
-        // ========
+        // 
 
         if (selectUnidadEditar) {
 
@@ -1378,9 +1378,9 @@ try {
         }
 
 
-        // ========
+        // 
         // BOTONES EDITAR
-        // ========
+        // 
 
         const botonesEditar =
             document.querySelectorAll(".btnEditarVehiculo");
@@ -1664,9 +1664,9 @@ try {
         });
 
 
-        // ========
+        // 
         // CERRAR MODAL
-        // ========
+        // 
 
         function cerrarModalEditar() {
 
@@ -1674,9 +1674,9 @@ try {
         }
 
 
-        // ========
+        // 
         // BOTÓN X
-        // ========
+        // 
 
         if (cerrarEditar) {
 
@@ -1688,9 +1688,9 @@ try {
         }
 
 
-        // ========
+        // 
         // BOTÓN CANCELAR
-        // ========
+        // 
 
         if (cancelarEditar) {
 
@@ -1702,9 +1702,9 @@ try {
         }
 
 
-        // ========
+        // 
         // CERRAR AL HACER CLIC FUERA
-        // ========
+        // 
 
         modalEditar.addEventListener(
             "click",
@@ -1720,9 +1720,9 @@ try {
         );
 
 
-        // ========
+        // 
         // CERRAR CON ESC
-        // ========
+        // 
 
         document.addEventListener(
             "keydown",

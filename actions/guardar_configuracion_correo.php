@@ -5,10 +5,10 @@ require_once ROOT_PATH . "/config/conexion.php";
 require_once ROOT_PATH . "/config/seguridad_correo.php";
 
 
-// ========
+// 
 // VALIDAR MÉTODO
 // Solo permite guardar mediante POST.
-// ========
+// 
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -22,10 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 
-// ========
+// 
 // DATOS
 // Obtiene los valores enviados por el formulario.
-// ========
+// 
 
 $idConfiguracion =
     isset($_POST['id_configuracion_correo'])
@@ -57,9 +57,9 @@ $correoRespuesta =
     );
 
 
-// ========
+// 
 // SMTP
-// ========
+// 
 
 $smtpHost =
     trim(
@@ -98,9 +98,9 @@ $smtpPassword =
     );
 
 
-// ========
+// 
 // IMAP
-// ========
+// 
 
 $imapHost =
     trim(
@@ -146,10 +146,10 @@ $activo =
         : 1;
 
 
-// ========
+// 
 // VALIDACIONES
 // Verifica los campos obligatorios.
-// ========
+// 
 
 if (
     $nombreConfiguracion === ''
@@ -175,9 +175,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR CORREO REMITENTE
-// ========
+// 
 
 if (
     !filter_var(
@@ -200,9 +200,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR CORREO DE RESPUESTA
-// ========
+// 
 
 if (
     $correoRespuesta !== ''
@@ -227,9 +227,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR SEGURIDAD SMTP
-// ========
+// 
 
 if (
     !in_array(
@@ -247,9 +247,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR SEGURIDAD IMAP
-// ========
+// 
 
 if (
     !in_array(
@@ -267,9 +267,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR PUERTO SMTP
-// ========
+// 
 
 if (
     $smtpPuerto <= 0
@@ -281,9 +281,9 @@ if (
 }
 
 
-// ========
+// 
 // VALIDAR PUERTO IMAP
-// ========
+// 
 
 if (
     $imapPuerto <= 0
@@ -307,10 +307,10 @@ $activo =
         : 0;
 
 
-// ========
+// 
 // VALIDAR CONTRASEÑA NUEVA
 // Al crear una configuración autenticada requiere contraseña.
-// ========
+// 
 
 if (
     $idConfiguracion <= 0
@@ -334,10 +334,10 @@ if (
 }
 
 
-// ========
+// 
 // GUARDAR
 // Crea o actualiza la configuración.
-// ========
+// 
 
 try {
 
@@ -749,9 +749,9 @@ try {
     exit;
 
 
-// ========
+// 
 // ERROR
-// ========
+// 
 
 } catch (Throwable $e) {
 

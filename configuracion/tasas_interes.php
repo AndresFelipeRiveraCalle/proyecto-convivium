@@ -4,9 +4,9 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// ========
+// 
 // CONSULTA DE TASAS
-// ========
+// 
 
 $sql = "
     SELECT
@@ -41,9 +41,9 @@ $stmt = $conexion->query($sql);
 $tasas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-// ========
+// 
 // FUNCIONES
-// ========
+// 
 
 function e($valor)
 {
@@ -477,9 +477,9 @@ function estadoVigencia($fechaInicio, $fechaFin)
 </div>
 
 
-<!-- ========
+<!-- 
      MODAL NUEVA TASA
-========= -->
+= -->
 
 <div
     id="modalNuevaTasa"
@@ -667,9 +667,9 @@ function estadoVigencia($fechaInicio, $fechaFin)
 </div>
 
 
-<!-- ========
+<!-- 
      MODAL EDITAR TASA
-========= -->
+= -->
 
 <div
     id="modalEditarTasa"
@@ -881,9 +881,9 @@ function estadoVigencia($fechaInicio, $fechaFin)
 </div>
 
 
-<!-- ========
+<!-- 
      MODAL NUEVA VIGENCIA
-========= -->
+= -->
 
 <div
     id="modalNuevaVigencia"

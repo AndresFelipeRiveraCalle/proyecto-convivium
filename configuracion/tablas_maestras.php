@@ -55,150 +55,148 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
             <div class="grid-configuracion">
                 <h2>Ubicacion</h2>
                 <div class="bloque filtros">
-                    <div class="bloque filtros">
-                        <div class="form-card">
-                            <h3>Paises</h3>
 
-                            <p>Agrega países</p>
-                            <table class="tabla">
-                                <thead>
+                    <div class="form-card">
+                        <h3>Paises</h3>
+
+                        <p>Agrega países</p>
+                        <table class="tabla">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($paises as $pais): ?>
                                     <tr>
-                                        <th>Nombre</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
+                                        <td><?= htmlspecialchars($pais['nombre']) ?></td>
+
+                                        <td>
+                                            <?php if ($pais['Activo'] == 1): ?>
+                                                <span class="activo">Activo</span>
+                                            <?php else: ?>
+                                                <span class="inactivo">Inactivo</span>
+                                            <?php endif; ?>
+                                        </td>
+
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="btn-limpiar btnEditarPais"
+                                                data-id="<?= $pais['id_pais'] ?>"
+                                                data-nombre="<?= htmlspecialchars($pais['nombre']) ?>"
+                                                data-activo="<?= $pais['Activo'] ?>">
+                                                Editar
+                                            </button>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($paises as $pais): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($pais['nombre']) ?></td>
-
-                                            <td>
-                                                <?php if ($pais['Activo'] == 1): ?>
-                                                    <span class="activo">Activo</span>
-                                                <?php else: ?>
-                                                    <span class="inactivo">Inactivo</span>
-                                                <?php endif; ?>
-                                            </td>
-
-                                            <td>
-                                                <button
-                                                    type="button"
-                                                    class="btn-secondary btnEditarPais"
-                                                    data-id="<?= $pais['id_pais'] ?>"
-                                                    data-nombre="<?= htmlspecialchars($pais['nombre']) ?>"
-                                                    data-activo="<?= $pais['Activo'] ?>">
-                                                    ✏ Editar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                            <button type="button" id="btnNuevoPais" class="btn-filtrar btnNuevoPais">
-                                Agregar
-                            </button>
-                        </div>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <button type="button" id="btnNuevoPais" class="btn-filtrar btnNuevoPais">
+                            Agregar
+                        </button>
                     </div>
+                
 
 
-                    <div class="bloque filtros">
-                        <div class="form-card">
-                            <h3>Departamentos</h3>
+                    <div class="form-card">
+                        <h3>Departamentos</h3>
 
-                            <p>Agrega departamentos</p>
-                            <table class="tabla">
-                                <thead>
+                        <p>Agrega departamentos</p>
+                        <table class="tabla">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Codigo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($departamentos as $departamento): ?>
                                     <tr>
-                                        <th>Nombre</th>
-                                        <th>Codigo</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
+                                        <td><?= htmlspecialchars($departamento['nombre']) ?></td>
+                                        <td><?= htmlspecialchars($departamento['codigo']) ?></td>
+
+                                        <td>
+                                            <?php if ($departamento['Activo'] == 1): ?>
+                                                <span class="activo">Activo</span>
+                                            <?php else: ?>
+                                                <span class="inactivo">Inactivo</span>
+                                            <?php endif; ?>
+                                        </td>
+
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="btn-limpiar btnEditarDepartamento"
+                                                data-id="<?= $departamento['id_departamento'] ?>"
+                                                data-nombre="<?= htmlspecialchars($departamento['nombre']) ?>"
+                                                data-codigo="<?= htmlspecialchars($departamento['codigo']) ?>"
+                                                data-estado="<?= $departamento['Activo'] ?>">
+                                                Editar
+                                            </button>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($departamentos as $departamento): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($departamento['nombre']) ?></td>
-                                            <td><?= htmlspecialchars($departamento['codigo']) ?></td>
-
-                                            <td>
-                                                <?php if ($departamento['Activo'] == 1): ?>
-                                                    <span class="activo">Activo</span>
-                                                <?php else: ?>
-                                                    <span class="inactivo">Inactivo</span>
-                                                <?php endif; ?>
-                                            </td>
-
-                                            <td>
-                                                <button
-                                                    type="button"
-                                                    class="btn-secondary btnEditarDepartamento"
-                                                    data-id="<?= $departamento['id_departamento'] ?>"
-                                                    data-nombre="<?= htmlspecialchars($departamento['nombre']) ?>"
-                                                    data-codigo="<?= htmlspecialchars($departamento['codigo']) ?>"
-                                                    data-estado="<?= $departamento['Activo'] ?>">
-                                                    ✏ Editar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                            <button type="button" id="btnNuevoDepartamento" class="btn-filtrar btnNuevoDepartamento">
-                                Agregar
-                            </button>
-                        </div>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <button type="button" id="btnNuevoDepartamento" class="btn-filtrar btnNuevoDepartamento">
+                            Agregar
+                        </button>
                     </div>
+                
 
-                    <div class="bloque filtros">
-                        <div class="form-card">
-                            <h3>Ciudades</h3>
+                    <div class="form-card">
+                        <h3>Ciudades</h3>
 
-                            <p>Agrega ciudades</p>
-                            <table class="tabla">
-                                <thead>
+                        <p>Agrega ciudades</p>
+                        <table class="tabla">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Codigo Dane</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($ciudades as $ciudad): ?>
                                     <tr>
-                                        <th>Nombre</th>
-                                        <th>Codigo Dane</th>
-                                        <th>Estado</th>
-                                        <th>Acciones</th>
+                                        <td><?= htmlspecialchars($ciudad['nombre']) ?></td>
+                                        <td><?= htmlspecialchars($ciudad['codigo_dane']) ?></td>
+
+                                        <td>
+                                            <?php if ($ciudad['Activo'] == 1): ?>
+                                                <span class="activo">Activo</span>
+                                            <?php else: ?>
+                                                <span class="inactivo">Inactivo</span>
+                                            <?php endif; ?>
+                                        </td>
+
+                                        <td>
+                                            <button
+                                                type="button"
+                                                class="btn-limpiar btnEditarCiudad"
+                                                data-id="<?= $ciudad['id_ciudad'] ?>"
+                                                data-nombre="<?= htmlspecialchars($ciudad['nombre']) ?>"
+                                                data-codigo="<?= htmlspecialchars($ciudad['codigo_dane']) ?>"
+                                                data-estado="<?= $ciudad['Activo'] ?>">
+                                                Editar
+                                            </button>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($ciudades as $ciudad): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($ciudad['nombre']) ?></td>
-                                            <td><?= htmlspecialchars($ciudad['codigo_dane']) ?></td>
-
-                                            <td>
-                                                <?php if ($ciudad['Activo'] == 1): ?>
-                                                    <span class="activo">Activo</span>
-                                                <?php else: ?>
-                                                    <span class="inactivo">Inactivo</span>
-                                                <?php endif; ?>
-                                            </td>
-
-                                            <td>
-                                                <button
-                                                    type="button"
-                                                    class="btn-secondary btnEditarCiudad"
-                                                    data-id="<?= $ciudad['id_ciudad'] ?>"
-                                                    data-nombre="<?= htmlspecialchars($ciudad['nombre']) ?>"
-                                                    data-codigo="<?= htmlspecialchars($ciudad['codigo_dane']) ?>"
-                                                    data-estado="<?= $ciudad['Activo'] ?>">
-                                                    ✏ Editar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                            <button type="button" id="btnNuevaCiudad" class="btn-filtrar btnNuevaCiudad">
-                                Agregar
-                            </button>
-                        </div>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <button type="button" id="btnNuevaCiudad" class="btn-filtrar btnNuevaCiudad">
+                            Agregar
+                        </button>
                     </div>
+                
 
                 </div>
 
@@ -236,9 +234,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                                             </td>
 
                                             <td>
-                                                <button class="btn-filtrar btnEditarTipoDocumento"
+                                                <button class="btn-limpiar btnEditarTipoDocumento"
                                                     data-id="<?= $tipo['id_tipo_documento'] ?>">
-                                                    ✏ Editar
+                                                    Editar
                                                 </button>
                                             </td>
                                         </tr>
@@ -250,9 +248,6 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                             </button>
                         </div>
 
-                        <div class="form-card">
-                            -
-                        </div>
 
 
                         <!-- Estados civiles -->
@@ -284,9 +279,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                                             </td>
 
                                             <td>
-                                                <button class="btn-filtrar btnEditarEstadoCivil"
+                                                <button class="btn-limpiar btnEditarEstadoCivil"
                                                     data-id="<?= $estado['id_estado_civil'] ?>">
-                                                    ✏ Editar
+                                                    Editar
                                                 </button>
                                             </td>
                                         </tr>
@@ -299,13 +294,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                             </button>
                         </div>
 
-                        <div class="form-card">
-                            -
-                        </div>
 
                         <!-- Ocupaciones -->
 
-                        <div class="bloque filtros">
                             <div class="form-card">
                                 <h3>Ocupaciones</h3>
 
@@ -335,9 +326,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                                                 </td>
 
                                                 <td>
-                                                    <button class="btn-filtrar btnEditarOcupacion"
+                                                    <button class="btn-limpiar btnEditarOcupacion"
                                                         data-id="<?= $ocupacion['id_ocupacion'] ?>">
-                                                        ✏ Editar
+                                                        Editar
                                                     </button>
                                                 </td>
                                             </tr>
@@ -353,9 +344,6 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                                 </button>
                             </div>
 
-                            <div class="form-card">
-                                -
-                            </div>
 
                             <!-- Géneros -->
                             <div class="form-card">
@@ -387,9 +375,9 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                                                 </td>
 
                                                 <td>
-                                                    <button class="btn-filtrar btnEditarGenero"
+                                                    <button class="btn-limpiar btnEditarGenero"
                                                         data-id="<?= $genero['id_genero'] ?>">
-                                                        ✏ Editar
+                                                        Editar
                                                     </button>
                                                 </td>
                                             </tr>
@@ -402,7 +390,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                                 </button>
 
                             </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
@@ -470,7 +458,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                 <!-- Indica que viene de Tablas Maestras -->
                 <input type="hidden" name="origen" value="tablas_maestras">
 
-                <!-- =================================================
+                <!-- =
                     PAÍS
                  -->
 
@@ -496,7 +484,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     </select>
                 </div>
 
-                <!-- =================================================
+                <!-- =
                     NOMBRE
                  -->
                 <div class="form-group">
@@ -507,7 +495,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     <input type="text" name="nombre" id="nombreDepartamento" maxlength="100" required>
                 </div>
 
-                <!-- =================================================
+                <!-- =
                     CÓDIGO
                  -->
 
@@ -519,7 +507,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     <input type="text" name="codigo" id="codigoDepartamento" maxlength="10">
                 </div>
 
-                <!-- =================================================
+                <!-- =
                     ESTADO
                  -->
                 <div class="form-group">
@@ -538,7 +526,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     </select>
                 </div>
 
-                <!-- =================================================
+                <!-- =
                     BOTONES
                  -->
 
@@ -569,7 +557,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
             <h2>Nueva Ciudad</h2>
             <form action="../actions/guardar_ciudad.php" method="POST">
 
-                <!-- =================================================
+                <!-- =
                     DEPARTAMENTO
                  -->
                 <div class="form-group">
@@ -592,7 +580,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     </select>
                 </div>
 
-                <!-- =================================================
+                <!-- =
                     NOMBRE CIUDAD
                  -->
                 <div class="form-group">
@@ -603,7 +591,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     <input type="text" name="nombre" id="nombre_ciudad" maxlength="100" required>
                 </div>
 
-                <!-- =================================================
+                <!-- =
                     CÓDIGO DANE
                  -->
                 <div class="form-group">
@@ -613,7 +601,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     <input type="text" name="codigo_dane" id="codigo_dane" maxlength="10">
                 </div>
 
-                <!-- =================================================
+                <!-- =
                     ESTADO
                  -->
                 <div class="form-group">
@@ -631,7 +619,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     </select>
                 </div>
 
-                <!-- =================================================
+                <!-- =
                     BOTONES
                  -->
                 <div class="acciones-modal">
