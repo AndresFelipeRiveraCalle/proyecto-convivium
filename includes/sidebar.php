@@ -262,8 +262,14 @@
                         <a href="<?= BASE_URL ?>configuracion/vehiculos.php"><i class="fa-solid fa-car icono"></i> Vehículos</a>
                     </li>
                 </ul>
+            
+
+
+            <!-- correspondencia -->
             <li>
-                <a href="#"><i class="fa-solid fa-envelope-open-text icono"></i> Correspondencia</a>
+                <a href="<?php echo BASE_URL; ?>/correspondencia/listar_correspondencia.php">
+                    <i class="fa-solid fa-box icono"></i> Correspondencia
+                </a>
             </li>
 
             <!-- ZONAS COMUNES -->
