@@ -1,4 +1,6 @@
 <?php
+// Agregamos el archivo de configuración que define ROOT_PATH
+require_once dirname(__DIR__) . "/config/config.php";
 require_once "../config/conexion.php";
 
 $stmtZonas    = $conexion->query("SELECT id, nombre FROM zona_comun ORDER BY nombre");
@@ -41,7 +43,7 @@ $usuarios     = $stmtUsuarios->fetchAll();
                         <option value="">--- Seleccione un usuario ---</option>
                         <?php foreach ($usuarios as $u): ?>
                             <option value="<?= $u['id'] ?>">
-                                <?= htmlspecialchars($u['nombre'] . ' ' . $u['apellido']) ?>
+                                <?= htmlspecialchars($u['nombres'] . ' ' . $u['apellidos']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -58,9 +60,7 @@ $usuarios     = $stmtUsuarios->fetchAll();
                 <div class="bloque filtros">
                     <h4>Descripcion del problema:</h4>
                     
-                <textarea class="textarea-tareas" name="descripcion" required placeholder="Describa el problema">
-
-                </textarea>
+                    <textarea class="textarea-tareas" name="descripcion" required placeholder="Describa el problema"></textarea>
                             
 
                     <h4>Estado actual:</h4>
@@ -81,11 +81,9 @@ $usuarios     = $stmtUsuarios->fetchAll();
                     <input type="file" name="evidencia" accept="image/*,application/pdf">
                 </div>
 
+                <div>
                     <button type="submit" class="btn-filtrar">Guardar Mantenimiento</button>
-                    <button type="submit" class="btn-filtrar">
-                        <a href="listar.php">Cancelar</a>
-                    </button>
-
+                    <button type="button" class="btn-filtrar" onclick="window.location.href='listar.php'">Cancelar</button>
                 </div>
             </form>
         </div>

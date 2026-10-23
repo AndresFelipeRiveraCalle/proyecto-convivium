@@ -1,5 +1,5 @@
 <?php
-
+// consultar este archivo 
 /**
  * registro.php - Controlador de registro de usuarios para el sistema Convivium
  * * Funcionalidad:
