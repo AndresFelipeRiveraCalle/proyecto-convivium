@@ -1,9 +1,12 @@
 <?php
-require_once "../config/conexion.php";
+// Agregamos el archivo de configuración que define ROOT_PATH
+require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/config/conexion.php";
 
 $stmtZonas    = $conexion->query("SELECT id, nombre FROM zona_comun ORDER BY nombre");
 $zonas        = $stmtZonas->fetchAll();
 
+// Se consultan las columnas en plural según la base de datos
 $stmtUsuarios = $conexion->query("SELECT id, nombres, apellidos FROM usuario ORDER BY nombres");
 $usuarios     = $stmtUsuarios->fetchAll();
 ?>
@@ -41,13 +44,13 @@ $usuarios     = $stmtUsuarios->fetchAll();
                         <option value="">--- Seleccione un usuario ---</option>
                         <?php foreach ($usuarios as $u): ?>
                             <option value="<?= $u['id'] ?>">
-                                <?= htmlspecialchars($u['nombre'] . ' ' . $u['apellido']) ?>
+                                <?= htmlspecialchars($u['nombres'] . ' ' . $u['apellidos']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
 
 
-                    <h4>Prioridad:</h4 >
+                    <h4>Prioridad:</h4>
                     <select name="prioridad">
                         <option value="baja">Baja - No es urgente</option>
                         <option value="media" selected>Media - Se puede esperar unos días</option>
@@ -58,9 +61,7 @@ $usuarios     = $stmtUsuarios->fetchAll();
                 <div class="bloque filtros">
                     <h4>Descripcion del problema:</h4>
                     
-                <textarea class="textarea-tareas" name="descripcion" required placeholder="Describa el problema">
-
-                </textarea>
+                    <textarea class="textarea-tareas" name="descripcion" required placeholder="Describa el problema"></textarea>
                             
 
                     <h4>Estado actual:</h4>
@@ -74,18 +75,16 @@ $usuarios     = $stmtUsuarios->fetchAll();
                     <input type="datetime-local" name="fecha_solucion">
 
                 </div>
-                <h3>Si ya está resuelto:</H3>                
+                <h3>Si ya está resuelto:</h3>                
                 <div class="bloque filtros">
                     Por favor ingrese la evidencia de la solución (foto o PDF) y cambie el estado a "solucionado". Esto nos ayuda a mantener un registro claro de los mantenimientos realizados y su resolución.
                     <h4> Foto o PDF:</h4>
                     <input type="file" name="evidencia" accept="image/*,application/pdf">
                 </div>
 
+                <div>
                     <button type="submit" class="btn-filtrar">Guardar Mantenimiento</button>
-                    <button type="submit" class="btn-filtrar">
-                        <a href="listar.php">Cancelar</a>
-                    </button>
-
+                    <button type="button" class="btn-filtrar" onclick="window.location.href='listar.php'">Cancelar</button>
                 </div>
             </form>
         </div>
