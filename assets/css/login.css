@@ -1,0 +1,101 @@
+/* fondo general de la pagina de login en tono gris oscuro o azulado para dar enfoque */
+body.login-body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #2b3a4a; /* mismo tono de tu menu lateral actual */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* tarjeta principal del formulario */
+.login-container {
+    background-color: #ffffff;
+    padding: 40px 50px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+}
+
+/* logo o titulo de la aplicacion */
+.login-container h2 {
+    text-align: center;
+    color: #1a3a5c; /* azul corporativo */
+    margin-bottom: 10px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.login-container p.subtitle {
+    text-align: center;
+    color: #64748b;
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+/* grupos de campos del formulario */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #475569;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* campos de entrada o inputs */
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background-color: #f8fafc;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #2ecc71; /* verde de tu boton de whatsapp o success actual */
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+/* boton principal de acceso */
+.btn-submit {
+    width: 100%;
+    padding: 14px;
+    background-color: #2ecc71; /* verde success de convivium */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-submit:hover {
+    background-color: #27ae60;
+}
+
+/* caja de alertas para errores */
+.alerta-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 25px;
+    font-size: 14px;
+    text-align: center;
+    border: 1px solid #f87171;
+}
