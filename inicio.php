@@ -1,6 +1,6 @@
 <?php
 // iniciamos la sesion para leer la caja fuerte de php
-session_start();
+
 // conexion ala configuraciones del proyecto
 require_once "config/config.php";
 
@@ -8,11 +8,11 @@ require_once "config/config.php";
 require_once "config/conexion.php";
 
 // verificamos si no existe la variable de sesion que creamos en el procesar login
-if (!isset($_SESSION['id_usuario_autenticado'])) {
+/*if (!isset($_SESSION['id_usuario_autenticado'])) {
     // si no existe significa que el usuario es un intruso y lo mandamos al login
     header("Location: login.php");
     exit(); // bloqueamos la ejecucion del resto del codigo por seguridad
-}
+} */
 ?>
 
 <!DOCTYPE html>
