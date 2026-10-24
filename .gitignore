@@ -1,1 +1,17 @@
+# Documentos y fotos privadas
 /uploads/documentos_bancarios/
+/uploads/personas/
+/assets/uploads/personas/
+
+# Volcados y archivos físicos de bases de datos
+/database/*.sql
+/database/**/*.sql
+*.frm
+*.ibd
+/desarrollo_agil.sql
+
+# Secretos y configuración local
+/.env
+/.env.*
+!/.env.example
+/config/convivium_secretos.php
