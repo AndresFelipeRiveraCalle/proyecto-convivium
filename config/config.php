@@ -7,8 +7,5 @@
     // Clave privada utilizada para SMTP e IMAP.
     // 
 
-    define(
-        'CORREO_ENCRYPTION_KEY',
-        '***REMOVED***'
-    );
+    require_once 'C:/xampp/privado/convivium_secretos.php';
 ?>
