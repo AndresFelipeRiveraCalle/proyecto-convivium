@@ -2,7 +2,7 @@
 
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";
-
+require_once ROOT_PATH . "/config/validar_foto.php";
 
 // 
 // VALIDAR MÉTODO
@@ -225,83 +225,11 @@ try {
     // FOTOGRAFÍA NUEVA
     // 
 
-    if (
-        isset($_FILES["foto"]) &&
-        $_FILES["foto"]["error"] === UPLOAD_ERR_OK
-    ) {
+	$nuevaFoto = guardarFotoPersona($_FILES["foto"] ?? null);
 
-        $extension = strtolower(
-            pathinfo(
-                $_FILES["foto"]["name"],
-                PATHINFO_EXTENSION
-            )
-        );
-
-
-        // Extensiones permitidas
-
-        $extensionesPermitidas = [
-            "jpg",
-            "jpeg",
-            "png",
-            "webp"
-        ];
-
-
-        if (!in_array(
-            $extension,
-            $extensionesPermitidas
-        )) {
-
-            throw new Exception(
-                "El formato de la fotografía no es válido."
-            );
-        }
-
-
-        // ====
-        // NOMBRE DE LA FOTO
-        // ====
-
-        $fotoNombre =
-            $numero_documento .
-            "." .
-            $extension;
-
-
-        // ====
-        // RUTA FÍSICA
-        // ====
-
-        $rutaDestino =
-            ROOT_PATH .
-            "/uploads/personas/" .
-            $fotoNombre;
-
-
-        // ====
-        // GUARDAR FOTO
-        // ====
-
-        if (!move_uploaded_file(
-            $_FILES["foto"]["tmp_name"],
-            $rutaDestino
-        )) {
-
-            throw new Exception(
-                "No fue posible guardar la fotografía."
-            );
-        }
-
-
-        // ====
-        // RUTA QUE SE GUARDA EN BD
-        // ====
-
-        $foto =
-            "uploads/personas/" .
-            $fotoNombre;
-    }
+	if ($nuevaFoto !== null) {
+	    $foto = $nuevaFoto;
+	}
 
 
     // 
@@ -383,6 +311,11 @@ try {
 
     ]);
 
+	if (($usuarioActual["foto"] ?? null) !== $foto) {
+	    eliminarFotoPersonaAnterior(
+	        $usuarioActual["foto"] ?? null
+	    );
+	}
 
     // 
     // ÉXITO
@@ -403,7 +336,13 @@ try {
 
 
 } catch (Exception $e) {
+    if (
+        isset($foto)
+        && $foto !== ($usuarioActual["foto"] ?? null)
+    ) {
 
+        eliminarFotoPersonaAnterior($foto);
+    }
     // 
     // ERROR
     // 
