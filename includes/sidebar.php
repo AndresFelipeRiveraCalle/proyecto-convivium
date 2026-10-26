@@ -211,6 +211,11 @@
                     </li>
                 </ul>
             </li>
+
+
+
+
+
             <!-- MANTENIMIENTO -->
             <li class="submenu">
                 <div class="submenu-titulo">
@@ -219,14 +224,16 @@
                 </div>
 
                 <ul class="submenu-items">
+                    <li><a href="<?= BASE_URL ?>mantenimiento/listar.php">
+                        Programación</a>
+                    </li>
+
                     <li>
-                        <a href="<?= BASE_URL ?>mantenimiento/listar.php">
+                        <a href="<?= BASE_URL ?>     >
                         Solicitudes</a>
                     </li>
                         
-                    <li><a href="<?= BASE_URL ?>mantenimiento/crear.php">
-                        Programación</a>
-                    </li>
+                    
                     <li><a href="#">Proveedores</a></li>
                 </ul>
             </li>
@@ -299,10 +306,10 @@
                 <a href="#"><i class="fa-solid fa-chart-pie icono"></i> Reportes</a>
             </li>
 
-            <li class="cerrar-sesion">
-                <a href="<?= BASE_URL ?>logout.php">
-                    <i class="fa-solid fa-right-from-bracket icono"></i>
-                    <span>Cerrar sesión</span>
+            <!--Cerrar Sesion -->
+            <li>
+                <a href="<?php echo BASE_URL; ?>/cerrar_sesion.php">
+                    <i class="fa-solid fa-right-from-bracket icono"></i> Cerrar Sesión
                 </a>
             </li>
         </ul>
