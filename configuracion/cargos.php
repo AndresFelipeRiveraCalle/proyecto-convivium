@@ -353,9 +353,7 @@ function nombreEstadoCargo($estado)
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <h2 align="center">
             Cargos y cuotas
@@ -375,9 +373,7 @@ function nombreEstadoCargo($estado)
         <br>
 
 
-        <!-- ====
-             INFORMACIÓN
-        ===== -->
+        <!--INFORMACIÓN -->
 
         <div class="info-box">
 
@@ -401,9 +397,7 @@ function nombreEstadoCargo($estado)
         <br>
 
 
-        <!-- ====
-             FILTROS
-        ===== -->
+        <!--FILTROS -->
 
         <div class="bloque filtros">
 
@@ -525,9 +519,7 @@ function nombreEstadoCargo($estado)
         <br>
 
 
-        <!-- ====
-             LISTADO DE CARGOS
-        ===== -->
+        <!--LISTADO DE CARGOS -->
 
         <div class="bloque">
 
@@ -1471,8 +1463,7 @@ document.addEventListener(
             );
 
 
-        // ====
-        // ABRIR MODAL
+        //     // ABRIR MODAL
         // ====
 
         if (abrir) {
@@ -1490,8 +1481,7 @@ document.addEventListener(
         }
 
 
-        // ====
-        // CERRAR MODAL
+        //     // CERRAR MODAL
         // ====
 
         function cerrarModal() {
@@ -1522,8 +1512,7 @@ document.addEventListener(
         }
 
 
-        // ====
-        // CERRAR AL HACER CLICK FUERA
+        //     // CERRAR AL HACER CLICK FUERA
         // ====
 
         window.addEventListener(
@@ -1540,8 +1529,7 @@ document.addEventListener(
         );
 
 
-        // ====
-        // MOSTRAR CAMPO SEGÚN APLICACIÓN
+        //     // MOSTRAR CAMPO SEGÚN APLICACIÓN
         // ====
 
         function actualizarAplicacion() {

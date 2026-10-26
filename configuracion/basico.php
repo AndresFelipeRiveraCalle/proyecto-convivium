@@ -377,9 +377,7 @@ $tiposUnidad =
 
         <main class="contenido">
 
-            <!-- ====
-             ENCABEZADO
-        ===== -->
+            <!--ENCABEZADO -->
 
             <h2 align="center">
                 Configuración básica
@@ -394,9 +392,7 @@ $tiposUnidad =
 
             <br>
 
-            <!-- ====
-             GRUPOS
-        ===== -->
+            <!--GRUPOS -->
             <h3>
                 Configuración de tipos de unidades
             </h3>
@@ -434,9 +430,7 @@ $tiposUnidad =
                 </div>
             </div>
 
-            <!-- ====
-             DETALLE DEL GRUPO
-        ===== -->
+            <!--DETALLE DEL GRUPO -->
 
             <?php if ($grupoSeleccionado): ?>
 

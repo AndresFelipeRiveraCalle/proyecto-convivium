@@ -92,8 +92,7 @@ if ($nombre === "") {
 
 try {
 
-    // ====
-    // VERIFICAR SI EL PAÍS YA EXISTE
+    // // VERIFICAR SI EL PAÍS YA EXISTE
     // ====
 
     $sql = "
@@ -125,8 +124,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR PAÍS
+    // // INSERTAR PAÍS
     // ====
 
     $sql = "
@@ -148,8 +146,7 @@ try {
     ]);
 
 
-    // ====
-    // MENSAJE DE ÉXITO
+    // // MENSAJE DE ÉXITO
     // ====
 
     $mensaje = urlencode(

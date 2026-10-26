@@ -219,8 +219,7 @@ if (
 try {
     $conexion->beginTransaction();
 
-    // ====
-    // INSERTAR DOCUMENTO
+    // // INSERTAR DOCUMENTO
     // ====
 
     $sqlDocumento = "INSERT INTO documentos_bancarios (
@@ -263,8 +262,7 @@ try {
 
     $idDocumento = $conexion->lastInsertId();
 
-    // ====
-    // IMPORTANTE
+    // // IMPORTANTE
     //
     // Todavía no insertamos un movimiento en
     // extractos_bancarios porque el documento puede
@@ -275,10 +273,8 @@ try {
 
     $conexion->commit();
 
-    // ====
-    // REDIRECCIÓN
-    // ====
-    header(
+    // // REDIRECCIÓN
+    // header(
         "Location: " . BASE_URL .
         "configuracion/extractos_bancarios.php" .
         "?tipo=success&mensaje=" .
@@ -292,26 +288,21 @@ try {
 
 } catch (Throwable $e) {
 
-    // ====
-    // DESHACER TRANSACCIÓN
-    // ====
-    if (
+    // // DESHACER TRANSACCIÓN
+    // if (
         $conexion->inTransaction()
     ) {
         $conexion->rollBack();
     }
 
-    // ====
-    // ELIMINAR ARCHIVO SI FALLÓ LA BASE DE DATOS
-    // ====
-    if (
+    // // ELIMINAR ARCHIVO SI FALLÓ LA BASE DE DATOS
+    // if (
         file_exists($rutaFisica)
     ) {
         unlink($rutaFisica);
     }
 
-    // ====
-    // ERROR
+    // // ERROR
     // ====
 
     header(

@@ -315,9 +315,7 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
         
-        <!-- ====
-             LISTADO
-        ===== -->
+        <!--LISTADO -->
         <div class="bloque filtros">
             <div class="form-card">
                 <h3>Movimientos bancarios</h3>

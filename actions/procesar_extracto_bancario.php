@@ -237,8 +237,7 @@ function detectarMovimientosBancarios(
 
 try {
 
-    // ====
-    // BUSCAR DOCUMENTO
+    // // BUSCAR DOCUMENTO
     // ====
 
     $sql = "
@@ -272,8 +271,7 @@ try {
     }
 
 
-    // ====
-    // EVITAR PROCESAMIENTO SIMULTÁNEO
+    // // EVITAR PROCESAMIENTO SIMULTÁNEO
     // ====
 
     if (
@@ -286,8 +284,7 @@ try {
     }
 
 
-    // ====
-    // RUTA DEL ARCHIVO
+    // // RUTA DEL ARCHIVO
     // ====
 
     $rutaArchivo = $documento['ruta_archivo'];
@@ -329,8 +326,7 @@ try {
     }
 
 
-    // ====
-    // MARCAR COMO PROCESANDO
+    // // MARCAR COMO PROCESANDO
     // ====
 
     $sqlEstado = "
@@ -350,8 +346,7 @@ try {
     ]);
 
 
-    // ====
-    // EXTENSIÓN
+    // // EXTENSIÓN
     // ====
 
     $extension = strtolower(
@@ -366,8 +361,7 @@ try {
     $metodoExtraccion = '';
 
 
-    // ====
-    // IMAGEN
+    // // IMAGEN
     // ====
 
     if (
@@ -429,8 +423,7 @@ try {
     }
 
 
-    // ====
-    // PDF
+    // // PDF
     // ====
 
     elseif ($extension === 'pdf') {
@@ -673,8 +666,7 @@ try {
     }
 
 
-    // ====
-    // FORMATO NO SOPORTADO
+    // // FORMATO NO SOPORTADO
     // ====
 
     else {
@@ -686,8 +678,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR OCR
+    // // VALIDAR OCR
     // ====
 
     if (
@@ -756,8 +747,7 @@ try {
     }
 
 
-    // ====
-    // GUARDAR TEXTO EN ARCHIVO TEMPORAL
+    // // GUARDAR TEXTO EN ARCHIVO TEMPORAL
     // ====
 
     /*
@@ -784,8 +774,7 @@ try {
     );
 
 
-    // ====
-    // MOSTRAR RESULTADO TEMPORAL
+    // // MOSTRAR RESULTADO TEMPORAL
     // ====
 
     /*
@@ -826,8 +815,7 @@ try {
     ]);
 
 
-    // ====
-    // MOSTRAR RESULTADO DEL PARSER
+    // // MOSTRAR RESULTADO DEL PARSER
     // ====
 
     echo '<!DOCTYPE html>';
@@ -837,8 +825,7 @@ try {
     echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
     echo '<title>Confirmar movimientos bancarios</title>';
 
-    // ====
-    // CSS
+    // // CSS
     // ====
 
     echo '<link rel="stylesheet" href="' . BASE_URL . 'assets/css/style.css">';
@@ -849,15 +836,13 @@ try {
     echo '<div class="contenido">';
 
 
-    // ====
-    // TÍTULO
+    // // TÍTULO
     // ====
 
     echo '<h2>Confirmar movimientos bancarios</h2>';
 
 
-    // ====
-    // MENSAJE
+    // // MENSAJE
     // ====
 
     echo '<div class="alert alert-success">';
@@ -875,8 +860,7 @@ try {
     echo '</div>';
 
 
-    // ====
-    // FORMULARIO
+    // // FORMULARIO
     // ====
 
     echo '<form method="POST" action="' .
@@ -884,8 +868,7 @@ try {
         'actions/guardar_movimientos_extracto.php">';
 
 
-    // ====
-    // ID DOCUMENTO
+    // // ID DOCUMENTO
     // ====
 
     echo '<input
@@ -895,8 +878,7 @@ try {
     >';
 
 
-    // ====
-    // ID CUENTA
+    // // ID CUENTA
     // ====
 
     echo '<input
@@ -908,8 +890,7 @@ try {
     >';
 
 
-    // ====
-    // TABLA
+    // // TABLA
     // ====
 
     echo '<div class="tabla-responsive">';
@@ -934,8 +915,7 @@ try {
     echo '<tbody>';
 
 
-    // ====
-    // MOVIMIENTOS
+    // // MOVIMIENTOS
     // ====
 
     foreach (
@@ -1082,8 +1062,7 @@ try {
     echo '</div>';
 
 
-    // ====
-    // BOTONES
+    // // BOTONES
     // ====
 
     echo '<div class="acciones-formulario">';
@@ -1101,8 +1080,7 @@ try {
     echo '</form>';
 
 
-    // ====
-    // OCR COMPLETO
+    // // OCR COMPLETO
     // ====
 
     echo '<details class="ocr">';
@@ -1133,8 +1111,7 @@ try {
     exit;
 } catch (Throwable $e) {
 
-    // ====
-    // GUARDAR ERROR
+    // // GUARDAR ERROR
     // ====
 
     try {

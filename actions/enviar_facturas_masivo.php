@@ -257,8 +257,7 @@ foreach (
 ) {
 
 
-    // ====
-    // FACTURA
+    // // FACTURA
     // ====
 
     $sqlFactura = "
@@ -325,8 +324,7 @@ foreach (
     $facturasProcesadas++;
 
 
-    // ====
-    // DESTINATARIOS
+    // // DESTINATARIOS
     // Solo personas configuradas para recibir factura.
     // ====
 
@@ -390,8 +388,7 @@ foreach (
         );
 
 
-    // ====
-    // VALIDAR CORREOS
+    // // VALIDAR CORREOS
     // ====
 
     $destinatariosValidos = [];
@@ -429,8 +426,7 @@ foreach (
     }
 
 
-    // ====
-    // GENERAR PDF
+    // // GENERAR PDF
     // ====
 
     try {
@@ -481,8 +477,7 @@ foreach (
         false;
 
 
-    // ====
-    // ENVIAR A DESTINATARIOS
+    // // ENVIAR A DESTINATARIOS
     // ====
 
     foreach (

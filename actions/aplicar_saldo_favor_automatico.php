@@ -134,8 +134,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // BLOQUEAR SALDO A FAVOR
+    // // BLOQUEAR SALDO A FAVOR
     // ====
 
     $sqlSaldo = "
@@ -184,26 +183,40 @@ try {
         );
 
 
-    // ====
     // CARTERA PENDIENTE
     // ====
 
     $sqlCartera = "
         SELECT
-            id_cartera,
-            id_factura,
-            saldo,
-            fecha_vencimiento,
-            periodo
-        FROM cartera
+            c.id_cartera,
+            c.id_factura,
+            c.id_detalle,
+            c.saldo,
+            c.fecha_vencimiento,
+            c.periodo,
+
+            fd.id_interes
+
+        FROM cartera c
+
+        LEFT JOIN facturas_detalle fd
+            ON fd.id_detalle =
+            c.id_detalle
+
         WHERE
-            id_unidad = :id_unidad
-            AND estado = 'PENDIENTE'
-            AND saldo > 0
+            c.id_unidad =
+                :id_unidad
+
+            AND c.estado =
+                'PENDIENTE'
+
+            AND c.saldo > 0
+
         ORDER BY
-            fecha_vencimiento ASC,
-            periodo ASC,
-            id_cartera ASC
+            c.fecha_vencimiento ASC,
+            c.periodo ASC,
+            c.id_cartera ASC
+
         FOR UPDATE
     ";
 
@@ -224,8 +237,7 @@ try {
     }
 
 
-    // ====
-    // PREPARAR INSERT APLICACIÓN
+    // // PREPARAR INSERT APLICACIÓN
     // ====
 
     $sqlInsert = "
@@ -252,8 +264,7 @@ try {
     $stmtInsert = $conexion->prepare($sqlInsert);
 
 
-    // ====
-    // PREPARAR UPDATE CARTERA
+    // // PREPARAR UPDATE CARTERA
     // ====
 
     $sqlUpdateCartera = "
@@ -288,8 +299,7 @@ try {
         $conexion->prepare($sqlUpdateCartera);
 
 
-    // ====
-    // APLICAR
+    // // APLICAR
     // ====
 
     $totalAplicado = 0;
@@ -358,7 +368,7 @@ try {
                 => (int)$obligacion['id_cartera']
         ]);
 
-
+    
         if ($stmtUpdateCartera->rowCount() !== 1) {
             throw new Exception(
                 'No fue posible actualizar la obligación de cartera #' .
@@ -367,6 +377,159 @@ try {
             );
         }
 
+
+        
+        // SINCRONIZAR INTERÉS DE MORA
+        // Si la obligación representa un interés, se actualiza también intereses_cartera.
+        
+
+        if (
+            !empty(
+                $obligacion['id_interes']
+            )
+        ) {
+
+            $idInteres =
+                (int)$obligacion[
+                    'id_interes'
+                ];
+
+
+            // ======================================================
+            // BLOQUEAR INTERÉS
+            // ======================================================
+
+            $sqlInteres = "
+                SELECT
+                    id_interes,
+                    valor_interes,
+                    valor_pagado,
+                    saldo,
+                    estado
+                FROM intereses_cartera
+                WHERE
+                    id_interes =
+                        :id_interes
+                LIMIT 1
+                FOR UPDATE
+            ";
+
+
+            $stmtInteres =
+                $conexion->prepare(
+                    $sqlInteres
+                );
+
+
+            $stmtInteres->execute([
+                ':id_interes'
+                    => $idInteres
+            ]);
+
+
+            $interes =
+                $stmtInteres->fetch(
+                    PDO::FETCH_ASSOC
+                );
+
+
+            if (!$interes) {
+
+                throw new Exception(
+                    'La obligación de cartera #' .
+                    $obligacion['id_cartera'] .
+                    ' corresponde a un interés, pero el registro del interés no existe.'
+                );
+            }
+
+
+            // ======================================================
+            // CALCULAR NUEVOS VALORES
+            // ======================================================
+
+            $nuevoValorPagadoInteres =
+                round(
+                    (float)$interes[
+                        'valor_pagado'
+                    ]
+                    +
+                    $valorAplicar,
+                    2
+                );
+
+
+            $nuevoSaldoInteres =
+                round(
+                    (float)$interes[
+                        'saldo'
+                    ]
+                    -
+                    $valorAplicar,
+                    2
+                );
+
+
+            if (
+                $nuevoSaldoInteres <= 0.009
+            ) {
+
+                $nuevoSaldoInteres = 0;
+
+            }
+
+
+            $nuevoEstadoInteres =
+                $nuevoSaldoInteres <= 0.009
+                    ? 'PAGADO'
+                    : 'PENDIENTE';
+
+
+            // ======================================================
+            // ACTUALIZAR INTERÉS
+            // ======================================================
+
+            $sqlUpdateInteres = "
+                UPDATE intereses_cartera
+
+                SET
+                    valor_pagado =
+                        :valor_pagado,
+
+                    saldo =
+                        :saldo,
+
+                    estado =
+                        :estado
+
+                WHERE
+                    id_interes =
+                        :id_interes
+            ";
+
+
+            $stmtUpdateInteres =
+                $conexion->prepare(
+                    $sqlUpdateInteres
+                );
+
+
+            $stmtUpdateInteres->execute([
+
+                ':valor_pagado'
+                    => $nuevoValorPagadoInteres,
+
+                ':saldo'
+                    => $nuevoSaldoInteres,
+
+                ':estado'
+                    => $nuevoEstadoInteres,
+
+                ':id_interes'
+                    => $idInteres
+
+            ]);
+
+        }
 
         $disponible =
             round(
@@ -387,8 +550,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR SALDO A FAVOR
+    // // ACTUALIZAR SALDO A FAVOR
     // ====
 
     $nuevoUtilizado =
@@ -440,8 +602,7 @@ try {
     ]);
 
 
-    // ====
-    // ACTUALIZAR ESTADO FACTURAS
+    // // ACTUALIZAR ESTADO FACTURAS
     // ====
 
     foreach (

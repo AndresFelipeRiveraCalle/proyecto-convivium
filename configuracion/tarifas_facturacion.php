@@ -90,9 +90,7 @@ $conceptos = $stmtConceptos->fetchAll(PDO::FETCH_ASSOC);
         <br>
 
 
-        <!-- ====
-             LISTADO
-        ===== -->
+        <!--LISTADO -->
 
         <div class="bloque filtros">
 

@@ -80,8 +80,7 @@ function redirigirPago(
 try {
 
 
-    // ====
-    // ID PAGO
+    // // ID PAGO
     // Se usa cuando el formulario también sirve para editar.
     // ====
 
@@ -93,8 +92,7 @@ try {
             : 0;
 
 
-    // ====
-    // DATOS DEL PAGO
+    // // DATOS DEL PAGO
     // ====
 
     $idUnidad =
@@ -166,8 +164,7 @@ try {
         );
 
 
-    // ====
-    // VALIDACIONES GENERALES
+    // // VALIDACIONES GENERALES
     // ====
 
     if (
@@ -190,8 +187,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR FECHA
+    // // VALIDAR FECHA
     // ====
 
     $fechaObjeto =
@@ -215,8 +211,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR VALOR
+    // // VALIDAR VALOR
     // ====
 
     if (
@@ -236,8 +231,7 @@ try {
         );
 
 
-    // ====
-    // MEDIOS PERMITIDOS
+    // // MEDIOS PERMITIDOS
     // ====
 
     $mediosPermitidos = [
@@ -266,8 +260,7 @@ try {
     }
 
 
-    // ====
-    // ORÍGENES PERMITIDOS
+    // // ORÍGENES PERMITIDOS
     // ====
 
     $origenesPermitidos = [
@@ -293,8 +286,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR LONGITUDES
+    // // VALIDAR LONGITUDES
     // ====
 
     if (
@@ -349,8 +341,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR UNIDAD
+    // // VERIFICAR UNIDAD
     // ====
 
     $sqlUnidad = "
@@ -400,8 +391,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR REFERENCIA DUPLICADA
+    // // VERIFICAR REFERENCIA DUPLICADA
     // La referencia debe ser única dentro de la misma unidad.
     // ====
 
@@ -470,8 +460,7 @@ try {
     }
 
 
-    // ====
-    // EDITAR PAGO
+    // // EDITAR PAGO
     // ====
 
     if (
@@ -736,8 +725,7 @@ try {
     }
 
 
-    // ====
-    // NUEVO PAGO
+    // // NUEVO PAGO
     // ====
 
     $sqlInsertar = "
@@ -823,8 +811,7 @@ try {
         (int)$conexion->lastInsertId();
 
 
-    // ====
-    // REDIRECCIÓN
+    // // REDIRECCIÓN
     // ====
 
     redirigirPago(
@@ -838,8 +825,7 @@ try {
 } catch (Throwable $e) {
 
 
-    // ====
-    // ERROR
+    // // ERROR
     // ====
 
     redirigirPago(

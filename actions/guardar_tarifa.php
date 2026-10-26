@@ -260,15 +260,13 @@ if (
 
 try {
 
-    // ====
-    // INICIAR TRANSACCIÓN
+    // // INICIAR TRANSACCIÓN
     // ====
 
     $conexion->beginTransaction();
 
 
-    // ====
-    // VALIDAR CONCEPTO
+    // // VALIDAR CONCEPTO
     // ====
 
     $sqlConcepto = "
@@ -312,8 +310,7 @@ try {
     }
 
 
-    // ====
-    // DETERMINAR TIPOS DE UNIDAD DESTINO
+    // // DETERMINAR TIPOS DE UNIDAD DESTINO
     // ====
 
     $tiposDestino = [];
@@ -404,10 +401,8 @@ try {
     }
 
 
-    // ====
-    // PREPARAR CONSULTA DE SOLAPAMIENTO
-    // ====
-    //
+    // // PREPARAR CONSULTA DE SOLAPAMIENTO
+    // //
     // Usamos parámetros diferentes para evitar HY093.
     // ====
 
@@ -445,8 +440,7 @@ try {
     );
 
 
-    // ====
-    // PREPARAR INSERT
+    // // PREPARAR INSERT
     // ====
 
     $sqlInsert = "
@@ -480,8 +474,7 @@ try {
     );
 
 
-    // ====
-    // FECHA FINAL PARA COMPARACIÓN
+    // // FECHA FINAL PARA COMPARACIÓN
     // ====
 
     $fechaFinComparacion =
@@ -490,8 +483,7 @@ try {
             : '9999-12-31';
 
 
-    // ====
-    // PRIMER RECORRIDO:
+    // // PRIMER RECORRIDO:
     // VALIDAR TODAS ANTES DE INSERTAR
     // ====
 
@@ -568,8 +560,7 @@ try {
     }
 
 
-    // ====
-    // SEGUNDO RECORRIDO:
+    // // SEGUNDO RECORRIDO:
     // INSERTAR
     // ====
 
@@ -615,15 +606,13 @@ try {
     }
 
 
-    // ====
-    // CONFIRMAR
+    // // CONFIRMAR
     // ====
 
     $conexion->commit();
 
 
-    // ====
-    // MENSAJE
+    // // MENSAJE
     // ====
 
     if ($aplicarATodas) {
@@ -645,8 +634,7 @@ try {
 
 } catch (RuntimeException $e) {
 
-    // ====
-    // ROLLBACK ERROR DE NEGOCIO
+    // // ROLLBACK ERROR DE NEGOCIO
     // ====
 
     if ($conexion->inTransaction()) {
@@ -663,8 +651,7 @@ try {
 
 } catch (PDOException $e) {
 
-    // ====
-    // ROLLBACK ERROR BD
+    // // ROLLBACK ERROR BD
     // ====
 
     if ($conexion->inTransaction()) {
@@ -687,8 +674,7 @@ try {
 
 } catch (Throwable $e) {
 
-    // ====
-    // OTRO ERROR
+    // // OTRO ERROR
     // ====
 
     if ($conexion->inTransaction()) {

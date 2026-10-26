@@ -548,9 +548,7 @@ $saldosFavor =
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <div
             style="
@@ -592,9 +590,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             DATOS UNIDAD
-        ===== -->
+        <!--DATOS UNIDAD -->
 
         <div class="bloque filtros">
 
@@ -686,9 +682,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             RESUMEN
-        ===== -->
+        <!--RESUMEN -->
 
         <div class="bloque filtros">
 
@@ -796,9 +790,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             CARTERA
-        ===== -->
+        <!--CARTERA -->
 
         <div class="bloque filtros">
 
@@ -1033,9 +1025,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             SALDOS A FAVOR
-        ===== -->
+        <!--SALDOS A FAVOR -->
 
         <div class="bloque filtros">
 
@@ -1199,9 +1189,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             PAGOS
-        ===== -->
+        <!--PAGOS -->
 
         <div class="bloque filtros">
 
@@ -1371,9 +1359,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             APLICACIONES
-        ===== -->
+        <!--APLICACIONES -->
 
         <div class="bloque filtros">
 

@@ -57,8 +57,7 @@ class Options
      * DO NOT set this value to '/' since this could allow an attacker to use dompdf to
      * read any files on the server.  This should be an absolute path.
      *
-     * ==== IMPORTANT ====
-     * This setting may increase the risk of system exploit. Do not change
+     * ==== IMPORTANT  * This setting may increase the risk of system exploit. Do not change
      * this settings without understanding the consequences. Additional
      * documentation is available on the dompdf wiki at:
      * https://github.com/dompdf/dompdf/wiki
@@ -176,8 +175,7 @@ class Options
      * If this setting is set to true then DOMPDF will automatically evaluate
      * embedded PHP contained within <script type="text/php"> ... </script> tags.
      *
-     * ==== IMPORTANT ====
-     * Enabling this for documents you do not trust (e.g. arbitrary remote html
+     * ==== IMPORTANT  * Enabling this for documents you do not trust (e.g. arbitrary remote html
      * pages) is a security risk. Embedded scripts are run with the same level of
      * system access available to dompdf. Set this option to false (recommended)
      * if you wish to process untrusted documents.
@@ -197,8 +195,7 @@ class Options
      * If this setting is set to true, DOMPDF will access remote sites for
      * images and CSS files as required.
      *
-     * ==== IMPORTANT ====
-     * This can be a security risk, in particular in combination with isPhpEnabled and
+     * ==== IMPORTANT  * This can be a security risk, in particular in combination with isPhpEnabled and
      * allowing remote html code to be passed to $dompdf = new DOMPDF(); $dompdf->load_html(...);
      * This allows anonymous users to download legally doubtful internet content which on
      * tracing back appears to being downloaded by your server, or allows malicious php code
@@ -230,8 +227,7 @@ class Options
     /**
      * Enable PDF/A-3 compliance mode
      *
-     * ==== EXPERIMENTAL ====
-     * This feature is currently only supported with the CPDF backend and will
+     * ==== EXPERIMENTAL  * This feature is currently only supported with the CPDF backend and will
      * have no effect if used with any other.
      *
      * Currently this mode only takes care of adding the necessary metadata, output intents, etc.

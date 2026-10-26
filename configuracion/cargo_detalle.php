@@ -445,9 +445,7 @@ $aplicaciones =
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <div
             style="
@@ -489,9 +487,7 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             DATOS UNIDAD
-        ===== -->
+        <!--DATOS UNIDAD -->
 
         <div class="bloque filtros">
 
@@ -583,9 +579,7 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             RESUMEN
-        ===== -->
+        <!--RESUMEN -->
 
         <div class="bloque filtros">
 
@@ -693,9 +687,7 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             CARTERA
-        ===== -->
+        <!--CARTERA -->
 
         <div class="bloque filtros">
 
@@ -932,9 +924,7 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             PAGOS
-        ===== -->
+        <!--PAGOS -->
 
         <div class="bloque filtros">
 
@@ -1081,9 +1071,7 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             APLICACIONES
-        ===== -->
+        <!--APLICACIONES -->
 
         <div class="bloque filtros">
 

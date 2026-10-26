@@ -302,8 +302,7 @@ foreach (
     ];
 
 
-    // ====
-    // CONSULTAR FACTURA
+    // // CONSULTAR FACTURA
     // ====
 
     $sqlFactura = "
@@ -398,8 +397,7 @@ foreach (
         ];
 
 
-    // ====
-    // DESTINATARIOS
+    // // DESTINATARIOS
     // ====
 
     $sqlDestinatarios = "
@@ -463,8 +461,7 @@ foreach (
         );
 
 
-    // ====
-    // VALIDAR DESTINATARIOS
+    // // VALIDAR DESTINATARIOS
     // ====
 
     $destinatariosValidos =
@@ -521,8 +518,7 @@ foreach (
     }
 
 
-    // ====
-    // GENERAR PDF
+    // // GENERAR PDF
     // ====
 
     try {
@@ -558,8 +554,7 @@ foreach (
     }
 
 
-    // ====
-    // NOMBRE PDF
+    // // NOMBRE PDF
     // ====
 
     $nombrePdf =
@@ -574,8 +569,7 @@ foreach (
         '.pdf';
 
 
-    // ====
-    // PERÍODO
+    // // PERÍODO
     // ====
 
     $periodoTexto =
@@ -599,8 +593,7 @@ foreach (
         false;
 
 
-    // ====
-    // ENVIAR DESTINATARIOS
+    // // ENVIAR DESTINATARIOS
     // ====
 
     foreach (
@@ -1110,8 +1103,7 @@ foreach (
     }
 
 
-    // ====
-    // RESULTADO DE FACTURA
+    // // RESULTADO DE FACTURA
     // ====
 
     if (

@@ -123,9 +123,7 @@ $tiposObligacion = $stmtTiposObligacion->fetchAll(
         <br>
 
 
-        <!-- ====
-             LISTADO
-        ===== -->
+        <!--LISTADO -->
 
         <div class="bloque filtros">
 

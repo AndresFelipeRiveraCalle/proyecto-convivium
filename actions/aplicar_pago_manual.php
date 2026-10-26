@@ -279,8 +279,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // BLOQUEAR PAGO
+    // // BLOQUEAR PAGO
     // ====
 
     $sqlPago = "
@@ -318,8 +317,7 @@ try {
     }
 
 
-    // ====
-    // DISPONIBLE DEL PAGO
+    // // DISPONIBLE DEL PAGO
     // ====
 
     $sqlAplicado = "
@@ -339,8 +337,7 @@ try {
         (float)$stmtAplicado->fetchColumn();
 
 
-    // ====
-    // SALDO YA CONVERTIDO
+    // // SALDO YA CONVERTIDO
     // Resta el excedente que ya pasó a saldo a favor.
     // ====
 
@@ -387,8 +384,7 @@ try {
     }
 
 
-    // ====
-    // BLOQUEAR CARTERA
+    // // BLOQUEAR CARTERA
     // ====
 
     $sqlCartera = "
@@ -463,8 +459,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR APLICACIÓN
+    // // INSERTAR APLICACIÓN
     // ====
 
     $sqlInsert = "
@@ -506,8 +501,7 @@ try {
     ]);
 
 
-    // ====
-    // ACTUALIZAR CARTERA
+    // // ACTUALIZAR CARTERA
     // ====
 
     $nuevoSaldo =
@@ -561,8 +555,7 @@ try {
     ]);
 
 
-    // ====
-    // SI LA OBLIGACIÓN ES MORA, SINCRONIZAR intereses_cartera
+    // // SI LA OBLIGACIÓN ES MORA, SINCRONIZAR intereses_cartera
     // ====
 
     if (!empty($cartera['id_interes'])) {
@@ -623,8 +616,7 @@ try {
     }
 
 
-    // ====
-    // ESTADO FACTURA
+    // // ESTADO FACTURA
     // ====
 
     if (!empty($cartera['id_factura'])) {
@@ -636,8 +628,7 @@ try {
     }
 
 
-    // ====
-    // SALDO A FAVOR
+    // // SALDO A FAVOR
     // Convierte el excedente si ya no quedan obligaciones pendientes.
     // ====
 

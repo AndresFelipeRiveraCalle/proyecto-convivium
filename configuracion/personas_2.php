@@ -38,8 +38,7 @@ $stmtTipos = $conexion->query("
 $tiposDocumento = $stmtTipos->fetchAll(PDO::FETCH_ASSOC);
 
 /* =======
-   GÉNEROS
-======= */
+   GÉNEROS== */
 $stmtGeneros = $conexion->query("
     SELECT id_genero, codigo, nombre
     FROM generos
@@ -343,8 +342,7 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <!-- =======
-     MODAL NUEVA PERSONA
-======= -->
+     MODAL NUEVA PERSONA== -->
 
 <div id="modalPersona" class="modal">
     <div class="modal-contenido">

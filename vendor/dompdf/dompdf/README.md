@@ -1,5 +1,4 @@
-Dompdf
-======
+Dompdf=
 
 [![Build Status](https://github.com/dompdf/dompdf/actions/workflows/test.yml/badge.svg)](https://github.com/dompdf/dompdf/actions/workflows/test.yml)
 [![PHP Versions Supported](https://poser.pugx.org/dompdf/dompdf/require/php)](https://packagist.org/packages/dompdf/dompdf)

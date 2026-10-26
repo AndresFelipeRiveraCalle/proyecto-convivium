@@ -22,8 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
 
-    // ====
-    // DATOS DEL FORMULARIO
+    // // DATOS DEL FORMULARIO
     // ====
 
     $placa = strtoupper(
@@ -71,8 +70,7 @@ try {
         : 1;
 
 
-    // ====
-    // VALIDACIONES
+    // // VALIDACIONES
     // ====
 
     if ($placa === '') {
@@ -109,8 +107,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR PLACA DUPLICADA
+    // // VALIDAR PLACA DUPLICADA
     // ====
 
     $stmt = $conexion->prepare("
@@ -134,8 +131,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR UNIDAD
+    // // VALIDAR UNIDAD
     // ====
 
     if ($id_unidad !== null) {
@@ -163,8 +159,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR RESIDENTE
+    // // VALIDAR RESIDENTE
     // ====
 
     if ($id_residente !== null) {
@@ -223,8 +218,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR VEHÍCULO
+    // // INSERTAR VEHÍCULO
     // ====
 
     $sql = "
@@ -303,8 +297,7 @@ try {
     ]);
 
 
-    // ====
-    // REDIRECCIÓN EXITOSA
+    // // REDIRECCIÓN EXITOSA
     // ====
 
     header(

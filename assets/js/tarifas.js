@@ -49,8 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        // ====
-        // FIJO
+        //     // FIJO
         // ====
 
         if (tipoCalculo === "FIJO") {
@@ -82,8 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        // ====
-        // METRO CUADRADO
+        //     // METRO CUADRADO
         // ====
 
         if (tipoCalculo === "METRO_CUADRADO") {
@@ -144,8 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        // ====
-        // PORCENTAJE
+        //     // PORCENTAJE
         // ====
 
         if (tipoCalculo === "PORCENTAJE") {
@@ -177,8 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
 
-        // ====
-        // SIN CONCEPTO SELECCIONADO
+        //     // SIN CONCEPTO SELECCIONADO
         // ====
 
         if (inputTipoCalculo) {

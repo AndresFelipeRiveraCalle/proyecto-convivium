@@ -189,8 +189,7 @@ try {
     $mail->isSMTP();
 
 
-    // ====
-    // SERVIDOR
+    // // SERVIDOR
     // ====
 
     $mail->Host =
@@ -207,8 +206,7 @@ try {
         ];
 
 
-    // ====
-    // AUTENTICACIÓN
+    // // AUTENTICACIÓN
     // ====
 
     $mail->SMTPAuth =
@@ -256,8 +254,7 @@ try {
     }
 
 
-    // ====
-    // SEGURIDAD SMTP
+    // // SEGURIDAD SMTP
     // Configura TLS, SSL o conexión sin cifrado.
     // ====
 
@@ -311,8 +308,7 @@ try {
     }
 
 
-    // ====
-    // CODIFICACIÓN
+    // // CODIFICACIÓN
     // ====
 
     $mail->CharSet =
@@ -323,8 +319,7 @@ try {
         'base64';
 
 
-    // ====
-    // REMITENTE
+    // // REMITENTE
     // ====
 
     $mail->setFrom(
@@ -338,8 +333,7 @@ try {
     );
 
 
-    // ====
-    // RESPUESTAS
+    // // RESPUESTAS
     // ====
 
     if (
@@ -365,8 +359,7 @@ try {
     }
 
 
-    // ====
-    // DESTINATARIO DE PRUEBA
+    // // DESTINATARIO DE PRUEBA
     // Se envía al mismo correo configurado.
     // ====
 
@@ -377,8 +370,7 @@ try {
     );
 
 
-    // ====
-    // CONTENIDO
+    // // CONTENIDO
     // ====
 
     $mail->isHTML(true);
@@ -515,15 +507,13 @@ try {
         $seguridad;
 
 
-    // ====
-    // ENVIAR
+    // // ENVIAR
     // ====
 
     $mail->send();
 
 
-    // ====
-    // GUARDAR RESULTADO
+    // // GUARDAR RESULTADO
     // ====
 
     $resultado =
@@ -563,8 +553,7 @@ try {
     ]);
 
 
-    // ====
-    // REDIRECCIONAR
+    // // REDIRECCIONAR
     // ====
 
     header(

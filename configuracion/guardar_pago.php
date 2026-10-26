@@ -24,26 +24,41 @@ require_once ROOT_PATH . "/config/conexion.php";
 
 // Centraliza los mensajes de error/advertencia y conserva la unidad seleccionada.
 // Así el usuario vuelve al formulario sin perder el contexto cuando algo falla.
-function redireccionar($tipo, $texto, $idUnidad = 0)
-{
+function redireccionar(
+    $tipo,
+    $texto,
+    $idUnidad = 0
+) {
+
     $params = [
-        'tipo' => $tipo,
+        'tipo'  => $tipo,
         'texto' => $texto
     ];
 
+
     if ($idUnidad > 0) {
-        $params['id_unidad'] = $idUnidad;
+
+        $params['id_unidad'] =
+            $idUnidad;
+
     }
 
-    // ====
-    // 5. REDIRIGIR AL DETALLE DEL NUEVO PAGO
-    // ====
+
+    // ==================================================
+    // REDIRIGIR AL FORMULARIO DE PAGO
+    // Muestra el resultado mediante el modal.
+    // ==================================================
+
     header(
         "Location: " .
         BASE_URL .
         "configuracion/registrar_pago.php?" .
-        http_build_query($params)
+        http_build_query(
+            $params
+        )
     );
+
+
     exit;
 }
 
@@ -120,10 +135,8 @@ try {
      * Así podemos tener varios pagos/abonos independientes y decidir
      * posteriormente cómo aplicarlos desde aplicar_pago.php.
      */
-    // ====
-    // 4. INSERTAR EL PAGO SIN APLICARLO A CARTERA
-    // ====
-    // El valor completo queda disponible hasta que se creen aplicaciones.
+    // // 4. INSERTAR EL PAGO SIN APLICARLO A CARTERA
+    // // El valor completo queda disponible hasta que se creen aplicaciones.
     $sql = "
         INSERT INTO pagos
         (

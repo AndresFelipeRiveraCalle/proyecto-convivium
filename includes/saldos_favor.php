@@ -331,9 +331,7 @@ $saldosFavor =
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <div
             style="
@@ -363,9 +361,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             RESUMEN
-        ===== -->
+        <!--RESUMEN -->
 
         <div class="bloque filtros">
 
@@ -447,9 +443,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             FILTROS
-        ===== -->
+        <!--FILTROS -->
 
         <div class="bloque filtros">
 
@@ -605,9 +599,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             LISTADO
-        ===== -->
+        <!--LISTADO -->
 
         <div class="bloque filtros">
 

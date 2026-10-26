@@ -150,8 +150,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // BUSCAR CONCEPTOS ACTIVOS
+    // // BUSCAR CONCEPTOS ACTIVOS
     // ====
 
     $sqlConceptos = "
@@ -175,8 +174,7 @@ try {
     $conceptos = $stmtConceptos->fetchAll(PDO::FETCH_ASSOC);
 
 
-    // ====
-    // RECORRER UNIDADES
+    // // RECORRER UNIDADES
     // ====
 
     foreach ($unidades as $unidad) {
@@ -477,15 +475,13 @@ try {
     }
 
 
-    // ====
-    // CONFIRMAR TRANSACCIÓN
+    // // CONFIRMAR TRANSACCIÓN
     // ====
 
     $conexion->commit();
 
 
-    // ====
-    // MENSAJE DE RESULTADO
+    // // MENSAJE DE RESULTADO
     // ====
 
     $mensaje =
@@ -513,8 +509,7 @@ try {
 } catch (PDOException $e) {
 
 
-    // ====
-    // ROLLBACK
+    // // ROLLBACK
     // ====
 
     if ($conexion->inTransaction()) {
@@ -523,8 +518,7 @@ try {
     }
 
 
-    // ====
-    // MOSTRAR ERROR
+    // // MOSTRAR ERROR
     // ====
 
     echo "<div style='

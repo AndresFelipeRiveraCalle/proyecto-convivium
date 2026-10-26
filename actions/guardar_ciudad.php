@@ -91,8 +91,7 @@ if ($nombre === "") {
 
 try {
 
-    // ====
-    // VERIFICAR DEPARTAMENTO
+    // // VERIFICAR DEPARTAMENTO
     // ====
 
     $sql = "
@@ -118,8 +117,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR CIUDAD DUPLICADA
+    // // VERIFICAR CIUDAD DUPLICADA
     // ====
 
     $sql = "
@@ -146,8 +144,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR CIUDAD
+    // // INSERTAR CIUDAD
     // ====
 
     $sql = "
@@ -182,8 +179,7 @@ try {
     ]);
 
 
-    // ====
-    // ÉXITO
+    // // ÉXITO
     // ====
 
     $mensaje = urlencode(

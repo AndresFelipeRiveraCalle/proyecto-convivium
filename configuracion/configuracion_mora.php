@@ -179,9 +179,7 @@ $configuraciones =
     <main class="contenido">
 
 
-        <!-- ====
-             TÍTULO
-        ===== -->
+        <!--TÍTULO -->
 
         <h2 align="center">
             Configuración de mora
@@ -202,9 +200,7 @@ $configuraciones =
         ?>
 
 
-        <!-- ====
-             REGLA DEL SISTEMA
-        ===== -->
+        <!--REGLA DEL SISTEMA -->
 
         <div class="bloque filtros">
 
@@ -240,9 +236,7 @@ $configuraciones =
         <br>
 
 
-        <!-- ====
-             ACCIONES
-        ===== -->
+        <!--ACCIONES -->
 
         <div class="bloque filtros">
 
@@ -289,9 +283,7 @@ $configuraciones =
         <br>
 
 
-        <!-- ====
-             TABLA
-        ===== -->
+        <!--TABLA -->
 
         <div class="bloque filtros">
 

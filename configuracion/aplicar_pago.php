@@ -327,9 +327,7 @@ $aplicaciones =
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <div
             style="
@@ -371,10 +369,8 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             POPUP DE MENSAJE
-             Muestra el resultado de registrar o aplicar un pago.
-        ===== -->
+        <!--POPUP DE MENSAJE
+             Muestra el resultado de registrar o aplicar un pago. -->
 
         <?php if (!empty($_GET['texto'])): ?>
 
@@ -448,9 +444,7 @@ $aplicaciones =
         <?php endif; ?>
 
 
-        <!-- ====
-             PAGO
-        ===== -->
+        <!--PAGO -->
 
         <div class="bloque filtros">
 
@@ -549,9 +543,7 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             AUTOMÁTICA
-        ===== -->
+        <!--AUTOMÁTICA -->
 
         <div class="bloque filtros">
 
@@ -614,9 +606,7 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             MANUAL
-        ===== -->
+        <!--MANUAL -->
 
         <div class="bloque filtros">
 
@@ -871,9 +861,7 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             HISTORIAL
-        ===== -->
+        <!--HISTORIAL -->
 
         <div class="bloque filtros">
 

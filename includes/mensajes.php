@@ -38,8 +38,7 @@ if ($tipoMensaje && $mensaje):
 
 ?>
 
-<!-- ====
-     MODAL DE MENSAJE
+<!--  MODAL DE MENSAJE
 ==== -->
 
 <div

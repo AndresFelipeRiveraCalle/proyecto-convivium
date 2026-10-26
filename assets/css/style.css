@@ -941,8 +941,7 @@ tbody td {
 
 
 /* ======
-   PESTAÑAS
-====== */
+   PESTAÑAS= */
 
 .tabs-container {
     display: flex;
@@ -1110,6 +1109,178 @@ tbody td {
 .cartera-header p {
     margin-top: 6px;
     color: #666;
+}
+
+.mora-badge {
+    display: inline-block;
+    margin-top: 5px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #fff3cd;
+    color: #7a5300;
+    border: 1px solid #ffe08a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.mora-detalle {
+    margin-top: 6px;
+    padding: 8px 10px;
+    border-left: 3px solid #d39e00;
+    background: #fffaf0;
+    color: #6b4b00;
+    font-size: 12px;
+    line-height: 1.45;
+    border-radius: 4px;
+}
+
+.mora-desglose {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #475569;
+}
+
+
+.detalle-obligaciones {
+    margin-top: 10px;
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.detalle-obligaciones table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.detalle-obligaciones th,
+.detalle-obligaciones td {
+    padding: 8px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+.detalle-obligaciones th {
+    text-align: left;
+    color: white;
+    font-size: 12px;
+}
+
+.detalle-obligaciones tr:last-child td {
+    border-bottom: none;
+}
+
+.detalle-mora-fila {
+    background: #fffaf0;
+}
+
+.detalle-capital-fila {
+    background: #ffffff;
+}
+
+.etiqueta-capital,
+.etiqueta-mora {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.etiqueta-capital {
+    background: #eef2ff;
+    color: #3730a3;
+}
+
+.etiqueta-mora {
+    background: #fff3cd;
+    color: #7a5300;
+}
+
+.obligacion-descripcion {
+    margin-top: 3px;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+
+.cartera-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #dbe3ec;
+    padding-bottom: 8px;
+}
+
+.cartera-tab {
+    border: 1px solid #d8e2ec;
+    background: #f8fafc;
+    color: #475569;
+    padding: 5px 14px;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.cartera-tab:hover {
+    background: #eef6fc;
+}
+
+.cartera-tab.activo-tab {
+    background: #1ce447;
+    color: #ffffff;
+    border-color: #f3f040;
+}
+
+.cartera-tab small {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.cartera-tab-contenido {
+    display: none;
+}
+
+.cartera-tab-contenido.activo {
+    display: block;
+}
+
+.factura-vencida-resumen {
+    display: grid;
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(160px, 1fr)
+        );
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.factura-vencida-dato {
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    background: #f8fafc;
+    text-align: center;
+}
+
+.factura-vencida-dato small {
+    display: block;
+    color: #64748b;
+    margin-bottom: 3px;
+}
+
+.factura-vencida-dato strong {
+    color: #1e293b;
 }
 
 
@@ -1528,14 +1699,10 @@ background: #f9fafb;
 
 }
 
-/* ====
-   FACTURA - PANTALLA
-===== */
+/*FACTURA - PANTALLA */
 
 
-/* ====
-   BARRA SUPERIOR
-===== */
+/*BARRA SUPERIOR */
 
 .factura-toolbar {
     display: flex;
@@ -1580,9 +1747,7 @@ background: #f9fafb;
 }
 
 
-/* ====
-   DOCUMENTO
-===== */
+/*DOCUMENTO */
 
 .factura-documento {
     max-width: 1050px;
@@ -1610,9 +1775,7 @@ background: #f9fafb;
 }
 
 
-/* ====
-   CABECERA
-===== */
+/*CABECERA */
 
 .factura-cabecera {
     display: grid;
@@ -1714,9 +1877,7 @@ background: #f9fafb;
 }
 
 
-/* ====
-   DATOS PRINCIPALES
-===== */
+/*DATOS PRINCIPALES */
 
 .factura-meta {
     display: grid;
@@ -1770,9 +1931,7 @@ background: #f9fafb;
 }
 
 
-/* ====
-   PERSONA / UNIDAD
-===== */
+/*PERSONA / UNIDAD */
 
 .factura-cliente {
     display: grid;
@@ -1847,9 +2006,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   TABLA
-===== */
+/*TABLA */
 
 .factura-tabla {
     width: 100%;
@@ -1908,9 +2065,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   CONCEPTOS
-===== */
+/*CONCEPTOS */
 
 .factura-concepto-link {
     color: #0f4d7a;
@@ -1939,85 +2094,135 @@ vertical-align: center;
 }
 
 
-/* ====
+/* ======================================================
    MORA E INTERESES
-===== */
+======================================================= */
 
-.fila-interes td {
-    background: #fff9e8;
-    display: flex;
+.factura-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
 }
 
 
-.factura-mora {
-    display: block;
+/* Anchos de las 5 columnas */
 
-    margin-top: 7px;
+.factura-tabla th:nth-child(1),
+.factura-tabla td:nth-child(1) {
+    width: 43%;
+}
 
-    padding:
-        8px
-        10px;
+.factura-tabla th:nth-child(2),
+.factura-tabla td:nth-child(2) {
+    width: 16%;
+}
 
-    border:
-        1px solid
-        #ead8a5;
+.factura-tabla th:nth-child(3),
+.factura-tabla td:nth-child(3) {
+    width: 13%;
+}
 
-    border-radius: 7px;
+.factura-tabla th:nth-child(4),
+.factura-tabla td:nth-child(4) {
+    width: 13%;
+}
+
+.factura-tabla th:nth-child(5),
+.factura-tabla td:nth-child(5) {
+    width: 15%;
+}
+
+
+/* La fila siempre conserva comportamiento de tabla */
+
+.factura-tabla tr.fila-interes {
+    display: table-row;
+}
+
+
+/* Todas las celdas de mora mantienen el formato normal */
+
+.factura-tabla .fila-interes td {
+    display: table-cell;
+    background: #fff9e8;
+    vertical-align: middle;
+}
+
+
+/* Primera columna */
+
+.factura-tabla .fila-interes
+.factura-col-concepto {
+    vertical-align: top;
+}
+
+
+/* Información adicional del interés */
+
+.factura-mora-detalle {
+    margin-top: 6px;
+    padding: 7px 9px;
+
+    border: 1px solid #ead8a5;
+    border-radius: 6px;
 
     background: #fffdf4;
 
     font-size: 11px;
-
-    line-height: 1.55;
-}
-
-
-.factura-mora-titulo {
-    display: block;
-
-    margin-bottom: 4px;
-
-    font-weight: 800;
-
-    color: #7a4512;
-}
-
-
-.factura-resumen-mora {
-    margin-top: 8px;
-
-    padding:
-        12px
-        14px;
-
-    border:
-        1px solid
-        #ead8a5;
-
-    border-radius: 8px;
-
-    background: #fff9e8;
+    line-height: 1.4;
 
     color: #624611;
 }
 
 
-.factura-interes-detalle {
-    display: block;
+/* Separación de líneas */
 
-    margin-top: 5px;
+.factura-mora-origen {
+    margin-bottom: 2px;
+}
 
-    font-size: 11px;
-
-    line-height: 1.45;
-
-    color: #7a5a12;
+.factura-mora-calculo {
+    margin-top: 3px;
 }
 
 
-/* ====
-   BLOQUES INFERIORES
-===== */
+/* Período */
+
+.factura-periodo-estado {
+    text-align: center;
+    vertical-align: middle !important;
+
+    font-size: 12px;
+    line-height: 1.35;
+}
+
+
+.estado-mora-texto {
+    margin-top: 4px;
+
+    color: #9a4d00;
+    font-weight: 700;
+}
+
+
+.estado-periodo-actual {
+    margin-top: 4px;
+
+    color: #64748b;
+    font-weight: 600;
+}
+
+
+/* Valores */
+
+.factura-valor {
+    text-align: right !important;
+    vertical-align: middle !important;
+    white-space: nowrap;
+}
+
+
+/*BLOQUES INFERIORES */
 
 .factura-inferior {
     display: grid;
@@ -2107,9 +2312,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   MENSAJES
-===== */
+/*MENSAJES */
 
 .factura-nota {
     margin-top: 8px;
@@ -2141,9 +2344,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   RESPONSIVE
-===== */
+/*RESPONSIVE */
 
 @media (
     max-width:
@@ -2198,9 +2399,7 @@ vertical-align: center;
     }
 }
 
-/* ====
-   IMPRESIÓN / PDF - UNA SOLA HOJA A4
-===== */
+/*IMPRESIÓN / PDF - UNA SOLA HOJA A4 */
 
 @media print {
 
@@ -3076,9 +3275,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   DOCUMENTO FACTURA
-===== */
+/*DOCUMENTO FACTURA */
 
 .factura-documento {
     width: 100%;
@@ -3097,9 +3294,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   MORA E INTERESES
-===== */
+/*MORA E INTERESES */
 
 .fila-interes td {
     background: #fff9e8;
@@ -3151,9 +3346,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   SALDOS ANTERIORES
-===== */
+/*SALDOS ANTERIORES */
 
 .fila-saldo-anterior td {
     background: #f8fafc;
@@ -3163,9 +3356,7 @@ vertical-align: center;
     color: #64748b;
 }
 
-/* ====
-   PERÍODO Y ESTADO
-===== */
+/*PERÍODO Y ESTADO */
 
 .factura-periodo-estado {
     text-align: center;
@@ -3195,9 +3386,7 @@ vertical-align: center;
     font-weight: 600;
 }
 
-/* ====
-   MODAL ENVÍO DE FACTURA
-===== */
+/*MODAL ENVÍO DE FACTURA */
 
 .modal-envio-factura-contenido {
     max-width: 650px;
@@ -3313,9 +3502,7 @@ vertical-align: center;
     font-weight: 600;
 }
 
-/* ====
-   RESUMEN DE ENVÍO DE FACTURA
-===== */
+/*RESUMEN DE ENVÍO DE FACTURA */
 
 .factura-envio-resumen {
     display: flex;
@@ -3335,9 +3522,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   HISTORIAL DE ENVÍOS
-===== */
+/*HISTORIAL DE ENVÍOS */
 
 .modal-historial-envios-contenido {
     width: calc(100% - 40px);
@@ -3417,9 +3602,7 @@ vertical-align: center;
     font-size: 12px;
 }
 
-/* ====
-   ENVÍO MASIVO DE FACTURAS
-===== */
+/*ENVÍO MASIVO DE FACTURAS */
 
 .envio-masivo-filtros {
     display: grid;
@@ -3465,9 +3648,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   BARRA DE ACCIONES
-===== */
+/*BARRA DE ACCIONES */
 
 .envio-masivo-toolbar {
     display: flex;
@@ -3495,9 +3676,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   PANEL PERMANENTE DE PROGRESO
-===== */
+/*PANEL PERMANENTE DE PROGRESO */
 
 .envio-progreso-panel {
     width: 100%;
@@ -3547,9 +3726,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   BARRA DE PROGRESO
-===== */
+/*BARRA DE PROGRESO */
 
 .envio-progreso-barra {
     width: 100%;
@@ -3576,9 +3753,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   RESUMEN DEL PROGRESO
-===== */
+/*RESUMEN DEL PROGRESO */
 
 .envio-progreso-resumen {
     display: grid;
@@ -3621,9 +3796,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   RESULTADO DEL ENVÍO
-===== */
+/*RESULTADO DEL ENVÍO */
 
 .envio-progreso-resultado {
     margin-top: 14px;
@@ -3693,9 +3866,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   COLUMNAS
-===== */
+/*COLUMNAS */
 
 .tabla-general th:nth-child(1),
 .tabla-general td:nth-child(1) {
@@ -3747,9 +3918,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   ESTADOS
-===== */
+/*ESTADOS */
 
 .envio-estado-listo,
 .envio-estado-enviado,
@@ -3806,9 +3975,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   CHECKBOX
-===== */
+/*CHECKBOX */
 
 .check-factura {
     width: 18px;
@@ -3824,9 +3991,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   MENSAJES
-===== */
+/*MENSAJES */
 
 .envio-masivo-vacio {
     padding: 28px;
@@ -3854,9 +4019,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   RESPONSIVE
-===== */
+/*RESPONSIVE */
 
 @media (max-width: 1000px) {
 
@@ -3923,9 +4086,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   FORMULARIO DE FILTROS
-===== */
+/*FORMULARIO DE FILTROS */
 
 .contenido .form-card {
     width: 100%;
@@ -3950,9 +4111,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   RESUMEN
-===== */
+/*RESUMEN */
 
 .envio-masivo-resumen {
     display: grid;
@@ -3981,9 +4140,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   BARRA DE ACCIONES
-===== */
+/*BARRA DE ACCIONES */
 
 .envio-masivo-toolbar {
     display: flex;
@@ -4092,9 +4249,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   ESTADOS
-===== */
+/*ESTADOS */
 
 .envio-estado-listo,
 .envio-estado-enviado,
@@ -4139,9 +4294,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   CHECKBOX
-===== */
+/*CHECKBOX */
 
 .check-factura {
     width: 18px;
@@ -4154,9 +4307,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   MENSAJES
-===== */
+/*MENSAJES */
 
 .envio-masivo-vacio {
     padding: 28px;
@@ -4181,9 +4332,7 @@ vertical-align: center;
 }
 
 
-/* ====
-   RESPONSIVE
-===== */
+/*RESPONSIVE */
 
 @media (max-width: 1000px) {
 
@@ -4221,9 +4370,7 @@ vertical-align: center;
     }
 }
 
-/* ====
-   PROGRESO ENVÍO MASIVO
-===== */
+/*PROGRESO ENVÍO MASIVO */
 
 .envio-progreso-panel {
     margin-top: 20px;

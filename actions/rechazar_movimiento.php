@@ -103,8 +103,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR QUE NO ESTÉ ASOCIADO A UN PAGO
+    // // VERIFICAR QUE NO ESTÉ ASOCIADO A UN PAGO
     // ====
 
     $sqlPago = "
@@ -141,8 +140,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR
+    // // ACTUALIZAR
     // ====
 
     $sqlActualizar = "

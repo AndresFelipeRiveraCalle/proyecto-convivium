@@ -383,8 +383,7 @@ try {
         </div>
 
         <!-- =======
-            MODAL EDITAR USUARIO
-        ======= -->
+            MODAL EDITAR USUARIO== -->
         <div id="modalEditarUsuario" class="modal">
             <div class="modal-contenido">
                 <span id="cerrarEditarUsuario" class="cerrar">

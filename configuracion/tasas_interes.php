@@ -113,9 +113,7 @@ function estadoVigencia($fechaInicio, $fechaFin)
     <main class="contenido">
 
 
-        <!-- ====
-             TÍTULO
-        ===== -->
+        <!--TÍTULO -->
 
         <h2 align="center">
             Tasas de interés
@@ -136,9 +134,7 @@ function estadoVigencia($fechaInicio, $fechaFin)
         ?>
 
 
-        <!-- ====
-             ACCIONES
-        ===== -->
+        <!--ACCIONES -->
 
         <div class="bloque filtros">
 
@@ -185,9 +181,7 @@ function estadoVigencia($fechaInicio, $fechaFin)
         <br>
 
 
-        <!-- ====
-             HISTÓRICO DE TASAS
-        ===== -->
+        <!--HISTÓRICO DE TASAS -->
 
         <div class="bloque filtros">
 

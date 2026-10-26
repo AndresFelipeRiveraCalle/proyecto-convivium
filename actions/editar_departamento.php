@@ -81,8 +81,7 @@ if ($nombre === "") {
 
 try {
 
-    // ====
-    // OBTENER EL PAÍS ACTUAL
+    // // OBTENER EL PAÍS ACTUAL
     // ====
 
     $sql = "
@@ -110,8 +109,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR DUPLICADO
+    // // VERIFICAR DUPLICADO
     // ====
 
     $sql = "
@@ -140,8 +138,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR
+    // // ACTUALIZAR
     // ====
 
     $sql = "
@@ -170,8 +167,7 @@ try {
     ]);
 
 
-    // ====
-    // MENSAJE DE ÉXITO
+    // // MENSAJE DE ÉXITO
     // ====
 
     $mensaje = urlencode(

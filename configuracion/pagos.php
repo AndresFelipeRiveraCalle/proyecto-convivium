@@ -416,9 +416,7 @@ $pagos =
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <div
             style="
@@ -458,9 +456,7 @@ $pagos =
         <br>
 
 
-        <!-- ====
-             RESUMEN
-        ===== -->
+        <!--RESUMEN -->
 
         <div class="bloque filtros">
 
@@ -551,9 +547,7 @@ $pagos =
         </div>
 
         
-        <!-- ====
-             FILTROS
-        ===== -->
+        <!--FILTROS -->
 
         <div class="bloque filtros">
             
@@ -721,9 +715,7 @@ $pagos =
         <br>
 
 
-        <!-- ====
-             LISTADO
-        ===== -->
+        <!--LISTADO -->
 
         <div class="bloque filtros">
 

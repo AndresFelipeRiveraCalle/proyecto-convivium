@@ -137,9 +137,7 @@ function e($valor)
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <div class="form-card">
             <div class="form-header">

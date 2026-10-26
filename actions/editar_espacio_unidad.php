@@ -126,8 +126,7 @@ if (
 
 try {
 
-    // ====
-    // CONSULTAR REGISTRO
+    // // CONSULTAR REGISTRO
     // ====
 
     $sqlActual = "
@@ -193,8 +192,7 @@ try {
               "configuracion/espacios.php";
 
 
-    // ====
-    // SOLO VIGENTE
+    // // SOLO VIGENTE
     // ====
 
     if (
@@ -220,8 +218,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR DUPLICADO ACTUAL
+    // // VALIDAR DUPLICADO ACTUAL
     // ====
 
     $sqlDuplicado = "
@@ -285,8 +282,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR
+    // // ACTUALIZAR
     // ====
 
     $sqlActualizar = "

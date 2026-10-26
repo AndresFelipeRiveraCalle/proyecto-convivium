@@ -343,9 +343,7 @@ $aplicaciones =
         <?php endif; ?>
 
 
-        <!-- ====
-             RESUMEN SALDO FAVOR
-        ===== -->
+        <!--RESUMEN SALDO FAVOR -->
 
         <div class="bloque filtros">
 
@@ -455,9 +453,7 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             AUTOMÁTICA
-        ===== -->
+        <!--AUTOMÁTICA -->
 
         <div class="bloque filtros">
 
@@ -516,9 +512,7 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             MANUAL
-        ===== -->
+        <!--MANUAL -->
 
         <div class="bloque filtros">
 
@@ -537,7 +531,7 @@ $aplicaciones =
                         <thead>
 
                             <tr>
-
+                                <th>ID cartera</th>
                                 <th>Factura</th>
                                 <th>Período</th>
                                 <th>Concepto</th>
@@ -557,7 +551,7 @@ $aplicaciones =
                             <tr>
 
                                 <td
-                                    colspan="6"
+                                    colspan="7"
                                     align="center"
                                 >
                                     La unidad no tiene obligaciones pendientes.
@@ -571,7 +565,9 @@ $aplicaciones =
                             <?php foreach ($obligaciones as $fila): ?>
 
                                 <tr>
-
+                                    <td>
+                                        #<?= (int)$fila['id_cartera'] ?>
+                                    </td>
                                     <td>
                                         <?= e(
                                             $fila['numero_factura']
@@ -729,9 +725,7 @@ $aplicaciones =
         <br>
 
 
-        <!-- ====
-             HISTORIAL
-        ===== -->
+        <!--HISTORIAL -->
 
         <div class="bloque filtros">
 

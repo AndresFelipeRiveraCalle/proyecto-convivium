@@ -592,8 +592,7 @@ foreach (
         $periodoTexto;
 
 
-    // ====
-    // REGISTRAR INTENTO
+    // // REGISTRAR INTENTO
     // ====
 
     $sqlEnvio = "

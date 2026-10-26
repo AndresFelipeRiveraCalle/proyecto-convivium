@@ -25,8 +25,7 @@ function generarPdfFactura(
     }
 
 
-    // ====
-    // CONSERVAR GET ORIGINAL
+    // // CONSERVAR GET ORIGINAL
     // ====
 
     $getOriginal =
@@ -37,8 +36,7 @@ function generarPdfFactura(
         $idFactura;
 
 
-    // ====
-    // GENERAR HTML
+    // // GENERAR HTML
     // Reutiliza factura_detalle.php.
     // ====
 
@@ -69,8 +67,7 @@ function generarPdfFactura(
     }
 
 
-    // ====
-    // EXTRAER DOCUMENTO
+    // // EXTRAER DOCUMENTO
     // ====
 
     libxml_use_internal_errors(
@@ -131,8 +128,7 @@ function generarPdfFactura(
         $nodos->item(0);
 
 
-    // ====
-    // CONVERTIR IMÁGENES
+    // // CONVERTIR IMÁGENES
     // Incluye el logo directamente dentro del PDF.
     // ====
 
@@ -286,8 +282,7 @@ function generarPdfFactura(
     }
 
 
-    // ====
-    // HTML DE LA FACTURA
+    // // HTML DE LA FACTURA
     // ====
 
     $htmlFactura =
@@ -308,8 +303,7 @@ function generarPdfFactura(
     }
 
 
-    // ====
-    // ESTILOS PDF
+    // // ESTILOS PDF
     // Usa la versión que ya dejamos aprobada.
     // ====
 
@@ -1101,8 +1095,7 @@ function generarPdfFactura(
     ';
 
 
-    // ====
-    // HTML PDF
+    // // HTML PDF
     // ====
 
     $htmlPdf = '
@@ -1134,8 +1127,7 @@ function generarPdfFactura(
     ';
 
 
-    // ====
-    // DOMPDF
+    // // DOMPDF
     // ====
 
     $options =

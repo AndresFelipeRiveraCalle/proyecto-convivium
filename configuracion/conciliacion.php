@@ -683,9 +683,7 @@ $urlPdfTodo =
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <div
             style="
@@ -712,9 +710,7 @@ $urlPdfTodo =
         </div>
 
 
-        <!-- ====
-             EXPORTACIÓN
-        ===== -->
+        <!--EXPORTACIÓN -->
 
         <div
             style="
@@ -764,9 +760,7 @@ $urlPdfTodo =
         </div>
 
 
-        <!-- ====
-             ESTADOS DE CONCILIACIÓN
-        ===== -->
+        <!--ESTADOS DE CONCILIACIÓN -->
 
         <div
             style="
@@ -800,9 +794,7 @@ $urlPdfTodo =
         </div>
 
 
-        <!-- ====
-             RESULTADO DE LA CONCILIACIÓN
-        ===== -->
+        <!--RESULTADO DE LA CONCILIACIÓN -->
 
         <?php if ($conciliacionReciente): ?>
 
@@ -1441,9 +1433,7 @@ $urlPdfTodo =
         <?php endif; ?>
 
 
-        <!-- ====
-             RESUMEN
-        ===== -->
+        <!--RESUMEN -->
 
         <div class="bloque filtros">
 
@@ -1519,9 +1509,7 @@ $urlPdfTodo =
         <br>
 
 
-        <!-- ====
-             FILTROS
-        ===== -->
+        <!--FILTROS -->
 
         <div class="bloque filtros">
 
@@ -1710,9 +1698,7 @@ $urlPdfTodo =
         <br>
 
 
-        <!-- ====
-             MOVIMIENTOS / HISTORIAL
-        ===== -->
+        <!--MOVIMIENTOS / HISTORIAL -->
 
         <?php if (empty($filas)): ?>
 

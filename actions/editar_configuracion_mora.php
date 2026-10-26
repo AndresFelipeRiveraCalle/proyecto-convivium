@@ -110,8 +110,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // CONFIGURACIÓN ACTUAL
+    // // CONFIGURACIÓN ACTUAL
     // ====
 
     $sqlActual = "
@@ -144,8 +143,7 @@ try {
     }
 
 
-    // ====
-    // TASA
+    // // TASA
     // ====
 
     $sqlTasa = "
@@ -190,8 +188,7 @@ try {
     }
 
 
-    // ====
-    // CONCEPTO
+    // // CONCEPTO
     // ====
 
     $sqlConcepto = "
@@ -218,8 +215,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR
+    // // ACTUALIZAR
     // ====
 
     $sqlActualizar = "

@@ -192,15 +192,13 @@ if (
 
 try {
 
-    // ====
-    // TRANSACCIÓN
+    // // TRANSACCIÓN
     // ====
 
     $conexion->beginTransaction();
 
 
-    // ====
-    // VALIDAR UNIDAD
+    // // VALIDAR UNIDAD
     // ====
 
     $sqlUnidad = "
@@ -253,8 +251,7 @@ try {
     }
 
 
-    // ====
-    // BUSCAR PROPIETARIO
+    // // BUSCAR PROPIETARIO
     // ====
 
     $sqlUsuario = "
@@ -328,10 +325,8 @@ try {
         (int)$propietario['id'];
 
 
-    // ====
-    // VALIDAR QUE NO EXISTA OTRO REGISTRO VIGENTE
-    // ====
-    //
+    // // VALIDAR QUE NO EXISTA OTRO REGISTRO VIGENTE
+    // //
     // IMPORTANTE:
     // Un mismo espacio físico solo puede tener
     // UN registro con fecha_hasta NULL.
@@ -403,8 +398,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR
+    // // INSERTAR
     // ====
 
     $sqlInsertar = "

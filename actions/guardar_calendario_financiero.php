@@ -305,8 +305,7 @@ foreach (
 
 try {
 
-    // ====
-    // VERIFICAR QUE EL PERÍODO NO EXISTA
+    // // VERIFICAR QUE EL PERÍODO NO EXISTA
     // ====
 
     $sqlExiste = "
@@ -342,8 +341,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR PERÍODO
+    // // INSERTAR PERÍODO
     // ====
 
     $sql = "
@@ -408,8 +406,7 @@ try {
     ]);
 
 
-    // ====
-    // REDIRECCIÓN EXITOSA
+    // // REDIRECCIÓN EXITOSA
     // ====
 
     header(
@@ -428,10 +425,8 @@ try {
 
 } catch (PDOException $e) {
 
-    // ====
-    // DUPLICADO
-    // ====
-    //
+    // // DUPLICADO
+    // //
     // La columna periodo ya es UNIQUE en la base de datos.
     //
 
@@ -443,8 +438,7 @@ try {
     }
 
 
-    // ====
-    // ERROR GENERAL
+    // // ERROR GENERAL
     // ====
 
     error_log(

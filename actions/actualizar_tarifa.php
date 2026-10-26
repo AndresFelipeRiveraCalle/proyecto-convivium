@@ -257,8 +257,7 @@ if (
 
 try {
 
-    // ====
-    // VALIDAR QUE LA TARIFA EXISTA
+    // // VALIDAR QUE LA TARIFA EXISTA
     // ====
 
     $sqlTarifa = "
@@ -295,8 +294,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR CONCEPTO ACTIVO
+    // // VALIDAR CONCEPTO ACTIVO
     // ====
 
     $sqlConcepto = "
@@ -343,8 +341,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR TIPO DE UNIDAD
+    // // VALIDAR TIPO DE UNIDAD
     // ====
 
     $sqlTipoUnidad = "
@@ -390,10 +387,8 @@ try {
     }
 
 
-    // ====
-    // VALIDAR SOLAPAMIENTO
-    // ====
-    //
+    // // VALIDAR SOLAPAMIENTO
+    // //
     // Solo verificamos solapamiento si la tarifa que estamos
     // editando quedará ACTIVA.
     //
@@ -505,8 +500,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR TARIFA
+    // // ACTUALIZAR TARIFA
     // ====
 
     $sqlActualizar = "
@@ -579,8 +573,7 @@ try {
     ]);
 
 
-    // ====
-    // MENSAJE
+    // // MENSAJE
     // ====
 
     redireccionarTarifas(

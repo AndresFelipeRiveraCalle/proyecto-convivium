@@ -25,10 +25,8 @@ $contrasenaEncriptada = password_hash($contrasenaResidente, PASSWORD_DEFAULT);
 try {
     $conexion->beginTransaction();
 
-    // ====
-    // 1. CREAMOS EL USUARIO
-    // ====
-    $sqlUsuario = "INSERT INTO usuario (
+    // // 1. CREAMOS EL USUARIO
+    // $sqlUsuario = "INSERT INTO usuario (
                         nombre, 
                         apellido, 
                         documento,
@@ -66,10 +64,8 @@ try {
 
     $idUsuarioNuevo = $conexion->lastInsertId();
 
-    // ====
-    // 2. RELACIONAMOS AL USUARIO CON SU APARTAMENTO
-    // ====
-    $sqlPertenece = "INSERT INTO pertenece (unidad_id, usuario_id, tipo, activo)
+    // // 2. RELACIONAMOS AL USUARIO CON SU APARTAMENTO
+    // $sqlPertenece = "INSERT INTO pertenece (unidad_id, usuario_id, tipo, activo)
                         VALUES (:unidad_id, :usuario_id, :tipo, 1)";
     $consultaPertenece = $conexion->prepare($sqlPertenece);
     $consultaPertenece->execute([
@@ -78,17 +74,13 @@ try {
         ":tipo"       => $tipoResidente
     ]);
 
-    // ====
-    // 3. MARCAMOS EL APARTAMENTO COMO OCUPADO
-    // ====
-    $sqlUnidad = "UPDATE unidad SET estado = 'ocupado' WHERE id = :unidad_id";
+    // // 3. MARCAMOS EL APARTAMENTO COMO OCUPADO
+    // $sqlUnidad = "UPDATE unidad SET estado = 'ocupado' WHERE id = :unidad_id";
     $consultaUnidad = $conexion->prepare($sqlUnidad);
     $consultaUnidad->execute([":unidad_id" => $idUnidadSeleccionada]);
 
-    // ====
-    // 4. SI ES PROPIETARIO, GUARDAMOS SU ID EN LA UNIDAD
-    // ====
-    if ($tipoResidente === 'propietario') {
+    // // 4. SI ES PROPIETARIO, GUARDAMOS SU ID EN LA UNIDAD
+    // if ($tipoResidente === 'propietario') {
         $sqlPropietario = "UPDATE unidad 
                             SET propietario_id = :propietario_id 
                             WHERE id = :unidad_id";

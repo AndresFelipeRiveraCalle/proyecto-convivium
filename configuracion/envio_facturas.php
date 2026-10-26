@@ -406,9 +406,7 @@ if (
     <main class="contenido">
 
 
-        <!-- ====
-             FILTROS
-        ===== -->
+        <!--FILTROS -->
 
         <div class="form-card">
 
@@ -575,9 +573,7 @@ if (
         </div>
 
 
-        <!-- ====
-             RESUMEN DEL PERÍODO
-        ===== -->
+        <!--RESUMEN DEL PERÍODO -->
 
         <div class="envio-masivo-resumen">
 
@@ -637,9 +633,7 @@ if (
         </div>
 
 
-        <!-- ====
-             FACTURAS
-        ===== -->
+        <!--FACTURAS -->
 
         <div class="form-card">
 

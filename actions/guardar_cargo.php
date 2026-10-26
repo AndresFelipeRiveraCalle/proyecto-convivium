@@ -574,8 +574,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // VALIDAR CONCEPTO
+    // // VALIDAR CONCEPTO
     // ====
 
     $sqlConcepto = "
@@ -634,8 +633,7 @@ try {
     }
 
 
-    // ====
-    // OBTENER UNIDADES PARTICIPANTES
+    // // OBTENER UNIDADES PARTICIPANTES
     // ====
 
     $sqlUnidades = "
@@ -724,8 +722,7 @@ try {
     }
 
 
-    // ====
-    // PREPARAR PESOS PARA DISTRIBUCIÓN
+    // // PREPARAR PESOS PARA DISTRIBUCIÓN
     // ====
 
     $unidadesDistribucion = [];
@@ -794,8 +791,7 @@ try {
     }
 
 
-    // ====
-    // CALCULAR VALOR POR UNIDAD
+    // // CALCULAR VALOR POR UNIDAD
     // ====
 
     $distribucion =
@@ -805,8 +801,7 @@ try {
         );
 
 
-    // ====
-    // GUARDAR CABECERA DEL CARGO
+    // // GUARDAR CABECERA DEL CARGO
     // ====
 
     $sqlCargo = "
@@ -910,8 +905,7 @@ try {
     }
 
 
-    // ====
-    // PREPARAR INSERT CARGO - UNIDAD
+    // // PREPARAR INSERT CARGO - UNIDAD
     // ====
 
     $sqlCargoUnidad = "
@@ -940,8 +934,7 @@ try {
         );
 
 
-    // ====
-    // PREPARAR INSERT CUOTA
+    // // PREPARAR INSERT CUOTA
     // ====
 
     $sqlCuota = "
@@ -970,8 +963,7 @@ try {
         );
 
 
-    // ====
-    // GUARDAR UNIDADES Y CUOTAS
+    // // GUARDAR UNIDADES Y CUOTAS
     // ====
 
     $totalDistribuido = 0;
@@ -1070,8 +1062,7 @@ try {
     }
 
 
-    // ====
-    // VALIDACIÓN FINAL
+    // // VALIDACIÓN FINAL
     // ====
 
     $totalDistribuido =
@@ -1101,15 +1092,13 @@ try {
     }
 
 
-    // ====
-    // CONFIRMAR TRANSACCIÓN
+    // // CONFIRMAR TRANSACCIÓN
     // ====
 
     $conexion->commit();
 
 
-    // ====
-    // REDIRECCIÓN
+    // // REDIRECCIÓN
     // ====
 
     $texto =

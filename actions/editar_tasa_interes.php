@@ -83,8 +83,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // TASA ACTUAL
+    // // TASA ACTUAL
     // ====
 
     $sqlActual = "
@@ -147,8 +146,7 @@ try {
     }
 
 
-    // ====
-    // CERRAR VIGENCIA ANTERIOR
+    // // CERRAR VIGENCIA ANTERIOR
     // ====
 
     $fechaFinAnterior =
@@ -180,8 +178,7 @@ try {
     ]);
 
 
-    // ====
-    // CREAR NUEVA VIGENCIA
+    // // CREAR NUEVA VIGENCIA
     // ====
 
     $sqlNueva = "
