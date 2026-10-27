@@ -377,11 +377,9 @@ try {
 
     $stmtDepartamento->execute([
 
-        ':id_departamento'
-            => $idDepartamento,
+        ':id_departamento'> $idDepartamento,
 
-        ':id_pais'
-            => $idPais
+        ':id_pais'> $idPais
 
     ]);
 
@@ -415,11 +413,9 @@ try {
 
     $stmtCiudad->execute([
 
-        ':id_ciudad'
-            => $idCiudad,
+        ':id_ciudad'> $idCiudad,
 
-        ':id_departamento'
-            => $idDepartamento
+        ':id_departamento'> $idDepartamento
 
     ]);
 
@@ -789,53 +785,37 @@ try {
 
     $stmtInsert->execute([
 
-        ':version'
-            => $version,
+        ':version'> $version,
 
-        ':nombre'
-            => $nombre,
+        ':nombre'> $nombre,
 
-        ':nit'
-            => $nit,
+        ':nit'> $nit,
 
-        ':representante_legal'
-            => $representante,
+        ':representante_legal'> $representante,
 
-        ':id_pais'
-            => $idPais,
+        ':id_pais'> $idPais,
 
-        ':id_departamento'
-            => $idDepartamento,
+        ':id_departamento'> $idDepartamento,
 
-        ':id_ciudad'
-            => $idCiudad,
+        ':id_ciudad'> $idCiudad,
 
-        ':direccion'
-            => $direccion,
+        ':direccion'> $direccion,
 
-        ':sector'
-            => $sector,
+        ':sector'> $sector,
 
-        ':id_tipo_copropiedad'
-            => $idTipoCopropiedad,
+        ':id_tipo_copropiedad'> $idTipoCopropiedad,
 
-        ':cantidad_unidades'
-            => $cantidadUnidades,
+        ':cantidad_unidades'> $cantidadUnidades,
 
-        ':correo'
-            => $correo,
+        ':correo'> $correo,
 
-        ':telefono'
-            => $telefono,
+        ':telefono'> $telefono,
 
-        ':logo'
-            => $logo,
+        ':logo'> $logo,
 
-        ':reglamento'
-            => $reglamento,
+        ':reglamento'> $reglamento,
 
-        ':manual'
-            => $manual
+        ':manual'> $manual
 
     ]);
 

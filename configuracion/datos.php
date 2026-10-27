@@ -274,8 +274,7 @@ $cantidadTotalUnidades =
 
             
             <!-- 
-                 RESUMEN ESTRUCTURA FÍSICA
-            = -->
+                 RESUMEN ESTRUCTURA FÍSICA -->
             <h3> Estructura de la copropiedad </h3>
             
             <div class="bloque filtros">            

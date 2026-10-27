@@ -322,23 +322,264 @@ $aplicaciones =
 
         <?php if (!empty($_GET['texto'])): ?>
 
-            <div class="info-box">
+            <div
+                id="modalMensajeSaldo"
+                style="
+                    display:flex;
+                    position:fixed;
+                    inset:0;
+                    z-index:9999;
+                    background:rgba(0,0,0,.50);
+                    align-items:center;
+                    justify-content:center;
+                    padding:20px;
+                "
+            >
 
-                <strong>
-                    <?= e(
-                        strtoupper(
-                            $_GET['tipo'] ?? 'info'
-                        )
-                    ) ?>
-                </strong>
+                <div
+                    style="
+                        width:min(430px, 94vw);
+                        background:#fff;
+                        border-radius:12px;
+                        box-shadow:0 20px 60px rgba(0,0,0,.25);
+                        overflow:hidden;
+                    "
+                >
 
-                <p>
-                    <?= e($_GET['texto']) ?>
-                </p>
+                    <div
+                        style="
+                            display:flex;
+                            justify-content:space-between;
+                            align-items:center;
+                            gap:15px;
+                            padding:18px 20px;
+                            border-bottom:1px solid #e5e7eb;
+                        "
+                    >
+
+                        <h3 style="margin:0;">
+
+                            <?php
+                            $tipoMensaje =
+                                $_GET['tipo']
+                                ?? 'info';
+                            ?>
+
+                            <?php if (
+                                $tipoMensaje === 'success'
+                            ): ?>
+
+                                ✓ Operación exitosa
+
+                            <?php elseif (
+                                $tipoMensaje === 'error'
+                            ): ?>
+
+                                ⚠ Ocurrió un error
+
+                            <?php elseif (
+                                $tipoMensaje === 'warning'
+                            ): ?>
+
+                                ⚠ Atención
+
+                            <?php else: ?>
+
+                                Información
+
+                            <?php endif; ?>
+
+                        </h3>
+
+
+                        <button
+                            type="button"
+                            id="cerrarModalMensajeSaldo"
+                            aria-label="Cerrar"
+                            style="
+                                border:0;
+                                background:transparent;
+                                font-size:28px;
+                                cursor:pointer;
+                                line-height:1;
+                            "
+                        >
+                            &times;
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        style="
+                            padding:20px;
+                        "
+                    >
+
+                        <p
+                            style="
+                                margin:0;
+                                font-size:15px;
+                                line-height:1.5;
+                            "
+                        >
+
+                            <?= e(
+                                $_GET['texto']
+                            ) ?>
+
+                        </p>
+
+
+                        <div
+                            style="
+                                display:flex;
+                                justify-content:flex-end;
+                                margin-top:20px;
+                            "
+                        >
+
+                            <button
+                                type="button"
+                                id="aceptarModalMensajeSaldo"
+                                class="btn-filtrar"
+                            >
+                                Aceptar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
-            <br>
+
+            <script>
+
+            document.addEventListener(
+                'DOMContentLoaded',
+                function () {
+
+                    const modal =
+                        document.getElementById(
+                            'modalMensajeSaldo'
+                        );
+
+                    const btnCerrar =
+                        document.getElementById(
+                            'cerrarModalMensajeSaldo'
+                        );
+
+                    const btnAceptar =
+                        document.getElementById(
+                            'aceptarModalMensajeSaldo'
+                        );
+
+
+                    // ==================================================
+                    // CERRAR MENSAJE
+                    // Oculta el popup y limpia tipo/texto de la URL.
+                    // ==================================================
+
+                    function cerrarMensajeSaldo() {
+
+                        if (modal) {
+
+                            modal.style.display =
+                                'none';
+
+                        }
+
+
+                        const url =
+                            new URL(
+                                window.location.href
+                            );
+
+
+                        url.searchParams.delete(
+                            'tipo'
+                        );
+
+                        url.searchParams.delete(
+                            'texto'
+                        );
+
+                        url.searchParams.delete(
+                            'mensaje'
+                        );
+
+
+                        window.history.replaceState(
+                            {},
+                            '',
+                            url.toString()
+                        );
+
+                    }
+
+
+                    if (btnCerrar) {
+
+                        btnCerrar.addEventListener(
+                            'click',
+                            cerrarMensajeSaldo
+                        );
+
+                    }
+
+
+                    if (btnAceptar) {
+
+                        btnAceptar.addEventListener(
+                            'click',
+                            cerrarMensajeSaldo
+                        );
+
+                    }
+
+
+                    if (modal) {
+
+                        modal.addEventListener(
+                            'click',
+                            function (event) {
+
+                                if (
+                                    event.target === modal
+                                ) {
+
+                                    cerrarMensajeSaldo();
+
+                                }
+
+                            }
+                        );
+
+                    }
+
+
+                    document.addEventListener(
+                        'keydown',
+                        function (event) {
+
+                            if (
+                                event.key === 'Escape'
+                            ) {
+
+                                cerrarMensajeSaldo();
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+            </script>
 
         <?php endif; ?>
 

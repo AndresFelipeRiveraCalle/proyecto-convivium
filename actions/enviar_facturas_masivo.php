@@ -299,8 +299,7 @@ foreach (
 
     $stmtFactura->execute([
 
-        ':id_factura'
-            => $idFactura
+        ':id_factura'> $idFactura
 
     ]);
 
@@ -374,8 +373,7 @@ foreach (
 
     $stmtDestinatarios->execute([
 
-        ':id_unidad'
-            => (int)$factura[
+        ':id_unidad'> (int)$factura[
                 'id_unidad'
             ]
 
@@ -1046,17 +1044,13 @@ header(
     BASE_URL .
     "configuracion/envio_facturas.php?" .
     http_build_query([
-        'anio'
-            => $anio,
+        'anio'> $anio,
 
-        'mes'
-            => $mes,
+        'mes'> $mes,
 
-        'tipo'
-            => $tipo,
+        'tipo'> $tipo,
 
-        'texto'
-            => $texto
+        'texto'> $texto
     ])
 );
 

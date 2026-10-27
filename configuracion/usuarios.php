@@ -36,8 +36,7 @@ try {
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
         <main class="contenido">
             <!-- ==
-                    ENCABEZADO
-            == -->
+                    ENCABEZADO= -->
 
             <div class="form-actions">
                 <div>

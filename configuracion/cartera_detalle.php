@@ -174,7 +174,7 @@ $stmtResumen->execute([':id_unidad'=> $idUnidad,':fecha_corte_resumen'
 $resumen = $stmtResumen->fetch(PDO::FETCH_ASSOC);
 
 
-// ==========================================================
+// =====
 // 4. OBLIGACIONES AGRUPADAS POR FACTURA
 // Agrupa las obligaciones por factura.
 //
@@ -182,7 +182,7 @@ $resumen = $stmtResumen->fetch(PDO::FETCH_ASSOC);
 //
 // Las obligaciones anuladas se conservan como historial,
 // pero no participan en los valores financieros activos.
-// ==========================================================
+// =====
 
 $sqlCartera = "SELECT
         /*CLAVE DE AGRUPACIÓN */
@@ -673,16 +673,16 @@ $sqlCartera = "SELECT
         END AS estado
 
 
-    /* ======================================================
+    /* =
        CARTERA
-    ====================================================== */
+    = */
 
     FROM cartera c
 
 
-    /* ======================================================
+    /* =
        FACTURA
-    ====================================================== */
+    = */
 
     LEFT JOIN facturas f
 
@@ -690,9 +690,9 @@ $sqlCartera = "SELECT
            c.id_factura
 
 
-    /* ======================================================
+    /* =
        DETALLE DE FACTURA
-    ====================================================== */
+    = */
 
     LEFT JOIN facturas_detalle fd
 
@@ -700,9 +700,9 @@ $sqlCartera = "SELECT
            c.id_detalle
 
 
-    /* ======================================================
+    /* =
        CONCEPTO
-    ====================================================== */
+    = */
 
     LEFT JOIN conceptos_facturacion cf
 
@@ -710,9 +710,9 @@ $sqlCartera = "SELECT
            fd.id_concepto
 
 
-    /* ======================================================
+    /* =
        INTERÉS DE MORA
-    ====================================================== */
+    = */
 
     LEFT JOIN intereses_cartera ic
 
@@ -720,9 +720,9 @@ $sqlCartera = "SELECT
            fd.id_interes
 
 
-    /* ======================================================
+    /* =
        CARTERA QUE ORIGINÓ EL INTERÉS
-    ====================================================== */
+    = */
 
     LEFT JOIN cartera cartera_origen
 
@@ -730,9 +730,9 @@ $sqlCartera = "SELECT
            ic.id_cartera
 
 
-    /* ======================================================
+    /* =
        DETALLE ORIGINAL
-    ====================================================== */
+    = */
 
     LEFT JOIN facturas_detalle fd_origen
 
@@ -740,9 +740,9 @@ $sqlCartera = "SELECT
            cartera_origen.id_detalle
 
 
-    /* ======================================================
+    /* =
        CONCEPTO ORIGINAL
-    ====================================================== */
+    = */
 
     LEFT JOIN conceptos_facturacion cfo
 
@@ -750,9 +750,9 @@ $sqlCartera = "SELECT
            fd_origen.id_concepto
 
 
-    /* ======================================================
+    /* =
        TIPO DE OBLIGACIÓN
-    ====================================================== */
+    = */
 
     LEFT JOIN tipos_obligacion tobl
 
@@ -760,9 +760,9 @@ $sqlCartera = "SELECT
            c.id_tipo_obligacion
 
 
-    /* ======================================================
+    /* =
        UNIDAD
-    ====================================================== */
+    = */
 
     WHERE
 
@@ -770,11 +770,11 @@ $sqlCartera = "SELECT
             :id_unidad
 
 
-    /* ======================================================
+    /* =
        AGRUPACIÓN
        Facturas juntas.
        Obligaciones sin factura independientes.
-    ====================================================== */
+    = */
 
     GROUP BY
 
@@ -800,9 +800,9 @@ $sqlCartera = "SELECT
         f.estado
 
 
-    /* ======================================================
+    /* =
        ORDEN
-    ====================================================== */
+    = */
 
     ORDER BY
 
@@ -827,9 +827,9 @@ $sqlCartera = "SELECT
 ";
 
 
-// ==========================================================
+// =====
 // PREPARAR CONSULTA
-// ==========================================================
+// =====
 
 $stmtCartera =
     $conexion->prepare(
@@ -837,9 +837,9 @@ $stmtCartera =
     );
 
 
-// ==========================================================
+// =====
 // EJECUTAR CONSULTA
-// ==========================================================
+// =====
 
 $stmtCartera->execute([
 
@@ -852,9 +852,9 @@ $stmtCartera->execute([
 ]);
 
 
-// ==========================================================
+// =====
 // OBLIGACIONES
-// ==========================================================
+// =====
 
 $obligaciones =
     $stmtCartera->fetchAll(
@@ -862,10 +862,10 @@ $obligaciones =
     );
 
 
-// ==========================================================
+// =====
 // FACTURAS VENCIDAS PARA PESTAÑAS
 // Solo incluye facturas con saldo vencido.
-// ==========================================================
+// =====
 
 $facturasVencidas = [];
 
@@ -1115,16 +1115,16 @@ $pagos =
     );
 
 
-// ==========================================================
+// =====
 // 7. HISTORIAL DE APLICACIONES
 // Une aplicaciones de pagos y aplicaciones de saldo a favor.
-// ==========================================================
+// =====
 
 $sqlAplicaciones = "
 
-    /* ======================================================
+    /* =
        APLICACIONES DE PAGOS
-    ====================================================== */
+    = */
 
     SELECT
 
@@ -1203,9 +1203,9 @@ $sqlAplicaciones = "
     UNION ALL
 
 
-    /* ======================================================
+    /* =
        APLICACIONES DE SALDO A FAVOR
-    ====================================================== */
+    = */
 
     SELECT
 
@@ -1287,9 +1287,9 @@ $sqlAplicaciones = "
             :id_unidad_saldo
 
 
-    /* ======================================================
+    /* =
        ORDEN GENERAL
-    ====================================================== */
+    = */
 
     ORDER BY
 
@@ -1299,9 +1299,9 @@ $sqlAplicaciones = "
 ";
 
 
-// ==========================================================
+// =====
 // PREPARAR HISTORIAL
-// ==========================================================
+// =====
 
 $stmtAplicaciones =
     $conexion->prepare(
@@ -1309,9 +1309,9 @@ $stmtAplicaciones =
     );
 
 
-// ==========================================================
+// =====
 // EJECUTAR HISTORIAL
-// ==========================================================
+// =====
 
 $stmtAplicaciones->execute([
 
@@ -1324,9 +1324,9 @@ $stmtAplicaciones->execute([
 ]);
 
 
-// ==========================================================
+// =====
 // RESULTADOS
-// ==========================================================
+// =====
 
 $aplicaciones =
     $stmtAplicaciones->fetchAll(
@@ -1627,9 +1627,9 @@ $saldosFavor =
                 </div>
                 
 
-                <!-- ==========================================================
+                <!-- =====
                     FACTURAS VENCIDAS
-                =========================================================== -->
+                ====== -->
 
                 <?php if (
                     !empty(

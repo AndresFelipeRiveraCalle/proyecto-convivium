@@ -273,8 +273,8 @@ try {
 
     $conexion->commit();
 
-    // // REDIRECCIÓN
-    // header(
+    // REDIRECCIÓN
+    header(
         "Location: " . BASE_URL .
         "configuracion/extractos_bancarios.php" .
         "?tipo=success&mensaje=" .
@@ -289,14 +289,14 @@ try {
 } catch (Throwable $e) {
 
     // // DESHACER TRANSACCIÓN
-    // if (
+    if (
         $conexion->inTransaction()
     ) {
         $conexion->rollBack();
     }
 
     // // ELIMINAR ARCHIVO SI FALLÓ LA BASE DE DATOS
-    // if (
+    if (
         file_exists($rutaFisica)
     ) {
         unlink($rutaFisica);

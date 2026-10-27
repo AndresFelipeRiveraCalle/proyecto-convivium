@@ -281,23 +281,17 @@ foreach (
 
     $detalleFactura = [
 
-        'id_factura'
-            => $idFactura,
+        'id_factura'> $idFactura,
 
-        'numero_factura'
-            => '',
+        'numero_factura'> '',
 
-        'estado'
-            => 'PENDIENTE',
+        'estado'> 'PENDIENTE',
 
-        'correos_enviados'
-            => 0,
+        'correos_enviados'> 0,
 
-        'correos_error'
-            => 0,
+        'correos_error'> 0,
 
-        'mensaje'
-            => ''
+        'mensaje'> ''
 
     ];
 
@@ -344,8 +338,7 @@ foreach (
 
     $stmtFactura->execute([
 
-        ':id_factura'
-            => $idFactura
+        ':id_factura'> $idFactura
 
     ]);
 
@@ -447,8 +440,7 @@ foreach (
 
     $stmtDestinatarios->execute([
 
-        ':id_unidad'
-            => (int)$factura[
+        ':id_unidad'> (int)$factura[
                 'id_unidad'
             ]
 

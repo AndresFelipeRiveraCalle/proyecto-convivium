@@ -154,8 +154,7 @@ function e($valor)
             </div>
 
             <!-- 
-                 FORMULARIO
-            = -->
+                 FORMULARIO -->
 
             <form method="POST" action="<?= BASE_URL ?>actions/guardar_configuracion_correo.php"
             >

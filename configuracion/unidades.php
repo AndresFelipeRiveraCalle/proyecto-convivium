@@ -150,8 +150,7 @@ if ($idGrupoSeleccionado > 0) {
 
     $stmtUnidades->execute([
 
-        ':id_tipo_config'
-            => $idGrupoSeleccionado
+        ':id_tipo_config'> $idGrupoSeleccionado
 
     ]);
 

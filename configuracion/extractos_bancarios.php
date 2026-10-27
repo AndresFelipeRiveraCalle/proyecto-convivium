@@ -554,8 +554,7 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
             <!-- 
-                 CUENTA BANCARIA
-            = -->
+                 CUENTA BANCARIA -->
 
             <div class="form-group">
 
@@ -626,8 +625,7 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
             <!-- 
-                 ARCHIVO
-            = -->
+                 ARCHIVO -->
 
             <div class="form-group">
 
@@ -658,8 +656,7 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
             <!-- 
-                 OBSERVACIONES
-            = -->
+                 OBSERVACIONES -->
 
             <div class="form-group">
 
@@ -682,8 +679,7 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
             <!-- 
-                 BOTONES
-            = -->
+                 BOTONES -->
 
             <div class="form-actions">
 

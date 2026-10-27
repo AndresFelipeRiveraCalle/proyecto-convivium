@@ -226,8 +226,7 @@ try {
 
     $stmtCalendario->execute([
 
-        ':id_calendario'
-            => $idCalendario
+        ':id_calendario'> $idCalendario
 
     ]);
 
@@ -782,11 +781,9 @@ try {
 
     $stmtEspaciosSueltos->execute([
 
-        ':fecha_facturacion_desde'
-            => $fechaFacturacion,
+        ':fecha_facturacion_desde'> $fechaFacturacion,
 
-        ':fecha_facturacion_hasta'
-            => $fechaFacturacion
+        ':fecha_facturacion_hasta'> $fechaFacturacion
 
     ]);
 

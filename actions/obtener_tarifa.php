@@ -87,8 +87,7 @@ try {
 
     $stmt->execute([
 
-        ':id_tarifa'
-            => $idTarifa
+        ':id_tarifa'> $idTarifa
 
     ]);
 

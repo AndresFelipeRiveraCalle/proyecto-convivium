@@ -217,8 +217,7 @@ switch ($calendario['estado']) {
 
 
             <!-- 
-                 ENCABEZADO
-            = -->
+                 ENCABEZADO -->
 
             <div class="form-header">
 
@@ -251,8 +250,7 @@ switch ($calendario['estado']) {
 
 
             <!-- 
-                 ADVERTENCIA SEGÚN ESTADO
-            = -->
+                 ADVERTENCIA SEGÚN ESTADO -->
 
             <div class="<?= htmlspecialchars($claseMensajeEstado) ?>">
 
@@ -269,8 +267,7 @@ switch ($calendario['estado']) {
 
 
             <!-- 
-                 FORMULARIO
-            = -->
+                 FORMULARIO -->
 
             <form
                 action="<?= BASE_URL ?>actions/actualizar_calendario_financiero.php"

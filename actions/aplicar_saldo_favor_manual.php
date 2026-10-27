@@ -347,17 +347,13 @@ $sqlCartera = "
 
     $stmtInsert->execute([
 
-        ':id_saldo_favor'
-            => $idSaldoFavor,
+        ':id_saldo_favor'> $idSaldoFavor,
 
-        ':id_cartera'
-            => $idCartera,
+        ':id_cartera'> $idCartera,
 
-        ':valor_aplicado'
-            => $valorAplicar,
+        ':valor_aplicado'> $valorAplicar,
 
-        ':observaciones'
-            => 'Aplicación manual de saldo a favor.'
+        ':observaciones'> 'Aplicación manual de saldo a favor.'
     ]);
 
 
@@ -399,24 +395,20 @@ $sqlCartera = "
 
     $stmtUpdateCartera->execute([
 
-        ':valor_aplicado'
-            => $valorAplicar,
+        ':valor_aplicado'> $valorAplicar,
 
-        ':saldo'
-            => max($nuevoSaldoCartera, 0),
+        ':saldo'> max($nuevoSaldoCartera, 0),
 
-        ':estado'
-            => $nuevoEstadoCartera,
+        ':estado'> $nuevoEstadoCartera,
 
-        ':id_cartera'
-            => $idCartera
+        ':id_cartera'> $idCartera
     ]);
 
-    // ==========================================================
+    // =====
     // SINCRONIZAR INTERÉS DE MORA
     // Si la obligación corresponde a un interés, cartera e
     // intereses_cartera deben conservar el mismo saldo.
-    // ==========================================================
+    // =====
 
     if (
         !empty(
@@ -592,17 +584,13 @@ $sqlCartera = "
 
     $stmtUpdateSaldo->execute([
 
-        ':valor_utilizado'
-            => $nuevoUtilizado,
+        ':valor_utilizado'> $nuevoUtilizado,
 
-        ':saldo_disponible'
-            => max($nuevoDisponible, 0),
+        ':saldo_disponible'> max($nuevoDisponible, 0),
 
-        ':estado'
-            => $nuevoEstadoSaldo,
+        ':estado'> $nuevoEstadoSaldo,
 
-        ':id_saldo_favor'
-            => $idSaldoFavor
+        ':id_saldo_favor'> $idSaldoFavor
     ]);
 
 

@@ -947,8 +947,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 CONCEPTO
-            = -->
+                 CONCEPTO -->
 
             <div class="form-group">
 
@@ -988,8 +987,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 NOMBRE
-            = -->
+                 NOMBRE -->
 
             <div class="form-group">
 
@@ -1010,8 +1008,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 DESCRIPCIÓN
-            = -->
+                 DESCRIPCIÓN -->
 
             <div class="form-group">
 
@@ -1031,8 +1028,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 APLICACIÓN
-            = -->
+                 APLICACIÓN -->
 
             <div class="form-group">
 
@@ -1064,8 +1060,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 GRUPO
-            = -->
+                 GRUPO -->
 
             <div
                 class="form-group"
@@ -1122,8 +1117,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 UNIDAD
-            = -->
+                 UNIDAD -->
 
             <div
                 class="form-group"
@@ -1172,8 +1166,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 DISTRIBUCIÓN
-            = -->
+                 DISTRIBUCIÓN -->
 
             <div class="form-group">
 
@@ -1242,8 +1235,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 VALOR TOTAL
-            = -->
+                 VALOR TOTAL -->
 
             <div class="form-group">
 
@@ -1265,8 +1257,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 CUOTAS
-            = -->
+                 CUOTAS -->
 
             <div class="form-group">
 
@@ -1288,8 +1279,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 PERÍODO INICIAL
-            = -->
+                 PERÍODO INICIAL -->
 
             <div class="form-group">
 
@@ -1308,8 +1298,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 OBSERVACIONES
-            = -->
+                 OBSERVACIONES -->
 
             <div class="form-group">
 
@@ -1329,8 +1318,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 ESTADO
-            = -->
+                 ESTADO -->
 
             <div class="form-group">
 
@@ -1362,8 +1350,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 BOTONES
-            = -->
+                 BOTONES -->
 
             <div class="form-actions">
 

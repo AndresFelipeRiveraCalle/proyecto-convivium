@@ -269,14 +269,11 @@ if ($idGrupoSeleccionado > 0) {
 
         $resumenUnidades = [
 
-            'cantidad_creadas'
-            => (int)$resultadoResumen['cantidad_creadas'],
+            'cantidad_creadas'> (int)$resultadoResumen['cantidad_creadas'],
 
-            'area_real'
-            => (float)$resultadoResumen['area_real'],
+            'area_real'> (float)$resultadoResumen['area_real'],
 
-            'coeficiente_real'
-            => (float)$resultadoResumen['coeficiente_real']
+            'coeficiente_real'> (float)$resultadoResumen['coeficiente_real']
 
         ];
     }
@@ -821,8 +818,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 TIPO DE UNIDAD
-            = -->
+                 TIPO DE UNIDAD -->
 
                 <div class="form-group">
 
@@ -869,8 +865,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 NOMBRE
-            = -->
+                 NOMBRE -->
 
                 <div class="form-group">
 
@@ -895,8 +890,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 CANTIDAD
-            = -->
+                 CANTIDAD -->
 
                 <div class="form-group">
 
@@ -928,8 +922,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 ÁREA TOTAL
-            = -->
+                 ÁREA TOTAL -->
 
                 <div class="form-group">
 
@@ -963,8 +956,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 COEFICIENTE
-            = -->
+                 COEFICIENTE -->
 
                 <div class="form-group">
 
@@ -998,8 +990,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 OBSERVACIONES
-            = -->
+                 OBSERVACIONES -->
 
                 <div class="form-group">
 
@@ -1023,8 +1014,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 BOTONES
-            = -->
+                 BOTONES -->
 
                 <div class="form-actions">
 

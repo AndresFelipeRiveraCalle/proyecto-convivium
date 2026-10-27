@@ -186,39 +186,46 @@ try {
     // CARTERA PENDIENTE
     // ====
 
-    $sqlCartera = "
-        SELECT
-            c.id_cartera,
-            c.id_factura,
-            c.id_detalle,
-            c.saldo,
-            c.fecha_vencimiento,
-            c.periodo,
+$sqlCartera = "
+    SELECT
+        c.id_cartera,
+        c.id_factura,
+        c.id_detalle,
+        c.saldo,
+        c.fecha_vencimiento,
+        c.periodo,
 
-            fd.id_interes
+        fd.id_interes
 
-        FROM cartera c
+    FROM cartera c
 
-        LEFT JOIN facturas_detalle fd
-            ON fd.id_detalle =
-            c.id_detalle
+    LEFT JOIN facturas_detalle fd
+        ON fd.id_detalle =
+           c.id_detalle
 
-        WHERE
-            c.id_unidad =
-                :id_unidad
+    WHERE
+        c.id_unidad =
+            :id_unidad
 
-            AND c.estado =
-                'PENDIENTE'
+        AND c.estado =
+            'PENDIENTE'
 
-            AND c.saldo > 0
+        AND c.saldo > 0
 
-        ORDER BY
-            c.fecha_vencimiento ASC,
-            c.periodo ASC,
-            c.id_cartera ASC
+    ORDER BY
 
-        FOR UPDATE
-    ";
+        CASE
+            WHEN fd.id_interes IS NOT NULL
+                THEN 0
+            ELSE 1
+        END ASC,
+
+        c.fecha_vencimiento ASC,
+        c.periodo ASC,
+        c.id_cartera ASC
+
+    FOR UPDATE
+";
 
     $stmtCartera = $conexion->prepare($sqlCartera);
 
@@ -395,9 +402,9 @@ try {
                 ];
 
 
-            // ======================================================
+            // =
             // BLOQUEAR INTERÉS
-            // ======================================================
+            // =
 
             $sqlInteres = "
                 SELECT
@@ -443,9 +450,9 @@ try {
             }
 
 
-            // ======================================================
+            // =
             // CALCULAR NUEVOS VALORES
-            // ======================================================
+            // =
 
             $nuevoValorPagadoInteres =
                 round(
@@ -484,9 +491,9 @@ try {
                     : 'PENDIENTE';
 
 
-            // ======================================================
+            // =
             // ACTUALIZAR INTERÉS
-            // ======================================================
+            // =
 
             $sqlUpdateInteres = "
                 UPDATE intereses_cartera
@@ -588,17 +595,13 @@ try {
 
     $stmtUpdateSaldo->execute([
 
-        ':valor_utilizado'
-            => $nuevoUtilizado,
+        ':valor_utilizado'> $nuevoUtilizado,
 
-        ':saldo_disponible'
-            => max($nuevoDisponible, 0),
+        ':saldo_disponible'> max($nuevoDisponible, 0),
 
-        ':estado'
-            => $nuevoEstado,
+        ':estado'> $nuevoEstado,
 
-        ':id_saldo_favor'
-            => $idSaldoFavor
+        ':id_saldo_favor'> $idSaldoFavor
     ]);
 
 

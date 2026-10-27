@@ -279,8 +279,7 @@ try {
 
     $stmtTarifa->execute([
 
-        ':id_tarifa'
-            => $idTarifa
+        ':id_tarifa'> $idTarifa
 
     ]);
 
@@ -321,8 +320,7 @@ try {
 
     $stmtConcepto->execute([
 
-        ':id_concepto'
-            => $idConcepto
+        ':id_concepto'> $idConcepto
 
     ]);
 
@@ -367,8 +365,7 @@ try {
 
     $stmtTipoUnidad->execute([
 
-        ':id_tipo_config'
-            => $idTipoConfig
+        ':id_tipo_config'> $idTipoConfig
 
     ]);
 
@@ -543,32 +540,23 @@ try {
 
     $stmtActualizar->execute([
 
-        ':id_concepto'
-            => $idConcepto,
+        ':id_concepto'> $idConcepto,
 
-        ':id_tipo_config'
-            => $idTipoConfig,
+        ':id_tipo_config'> $idTipoConfig,
 
-        ':nombre'
-            => $nombre,
+        ':nombre'> $nombre,
 
-        ':valor'
-            => $valor,
+        ':valor'> $valor,
 
-        ':fecha_inicio'
-            => $fechaInicio,
+        ':fecha_inicio'> $fechaInicio,
 
-        ':fecha_fin'
-            => $fechaFin,
+        ':fecha_fin'> $fechaFin,
 
-        ':estado'
-            => $estado,
+        ':estado'> $estado,
 
-        ':observaciones'
-            => $observaciones,
+        ':observaciones'> $observaciones,
 
-        ':id_tarifa'
-            => $idTarifa
+        ':id_tarifa'> $idTarifa
 
     ]);
 

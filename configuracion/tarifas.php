@@ -737,8 +737,7 @@ function formatoValorTarifa($valor, $tipoCalculo)
 
 
             <!-- 
-                 TIPO DE UNIDAD
-            = -->
+                 TIPO DE UNIDAD -->
 
             <div class="form-group">
 

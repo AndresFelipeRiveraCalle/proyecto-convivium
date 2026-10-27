@@ -327,8 +327,7 @@ try {
 
     $stmtExiste->execute([
 
-        ':periodo'
-            => $periodoBD
+        ':periodo'> $periodoBD
 
     ]);
 
@@ -377,29 +376,21 @@ try {
 
     $stmt->execute([
 
-        ':periodo'
-            => $periodoBD,
+        ':periodo'> $periodoBD,
 
-        ':fecha_inicio_cierre'
-            => $fechaInicioCierre,
+        ':fecha_inicio_cierre'> $fechaInicioCierre,
 
-        ':fecha_fin_cierre'
-            => $fechaFinCierre,
+        ':fecha_fin_cierre'> $fechaFinCierre,
 
-        ':fecha_facturacion'
-            => $fechaFacturacion,
+        ':fecha_facturacion'> $fechaFacturacion,
 
-        ':fecha_generacion_intereses'
-            => $fechaGeneracionIntereses,
+        ':fecha_generacion_intereses'> $fechaGeneracionIntereses,
 
-        ':fecha_vencimiento'
-            => $fechaVencimiento,
+        ':fecha_vencimiento'> $fechaVencimiento,
 
-        ':estado'
-            => $estado,
+        ':estado'> $estado,
 
-        ':observaciones'
-            => $observaciones !== ''
+        ':observaciones'> $observaciones !== ''
                 ? $observaciones
                 : null
 
