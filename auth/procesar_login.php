@@ -13,8 +13,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $contrasena_ingresada_por_usuario = $_POST['contrasena_secreta'];
 
     try {
-        // buscamos solo por correo porque la contrasena en la base de datos esta encriptada y php debe comparar el hash de forma segura
-        $consulta_sql_buscar_usuario = "SELECT id, nombres, apellidos, correo, contrasena, rol_id, estado FROM usuario WHERE correo = :correo_buscado LIMIT 1";
+        // ACTUALIZACIÓN: Buscamos al usuario incluyendo su foto y hacemos un LEFT JOIN para traer el nombre real de su rol
+        $consulta_sql_buscar_usuario = "
+            SELECT u.id, u.nombres, u.apellidos, u.correo, u.contrasena, u.rol_id, u.estado, u.foto, r.nombre AS rol_nombre 
+            FROM usuario u 
+            LEFT JOIN rol r ON u.rol_id = r.id 
+            WHERE u.correo = :correo_buscado 
+            LIMIT 1
+        ";
         
         $sentencia_preparada = $conexion->prepare($consulta_sql_buscar_usuario);
         
@@ -31,10 +37,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // password verify compara la clave del usuario con el hash de la base de datos protegiendo contra ataques de tiempo
             if (password_verify($contrasena_ingresada_por_usuario, $datos_del_usuario_encontrado['contrasena'])) {
                 
-                // al tener exito guardamos los datos importantes en la variable de sesion para que las demas paginas sepan quien navega
+                // 1. MANTENEMOS TUS VARIABLES ORIGINALES INTACTAS PARA NO DAÑAR TU SOFTWARE ACTUAL
                 $_SESSION['id_usuario_autenticado'] = $datos_del_usuario_encontrado['id'];
                 $_SESSION['nombre_usuario_autenticado'] = $datos_del_usuario_encontrado['nombres'] . ' ' . $datos_del_usuario_encontrado['apellidos'];
                 $_SESSION['rol_usuario_autenticado'] = $datos_del_usuario_encontrado['rol_id'];
+
+                // 2. AGREGAMOS LAS VARIABLES NECESARIAS ÚNICAMENTE PARA LA ESQUINA DEL HEADER
+                $_SESSION['nombres'] = $datos_del_usuario_encontrado['nombres'];
+                $_SESSION['apellidos'] = $datos_del_usuario_encontrado['apellidos'];
+                $_SESSION['foto'] = $datos_del_usuario_encontrado['foto']; // Ruta de la foto en BD
+                $_SESSION['rol_nombre'] = $datos_del_usuario_encontrado['rol_nombre'] ?? 'Administrador General';
 
                 // redirigimos al usuario al panel principal y usamos exit para detener el script
                 header("Location: ../inicio.php"); 
