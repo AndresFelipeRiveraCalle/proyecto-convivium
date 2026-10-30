@@ -300,7 +300,7 @@
             </li>
 
             <li class="cerrar-sesion">
-                <a href="<?= BASE_URL ?>logout.php">
+                <a href="<?= BASE_URL ?>cerrar_sesion.php">
                     <i class="fa-solid fa-right-from-bracket icono"></i>
                     <span>Cerrar sesión</span>
                 </a>

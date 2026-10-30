@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . "/auth/requerir_sesion.php";
 
 $output = [];
 $return = 0;

@@ -4,6 +4,7 @@
  * Módulo de Inventario - Formulario de Movimientos (PDO)
  */
 require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 $query_articulos = "SELECT id_articulo, nombre, unidad_medida FROM articulos WHERE activo = 1 ORDER BY nombre ASC";

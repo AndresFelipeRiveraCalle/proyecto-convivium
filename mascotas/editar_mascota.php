@@ -2,6 +2,7 @@
 // Archivo: mascotas/editar_mascota.php
 
 require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 // Verificamos que los datos nos lleguen por POST desde el Modal de Edición

@@ -20,6 +20,7 @@
  */
 
 require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 // Centraliza los mensajes de error/advertencia y conserva la unidad seleccionada.

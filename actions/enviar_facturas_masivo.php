@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 require_once ROOT_PATH . "/config/seguridad_correo.php";
 require_once ROOT_PATH . "/config/generador_factura_pdf.php";

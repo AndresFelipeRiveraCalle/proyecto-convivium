@@ -2,6 +2,7 @@
 // conexion ala base de datos
 
 require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 // cargar las mascotas de la base de datos para la tabla

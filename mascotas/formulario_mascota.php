@@ -1,6 +1,7 @@
 <?php
 // 1. Requerimos las configuraciones y la conexión
 require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 // 2. CONSULTA PARA EL SELECT DINÁMICO

@@ -1,4 +1,5 @@
 <?php
+require_once dirname(__DIR__) . "/auth/requerir_sesion.php";
 require_once "../config/conexion.php";
 
 // recibe el id del residemte 

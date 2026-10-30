@@ -1,4 +1,5 @@
 <?php
+require_once dirname(__DIR__) . "/auth/requerir_sesion.php";
 require_once "../config/conexion.php";
 
 $idPertenece = isset($_GET["id_pertenece"]) ? $_GET["id_pertenece"] : null;

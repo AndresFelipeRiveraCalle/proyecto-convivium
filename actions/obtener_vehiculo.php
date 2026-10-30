@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/auth/requerir_sesion_json.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 header('Content-Type: application/json; charset=utf-8');

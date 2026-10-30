@@ -11,6 +11,7 @@
  */
 
 // Importar la conexión a la base de datos
+require_once dirname(__DIR__) . "/auth/requerir_sesion.php";
 require_once "../config/conexion.php";
 
 // Verificar que los parámetros existen en el arreglo y que no contengan cadenas vacías

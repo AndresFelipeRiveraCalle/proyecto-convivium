@@ -3,6 +3,7 @@
 
 // traemos la configuracion y la conexion a bd
 require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 // validamos que llegue un id por get y que sea numero
