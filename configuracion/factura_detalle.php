@@ -1133,9 +1133,7 @@ foreach (
     <main class="contenido">
 
 
-        <!-- ====
-             BARRA SUPERIOR
-        ===== -->
+        <!--BARRA SUPERIOR -->
 
         <div class="factura-toolbar">
 
@@ -1249,9 +1247,7 @@ foreach (
 
         <?php endif; ?>
 
-        <!-- ====
-             DOCUMENTO
-        ===== -->
+        <!--DOCUMENTO -->
 
         <section class="factura-documento">
             <!-- 
@@ -1886,89 +1882,61 @@ foreach (
 
                     <?php foreach ($detalles as $detalle): ?>
 
+                        <?php
+                            $esInteresMora =
+                                !empty(
+                                    $detalle['id_interes']
+                                );
 
-                        <tr<?= !empty(
-                            $detalle[
-                                'id_interes'
-                            ]
-                        )
-                            ? ' class="fila-interes"'
-                            : ''
-                        ?>>
-
-
-                            <td>
-
-
-                                <?php if (
-                                    !empty(
-                                        $detalle[
-                                            'id_cargo'
-                                        ]
+                            $mesesMoraDetalle =
+                                max(
+                                    1,
+                                    (int)(
+                                        $detalle['meses_mora']
+                                        ?? 1
                                     )
-                                ): ?>
+                                );
+                        ?>
 
 
-                                    <a
-                                        href="<?= BASE_URL ?>configuracion/cargo_detalle.php?id=<?= (int)$detalle['id_cargo'] ?>"
-                                        class="factura-concepto-link"
-                                    >
+                        <?php if ($esInteresMora): ?>
 
-                                        <?= e(
-                                            $detalle[
-                                                'concepto_nombre'
-                                            ]
-                                        ) ?>
+                            <!-- ==================================================
+                                INTERÉS DE MORA
+                            =================================================== -->
 
-                                    </a>
+                            <tr class="fila-interes">
 
 
-                                    <span class="factura-concepto-aclaracion">
+                                <!-- CONCEPTO -->
 
-                                        <?= e(
-                                            $detalle[
-                                                'descripcion'
-                                            ]
-                                        ) ?>
-
-                                    </span>
-
-
-                                <?php else: ?>
-
+                                <td class="factura-col-concepto">
 
                                     <strong>
-
-                                        <?= e(
-                                            $detalle[
-                                                'concepto_nombre'
-                                            ]
-                                        ) ?>
-
+                                        Intereses de mora
                                     </strong>
 
 
                                     <?php if (
                                         !empty(
-                                            $detalle[
-                                                'id_interes'
-                                            ]
+                                            $detalle['descripcion']
                                         )
                                     ): ?>
-
 
                                         <span class="factura-concepto-aclaracion">
 
                                             <?= e(
-                                                $detalle[
-                                                    'descripcion'
-                                                ]
+                                                $detalle['descripcion']
                                             ) ?>
 
                                         </span>
 
+                                    <?php endif; ?>
 
-                                        <span class="factura-mora">
+
+                                    <div class="factura-mora-detalle">
+
+                                        <div class="factura-mora-origen">
 
                                             Obligación origen:
 
@@ -1988,28 +1956,37 @@ foreach (
 
                                             </strong>
 
-
-                                            <?php if (
-                                                !empty(
-                                                    $detalle[
-                                                        'mora_factura_origen'
-                                                    ]
-                                                )
-                                            ): ?>
-
-                                                · Factura:
-
-                                                <?= e(
-                                                    $detalle[
-                                                        'mora_factura_origen'
-                                                    ]
-                                                ) ?>
-
-                                            <?php endif; ?>
+                                        </div>
 
 
-                                            <br>
+                                        <?php if (
+                                            !empty(
+                                                $detalle[
+                                                    'mora_factura_origen'
+                                                ]
+                                            )
+                                        ): ?>
 
+                                            <div>
+
+                                                Factura:
+
+                                                <strong>
+
+                                                    <?= e(
+                                                        $detalle[
+                                                            'mora_factura_origen'
+                                                        ]
+                                                    ) ?>
+
+                                                </strong>
+
+                                            </div>
+
+                                        <?php endif; ?>
+
+
+                                        <div class="factura-mora-calculo">
 
                                             Saldo base:
 
@@ -2023,6 +2000,8 @@ foreach (
                                                     $detalle[
                                                         'base_calculo'
                                                     ]
+                                                    ??
+                                                    0
                                                 ) ?>
 
                                             </strong>
@@ -2059,80 +2038,46 @@ foreach (
                                                     $detalle[
                                                         'subtotal'
                                                     ]
+                                                    ??
+                                                    0
                                                 ) ?>
 
                                             </strong>
 
-                                        </span>
+                                        </div>
+
+                                    </div>
+
+                                </td>
 
 
-                                    <?php elseif (
-                                        !empty(
-                                            $detalle[
-                                                'tarifa_nombre'
-                                            ]
-                                        )
-                                    ): ?>
+                                <!-- PERÍODO / ESTADO -->
 
+                                <td class="factura-periodo-estado">
 
-                                        <span class="factura-concepto-aclaracion">
+                                    <div>
 
-                                            Tarifa:
+                                        <strong>
+                                            Período:
+                                        </strong>
 
-                                            <?= e(
-                                                $detalle[
-                                                    'tarifa_nombre'
-                                                ]
-                                            ) ?>
+                                        <?= e(
+                                            str_pad(
+                                                (string)$factura['mes'],
+                                                2,
+                                                '0',
+                                                STR_PAD_LEFT
+                                            )
+                                        ) ?>
 
-                                        </span>
+                                        /
 
+                                        <?= e(
+                                            $factura['periodo']
+                                        ) ?>
 
-                                    <?php endif; ?>
+                                    </div>
 
-
-                                <?php endif; ?>
-
-
-                            </td>
-
-                            <td class="factura-periodo-estado">
-
-                                <div>
-
-                                    <strong>
-                                        Período:
-                                    </strong>
-
-                                    <?= e(
-                                        str_pad(
-                                            (string)$factura[
-                                                'mes'
-                                            ],
-                                            2,
-                                            '0',
-                                            STR_PAD_LEFT
-                                        )
-                                    ) ?>
-
-                                    /
-
-                                    <?= e(
-                                        $factura[
-                                            'periodo'
-                                        ]
-                                    ) ?>
-
-                                </div>
-
-
-                                <?php if (
-                                    !empty(
-                                        $detalle[
-                                            'id_interes'
-                                        ]
-                                    )
-                                ): ?>
 
                                     <div class="estado-mora-texto">
 
@@ -2140,19 +2085,9 @@ foreach (
 
                                         <strong>
 
-                                            <?= (int)(
-                                                $detalle[
-                                                    'meses_mora'
-                                                ]
-                                                ?? 1
-                                            ) ?>
+                                            <?= $mesesMoraDetalle ?>
 
-                                            <?= (int)(
-                                                $detalle[
-                                                    'meses_mora'
-                                                ]
-                                                ?? 1
-                                            ) === 1
+                                            <?= $mesesMoraDetalle === 1
                                                 ? 'mes'
                                                 : 'meses'
                                             ?>
@@ -2161,38 +2096,21 @@ foreach (
 
                                     </div>
 
-                                <?php else: ?>
-
-                                    <div class="estado-periodo-actual">
-
-                                        Período actual
-
-                                    </div>
-
-                                <?php endif; ?>
-
-                            </td>
-                            <td class="numero">
-
-                                <?= dinero(0) ?>
-
-                            </td>
+                                </td>
 
 
-                            <td class="numero">
+                                <!-- SALDO ANTERIOR -->
 
-                                <?= dinero(
-                                    $detalle[
-                                        'subtotal'
-                                    ]
-                                ) ?>
+                                <td class="numero factura-valor">
 
-                            </td>
+                                    <?= dinero(0) ?>
+
+                                </td>
 
 
-                            <td class="numero">
+                                <!-- ESTE MES -->
 
-                                <strong>
+                                <td class="numero factura-valor">
 
                                     <?= dinero(
                                         $detalle[
@@ -2200,12 +2118,202 @@ foreach (
                                         ]
                                     ) ?>
 
-                                </strong>
-
-                            </td>
+                                </td>
 
 
-                        </tr>
+                                <!-- TOTAL A PAGAR -->
+
+                                <td class="numero factura-valor">
+
+                                    <strong>
+
+                                        <?= dinero(
+                                            $detalle[
+                                                'subtotal'
+                                            ]
+                                        ) ?>
+
+                                    </strong>
+
+                                </td>
+
+
+                            </tr>
+
+
+                        <?php else: ?>
+
+
+                            <!-- ==================================================
+                                CONCEPTO NORMAL
+                            =================================================== -->
+
+                            <tr>
+
+
+                                <!-- CONCEPTO -->
+
+                                <td class="factura-col-concepto">
+
+
+                                    <?php if (
+                                        !empty(
+                                            $detalle[
+                                                'id_cargo'
+                                            ]
+                                        )
+                                    ): ?>
+
+
+                                        <a
+                                            href="<?= BASE_URL ?>configuracion/cargo_detalle.php?id=<?= (int)$detalle['id_cargo'] ?>"
+                                            class="factura-concepto-link"
+                                            title="Ver explicación del cobro"
+                                        >
+
+                                            <?= e(
+                                                $detalle[
+                                                    'concepto_nombre'
+                                                ]
+                                            ) ?>
+
+                                        </a>
+
+
+                                        <span class="factura-concepto-aclaracion">
+
+                                            <?= e(
+                                                $detalle[
+                                                    'descripcion'
+                                                ]
+                                            ) ?>
+
+                                        </span>
+
+
+                                    <?php else: ?>
+
+
+                                        <strong>
+
+                                            <?= e(
+                                                $detalle[
+                                                    'concepto_nombre'
+                                                ]
+                                            ) ?>
+
+                                        </strong>
+
+
+                                        <?php if (
+                                            !empty(
+                                                $detalle[
+                                                    'tarifa_nombre'
+                                                ]
+                                            )
+                                        ): ?>
+
+                                            <span class="factura-concepto-aclaracion">
+
+                                                Tarifa:
+
+                                                <?= e(
+                                                    $detalle[
+                                                        'tarifa_nombre'
+                                                    ]
+                                                ) ?>
+
+                                            </span>
+
+                                        <?php endif; ?>
+
+
+                                    <?php endif; ?>
+
+
+                                </td>
+
+
+                                <!-- PERÍODO / ESTADO -->
+
+                                <td class="factura-periodo-estado">
+
+                                    <div>
+
+                                        <strong>
+                                            Período:
+                                        </strong>
+
+                                        <?= e(
+                                            str_pad(
+                                                (string)$factura['mes'],
+                                                2,
+                                                '0',
+                                                STR_PAD_LEFT
+                                            )
+                                        ) ?>
+
+                                        /
+
+                                        <?= e(
+                                            $factura['periodo']
+                                        ) ?>
+
+                                    </div>
+
+
+                                    <div class="estado-periodo-actual">
+
+                                        Período actual
+
+                                    </div>
+
+                                </td>
+
+
+                                <!-- SALDO ANTERIOR -->
+
+                                <td class="numero factura-valor">
+
+                                    <?= dinero(0) ?>
+
+                                </td>
+
+
+                                <!-- ESTE MES -->
+
+                                <td class="numero factura-valor">
+
+                                    <?= dinero(
+                                        $detalle[
+                                            'subtotal'
+                                        ]
+                                    ) ?>
+
+                                </td>
+
+
+                                <!-- TOTAL -->
+
+                                <td class="numero factura-valor">
+
+                                    <strong>
+
+                                        <?= dinero(
+                                            $detalle[
+                                                'subtotal'
+                                            ]
+                                        ) ?>
+
+                                    </strong>
+
+                                </td>
+
+
+                            </tr>
+
+
+                        <?php endif; ?>
 
 
                     <?php endforeach; ?>
@@ -2436,8 +2544,7 @@ foreach (
 </div>
 
 <!-- =======
-     MODAL ENVIAR FACTURA
-======= -->
+     MODAL ENVIAR FACTURA== -->
 
 <div
     id="modalEnviarFactura"
@@ -2677,8 +2784,7 @@ foreach (
 </div>
 
 <!-- =======
-     MODAL HISTORIAL DE ENVÍOS
-======= -->
+     MODAL HISTORIAL DE ENVÍOS== -->
 
 <div
     id="modalHistorialEnvios"
