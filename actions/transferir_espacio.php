@@ -123,15 +123,13 @@ if (
 
 try {
 
-    // ====
-    // TRANSACCIÓN
+    // // TRANSACCIÓN
     // ====
 
     $conexion->beginTransaction();
 
 
-    // ====
-    // CONSULTAR ESPACIO VIGENTE
+    // // CONSULTAR ESPACIO VIGENTE
     // ====
 
     $sqlEspacio = "
@@ -192,8 +190,7 @@ try {
     }
 
 
-    // ====
-    // URL RETORNO ORIGINAL
+    // // URL RETORNO ORIGINAL
     // ====
 
     if ($origen === 'espacios') {
@@ -219,8 +216,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR VIGENCIA
+    // // VALIDAR VIGENCIA
     // ====
 
     if (
@@ -248,8 +244,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR FECHA CONTRA FECHA DESDE
+    // // VALIDAR FECHA CONTRA FECHA DESDE
     // ====
 
     $fechaDesde =
@@ -286,8 +281,7 @@ try {
     }
 
 
-    // ====
-    // BUSCAR NUEVO PROPIETARIO
+    // // BUSCAR NUEVO PROPIETARIO
     // ====
 
     $sqlUsuario = "
@@ -378,8 +372,7 @@ try {
         (int)$nuevoPropietario['id'];
 
 
-    // ====
-    // VALIDAR NUEVA UNIDAD
+    // // VALIDAR NUEVA UNIDAD
     // ====
 
     if ($idNuevaUnidad !== null) {
@@ -441,8 +434,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR DUPLICADO VIGENTE
+    // // VALIDAR DUPLICADO VIGENTE
     // ====
 
     $sqlDuplicado = "
@@ -508,8 +500,7 @@ try {
     }
 
 
-    // ====
-    // FECHA HASTA DEL PROPIETARIO ANTERIOR
+    // // FECHA HASTA DEL PROPIETARIO ANTERIOR
     // ====
 
     $fechaHastaAnteriorObj =
@@ -529,8 +520,7 @@ try {
         );
 
 
-    // ====
-    // CERRAR REGISTRO ANTERIOR
+    // // CERRAR REGISTRO ANTERIOR
     // ====
 
     $sqlCerrar = "
@@ -571,8 +561,7 @@ try {
     }
 
 
-    // ====
-    // CREAR NUEVO REGISTRO VIGENTE
+    // // CREAR NUEVO REGISTRO VIGENTE
     // ====
 
     $sqlInsertar = "
@@ -637,15 +626,13 @@ try {
     ]);
 
 
-    // ====
-    // COMMIT
+    // // COMMIT
     // ====
 
     $conexion->commit();
 
 
-    // ====
-    // REDIRECCIÓN
+    // // REDIRECCIÓN
     // ====
 
     header(

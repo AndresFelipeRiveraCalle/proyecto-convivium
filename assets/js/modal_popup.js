@@ -389,8 +389,7 @@ if (cancelarNuevoGenero) {
     });
 }
 /*=======
-            EDITAR PAÍS
-=======*/
+            EDITAR PAÍS==*/
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -1089,8 +1088,7 @@ if (modalEditarGenero) {
 }
 
 
-    // ====
-    // MODAL PAGOS
+    // // MODAL PAGOS
     // ====
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -1201,8 +1199,7 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
 
-    // ====
-    // BOTONES EDITAR
+    // // BOTONES EDITAR
     // ====
 
     document
@@ -1336,8 +1333,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
 
-    // ====
-    // CERRAR CON X
+    // // CERRAR CON X
     // ====
 
     if (cerrar) {
@@ -1354,8 +1350,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ====
-    // CANCELAR
+    // // CANCELAR
     // ====
 
     if (cancelar) {
@@ -1372,8 +1367,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    // ====
-    // CERRAR AL HACER CLIC FUERA
+    // // CERRAR AL HACER CLIC FUERA
     // ====
 
     if (modal) {

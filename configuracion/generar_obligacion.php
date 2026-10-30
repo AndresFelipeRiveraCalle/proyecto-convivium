@@ -48,8 +48,7 @@ if (!empty($idCalendarioSeleccionado)) {
     foreach ($calendarios as $calendario) {
 
         if (
-            (int)$calendario['id_calendario']
-            ===
+            (int)$calendario['id_calendario']==
             (int)$idCalendarioSeleccionado
         ) {
 
@@ -132,8 +131,7 @@ function formatoPeriodo($periodo)
 
 
             <!-- 
-                 ENCABEZADO
-            = -->
+                 ENCABEZADO -->
 
             <div class="form-header">
 
@@ -166,8 +164,7 @@ function formatoPeriodo($periodo)
 
 
             <!-- 
-                 SELECCIÓN DE PERÍODO
-            = -->
+                 SELECCIÓN DE PERÍODO -->
 
             <div class="form-group">
 

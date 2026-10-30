@@ -5,10 +5,10 @@ require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// 
+//
 // FUNCIONES
 // Permite escapar texto y formatear valores monetarios.
-// 
+//
 
 function e($valor)
 {
@@ -31,10 +31,10 @@ function dinero($valor)
 }
 
 
-// 
+//
 // FILTROS
 // Obtiene los filtros enviados desde la pantalla.
-// 
+//
 
 $buscar =
     trim(
@@ -53,10 +53,10 @@ $periodo =
         $_GET['periodo'] ?? ''
     );
 
-// 
+//
 // FECHA DE CORTE
 // Define la fecha usada para evaluar la mora.
-// 
+//
 
 if ($periodo !== '') {
 
@@ -67,17 +67,16 @@ if ($periodo !== '') {
                 $periodo . '-01'
             )
         );
-
 } else {
 
     $fechaCorte =
         date('Y-m-d');
 }
 
-// 
+//
 // WHERE DINÁMICO
 // Construye las condiciones de búsqueda del listado.
-// 
+//
 
 $where = [
     "1 = 1"
@@ -87,10 +86,10 @@ $where = [
 $params = [];
 
 
-// 
+//
 // FILTRO DE BÚSQUEDA
 // Permite buscar por unidad, factura, descripción o concepto.
-// 
+//
 
 if ($buscar !== '') {
 
@@ -125,10 +124,10 @@ if ($buscar !== '') {
 }
 
 
-// 
+//
 // FILTRO POR ESTADO
 // Diferencia pendiente, mora, pagada y anulada.
-// 
+//
 
 if ($estado === 'EN_MORA') {
 
@@ -140,7 +139,6 @@ if ($estado === 'EN_MORA') {
 
     $params[':fecha_corte_estado_mora'] =
         $fechaCorte;
-
 } elseif ($estado === 'PENDIENTE') {
 
     $where[] = "
@@ -151,7 +149,6 @@ if ($estado === 'EN_MORA') {
 
     $params[':fecha_corte_estado_pendiente'] =
         $fechaCorte;
-
 } elseif (
     in_array(
         $estado,
@@ -169,10 +166,10 @@ if ($estado === 'EN_MORA') {
 }
 
 
-// 
+//
 // FILTRO POR PERÍODO
 // Permite consultar obligaciones de un mes específico.
-// 
+//
 
 if ($periodo !== '') {
 
@@ -189,10 +186,10 @@ if ($periodo !== '') {
 }
 
 
-// 
+//
 // ARMAR WHERE
 // Une todas las condiciones dinámicas.
-// 
+//
 
 $whereSql =
     implode(
@@ -201,10 +198,10 @@ $whereSql =
     );
 
 
-// 
+//
 // RESUMEN GENERAL
 // Calcula los principales valores de la cartera filtrada.
-// 
+//
 
 $sqlResumen = "
     SELECT
@@ -231,7 +228,7 @@ $sqlResumen = "
                     WHEN
                         c.estado = 'PENDIENTE'
                         AND c.saldo > 0.009
-                        AND c.fecha_vencimiento < :fecha_corte
+                        AND c.fecha_vencimiento < :fecha_corte_total_mora
                     THEN c.saldo
                     ELSE 0
                 END
@@ -245,7 +242,7 @@ $sqlResumen = "
                     WHEN
                         c.estado = 'PENDIENTE'
                         AND c.saldo > 0.009
-                        AND c.fecha_vencimiento < :fecha_corte
+                        AND c.fecha_vencimiento < :fecha_corte_cantidad_mora
                     THEN 1
                     ELSE 0
                 END
@@ -276,10 +273,10 @@ $sqlResumen = "
 ";
 
 
-// 
+//
 // EJECUTAR RESUMEN
 // Obtiene los totales de la cartera.
-// 
+//
 
 $stmtResumen =
     $conexion->prepare(
@@ -287,8 +284,17 @@ $stmtResumen =
     );
 
 
+$paramsResumen =
+    $params;
+
+$paramsResumen[':fecha_corte_total_mora'] =
+    $fechaCorte;
+
+$paramsResumen[':fecha_corte_cantidad_mora'] =
+    $fechaCorte;
+
 $stmtResumen->execute(
-    $params
+    $paramsResumen
 );
 
 
@@ -298,10 +304,10 @@ $resumen =
     );
 
 
-// 
+//
 // LISTADO
 // Obtiene las obligaciones y calcula su estado visual.
-// 
+//
 
 $sql = "
     SELECT
@@ -406,7 +412,7 @@ $sql = "
             WHEN
                 c.estado = 'PENDIENTE'
                 AND c.saldo > 0.009
-                AND c.fecha_vencimiento < :fecha_corte
+                AND c.fecha_vencimiento < :fecha_corte_orden
             THEN 0
 
             ELSE 1
@@ -418,10 +424,10 @@ $sql = "
 ";
 
 
-// 
+//
 // EJECUTAR LISTADO
 // Obtiene los registros de cartera.
-// 
+//
 
 $stmt =
     $conexion->prepare(
@@ -444,6 +450,8 @@ $paramsListado[':fecha_corte_meses'] =
 $paramsListado[':fecha_corte_calculo'] =
     $fechaCorte;
 
+$paramsListado[':fecha_corte_orden'] =
+    $fechaCorte;
 
 $stmt->execute(
     $paramsListado
@@ -465,780 +473,611 @@ $registros =
 </head>
 
 <body>
-<?php include ROOT_PATH . "/includes/header.php"; ?>
+    <?php include ROOT_PATH . "/includes/header.php"; ?>
 
 
-<div class="contenedor">
-    <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-    <main class="contenido">
+    <div class="contenedor">
+        <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
+        <main class="contenido">
 
 
-        <!-- ====
-             TÍTULO
-        ===== -->
+            <!--TÍTULO -->
 
-        <h2 align="center">
-            Estado de cartera
-        </h2>
+            <h2 align="center">
+                Estado de cartera
+            </h2>
 
 
-        <p align="center">
-            Consulta de obligaciones, pagos, saldos pendientes y mora.
-        </p>
-        <p align="center">
+            <p align="center">
+                Consulta de obligaciones, pagos, saldos pendientes y mora.
+            </p>
+            <p align="center">
 
-            <small>
+                <small>
 
-                Fecha de corte:
-                <strong>
-                    <?= e(
-                        date(
-                            'd/m/Y',
-                            strtotime($fechaCorte)
-                        )
-                    ) ?>
-                </strong>
+                    Fecha de corte:
+                    <strong>
+                        <?= e(
+                            date(
+                                'd/m/Y',
+                                strtotime($fechaCorte)
+                            )
+                        ) ?>
+                    </strong>
 
-            </small>
+                </small>
 
-        </p>
+            </p>
 
-        <br>
-
-
-        <!-- ====
-             RESUMEN
-        ===== -->
-
-        <div class="bloque filtros">
-
-            <div class="form-card">
-
-                <h3>
-                    Resumen
-                </h3>
-
-                <br>
-
-                <div class="tabla-responsive">
-
-                    <table class="tabla">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Registros
-                                </th>
-
-                                <th>
-                                    Valor original
-                                </th>
-
-                                <th>
-                                    Pagado
-                                </th>
-
-                                <th>
-                                    Saldo pendiente
-                                </th>
-
-                                <th>
-                                    Obligaciones en mora
-                                </th>
-
-                                <th>
-                                    Saldo en mora
-                                </th>
-
-                            </tr>
-
-                        </thead>
+            <br>
 
 
-                        <tbody>
+            <!--RESUMEN -->
 
-                            <tr>
+            <div class="bloque filtros">
+                <div class="form-card">
+                    <h3>Resumen</h3>
+                    <div class="tabla-responsive">
+                        <table class="tabla">
+                            <thead>
+                                <tr>
+                                    <th>Registros</th>
+                                    <th>Valor original</th>
+                                    <th>Pagado</th>
+                                    <th>Saldo pendiente</th>
+                                    <th>Obligaciones en mora</th>
+                                    <th>Saldo en mora</th>
+                                </tr>
+                            </thead>
 
-                                <td>
-                                    <?= (int)($resumen['total_registros'] ?? 0) ?>
-                                </td>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <?= (int)($resumen['total_registros'] ?? 0) ?>
+                                    </td>
 
-
-                                <td>
-                                    <?= dinero(
-                                        $resumen['total_original']
-                                        ?? 0
-                                    ) ?>
-                                </td>
-
-
-                                <td>
-                                    <?= dinero(
-                                        $resumen['total_pagado']
-                                        ?? 0
-                                    ) ?>
-                                </td>
-
-
-                                <td>
-
-                                    <strong>
-
+                                    <td>
                                         <?= dinero(
-                                            $resumen['total_saldo']
-                                            ?? 0
+                                            $resumen['total_original']
+                                                ?? 0
                                         ) ?>
+                                    </td>
 
-                                    </strong>
+                                    <td>
+                                        <?= dinero(
+                                            $resumen['total_pagado']
+                                                ?? 0
+                                        ) ?>
+                                    </td>
 
-                                </td>
-
-
-                                <td>
-
-                                    <?php if (
-                                        (int)($resumen['obligaciones_mora'] ?? 0) > 0
-                                    ): ?>
-
-                                        <span class="inactivo">
-
-                                            <?= (int)$resumen[
-                                                'obligaciones_mora'
-                                            ] ?>
-
-                                        </span>
-
-                                    <?php else: ?>
-
-                                        0
-
-                                    <?php endif; ?>
-
-                                </td>
-
-
-                                <td>
-
-                                    <?php if (
-                                        (float)($resumen['total_mora'] ?? 0) > 0
-                                    ): ?>
-
-                                        <span class="inactivo">
-
+                                    <td>
+                                        <strong>
                                             <?= dinero(
-                                                $resumen[
-                                                    'total_mora'
-                                                ]
+                                                $resumen['total_saldo']
+                                                    ?? 0
                                             ) ?>
+                                        </strong>
+                                    </td>
 
-                                        </span>
+                                    <td>
+                                        <?php if (
+                                            (int)($resumen['obligaciones_mora'] ?? 0) > 0
+                                        ): ?>
+                                            <span class="inactivo">
+                                                <?= (int)$resumen['obligaciones_mora'] ?>
+                                            </span>
+                                        <?php else: ?>
+                                            0
+                                        <?php endif; ?>
+                                    </td>
 
-                                    <?php else: ?>
+                                    <td>
+                                        <?php if (
+                                            (float)($resumen['total_mora'] ?? 0) > 0
+                                        ): ?>
+                                            <span class="inactivo">
+                                                <?= dinero(
+                                                    $resumen['total_mora']
+                                                ) ?>
+                                            </span>
 
-                                        <?= dinero(0) ?>
-
-                                    <?php endif; ?>
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
+                                        <?php else: ?>
+                                            <?= dinero(0) ?>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-
             </div>
 
-        </div>
+
+            <!--FILTROS -->
+
+            <div class="bloque filtros">
+                <div class="form-card">
+                    <h3>Filtros</h3>
+                    <form method="GET" action="">
 
 
-        <br>
 
 
-        <!-- ====
-             FILTROS
-        ===== -->
 
-        <div class="bloque filtros">
+                                <label>
+                                    Buscar
+                                </label>
 
-            <div class="form-card">
-
-                <h3>
-                    Filtros
-                </h3>
-
-                <br>
+                                <input
+                                    type="text"
+                                    name="buscar"
+                                    value="<?= e($buscar) ?>"
+                                    placeholder="Unidad, factura, concepto...">
 
 
-                <form
-                    method="GET"
-                    action=""
-                >
-
-                    <div
-                        style="
-                            display:grid;
-                            grid-template-columns:
-                                repeat(
-                                    auto-fit,
-                                    minmax(210px, 1fr)
-                                );
-                            gap:15px;
-                        "
-                    >
-
-                        <div>
-
-                            <label>
-                                Buscar
-                            </label>
-
-                            <input
-                                type="text"
-                                name="buscar"
-                                value="<?= e($buscar) ?>"
-                                placeholder="Unidad, factura, concepto..."
-                            >
-
-                        </div>
 
 
-                        <div>
 
-                            <label>
-                                Estado
-                            </label>
+                                <label>
+                                    Estado
+                                </label>
 
-                            <select name="estado">
+                                <select name="estado">
 
-                                <option value="">
-                                    Todos
-                                </option>
-
-
-                                <option
-                                    value="PENDIENTE"
-                                    <?= $estado === 'PENDIENTE'
-                                        ? 'selected'
-                                        : ''
-                                    ?>
-                                >
-                                    Pendiente
-                                </option>
+                                    <option value="">
+                                        Todos
+                                    </option>
 
 
-                                <option
-                                    value="EN_MORA"
-                                    <?= $estado === 'EN_MORA'
-                                        ? 'selected'
-                                        : ''
-                                    ?>
-                                >
-                                    En mora
-                                </option>
+                                    <option
+                                        value="PENDIENTE"
+                                        <?= $estado === 'PENDIENTE'
+                                            ? 'selected'
+                                            : ''
+                                        ?>>
+                                        Pendiente
+                                    </option>
 
 
-                                <option
-                                    value="PAGADA"
-                                    <?= $estado === 'PAGADA'
-                                        ? 'selected'
-                                        : ''
-                                    ?>
-                                >
-                                    Pagada
-                                </option>
+                                    <option
+                                        value="EN_MORA"
+                                        <?= $estado === 'EN_MORA'
+                                            ? 'selected'
+                                            : ''
+                                        ?>>
+                                        En mora
+                                    </option>
 
 
-                                <option
-                                    value="ANULADA"
-                                    <?= $estado === 'ANULADA'
-                                        ? 'selected'
-                                        : ''
-                                    ?>
-                                >
-                                    Anulada
-                                </option>
-
-                            </select>
-
-                        </div>
+                                    <option
+                                        value="PAGADA"
+                                        <?= $estado === 'PAGADA'
+                                            ? 'selected'
+                                            : ''
+                                        ?>>
+                                        Pagada
+                                    </option>
 
 
-                        <div>
+                                    <option
+                                        value="ANULADA"
+                                        <?= $estado === 'ANULADA'
+                                            ? 'selected'
+                                            : ''
+                                        ?>>
+                                        Anulada
+                                    </option>
 
-                            <label>
-                                Período
-                            </label>
-
-                            <input
-                                type="month"
-                                name="periodo"
-                                value="<?= e($periodo) ?>"
-                            >
-
-                        </div>
-
-                    </div>
+                                </select>
 
 
-                    <br>
 
 
-                    <div class="form-actions">
+
+
+                                <label>
+                                    Período
+                                </label>
+
+                                <input
+                                    type="month"
+                                    name="periodo"
+                                    value="<?= e($periodo) ?>">
+
 
                         <button
                             type="submit"
-                            class="btn-filtrar"
-                        >
+                            class="btn-filtrar">
                             Filtrar
                         </button>
 
 
                         <a
                             href="<?= BASE_URL ?>configuracion/cartera.php"
-                            class="btn-limpiar"
-                        >
+                            class="btn-limpiar">
                             Limpiar
                         </a>
 
                     </div>
-
                 </form>
 
             </div>
 
-        </div>
 
 
-        <br>
+
+            <br>
 
 
-        <!-- ====
-             TABLA CARTERA
-        ===== -->
+            <!--TABLA CARTERA -->
 
-        <div class="bloque filtros">
+            <div class="bloque filtros">
 
-            <div class="form-card">
+                <div class="form-card">
 
-                <h3>
-                    Obligaciones
-                </h3>
+                    <h3>
+                        Obligaciones
+                    </h3>
 
-                <br>
+                    <br>
 
 
-                <div class="tabla-responsive">
+                    <div class="tabla-responsive">
 
-                    <table class="tabla">
+                        <table class="tabla">
 
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Unidad
-                                </th>
-
-                                <th>
-                                    Grupo
-                                </th>
-
-                                <th>
-                                    Factura
-                                </th>
-
-                                <th>
-                                    Período
-                                </th>
-
-                                <th>
-                                    Concepto
-                                </th>
-
-                                <th>
-                                    Valor original
-                                </th>
-
-                                <th>
-                                    Pagado
-                                </th>
-
-                                <th>
-                                    Saldo
-                                </th>
-
-                                <th>
-                                    Vencimiento
-                                </th>
-
-                                <th>
-                                    Mora
-                                </th>
-
-                                <th>
-                                    Estado
-                                </th>
-
-                                <th>
-                                    Acción
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-
-                        <?php if (empty($registros)): ?>
-
-                            <tr>
-
-                                <td
-                                    colspan="12"
-                                    align="center"
-                                >
-                                    No existen registros de cartera.
-                                </td>
-
-                            </tr>
-
-
-                        <?php else: ?>
-
-
-                            <?php foreach ($registros as $fila): ?>
+                            <thead>
 
                                 <tr>
 
-
-                                    <td>
-
-                                        <strong>
-                                            <?= e(
-                                                $fila[
-                                                    'unidad_codigo'
-                                                ]
-                                            ) ?>
-                                        </strong>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <?= e(
-                                            $fila[
-                                                'nombre_grupo'
-                                            ]
-                                            ?? ''
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <?php if (
-                                            !empty(
-                                                $fila[
-                                                    'numero_factura'
-                                                ]
-                                            )
-                                        ): ?>
-
-                                            <?= e(
-                                                $fila[
-                                                    'numero_factura'
-                                                ]
-                                            ) ?>
-
-                                        <?php else: ?>
-
-                                            -
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <?= e(
-                                            date(
-                                                'm/Y',
-                                                strtotime(
-                                                    $fila[
-                                                        'periodo'
-                                                    ]
-                                                )
-                                            )
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <strong>
-
-                                            <?= e(
-                                                $fila[
-                                                    'concepto'
-                                                ]
-                                                ?? $fila[
-                                                    'tipo_obligacion'
-                                                ]
-                                                ?? 'Obligación'
-                                            ) ?>
-
-                                        </strong>
-
-
-                                        <?php if (
-                                            !empty(
-                                                $fila[
-                                                    'descripcion'
-                                                ]
-                                            )
-                                        ): ?>
-
-                                            <br>
-
-                                            <small>
-
-                                                <?= e(
-                                                    $fila[
-                                                        'descripcion'
-                                                    ]
-                                                ) ?>
-
-                                            </small>
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-
-                                    <td class="numero">
-
-                                        <?= dinero(
-                                            $fila[
-                                                'valor_original'
-                                            ]
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td class="numero">
-
-                                        <?= dinero(
-                                            $fila[
-                                                'valor_pagado'
-                                            ]
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td class="numero">
-
-                                        <strong>
-
-                                            <?= dinero(
-                                                $fila[
-                                                    'saldo'
-                                                ]
-                                            ) ?>
-
-                                        </strong>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <?= e(
-                                            date(
-                                                'd/m/Y',
-                                                strtotime(
-                                                    $fila[
-                                                        'fecha_vencimiento'
-                                                    ]
-                                                )
-                                            )
-                                        ) ?>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <?php if (
-                                            $fila[
-                                                'estado_visual'
-                                            ] === 'EN_MORA'
-                                        ): ?>
-
-                                            <span class="inactivo">
-                                                EN MORA
-                                            </span>
-
-                                            <br>
-
-                                            <small>
-
-                                                <?= (int)$fila[
-                                                    'meses_mora'
-                                                ] ?>
-
-                                                <?= (int)$fila[
-                                                    'meses_mora'
-                                                ] === 1
-                                                    ? 'mes'
-                                                    : 'meses'
-                                                ?>
-
-                                            </small>
-
-
-                                            <?php if (
-                                                (int)(
-                                                    $fila[
-                                                        'aplica_interes_mora'
-                                                    ]
-                                                    ?? 0
-                                                ) === 1
-                                            ): ?>
-
-                                                <br>
-
-                                                <small>
-                                                    Aplica interés mensual
-                                                </small>
-
-                                            <?php else: ?>
-
-                                                <br>
-
-                                                <small>
-                                                    Sin interés de mora
-                                                </small>
-
-                                            <?php endif; ?>
-
-
-                                        <?php else: ?>
-
-                                            -
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <?php if (
-                                            $fila[
-                                                'estado_visual'
-                                            ] === 'PAGADA'
-                                        ): ?>
-
-                                            <span class="activo">
-                                                PAGADA
-                                            </span>
-
-
-                                        <?php elseif (
-                                            $fila[
-                                                'estado_visual'
-                                            ] === 'ANULADA'
-                                        ): ?>
-
-                                            <span class="inactivo">
-                                                ANULADA
-                                            </span>
-
-
-                                        <?php elseif (
-                                            $fila[
-                                                'estado_visual'
-                                            ] === 'EN_MORA'
-                                        ): ?>
-
-                                            <span class="inactivo">
-                                                EN MORA
-                                            </span>
-
-
-                                        <?php else: ?>
-
-                                            <strong>
-                                                PENDIENTE
-                                            </strong>
-
-                                        <?php endif; ?>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <?php if (
-                                            !empty(
-                                                $fila[
-                                                    'id_factura'
-                                                ]
-                                            )
-                                        ): ?>
-
-                                            <a
-                                                href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>"
-                                                class="btn-secondary"
-                                            >
-                                                Ver factura
-                                            </a>
-
-                                        <?php else: ?>
-
-                                            -
-
-                                        <?php endif; ?>
-
-                                    </td>
-
+                                    <th>
+                                        Unidad
+                                    </th>
+
+                                    <th>
+                                        Grupo
+                                    </th>
+
+                                    <th>
+                                        Factura
+                                    </th>
+
+                                    <th>
+                                        Período
+                                    </th>
+
+                                    <th>
+                                        Concepto
+                                    </th>
+
+                                    <th>
+                                        Valor original
+                                    </th>
+
+                                    <th>
+                                        Pagado
+                                    </th>
+
+                                    <th>
+                                        Saldo
+                                    </th>
+
+                                    <th>
+                                        Vencimiento
+                                    </th>
+
+                                    <th>
+                                        Mora
+                                    </th>
+
+                                    <th>
+                                        Estado
+                                    </th>
+
+                                    <th>
+                                        Acción
+                                    </th>
 
                                 </tr>
 
-                            <?php endforeach; ?>
+                            </thead>
 
 
-                        <?php endif; ?>
+                            <tbody>
 
 
-                        </tbody>
+                                <?php if (empty($registros)): ?>
 
-                    </table>
+                                    <tr>
+
+                                        <td
+                                            colspan="12"
+                                            align="center">
+                                            No existen registros de cartera.
+                                        </td>
+
+                                    </tr>
+
+
+                                <?php else: ?>
+
+
+                                    <?php foreach ($registros as $fila): ?>
+
+                                        <tr>
+
+
+                                            <td>
+
+                                                <strong>
+                                                    <?= e(
+                                                        $fila['unidad_codigo']
+                                                    ) ?>
+                                                </strong>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <?= e(
+                                                    $fila['nombre_grupo']
+                                                        ?? ''
+                                                ) ?>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <?php if (
+                                                    !empty($fila['numero_factura'])
+                                                ): ?>
+
+                                                    <?= e(
+                                                        $fila['numero_factura']
+                                                    ) ?>
+
+                                                <?php else: ?>
+
+                                                    -
+
+                                                <?php endif; ?>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <?= e(
+                                                    date(
+                                                        'm/Y',
+                                                        strtotime(
+                                                            $fila['periodo']
+                                                        )
+                                                    )
+                                                ) ?>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <strong>
+
+                                                    <?= e(
+                                                        $fila['concepto']
+                                                            ?? $fila['tipo_obligacion']
+                                                            ?? 'Obligación'
+                                                    ) ?>
+
+                                                </strong>
+
+
+                                                <?php if (
+                                                    !empty($fila['descripcion'])
+                                                ): ?>
+
+                                                    <br>
+
+                                                    <small>
+
+                                                        <?= e(
+                                                            $fila['descripcion']
+                                                        ) ?>
+
+                                                    </small>
+
+                                                <?php endif; ?>
+
+                                            </td>
+
+
+                                            <td class="numero">
+
+                                                <?= dinero(
+                                                    $fila['valor_original']
+                                                ) ?>
+
+                                            </td>
+
+
+                                            <td class="numero">
+
+                                                <?= dinero(
+                                                    $fila['valor_pagado']
+                                                ) ?>
+
+                                            </td>
+
+
+                                            <td class="numero">
+
+                                                <strong>
+
+                                                    <?= dinero(
+                                                        $fila['saldo']
+                                                    ) ?>
+
+                                                </strong>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <?= e(
+                                                    date(
+                                                        'd/m/Y',
+                                                        strtotime(
+                                                            $fila['fecha_vencimiento']
+                                                        )
+                                                    )
+                                                ) ?>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <?php if (
+                                                    $fila['estado_visual'] === 'EN_MORA'
+                                                ): ?>
+
+                                                    <span class="inactivo">
+                                                        EN MORA
+                                                    </span>
+
+                                                    <br>
+
+                                                    <small>
+
+                                                        <?= (int)$fila['meses_mora'] ?>
+
+                                                        <?= (int)$fila['meses_mora'] === 1
+                                                            ? 'mes'
+                                                            : 'meses'
+                                                        ?>
+
+                                                    </small>
+
+
+                                                    <?php if (
+                                                        (int)(
+                                                            $fila['aplica_interes_mora']
+                                                            ?? 0
+                                                        ) === 1
+                                                    ): ?>
+
+                                                        <br>
+
+                                                        <small>
+                                                            Aplica interés mensual
+                                                        </small>
+
+                                                    <?php else: ?>
+
+                                                        <br>
+
+                                                        <small>
+                                                            Sin interés de mora
+                                                        </small>
+
+                                                    <?php endif; ?>
+
+
+                                                <?php else: ?>
+
+                                                    -
+
+                                                <?php endif; ?>
+
+                                            </td>
+
+
+                                            <td>
+
+                                                <?php if (
+                                                    $fila['estado_visual'] === 'PAGADA'
+                                                ): ?>
+
+                                                    <span class="activo">
+                                                        PAGADA
+                                                    </span>
+
+
+                                                <?php elseif (
+                                                    $fila['estado_visual'] === 'ANULADA'
+                                                ): ?>
+
+                                                    <span class="inactivo">
+                                                        ANULADA
+                                                    </span>
+
+
+                                                <?php elseif (
+                                                    $fila['estado_visual'] === 'EN_MORA'
+                                                ): ?>
+
+                                                    <span class="inactivo">
+                                                        EN MORA
+                                                    </span>
+
+
+                                                <?php else: ?>
+
+                                                    <strong>
+                                                        PENDIENTE
+                                                    </strong>
+
+                                                <?php endif; ?>
+
+                                            </td>
+
+
+                                            <td>
+                                                <?php if (!empty($fila['id_factura'])): ?>
+                                                    <a
+                                                        href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>&origen=cartera"
+                                                        class="btn-filtrar">
+                                                        Ver factura
+                                                    </a>
+
+                                                <?php else: ?>
+                                                    <a
+                                                        href="<?= BASE_URL ?>configuracion/cartera_detalle.php?id_unidad=<?= (int)$fila['id_unidad'] ?><?= $periodo !== '' ? '&periodo=' . urlencode($periodo) : '' ?>"
+                                                        class="btn-filtrar">
+                                                        Ver cartera
+                                                    </a>
+
+                                                <?php endif; ?>
+
+                                            </td>
+
+
+                                        </tr>
+
+                                    <?php endforeach; ?>
+
+
+                                <?php endif; ?>
+
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
+
+        </main>
 
 
-    </main>
-
-
-</div>
+    </div>
 
 
 </body>

@@ -5,10 +5,10 @@ require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// 
+//
 // FUNCIONES
 // Formatea texto, valores monetarios y fechas.
-// 
+//
 
 if (
     !function_exists(
@@ -73,10 +73,10 @@ if (
 }
 
 
-// 
+//
 // VALIDAR FACTURA
 // Obtiene y valida la factura solicitada.
-// 
+//
 
 $idFactura =
     isset($_GET['id'])
@@ -100,10 +100,10 @@ if ($idFactura <= 0) {
 }
 
 
-// 
+//
 // FACTURA
 // Obtiene los datos principales de la factura y la unidad.
-// 
+//
 
 $sqlFactura = "
     SELECT
@@ -188,10 +188,10 @@ if (!$factura) {
 }
 
 
-// 
+//
 // DATOS DE LA COPROPIEDAD
 // Obtiene la versión activa de los datos generales.
-// 
+//
 
 $sqlCopropiedad = "
     SELECT
@@ -244,10 +244,10 @@ if (!$copropiedad) {
 }
 
 
-// 
+//
 // PERSONA PRINCIPAL DE FACTURACIÓN
 // Prioriza la persona configurada para recibir factura.
-// 
+//
 
 $sqlPersona = "
     SELECT
@@ -331,10 +331,10 @@ if (!$persona) {
     ];
 }
 
-// 
+//
 // DESTINATARIOS DE CORREO
 // Obtiene las personas activas con correo asociadas a la unidad.
-// 
+//
 
 $sqlDestinatariosCorreo = "
 
@@ -377,10 +377,10 @@ $destinatariosCorreo =
         PDO::FETCH_ASSOC
     );
 
-// 
+//
 // ESPACIOS VIGENTES
 // Obtiene los espacios asociados a la unidad.
-// 
+//
 
 $sqlEspacios = "
     SELECT
@@ -449,10 +449,10 @@ foreach ($espacios as $espacio) {
     }
 }
 
-// 
+//
 // DATOS DEL PERÍODO DE LA FACTURA
 // Prepara la fecha de corte y el período mensual.
-// 
+//
 
 $periodoFactura =
     sprintf(
@@ -466,10 +466,10 @@ $fechaCorteFactura =
     $factura['fecha_generacion'];
 
 
-// 
+//
 // SALDOS ANTERIORES
 // Obtiene las obligaciones pendientes de períodos anteriores.
-// 
+//
 
 $sqlSaldosAnteriores = "
     SELECT
@@ -584,10 +584,10 @@ $saldosAnteriores =
     );
 
 
-// 
+//
 // TOTAL DE SALDOS ANTERIORES
 // Verifica el total que se mostrará en la factura.
-// 
+//
 
 $saldoAnteriorTotal = 0;
 
@@ -602,10 +602,10 @@ foreach ($saldosAnteriores as $saldoAnterior) {
 
 $saldoAnteriorTotal = round($saldoAnteriorTotal,2);
 
-// 
+//
 // RESUMEN DEL SALDO ANTERIOR
 // Prepara un único registro para mostrar la cartera previa.
-// 
+//
 
 $cantidadSaldosAnteriores =
     count(
@@ -668,10 +668,15 @@ $periodoAnteriorTexto =
         )
     );
 
-// 
+//
 // TOTAL VISUAL DE LA FACTURA
 // Suma el saldo anterior reconstruido y los cargos del mes.
-// 
+//
+
+//
+// TOTAL VISUAL DE LA FACTURA
+// Conserva el valor originalmente facturado.
+//
 
 $valorMesFactura =
     round(
@@ -682,19 +687,10 @@ $valorMesFactura =
     );
 
 
-$totalPagarFactura =
-    round(
-        $saldoAnteriorTotal
-        +
-        $valorMesFactura,
-        2
-    );
-
-
-// 
+//
 // DETALLES DE FACTURA
 // Obtiene conceptos, cargos e información de mora.
-// 
+//
 
 $sqlDetalles = "
     SELECT
@@ -837,10 +833,421 @@ $detalles =
     );
 
 
-// 
+// =====
+// RESUMEN ACTUAL DE LA FACTURA
+// Calcula pagos, saldo a favor aplicado y saldo pendiente.
+// =====
+
+$sqlResumenFacturaActual = "
+    SELECT
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN c.estado <> 'ANULADA'
+                    THEN c.valor_original
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS valor_original,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN c.estado <> 'ANULADA'
+                    THEN c.valor_pagado
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS valor_pagado,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN c.estado <> 'ANULADA'
+                    THEN c.saldo
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS saldo_pendiente
+
+    FROM cartera c
+
+    WHERE
+        c.id_factura = :id_factura
+        AND c.id_unidad = :id_unidad
+";
+
+
+$stmtResumenFacturaActual =
+    $conexion->prepare(
+        $sqlResumenFacturaActual
+    );
+
+
+$stmtResumenFacturaActual->execute([
+
+    ':id_factura'
+        => $idFactura,
+
+    ':id_unidad'
+        => (int)$factura['id_unidad']
+
+]);
+
+
+$resumenFacturaActual =
+    $stmtResumenFacturaActual->fetch(
+        PDO::FETCH_ASSOC
+    );
+
+
+$valorOriginalFacturaActual =
+    round(
+        (float)(
+            $resumenFacturaActual[
+                'valor_original'
+            ]
+            ?? 0
+        ),
+        2
+    );
+
+
+$valorPagadoFacturaActual =
+    round(
+        (float)(
+            $resumenFacturaActual[
+                'valor_pagado'
+            ]
+            ?? 0
+        ),
+        2
+    );
+
+
+$saldoPendienteFacturaActual =
+    round(
+        (float)(
+            $resumenFacturaActual[
+                'saldo_pendiente'
+            ]
+            ?? 0
+        ),
+        2
+    );
+
+
+// =====
+// PAGOS NORMALES APLICADOS
+// =====
+
+$sqlPagosAplicadosFactura = "
+    SELECT
+        COALESCE(
+            SUM(
+                ap.valor_aplicado
+            ),
+            0
+        ) AS total
+
+    FROM aplicaciones_pagos ap
+
+    INNER JOIN cartera c
+        ON c.id_cartera =
+           ap.id_cartera
+
+    WHERE
+        c.id_factura =
+            :id_factura
+
+        AND c.id_unidad =
+            :id_unidad
+";
+
+
+$stmtPagosAplicadosFactura =
+    $conexion->prepare(
+        $sqlPagosAplicadosFactura
+    );
+
+
+$stmtPagosAplicadosFactura->execute([
+
+    ':id_factura'
+        => $idFactura,
+
+    ':id_unidad'
+        => (int)$factura['id_unidad']
+
+]);
+
+
+$pagosAplicadosFactura =
+    round(
+        (float)$stmtPagosAplicadosFactura
+            ->fetchColumn(),
+        2
+    );
+
+
+// =====
+// SALDO A FAVOR APLICADO
+// Solo considera saldos pertenecientes a la misma unidad.
+// =====
+
+$sqlSaldoFavorAplicadoFactura = "
+    SELECT
+        COALESCE(
+            SUM(
+                asf.valor_aplicado
+            ),
+            0
+        ) AS total
+
+    FROM aplicaciones_saldo_favor asf
+
+    INNER JOIN cartera c
+        ON c.id_cartera =
+           asf.id_cartera
+
+    INNER JOIN saldo_favor sf
+        ON sf.id_saldo_favor =
+           asf.id_saldo_favor
+
+    WHERE
+        c.id_factura =
+            :id_factura
+
+        AND c.id_unidad =
+            :id_unidad_cartera
+
+        AND sf.id_unidad =
+            :id_unidad_saldo
+";
+
+
+$stmtSaldoFavorAplicadoFactura =
+    $conexion->prepare(
+        $sqlSaldoFavorAplicadoFactura
+    );
+
+
+$stmtSaldoFavorAplicadoFactura->execute([
+
+    ':id_factura'
+        => $idFactura,
+
+    ':id_unidad_cartera'
+        => (int)$factura['id_unidad'],
+
+    ':id_unidad_saldo'
+        => (int)$factura['id_unidad']
+
+]);
+
+
+$saldoFavorAplicadoFactura =
+    round(
+        (float)$stmtSaldoFavorAplicadoFactura
+            ->fetchColumn(),
+        2
+    );
+
+
+$totalAplicadoFactura =
+    round(
+        $pagosAplicadosFactura
+        +
+        $saldoFavorAplicadoFactura,
+        2
+    );
+
+
+// =====
+// HISTORIAL DE APLICACIONES DE LA FACTURA
+// Une pagos normales y aplicaciones de saldo a favor.
+// =====
+
+$sqlHistorialAplicacionesFactura = "
+
+    SELECT
+
+        'PAGO' AS origen,
+
+        ap.id_aplicacion AS id_movimiento,
+
+        ap.fecha_aplicacion,
+
+        ap.valor_aplicado,
+
+        ap.tipo_aplicacion,
+
+        ap.observaciones,
+
+        ap.id_cartera,
+
+        p.id_pago,
+
+        p.referencia,
+
+        NULL AS id_saldo_favor,
+
+        c.descripcion AS obligacion,
+
+        c.periodo,
+
+        fd.id_interes,
+
+        cf.nombre AS concepto
+
+    FROM aplicaciones_pagos ap
+
+    INNER JOIN cartera c
+        ON c.id_cartera =
+           ap.id_cartera
+
+    INNER JOIN pagos p
+        ON p.id_pago =
+           ap.id_pago
+
+    LEFT JOIN facturas_detalle fd
+        ON fd.id_detalle =
+           c.id_detalle
+
+    LEFT JOIN conceptos_facturacion cf
+        ON cf.id_concepto =
+           fd.id_concepto
+
+    WHERE
+        c.id_factura =
+            :id_factura_pago
+
+        AND c.id_unidad =
+            :id_unidad_pago
+
+
+    UNION ALL
+
+
+    SELECT
+
+        'SALDO_FAVOR' AS origen,
+
+        asf.id_aplicacion_saldo AS id_movimiento,
+
+        asf.fecha_aplicacion,
+
+        asf.valor_aplicado,
+
+        asf.tipo_aplicacion,
+
+        asf.observaciones,
+
+        asf.id_cartera,
+
+        sf.id_pago,
+
+        p.referencia,
+
+        sf.id_saldo_favor,
+
+        c.descripcion AS obligacion,
+
+        c.periodo,
+
+        fd.id_interes,
+
+        cf.nombre AS concepto
+
+    FROM aplicaciones_saldo_favor asf
+
+    INNER JOIN saldo_favor sf
+        ON sf.id_saldo_favor =
+           asf.id_saldo_favor
+
+    INNER JOIN pagos p
+        ON p.id_pago =
+           sf.id_pago
+
+    INNER JOIN cartera c
+        ON c.id_cartera =
+           asf.id_cartera
+
+    LEFT JOIN facturas_detalle fd
+        ON fd.id_detalle =
+           c.id_detalle
+
+    LEFT JOIN conceptos_facturacion cf
+        ON cf.id_concepto =
+           fd.id_concepto
+
+    WHERE
+        c.id_factura =
+            :id_factura_saldo
+
+        AND c.id_unidad =
+            :id_unidad_cartera
+
+        AND sf.id_unidad =
+            :id_unidad_saldo
+
+
+    ORDER BY
+        fecha_aplicacion DESC,
+        id_movimiento DESC
+";
+
+
+$stmtHistorialAplicacionesFactura =
+    $conexion->prepare(
+        $sqlHistorialAplicacionesFactura
+    );
+
+
+$stmtHistorialAplicacionesFactura->execute([
+
+    ':id_factura_pago'
+        => $idFactura,
+
+    ':id_unidad_pago'
+        => (int)$factura['id_unidad'],
+
+    ':id_factura_saldo'
+        => $idFactura,
+
+    ':id_unidad_cartera'
+        => (int)$factura['id_unidad'],
+
+    ':id_unidad_saldo'
+        => (int)$factura['id_unidad']
+
+]);
+
+
+$historialAplicacionesFactura =
+    $stmtHistorialAplicacionesFactura
+        ->fetchAll(
+            PDO::FETCH_ASSOC
+        );
+// =====
+// TOTAL ACTUAL A PAGAR
+// Usa el saldo real de cartera después de pagos y saldos.
+// =====
+
+$totalPagarFactura =
+    round(
+        $saldoAnteriorTotal
+        +
+        $saldoPendienteFacturaActual,
+        2
+    );
 // RESUMEN DE INTERESES
 // Calcula los intereses incluidos en esta factura.
-// 
+
 
 $cantidadIntereses = 0;
 
@@ -863,10 +1270,10 @@ foreach ($detalles as $detalle) {
 }
 
 
-// 
+//
 // TEXTOS
 // Prepara datos para presentación.
-// 
+//
 
 $meses = [
     1 => 'ENERO',
@@ -935,10 +1342,10 @@ $documentoPersona =
     );
 
 
-// 
+//
 // LOGO
 // Construye la URL del logo configurado.
-// 
+//
 
 $logoUrl = '';
 
@@ -977,10 +1384,10 @@ if (
 }
 
 
-// 
+//
 // RETORNO
 // Conserva la navegación según la pantalla de origen.
-// 
+//
 
 $urlVolver =
     BASE_URL .
@@ -1032,10 +1439,10 @@ if (
 }
 
 
-// 
+//
 // HISTORIAL DE ENVÍOS
 // Obtiene los correos enviados para esta factura.
-// 
+//
 
 $sqlEnviosFactura = "
 
@@ -1084,9 +1491,9 @@ $enviosFactura =
     );
 
 
-// 
+//
 // RESUMEN DE ENVÍOS
-// 
+//
 
 $totalEnviosCorrectos = 0;
 
@@ -1250,9 +1657,8 @@ foreach (
         <!--DOCUMENTO -->
 
         <section class="factura-documento">
-            <!-- 
-                 CABECERA
-            = -->
+            <!--
+                 CABECERA -->
             <div class="factura-cabecera">
                 <div class="factura-logo">
 
@@ -1384,9 +1790,8 @@ foreach (
             </div>
 
 
-            <!-- 
-                 DATOS PRINCIPALES
-            = -->
+            <!--
+                 DATOS PRINCIPALES -->
 
             <div class="factura-meta">
                 <div class="factura-meta-item">
@@ -1468,9 +1873,8 @@ foreach (
             </div>
 
 
-            <!-- 
-                 PERSONA Y UNIDAD
-            = -->
+            <!--
+                 PERSONA Y UNIDAD -->
 
             <div class="factura-cliente">
 
@@ -1653,9 +2057,8 @@ foreach (
             </div>
 
 
-            <!-- 
-                 RESUMEN DE MORA
-            = -->
+            <!--
+                 RESUMEN DE MORA -->
 
             <?php if (
                 $cantidadIntereses > 0
@@ -1688,10 +2091,352 @@ foreach (
 
             <?php endif; ?>
 
+            <!--        RESUMEN DE APLICACIONES -->
 
-            <!-- 
-                 CONCEPTOS
-            = -->
+            <div
+                style="
+                    margin:18px 0;
+                    padding:16px;
+                    border:1px solid #e2e8f0;
+                    border-radius:10px;
+                    background:#f8fafc;
+                "
+            >
+                <!--HISTORIAL DE APLICACIONES -->
+
+                <?php if (
+                    !empty(
+                        $historialAplicacionesFactura
+                    )
+                ): ?>
+
+                    <div
+                        style="
+                            margin:18px 0;
+                            padding:16px;
+                            border:1px solid #e2e8f0;
+                            border-radius:10px;
+                            background:#ffffff;
+                        "
+                    >
+
+                        <h3
+                            style="
+                                margin-top:0;
+                                margin-bottom:14px;
+                            "
+                        >
+                            Historial de aplicaciones
+                        </h3>
+
+
+                        <div class="tabla-responsive">
+
+                            <table class="tabla">
+
+                                <thead>
+
+                                    <tr>
+
+                                        <th>
+                                            Fecha
+                                        </th>
+
+                                        <th>
+                                            Origen
+                                        </th>
+
+                                        <th>
+                                            Obligación
+                                        </th>
+
+                                        <th>
+                                            Tipo
+                                        </th>
+
+                                        <th>
+                                            Referencia
+                                        </th>
+
+                                        <th>
+                                            Valor aplicado
+                                        </th>
+
+                                    </tr>
+
+                                </thead>
+
+
+                                <tbody>
+
+                                <?php foreach (
+                                    $historialAplicacionesFactura
+                                    as $aplicacionFactura
+                                ): ?>
+
+                                    <tr>
+
+                                        <td>
+
+                                            <?= e(
+                                                date(
+                                                    'd/m/Y H:i',
+                                                    strtotime(
+                                                        $aplicacionFactura[
+                                                            'fecha_aplicacion'
+                                                        ]
+                                                    )
+                                                )
+                                            ) ?>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <?php if (
+                                                $aplicacionFactura[
+                                                    'origen'
+                                                ] === 'SALDO_FAVOR'
+                                            ): ?>
+
+                                                <strong>
+                                                    Saldo a favor
+                                                </strong>
+
+                                                <br>
+
+                                                <small>
+                                                    #<?= (int)$aplicacionFactura[
+                                                        'id_saldo_favor'
+                                                    ] ?>
+                                                </small>
+
+                                            <?php else: ?>
+
+                                                <strong>
+                                                    Pago
+                                                </strong>
+
+                                                <br>
+
+                                                <small>
+                                                    Pago #<?= (int)$aplicacionFactura[
+                                                        'id_pago'
+                                                    ] ?>
+                                                </small>
+
+                                            <?php endif; ?>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <strong>
+
+                                                <?= e(
+                                                    $aplicacionFactura[
+                                                        'concepto'
+                                                    ]
+                                                    ??
+                                                    $aplicacionFactura[
+                                                        'obligacion'
+                                                    ]
+                                                    ??
+                                                    'Obligación'
+                                                ) ?>
+
+                                            </strong>
+
+
+                                            <br>
+
+
+                                            <small>
+
+                                                Cartera
+                                                #<?= (int)$aplicacionFactura[
+                                                    'id_cartera'
+                                                ] ?>
+
+                                                ·
+
+                                                <?= e(
+                                                    date(
+                                                        'm/Y',
+                                                        strtotime(
+                                                            $aplicacionFactura[
+                                                                'periodo'
+                                                            ]
+                                                        )
+                                                    )
+                                                ) ?>
+
+                                            </small>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <?php if (
+                                                !empty(
+                                                    $aplicacionFactura[
+                                                        'id_interes'
+                                                    ]
+                                                )
+                                            ): ?>
+
+                                                <strong>
+                                                    INTERÉS
+                                                </strong>
+
+                                            <?php else: ?>
+
+                                                CAPITAL
+
+                                            <?php endif; ?>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <?= e(
+                                                $aplicacionFactura[
+                                                    'referencia'
+                                                ]
+                                                ?? '-'
+                                            ) ?>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            <strong>
+
+                                                <?= dinero(
+                                                    $aplicacionFactura[
+                                                        'valor_aplicado'
+                                                    ]
+                                                ) ?>
+
+                                            </strong>
+
+                                        </td>
+
+                                    </tr>
+
+                                <?php endforeach; ?>
+
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                <?php endif; ?>
+                <div
+                    style="
+                        display:grid;
+                        grid-template-columns:
+                            repeat(auto-fit, minmax(160px, 1fr));
+                        gap:14px;
+                    "
+                >
+
+                    <div>
+
+                        <small>
+                            Valor facturado
+                        </small>
+
+                        <div>
+                            <strong>
+                                <?= dinero(
+                                    $valorOriginalFacturaActual
+                                ) ?>
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <small>
+                            Pagos aplicados
+                        </small>
+
+                        <div>
+                            <strong>
+                                <?= dinero(
+                                    $pagosAplicadosFactura
+                                ) ?>
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <small>
+                            Saldo a favor aplicado
+                        </small>
+
+                        <div>
+                            <strong>
+                                <?= dinero(
+                                    $saldoFavorAplicadoFactura
+                                ) ?>
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <small>
+                            Total aplicado
+                        </small>
+
+                        <div>
+                            <strong>
+                                <?= dinero(
+                                    $totalAplicadoFactura
+                                ) ?>
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <div>
+
+                        <small>
+                            Saldo pendiente de esta factura
+                        </small>
+
+                        <div>
+                            <strong>
+                                <?= dinero(
+                                    $saldoPendienteFacturaActual
+                                ) ?>
+                            </strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+            <!-- CONCEPTOS -->
 
             <table class="factura-tabla">
 
@@ -1727,7 +2472,7 @@ foreach (
 
                 <tbody>
 
-                <!-- 
+                <!--
                     SALDO ANTERIOR ACUMULADO
                 = -->
 
@@ -2362,9 +3107,8 @@ foreach (
             </table>
 
 
-            <!-- 
-                 MENSAJE
-            = -->
+            <!--
+                 MENSAJE -->
 
             <?php if (
                 $factura[
@@ -2384,9 +3128,8 @@ foreach (
             <?php endif; ?>
 
 
-            <!-- 
-                 PARTE INFERIOR
-            = -->
+            <!--
+                 PARTE INFERIOR -->
 
             <div class="factura-inferior">
 
@@ -2502,9 +3245,8 @@ foreach (
             </div>
 
 
-            <!-- 
-                 OBSERVACIONES
-            = -->
+            <!--
+                 OBSERVACIONES -->
 
             <?php if (
                 !empty(
@@ -3052,19 +3794,19 @@ foreach (
 </div>
 <script>
 
-// 
+//
 // MODALES DE FACTURA
 // Controla envío e historial desde un solo bloque.
-// 
+//
 
 document.addEventListener(
     'DOMContentLoaded',
     function () {
 
 
-        // 
+        //
         // MODAL ENVIAR FACTURA
-        // 
+        //
 
         const modalEnvio =
             document.getElementById(
@@ -3102,9 +3844,9 @@ document.addEventListener(
             );
 
 
-        // 
+        //
         // ABRIR ENVÍO
-        // 
+        //
 
         function abrirModalEnvio() {
 
@@ -3118,9 +3860,9 @@ document.addEventListener(
         }
 
 
-        // 
+        //
         // CERRAR ENVÍO
-        // 
+        //
 
         function cerrarModalEnvio() {
 
@@ -3143,9 +3885,9 @@ document.addEventListener(
         }
 
 
-        // 
+        //
         // EVENTOS ENVÍO
-        // 
+        //
 
         if (
             btnAbrirEnvio
@@ -3200,9 +3942,9 @@ document.addEventListener(
         }
 
 
-        // 
+        //
         // VALIDAR ENVÍO
-        // 
+        //
 
         if (
             formularioEnvio
@@ -3273,9 +4015,9 @@ document.addEventListener(
 
 
 
-        // 
+        //
         // MODAL HISTORIAL DE ENVÍOS
-        // 
+        //
 
         const modalHistorial =
             document.getElementById(
@@ -3301,9 +4043,9 @@ document.addEventListener(
             );
 
 
-        // 
+        //
         // ABRIR HISTORIAL
-        // 
+        //
 
         function abrirHistorialEnvios() {
 
@@ -3317,9 +4059,9 @@ document.addEventListener(
         }
 
 
-        // 
+        //
         // CERRAR HISTORIAL
-        // 
+        //
 
         function cerrarHistorialEnvios() {
 
@@ -3333,9 +4075,9 @@ document.addEventListener(
         }
 
 
-        // 
+        //
         // EVENTOS HISTORIAL
-        // 
+        //
 
         if (
             btnHistorial
@@ -3391,9 +4133,9 @@ document.addEventListener(
 
 
 
-        // 
+        //
         // CERRAR CON ESC
-        // 
+        //
 
         document.addEventListener(
             'keydown',

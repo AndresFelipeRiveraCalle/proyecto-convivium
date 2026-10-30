@@ -138,8 +138,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // PREPARAR INSERT
+    // // PREPARAR INSERT
     // ====
 
     $sqlInsert = "
@@ -183,8 +182,7 @@ try {
     $cantidadGuardada = 0;
 
 
-    // ====
-    // RECORRER MOVIMIENTOS
+    // // RECORRER MOVIMIENTOS
     // ====
 
     foreach ($movimientos as $movimiento) {
@@ -311,8 +309,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR INSERTS
+    // // VALIDAR INSERTS
     // ====
 
     if ($cantidadGuardada === 0) {
@@ -323,8 +320,7 @@ try {
     }
 
 
-    // ====
-    // MARCAR DOCUMENTO COMO PROCESADO
+    // // MARCAR DOCUMENTO COMO PROCESADO
     // ====
 
     $sqlActualizarDocumento = "
@@ -353,15 +349,13 @@ try {
     ]);
 
 
-    // ====
-    // CONFIRMAR TRANSACCIÓN
+    // // CONFIRMAR TRANSACCIÓN
     // ====
 
     $conexion->commit();
 
 
-    // ====
-    // REGRESAR
+    // // REGRESAR
     // ====
 
     header(
@@ -381,8 +375,7 @@ try {
 
 } catch (Throwable $e) {
 
-    // ====
-    // DESHACER TRANSACCIÓN
+    // // DESHACER TRANSACCIÓN
     // ====
 
     if (
@@ -393,8 +386,7 @@ try {
     }
 
 
-    // ====
-    // ERROR
+    // // ERROR
     // ====
 
     header(

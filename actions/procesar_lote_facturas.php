@@ -282,29 +282,22 @@ foreach (
 
     $detalleFactura = [
 
-        'id_factura'
-            => $idFactura,
+        'id_factura'> $idFactura,
 
-        'numero_factura'
-            => '',
+        'numero_factura'> '',
 
-        'estado'
-            => 'PENDIENTE',
+        'estado'> 'PENDIENTE',
 
-        'correos_enviados'
-            => 0,
+        'correos_enviados'> 0,
 
-        'correos_error'
-            => 0,
+        'correos_error'> 0,
 
-        'mensaje'
-            => ''
+        'mensaje'> ''
 
     ];
 
 
-    // ====
-    // CONSULTAR FACTURA
+    // // CONSULTAR FACTURA
     // ====
 
     $sqlFactura = "
@@ -346,8 +339,7 @@ foreach (
 
     $stmtFactura->execute([
 
-        ':id_factura'
-            => $idFactura
+        ':id_factura'> $idFactura
 
     ]);
 
@@ -399,8 +391,7 @@ foreach (
         ];
 
 
-    // ====
-    // DESTINATARIOS
+    // // DESTINATARIOS
     // ====
 
     $sqlDestinatarios = "
@@ -450,8 +441,7 @@ foreach (
 
     $stmtDestinatarios->execute([
 
-        ':id_unidad'
-            => (int)$factura[
+        ':id_unidad'> (int)$factura[
                 'id_unidad'
             ]
 
@@ -464,8 +454,7 @@ foreach (
         );
 
 
-    // ====
-    // VALIDAR DESTINATARIOS
+    // // VALIDAR DESTINATARIOS
     // ====
 
     $destinatariosValidos =
@@ -522,8 +511,7 @@ foreach (
     }
 
 
-    // ====
-    // GENERAR PDF
+    // // GENERAR PDF
     // ====
 
     try {
@@ -559,8 +547,7 @@ foreach (
     }
 
 
-    // ====
-    // NOMBRE PDF
+    // // NOMBRE PDF
     // ====
 
     $nombrePdf =
@@ -575,8 +562,7 @@ foreach (
         '.pdf';
 
 
-    // ====
-    // PERÍODO
+    // // PERÍODO
     // ====
 
     $periodoTexto =
@@ -600,8 +586,7 @@ foreach (
         false;
 
 
-    // ====
-    // ENVIAR DESTINATARIOS
+    // // ENVIAR DESTINATARIOS
     // ====
 
     foreach (
@@ -1111,8 +1096,7 @@ foreach (
     }
 
 
-    // ====
-    // RESULTADO DE FACTURA
+    // // RESULTADO DE FACTURA
     // ====
 
     if (

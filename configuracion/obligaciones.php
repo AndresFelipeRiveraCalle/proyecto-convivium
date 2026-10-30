@@ -350,8 +350,7 @@ function claseEstado($estado)
 
 
             <!-- 
-                 RESUMEN
-            = -->
+                 RESUMEN -->
 
             <div class="cards-resumen">
 
@@ -412,8 +411,7 @@ function claseEstado($estado)
 
 
             <!-- 
-                 FILTROS
-            = -->
+                 FILTROS -->
 
             <form
                 method="GET"
@@ -600,8 +598,7 @@ function claseEstado($estado)
 
 
             <!-- 
-                 TABLA
-            = -->
+                 TABLA -->
 
             <div class="tabla-responsive">
 

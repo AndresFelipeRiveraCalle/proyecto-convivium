@@ -22,8 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 try {
 
-    // ====
-    // DATOS DEL FORMULARIO
+    // // DATOS DEL FORMULARIO
     // ====
 
     $id_vehiculo = isset($_POST["id_vehiculo"])
@@ -79,8 +78,7 @@ try {
         : 1;
 
 
-    // ====
-    // VALIDACIONES BÁSICAS
+    // // VALIDACIONES BÁSICAS
     // ====
 
     if ($id_vehiculo <= 0) {
@@ -107,8 +105,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR QUE EL VEHÍCULO EXISTA
+    // // VERIFICAR QUE EL VEHÍCULO EXISTA
     // ====
 
     $sql = "
@@ -135,8 +132,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR PLACA DUPLICADA
+    // // VERIFICAR PLACA DUPLICADA
     // ====
 
     $sql = "
@@ -165,8 +161,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR UNIDAD
+    // // VALIDAR UNIDAD
     // ====
 
     if ($id_unidad !== null) {
@@ -193,8 +188,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR RESIDENTE
+    // // VALIDAR RESIDENTE
     // ====
 
     if ($id_residente !== null) {
@@ -221,8 +215,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR ESTADO
+    // // VALIDAR ESTADO
     // ====
 
     if ($estado !== 0 && $estado !== 1) {
@@ -231,8 +224,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR VEHÍCULO
+    // // ACTUALIZAR VEHÍCULO
     // ====
 
     $sql = "
@@ -340,8 +332,7 @@ try {
     $stmt->execute();
 
 
-    // ====
-    // REDIRECCIÓN ÉXITO
+    // // REDIRECCIÓN ÉXITO
     // ====
 
     header(
@@ -355,8 +346,7 @@ try {
 
 } catch (Exception $e) {
 
-    // ====
-    // ERROR
+    // // ERROR
     // ====
 
     header(

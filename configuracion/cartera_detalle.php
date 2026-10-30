@@ -28,9 +28,9 @@ require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// 
+//
 // FUNCIONES DE PRESENTACIÓN
-// 
+//
 // e(): salida HTML segura.
 // dinero(): formato monetario uniforme para toda la pantalla.
 
@@ -54,9 +54,7 @@ function dinero($valor)
 }
 
 
-// 
-// 1. VALIDAR LA UNIDAD SOLICITADA
-// 
+//  1. VALIDAR LA UNIDAD SOLICITADA
 // Toda la pantalla depende de id_unidad. Si no es válido regresamos a cartera.php.
 
 $idUnidad =
@@ -80,110 +78,82 @@ if ($idUnidad <= 0) {
     exit;
 }
 
+// FECHA DE CORTE
+// Usa el período recibido o la fecha actual.
 
-// 
+
+$periodo = trim($_GET['periodo'] ?? '');
+
+
+if (
+    $periodo !== ''&&preg_match(
+        '/^\d{4}-(0[1-9]|1[0-2])$/',
+        $periodo
+    )
+) {
+
+    $fechaCorte =date('Y-m-t',strtotime(
+            $periodo . '-01'
+        )
+    );
+
+} else {
+    $periodo = '';
+    $fechaCorte = date('Y-m-d');
+}
+
 // 2. DATOS GENERALES DE LA UNIDAD
-// 
 // Recuperamos información descriptiva para el encabezado de la cartera.
 
-$sqlUnidad = "
-    SELECT
-        u.id_unidad,
-        u.codigo,
-        u.nombre,
-        u.piso,
-        u.area,
-        u.coeficiente,
-        u.estado,
-
-        dtu.nombre_grupo,
-
-        tv.nombre AS tipo_unidad
-
+$sqlUnidad = "SELECT u.id_unidad, u.codigo, u.nombre, u.piso, u.area, u.coeficiente, u.estado,
+        dtu.nombre_grupo, tv.nombre AS tipo_unidad
     FROM unidades u
 
     LEFT JOIN detalle_tipos_unidad dtu
-        ON dtu.id_tipo_config =
-           u.id_tipo_config
+        ON dtu.id_tipo_config =u.id_tipo_config
 
     LEFT JOIN tipos_vivienda tv
-        ON tv.id_tipo_vivienda =
-           dtu.id_tipo_vivienda
+        ON tv.id_tipo_vivienda = dtu.id_tipo_vivienda
 
     WHERE
-        u.id_unidad =
-            :id_unidad
-
+        u.id_unidad = :id_unidad
     LIMIT 1
 ";
 
 
 $stmtUnidad =
-    $conexion->prepare(
-        $sqlUnidad
-    );
+    $conexion->prepare($sqlUnidad);
 
-
-$stmtUnidad->execute([
-    ':id_unidad'
-        => $idUnidad
+$stmtUnidad->execute([ ':id_unidad' => $idUnidad
 ]);
 
-
-$unidad =
-    $stmtUnidad->fetch(
-        PDO::FETCH_ASSOC
-    );
-
+$unidad = $stmtUnidad->fetch(PDO::FETCH_ASSOC);
 
 if (!$unidad) {
 
     header(
-        "Location: " .
-        BASE_URL .
-        "configuracion/cartera.php?" .
-        http_build_query([
-            'tipo'  => 'error',
-            'texto' => 'La unidad seleccionada no existe.'
-        ])
+        "Location: " . BASE_URL . "configuracion/cartera.php?" .
+        http_build_query([ 'tipo'  => 'error','texto' => 'La unidad seleccionada no existe.'])
     );
-
     exit;
 }
 
 
-// 
+
 // 3. RESUMEN FINANCIERO DE LA UNIDAD
-// 
 // Calcula total original, pagado, saldo y saldo vencido.
 // No incluye obligaciones anuladas.
 
-$sqlResumen = "
-    SELECT
-        COUNT(*) AS obligaciones,
-
-        COALESCE(
-            SUM(valor_original),
-            0
-        ) AS valor_original,
-
-        COALESCE(
-            SUM(valor_pagado),
-            0
-        ) AS valor_pagado,
-
-        COALESCE(
-            SUM(saldo),
-            0
-        ) AS saldo,
-
-        COALESCE(
-            SUM(
+$sqlResumen = " SELECT COUNT(*) AS obligaciones,
+        COALESCE(SUM(valor_original),0) AS valor_original,
+        COALESCE(SUM(valor_pagado),0) AS valor_pagado,
+        COALESCE(SUM(saldo),0) AS saldo,
+        COALESCE(SUM(
                 CASE
                     WHEN
                         estado = 'PENDIENTE'
                         AND saldo > 0
-                        AND fecha_vencimiento < CURDATE()
+                        AND fecha_vencimiento < :fecha_corte_resumen
                     THEN saldo
                     ELSE 0
                 END
@@ -193,263 +163,674 @@ $sqlResumen = "
 
     FROM cartera
 
-    WHERE
-        id_unidad =
-            :id_unidad
-
-        AND estado <>
-            'ANULADA'
+    WHERE id_unidad = :id_unidad AND estado <> 'ANULADA'
 ";
 
+$stmtResumen =$conexion->prepare($sqlResumen);
 
-$stmtResumen =
-    $conexion->prepare(
-        $sqlResumen
-    );
-
-
-$stmtResumen->execute([
-    ':id_unidad'
-        => $idUnidad
-]);
+$stmtResumen->execute([':id_unidad'=> $idUnidad,':fecha_corte_resumen'
+        => $fechaCorte]);
 
 
-$resumen =
-    $stmtResumen->fetch(
-        PDO::FETCH_ASSOC
-    );
+$resumen = $stmtResumen->fetch(PDO::FETCH_ASSOC);
 
 
-// 
+// =====
 // 4. OBLIGACIONES AGRUPADAS POR FACTURA
-// 
-// Una factura puede generar varias filas en `cartera` (una por detalle).
-// Aquí se agrupan para presentar una sola fila resumen por factura.
+// Agrupa las obligaciones por factura.
+//
+// Las obligaciones sin factura se mantienen independientes.
+//
+// Las obligaciones anuladas se conservan como historial,
+// pero no participan en los valores financieros activos.
+// =====
 
-$sqlCartera = "
-    SELECT
-        c.id_factura,
-        c.id_unidad,
+$sqlCartera = "SELECT
+        /*CLAVE DE AGRUPACIÓN */
+        CASE
+            WHEN c.id_factura IS NOT NULL
+            THEN CONCAT('F-',c.id_factura)
 
+            ELSE CONCAT('C-',c.id_cartera
+            )
+        END AS clave_agrupacion,
+
+        c.id_factura,c.id_unidad,
+
+        /*REFERENCIA PARA OBLIGACIONES SIN FACTURA*/
+        MIN(c.id_cartera) AS id_cartera_referencia,
+
+        /* PERÍODO Y VENCIMIENTO */
         MIN(c.periodo) AS periodo,
+
         MIN(c.fecha_vencimiento) AS fecha_vencimiento,
 
-        SUM(c.valor_original) AS valor_original,
-        SUM(c.valor_pagado) AS valor_pagado,
-        SUM(c.saldo) AS saldo,
 
-        f.numero_factura,
-        f.estado AS estado_factura,
-
-        COUNT(c.id_cartera) AS cantidad_conceptos,
-
-        SUM(
-            CASE
-                WHEN fd.id_interes IS NOT NULL
-                THEN 1
-                ELSE 0
-            END
-        ) AS cantidad_intereses,
+        /*TOTALES ACTIVOS
+           Las obligaciones anuladas no suman.*/
 
         COALESCE(
             SUM(
                 CASE
-                    WHEN fd.id_interes IS NOT NULL
-                    THEN c.valor_original
-                    ELSE 0
+                    WHEN
+                        c.estado <> 'ANULADA'
+                    THEN
+                        c.valor_original
+                    ELSE
+                        0
+                END
+            ),
+            0
+        ) AS valor_original,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN
+                        c.estado <> 'ANULADA'
+                    THEN
+                        c.valor_pagado
+                    ELSE
+                        0
+                END
+            ),
+            0
+        ) AS valor_pagado,
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN
+                        c.estado <> 'ANULADA'
+                    THEN
+                        c.saldo
+                    ELSE
+                        0
+                END
+            ),
+            0
+        ) AS saldo,
+
+
+        /* FACTURA*/
+
+        f.numero_factura,
+        f.estado AS estado_factura,
+
+        /*CANTIDAD DE CONCEPTOS
+           Incluye anulados porque forman parte del historial.*/
+
+        COUNT(
+            c.id_cartera
+        ) AS cantidad_conceptos,
+
+
+        /* CANTIDAD DE INTERESES ACTIVOS */
+
+        SUM(
+            CASE
+                WHEN
+                    fd.id_interes IS NOT NULL AND c.estado <> 'ANULADA'
+                THEN
+                    1
+                ELSE
+                    0
+            END
+        ) AS cantidad_intereses,
+
+
+        /*VALOR ORIGINAL DE INTERESES */
+
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN
+                        fd.id_interes IS NOT NULL
+                        AND c.estado <> 'ANULADA'
+                    THEN
+                        c.valor_original
+                    ELSE
+                        0
                 END
             ),
             0
         ) AS valor_intereses,
 
+        /*INTERESES PAGADOS */
+
         COALESCE(
             SUM(
                 CASE
-                    WHEN fd.id_interes IS NOT NULL
-                    THEN c.valor_pagado
-                    ELSE 0
+                    WHEN
+                        fd.id_interes IS NOT NULL
+                        AND c.estado <> 'ANULADA'
+                    THEN
+                        c.valor_pagado
+                    ELSE
+                        0
                 END
             ),
             0
         ) AS pagado_intereses,
 
+
+        /* SALDO DE INTERESES */
+
         COALESCE(
             SUM(
                 CASE
-                    WHEN fd.id_interes IS NOT NULL
-                    THEN c.saldo
-                    ELSE 0
+                    WHEN
+                        fd.id_interes IS NOT NULL AND c.estado <> 'ANULADA'
+                    THEN
+                        c.saldo
+                    ELSE
+                        0
                 END
             ),
             0
         ) AS saldo_intereses,
 
+        /*CAPITAL / OTROS CONCEPTOS */
+
         COALESCE(
             SUM(
                 CASE
-                    WHEN fd.id_interes IS NULL
-                    THEN c.valor_original
-                    ELSE 0
+                    WHEN
+                        fd.id_interes IS NULL AND c.estado <> 'ANULADA'
+                    THEN
+                        c.valor_original
+                    ELSE
+                        0
                 END
             ),
             0
         ) AS valor_capital_otros,
 
+        /*SALDO CAPITAL / OTROS */
+
         COALESCE(
             SUM(
                 CASE
-                    WHEN fd.id_interes IS NULL
-                    THEN c.saldo
-                    ELSE 0
+
+                    WHEN
+                        fd.id_interes IS NULL
+                        AND c.estado <> 'ANULADA'
+
+                    THEN
+                        c.saldo
+
+                    ELSE
+                        0
+
                 END
             ),
             0
         ) AS saldo_capital_otros,
 
+
+        /* ==================================================
+           CONCEPTOS
+           Conserva también los anulados para historial.
+        ================================================== */
+
         GROUP_CONCAT(
+
             DISTINCT
+
             CASE
-                WHEN fd.id_interes IS NOT NULL
+
+                WHEN
+                    fd.id_interes IS NOT NULL
+
                 THEN CONCAT(
+
                     COALESCE(
                         cf.nombre,
                         'Intereses de mora'
                     ),
-                    ' [MORA]'
+
+                    CASE
+
+                        WHEN
+                            c.estado = 'ANULADA'
+
+                        THEN
+                            ' [MORA - ANULADA]'
+
+                        ELSE
+                            ' [MORA]'
+
+                    END
+
                 )
-                ELSE COALESCE(
-                    cf.nombre,
-                    tobl.nombre,
-                    c.descripcion
+
+
+                ELSE CONCAT(
+
+                    COALESCE(
+                        cf.nombre,
+                        tobl.nombre,
+                        c.descripcion,
+                        'Obligación'
+                    ),
+
+                    CASE
+
+                        WHEN
+                            c.estado = 'ANULADA'
+
+                        THEN
+                            ' [ANULADA]'
+
+                        ELSE
+                            ''
+
+                    END
+
                 )
+
             END
-            ORDER BY c.id_cartera
+
+            ORDER BY
+                c.id_cartera
+
             SEPARATOR ' | '
+
         ) AS conceptos,
 
-        GROUP_CONCAT(
-            DISTINCT c.descripcion
-            ORDER BY c.id_cartera
-            SEPARATOR ' | '
-        ) AS descripciones,
+
+        /* ==================================================
+           DESCRIPCIONES
+        ================================================== */
 
         GROUP_CONCAT(
+
             DISTINCT
+            c.descripcion
+
+            ORDER BY
+                c.id_cartera
+
+            SEPARATOR ' | '
+
+        ) AS descripciones,
+
+
+        /* ==================================================
+           DETALLE DE MORA
+           Solo muestra intereses activos.
+        ================================================== */
+
+        GROUP_CONCAT(
+
+            DISTINCT
+
             CASE
-                WHEN fd.id_interes IS NOT NULL
+
+                WHEN
+                    fd.id_interes IS NOT NULL
+                    AND c.estado <> 'ANULADA'
+
                 THEN CONCAT(
+
                     'Mora sobre cartera #',
                     ic.id_cartera,
+
                     ' · Base ',
-                    FORMAT(ic.valor_base, 2),
+                    FORMAT(
+                        ic.valor_base,
+                        2
+                    ),
+
                     ' · Tasa ',
-                    FORMAT(ic.tasa_interes, 2),
+                    FORMAT(
+                        ic.tasa_interes,
+                        2
+                    ),
+
                     '% · Período ',
-                    DATE_FORMAT(ic.periodo_interes, '%m/%Y'),
+                    DATE_FORMAT(
+                        ic.periodo_interes,
+                        '%m/%Y'
+                    ),
+
                     CASE
-                        WHEN cfo.nombre IS NOT NULL
+
+                        WHEN
+                            cfo.nombre IS NOT NULL
+
                         THEN CONCAT(
                             ' · Origen: ',
                             cfo.nombre
                         )
-                        ELSE ''
+
+                        ELSE
+                            ''
+
                     END
+
                 )
-                ELSE NULL
+
+                ELSE
+                    NULL
+
             END
-            ORDER BY c.id_cartera
+
+            ORDER BY
+                c.id_cartera
+
             SEPARATOR ' | '
+
         ) AS detalle_mora,
 
+
+        /* ==================================================
+           INDICADOR DE VENCIMIENTO
+           Utiliza la fecha de corte seleccionada.
+        ================================================== */
+
         CASE
+
             WHEN
+
                 SUM(
                     CASE
+
                         WHEN
                             c.estado = 'PENDIENTE'
-                            AND c.saldo > 0
-                            AND c.fecha_vencimiento < CURDATE()
-                        THEN c.saldo
-                        ELSE 0
+                            AND c.saldo > 0.009
+                            AND c.fecha_vencimiento <
+                                :fecha_corte_vencida
+
+                        THEN
+                            c.saldo
+
+                        ELSE
+                            0
+
                     END
                 ) > 0
-            THEN 1
-            ELSE 0
+
+            THEN
+                1
+
+            ELSE
+                0
+
         END AS vencida,
 
+
+        /* ==================================================
+           ESTADO AGRUPADO
+        ================================================== */
+
         CASE
+
+            /* ----------------------------------------------
+               Todas las obligaciones están anuladas
+            ---------------------------------------------- */
+
             WHEN
+
                 SUM(
                     CASE
-                        WHEN c.estado = 'ANULADA'
-                        THEN 1
-                        ELSE 0
+
+                        WHEN
+                            c.estado = 'ANULADA'
+
+                        THEN
+                            1
+
+                        ELSE
+                            0
+
                     END
-                ) = COUNT(c.id_cartera)
-            THEN 'ANULADA'
+                )
+
+                =
+
+                COUNT(
+                    c.id_cartera
+                )
+
+            THEN
+                'ANULADA'
+
+
+            /* ----------------------------------------------
+               No existe saldo activo
+            ---------------------------------------------- */
 
             WHEN
-                SUM(c.saldo) <= 0.009
-            THEN 'PAGADA'
+
+                SUM(
+                    CASE
+
+                        WHEN
+                            c.estado <> 'ANULADA'
+
+                        THEN
+                            c.saldo
+
+                        ELSE
+                            0
+
+                    END
+                ) <= 0.009
+
+            THEN
+                'PAGADA'
+
+
+            /* ----------------------------------------------
+               Existe pago y todavía existe saldo
+            ---------------------------------------------- */
 
             WHEN
-                SUM(c.valor_pagado) > 0.009
-                AND SUM(c.saldo) > 0.009
-            THEN 'PARCIAL'
 
-            ELSE 'PENDIENTE'
+                SUM(
+                    CASE
+
+                        WHEN
+                            c.estado <> 'ANULADA'
+
+                        THEN
+                            c.valor_pagado
+
+                        ELSE
+                            0
+
+                    END
+                ) > 0.009
+
+                AND
+
+                SUM(
+                    CASE
+
+                        WHEN
+                            c.estado <> 'ANULADA'
+
+                        THEN
+                            c.saldo
+
+                        ELSE
+                            0
+
+                    END
+                ) > 0.009
+
+            THEN
+                'PARCIAL'
+
+
+            /* ----------------------------------------------
+               Todavía no existen pagos
+            ---------------------------------------------- */
+
+            ELSE
+                'PENDIENTE'
+
         END AS estado
+
+
+    /* =
+       CARTERA
+    = */
 
     FROM cartera c
 
+
+    /* =
+       FACTURA
+    = */
+
     LEFT JOIN facturas f
+
         ON f.id_factura =
            c.id_factura
 
+
+    /* =
+       DETALLE DE FACTURA
+    = */
+
     LEFT JOIN facturas_detalle fd
+
         ON fd.id_detalle =
            c.id_detalle
 
+
+    /* =
+       CONCEPTO
+    = */
+
     LEFT JOIN conceptos_facturacion cf
+
         ON cf.id_concepto =
            fd.id_concepto
 
+
+    /* =
+       INTERÉS DE MORA
+    = */
+
     LEFT JOIN intereses_cartera ic
+
         ON ic.id_interes =
            fd.id_interes
 
+
+    /* =
+       CARTERA QUE ORIGINÓ EL INTERÉS
+    = */
+
     LEFT JOIN cartera cartera_origen
+
         ON cartera_origen.id_cartera =
            ic.id_cartera
 
+
+    /* =
+       DETALLE ORIGINAL
+    = */
+
     LEFT JOIN facturas_detalle fd_origen
+
         ON fd_origen.id_detalle =
            cartera_origen.id_detalle
 
+
+    /* =
+       CONCEPTO ORIGINAL
+    = */
+
     LEFT JOIN conceptos_facturacion cfo
+
         ON cfo.id_concepto =
            fd_origen.id_concepto
 
+
+    /* =
+       TIPO DE OBLIGACIÓN
+    = */
+
     LEFT JOIN tipos_obligacion tobl
+
         ON tobl.id_tipo_obligacion =
            c.id_tipo_obligacion
 
+
+    /* =
+       UNIDAD
+    = */
+
     WHERE
+
         c.id_unidad =
             :id_unidad
 
+
+    /* =
+       AGRUPACIÓN
+       Facturas juntas.
+       Obligaciones sin factura independientes.
+    = */
+
     GROUP BY
+
+        CASE
+
+            WHEN c.id_factura IS NOT NULL
+
+            THEN CONCAT(
+                'F-',
+                c.id_factura
+            )
+
+            ELSE CONCAT(
+                'C-',
+                c.id_cartera
+            )
+
+        END,
+
         c.id_factura,
         c.id_unidad,
         f.numero_factura,
         f.estado
 
+
+    /* =
+       ORDEN
+    = */
+
     ORDER BY
+
         periodo DESC,
+
         fecha_vencimiento DESC,
-        c.id_factura DESC
+
+        CASE
+
+            WHEN
+                c.id_factura IS NULL
+
+            THEN
+                MIN(
+                    c.id_cartera
+                )
+
+            ELSE
+                c.id_factura
+
+        END DESC
 ";
 
+
+// =====
+// PREPARAR CONSULTA
+// =====
 
 $stmtCartera =
     $conexion->prepare(
@@ -457,11 +838,24 @@ $stmtCartera =
     );
 
 
+// =====
+// EJECUTAR CONSULTA
+// =====
+
 $stmtCartera->execute([
+
     ':id_unidad'
-        => $idUnidad
+        => $idUnidad,
+
+    ':fecha_corte_vencida'
+        => $fechaCorte
+
 ]);
 
+
+// =====
+// OBLIGACIONES
+// =====
 
 $obligaciones =
     $stmtCartera->fetchAll(
@@ -469,12 +863,65 @@ $obligaciones =
     );
 
 
-// 
+// =====
+// FACTURAS VENCIDAS PARA PESTAÑAS
+// Solo incluye facturas con saldo vencido.
+// =====
+
+$facturasVencidas = [];
+
+
+foreach (
+    $obligaciones
+    as $obligacion
+) {
+
+    if (
+        empty(
+            $obligacion[
+                'id_factura'
+            ]
+        )
+    ) {
+        continue;
+    }
+
+
+    if (
+        (int)(
+            $obligacion[
+                'vencida'
+            ]
+            ?? 0
+        ) !== 1
+    ) {
+        continue;
+    }
+
+
+    if (
+        (float)(
+            $obligacion[
+                'saldo'
+            ]
+            ?? 0
+        ) <= 0.009
+    ) {
+        continue;
+    }
+
+
+    $facturasVencidas[] =
+        $obligacion;
+}
+
+
+//
 // 5. DETALLE INDIVIDUAL DE OBLIGACIONES
-// 
+//
 // Este bloque permite ver cada concepto por separado y distinguir mora de capital.
 // fd.id_interes != NULL significa que la obligación proviene de intereses de mora.
-// 
+//
 
 $sqlDetalleObligaciones = "
     SELECT
@@ -571,12 +1018,12 @@ foreach ($detalleObligaciones as $detalleObligacion) {
 }
 
 
-// 
+//
 // 6. PAGOS RECIBIDOS POR LA UNIDAD
-// 
+//
 // `valor_disponible` se obtiene restando al valor del pago las aplicaciones realizadas.
 // Si queda disponible, ese mismo pago todavía puede distribuirse a otras obligaciones.
-// 
+//
 
 $sqlPagos = "
     SELECT
@@ -669,63 +1116,193 @@ $pagos =
     );
 
 
-// 
+// =====
 // 7. HISTORIAL DE APLICACIONES
-// 
-// Cada fila indica qué pago afectó qué obligación y por qué valor. DE PAGOS
-// 
+// Une aplicaciones de pagos y aplicaciones de saldo a favor.
+// =====
 
 $sqlAplicaciones = "
+
+    /* =
+       APLICACIONES DE PAGOS
+    = */
+
     SELECT
-        ap.id_aplicacion,
+
+        'PAGO' AS origen_aplicacion,
+
+        ap.id_aplicacion AS id_movimiento,
+
         ap.id_pago,
+
+        NULL AS id_saldo_favor,
+
         ap.id_cartera,
+
         ap.valor_aplicado,
+
         ap.fecha_aplicacion,
+
         ap.tipo_aplicacion,
+
         ap.observaciones,
 
         p.fecha_pago,
+
         p.referencia,
 
         c.descripcion AS cartera_descripcion,
+
         c.periodo,
 
         f.numero_factura,
 
-        cf.nombre AS concepto
+        cf.nombre AS concepto,
+
+        fd.id_interes
+
 
     FROM aplicaciones_pagos ap
 
+
     INNER JOIN pagos p
+
         ON p.id_pago =
            ap.id_pago
 
+
     INNER JOIN cartera c
+
         ON c.id_cartera =
            ap.id_cartera
 
+
     LEFT JOIN facturas f
+
         ON f.id_factura =
            c.id_factura
 
+
     LEFT JOIN facturas_detalle fd
+
         ON fd.id_detalle =
            c.id_detalle
 
+
     LEFT JOIN conceptos_facturacion cf
+
         ON cf.id_concepto =
            fd.id_concepto
 
+
     WHERE
+
         c.id_unidad =
-            :id_unidad
+            :id_unidad_pago
+
+
+    UNION ALL
+
+
+    /* =
+       APLICACIONES DE SALDO A FAVOR
+    = */
+
+    SELECT
+
+        'SALDO_FAVOR' AS origen_aplicacion,
+
+        asf.id_aplicacion_saldo AS id_movimiento,
+
+        sf.id_pago,
+
+        asf.id_saldo_favor,
+
+        asf.id_cartera,
+
+        asf.valor_aplicado,
+
+        asf.fecha_aplicacion,
+
+        asf.tipo_aplicacion,
+
+        asf.observaciones,
+
+        p.fecha_pago,
+
+        p.referencia,
+
+        c.descripcion AS cartera_descripcion,
+
+        c.periodo,
+
+        f.numero_factura,
+
+        cf.nombre AS concepto,
+
+        fd.id_interes
+
+
+    FROM aplicaciones_saldo_favor asf
+
+
+    INNER JOIN saldo_favor sf
+
+        ON sf.id_saldo_favor =
+           asf.id_saldo_favor
+
+
+    INNER JOIN pagos p
+
+        ON p.id_pago =
+           sf.id_pago
+
+
+    INNER JOIN cartera c
+
+        ON c.id_cartera =
+           asf.id_cartera
+
+
+    LEFT JOIN facturas f
+
+        ON f.id_factura =
+           c.id_factura
+
+
+    LEFT JOIN facturas_detalle fd
+
+        ON fd.id_detalle =
+           c.id_detalle
+
+
+    LEFT JOIN conceptos_facturacion cf
+
+        ON cf.id_concepto =
+           fd.id_concepto
+
+
+    WHERE
+
+        c.id_unidad =
+            :id_unidad_saldo
+
+
+    /* =
+       ORDEN GENERAL
+    = */
 
     ORDER BY
-        ap.fecha_aplicacion DESC,
-        ap.id_aplicacion DESC
+
+        fecha_aplicacion DESC,
+
+        id_movimiento DESC
 ";
 
+
+// =====
+// PREPARAR HISTORIAL
+// =====
 
 $stmtAplicaciones =
     $conexion->prepare(
@@ -733,11 +1310,24 @@ $stmtAplicaciones =
     );
 
 
+// =====
+// EJECUTAR HISTORIAL
+// =====
+
 $stmtAplicaciones->execute([
-    ':id_unidad'
+
+    ':id_unidad_pago'
+        => $idUnidad,
+
+    ':id_unidad_saldo'
         => $idUnidad
+
 ]);
 
+
+// =====
+// RESULTADOS
+// =====
 
 $aplicaciones =
     $stmtAplicaciones->fetchAll(
@@ -745,9 +1335,7 @@ $aplicaciones =
     );
 
 
-// 
-// SALDOS A FAVOR DE LA UNIDAD
-// 
+// SALDOS A FAVOR DE LA UNIDAD//
 
 $sqlSaldosFavor = "
     SELECT
@@ -808,109 +1396,8 @@ $saldosFavor =
 <!DOCTYPE html>
 
 <html lang="es">
-
 <head>
-
     <?php include ROOT_PATH . "/includes/head.php"; ?>
-
-    <style>
-        .mora-badge {
-            display: inline-block;
-            margin-top: 5px;
-            padding: 3px 8px;
-            border-radius: 999px;
-            background: #fff3cd;
-            color: #7a5300;
-            border: 1px solid #ffe08a;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .mora-detalle {
-            margin-top: 6px;
-            padding: 8px 10px;
-            border-left: 3px solid #d39e00;
-            background: #fffaf0;
-            color: #6b4b00;
-            font-size: 12px;
-            line-height: 1.45;
-            border-radius: 4px;
-        }
-
-        .mora-desglose {
-            margin-top: 6px;
-            font-size: 12px;
-            line-height: 1.45;
-            color: #475569;
-        }
-
-
-        .detalle-obligaciones {
-            margin-top: 10px;
-            padding: 12px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-        }
-
-        .detalle-obligaciones table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        .detalle-obligaciones th,
-        .detalle-obligaciones td {
-            padding: 8px;
-            border-bottom: 1px solid #e2e8f0;
-            vertical-align: top;
-        }
-
-        .detalle-obligaciones th {
-            text-align: left;
-            color: #475569;
-            font-size: 12px;
-        }
-
-        .detalle-obligaciones tr:last-child td {
-            border-bottom: none;
-        }
-
-        .detalle-mora-fila {
-            background: #fffaf0;
-        }
-
-        .detalle-capital-fila {
-            background: #ffffff;
-        }
-
-        .etiqueta-capital,
-        .etiqueta-mora {
-            display: inline-block;
-            padding: 2px 7px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .etiqueta-capital {
-            background: #eef2ff;
-            color: #3730a3;
-        }
-
-        .etiqueta-mora {
-            background: #fff3cd;
-            color: #7a5300;
-        }
-
-        .obligacion-descripcion {
-            margin-top: 3px;
-            color: #64748b;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-    </style>
 
 </head>
 
@@ -930,9 +1417,7 @@ $saldosFavor =
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <div
             style="
@@ -953,7 +1438,14 @@ $saldosFavor =
                 <p>
                     Unidad <?= e($unidad['codigo']) ?>
                 </p>
-
+                <p>
+                    <small>
+                        Fecha de corte:
+                        <strong>
+                            <?= e(date('d/m/Y', strtotime($fechaCorte))) ?>
+                        </strong>
+                    </small>
+                </p>
             </div>
 
 
@@ -963,7 +1455,7 @@ $saldosFavor =
                     href="<?= BASE_URL ?>configuracion/cartera.php"
                     class="btn-limpiar"
                 >
-                    ← Volver a cartera
+                    Volver a cartera
                 </a>
 
             </div>
@@ -974,92 +1466,59 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             DATOS UNIDAD
-        ===== -->
+        <!--DATOS UNIDAD -->
 
         <div class="bloque filtros">
 
-            <div class="form-card">
+            <h3>Unidad</h3>
+            <div class="factura-vencida-dato">
+                <small>Código</small>
 
-                <h3>
-                    Unidad
-                </h3>
+                <strong>
+                    <?= e($unidad['codigo']) ?>
+                </strong>
+            </div>
 
-                <br>
+            <div class="factura-vencida-dato">
+                <small>Grupo</small>
 
-                <div
-                    style="
-                        display:grid;
-                        grid-template-columns:
-                            repeat(
-                                auto-fit,
-                                minmax(170px,1fr)
-                            );
-                        gap:15px;
-                    "
-                >
+                <strong>
+                    <?= e($unidad['nombre_grupo'] ?? '-') ?>
+                </strong>
+            </div>
 
-                    <div>
-                        <small>Código</small>
-                        <br>
-                        <strong>
-                            <?= e($unidad['codigo']) ?>
-                        </strong>
-                    </div>
+            <div class="factura-vencida-dato">
+                <small>Tipo</small>
 
-                    <div>
-                        <small>Grupo</small>
-                        <br>
-                        <strong>
-                            <?= e($unidad['nombre_grupo'] ?? '-') ?>
-                        </strong>
-                    </div>
+                <strong>
+                    <?= e($unidad['tipo_unidad'] ?? '-') ?>
+                </strong>
+            </div>
 
-                    <div>
-                        <small>Tipo</small>
-                        <br>
-                        <strong>
-                            <?= e($unidad['tipo_unidad'] ?? '-') ?>
-                        </strong>
-                    </div>
+            <div class="factura-vencida-dato">
+                <small>Área</small>
 
-                    <div>
-                        <small>Área</small>
-                        <br>
-                        <strong>
-                            <?= number_format(
-                                (float)$unidad['area'],
-                                2,
-                                ',',
-                                '.'
-                            ) ?>
-                        </strong>
-                    </div>
+                <strong>
+                    <?= number_format(
+                        (float)$unidad['area'],
+                        2,
+                        ',',
+                        '.'
+                    ) ?>
+                </strong>
+            </div>
 
-                    <div>
-                        <small>Coeficiente</small>
-                        <br>
-                        <strong>
-                            <?= number_format(
-                                (float)$unidad['coeficiente'],
-                                8,
-                                ',',
-                                '.'
-                            ) ?>
-                        </strong>
-                    </div>
+            <div class="factura-vencida-dato">
+                <small>Coeficiente</small>
 
-                    <div>
-                        <small>Estado unidad</small>
-                        <br>
-                        <strong>
-                            <?= e($unidad['estado']) ?>
-                        </strong>
-                    </div>
-
-                </div>
-
+                <strong >
+                    <?= number_format(
+                        (float)$unidad['coeficiente'],
+                        8,
+                        ',',
+                        '.'
+                    ) ?>
+                </strong>
             </div>
 
         </div>
@@ -1068,9 +1527,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             RESUMEN
-        ===== -->
+        <!--RESUMEN -->
 
         <div class="bloque filtros">
 
@@ -1170,7 +1627,541 @@ $saldosFavor =
 
                 </div>
 
+
+                <!-- =====
+                    FACTURAS VENCIDAS
+                ====== -->
+
+                <?php if (
+                    !empty(
+                        $facturasVencidas
+                    )
+                ): ?>
+                    <div class="bloque filtros">
+                        <div class="form-card">
+                            <h3>Facturas vencidas</h3>
+
+                            <p style="margin-top:6px; color:#64748b;">
+                                Seleccione una factura para consultarsus obligaciones pendientes.
+                            </p>
+
+                            <br>
+
+                            <!-- PESTAÑAS -->
+                            <div class="cartera-tabs">
+                                <?php foreach ($facturasVencidas as $indice => $facturaVencida): ?>
+
+
+                                    <button
+                                        type="button"
+                                        class="cartera-tab <?= $indice === 0 ? 'activo-tab' : '' ?>"
+                                        data-tab="factura-tab-<?= (int)$facturaVencida['id_factura'] ?>"
+                                        data-id-factura="<?= (int)$facturaVencida['id_factura'] ?>"
+                                    >
+
+                                        <?= e(
+                                            $facturaVencida[
+                                                'numero_factura'
+                                            ]
+                                            ??
+                                            'Factura #' .
+                                            $facturaVencida[
+                                                'id_factura'
+                                            ]
+                                        ) ?>
+
+
+                                        <small>
+
+                                            <?= e(
+                                                date(
+                                                    'm/Y',
+                                                    strtotime(
+                                                        $facturaVencida[
+                                                            'periodo'
+                                                        ]
+                                                    )
+                                                )
+                                            ) ?>
+
+                                            · Apto.
+                                            <?= e(
+                                                $unidad['codigo']
+                                            ) ?>
+                                        </small>
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+
+                            <!-- CONTENIDO -->
+                            <?php foreach (
+                                $facturasVencidas
+                                as $indice => $facturaVencida
+                            ): ?>
+
+                                <?php
+
+                                    $claveFactura =
+                                        'factura_' .
+                                        (int)$facturaVencida[
+                                            'id_factura'
+                                        ];
+
+
+                                    $detallesVencidos =
+                                        $detallePorFactura[
+                                            $claveFactura
+                                        ]
+                                        ?? [];
+
+                                ?>
+
+
+                                <div
+                                    id="factura-tab-<?= (int)$facturaVencida['id_factura'] ?>"
+                                    class="cartera-tab-contenido <?= $indice === 0 ? 'activo' : '' ?>"
+                                >
+
+
+                                    <!-- RESUMEN FACTURA -->
+
+                                    <div class="factura-vencida-resumen">
+
+                                    <div class="factura-vencida-dato">
+
+                                        <small>
+                                            Apartamento / Unidad
+                                        </small>
+
+                                        <strong>
+                                            <?= e(
+                                                $unidad['codigo']
+                                            ) ?>
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="factura-vencida-dato">
+
+                                        <small>
+                                            Tipo de unidad
+                                        </small>
+
+                                        <strong>
+                                            <?= e(
+                                                $unidad['tipo_unidad']
+                                                ?? '-'
+                                            ) ?>
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="factura-vencida-dato">
+
+                                        <small>
+                                            Grupo
+                                        </small>
+
+                                        <strong>
+                                            <?= e(
+                                                $unidad['nombre_grupo']
+                                                ?? '-'
+                                            ) ?>
+                                        </strong>
+
+                                    </div>
+                                        <div class="factura-vencida-dato">
+                                            <small>Factura</small>
+
+                                            <strong>
+                                                <?= e(
+                                                    $facturaVencida[
+                                                        'numero_factura'
+                                                    ]
+                                                    ?? '-'
+                                                ) ?>
+                                            </strong>
+                                        </div>
+
+
+                                        <div class="factura-vencida-dato">
+
+                                            <small>
+                                                Período
+                                            </small>
+
+                                            <strong>
+
+                                                <?= e(
+                                                    date(
+                                                        'm/Y',
+                                                        strtotime(
+                                                            $facturaVencida[
+                                                                'periodo'
+                                                            ]
+                                                        )
+                                                    )
+                                                ) ?>
+
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div class="factura-vencida-dato">
+
+                                            <small>
+                                                Vencimiento
+                                            </small>
+
+                                            <strong>
+
+                                                <?= e(
+                                                    date(
+                                                        'd/m/Y',
+                                                        strtotime(
+                                                            $facturaVencida[
+                                                                'fecha_vencimiento'
+                                                            ]
+                                                        )
+                                                    )
+                                                ) ?>
+
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div class="factura-vencida-dato">
+
+                                            <small>
+                                                Saldo pendiente
+                                            </small>
+
+                                            <strong>
+
+                                                <?= dinero(
+                                                    $facturaVencida[
+                                                        'saldo'
+                                                    ]
+                                                ) ?>
+
+                                            </strong>
+
+                                        </div>
+
+
+                                        <div class="factura-vencida-dato">
+
+                                            <small>
+                                                Estado
+                                            </small>
+
+                                            <strong style="color:#b42318;">
+                                                EN MORA
+                                            </strong>
+
+                                        </div>
+
+
+                                    </div>
+
+
+                                    <!-- DETALLE -->
+
+                                    <div class="tabla-responsive">
+                                        <table class="tabla">
+                                            <thead>
+                                                <tr>
+                                                    <th>Obligacion</th>
+                                                    <th>Tipo</th>
+                                                    <th>Concepto</th>
+                                                    <th>Original</th>
+                                                    <th>Pagado</th>
+                                                    <th>Saldo</th>
+                                                    <th>Vencimiento</th>
+                                                    <th>Estado</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                            <?php if (empty($detallesVencidos)): ?>
+                                                <tr>
+                                                    <td colspan="8" align="center">
+                                                        No existen conceptos asociados a esta factura.
+                                                    </td>
+                                                </tr>
+                                            <?php else: ?>
+
+                                                <?php foreach ($detallesVencidos as $detalle): ?>
+
+                                                    <?php $esInteres =!empty(
+                                                        $detalle['id_interes']);
+                                                    ?>
+
+                                                    <tr>
+                                                        <td>
+                                                            <strong>
+                                                                #<?= (int)$detalle[
+                                                                    'id_cartera'
+                                                                ] ?>
+                                                            </strong>
+                                                        </td>
+                                                        <td>
+                                                            <?php if (
+                                                                $esInteres
+                                                            ): ?>
+
+                                                                <span class="inactivo">
+                                                                    MORA
+                                                                </span>
+
+                                                            <?php else: ?>
+
+                                                                <span class="activo">
+                                                                    CAPITAL
+                                                                </span>
+
+                                                            <?php endif; ?>
+                                                            <small style="display:block; margin-top:3px; color:#64748b;">
+
+                                                                Factura:
+                                                                <?= e(
+                                                                    $facturaVencida[
+                                                                        'numero_factura'
+                                                                    ]
+                                                                    ?? '-'
+                                                                ) ?>
+
+
+                                                            </small>
+                                                        </td>
+
+
+                                                        <td>
+
+
+                                                            <strong>
+
+                                                                <?= e($detalle['concepto_nombre']??
+                                                                    $detalle['cartera_descripcion']??
+                                                                    'Obligación'
+                                                                ) ?>
+
+                                                            </strong>
+
+
+                                                            <?php if ($esInteres): ?>
+
+                                                                <div style="margin-top:5px;">
+                                                                    <small style="color:#9a4d00;">
+                                                                        Interés originado por:
+                                                                        <strong>
+                                                                            Cartera
+                                                                            #<?= (int)($detalle['id_cartera_origen']
+                                                                                ?? 0
+                                                                            ) ?>
+                                                                        </strong>
+
+                                                                        <?php if (
+                                                                            !empty(
+                                                                                $detalle[
+                                                                                    'concepto_origen'
+                                                                                ]
+                                                                            )
+                                                                        ): ?>
+
+                                                                            ·
+                                                                            <?= e(
+                                                                                $detalle[
+                                                                                    'concepto_origen'
+                                                                                ]
+                                                                            ) ?>
+
+                                                                        <?php endif; ?>
+
+                                                                    </small>
+
+
+                                                                    <br>
+
+
+                                                                    <small>
+
+                                                                        Base:
+
+                                                                        <strong>
+                                                                            <?= dinero(
+                                                                                $detalle[
+                                                                                    'valor_base'
+                                                                                ]
+                                                                                ?? 0
+                                                                            ) ?>
+                                                                        </strong>
+
+                                                                        · Tasa:
+
+                                                                        <strong>
+                                                                            <?= number_format(
+                                                                                (float)(
+                                                                                    $detalle[
+                                                                                        'tasa_interes'
+                                                                                    ]
+                                                                                    ?? 0
+                                                                                ),
+                                                                                2,
+                                                                                ',',
+                                                                                '.'
+                                                                            ) ?>%
+                                                                        </strong>
+
+                                                                    </small>
+
+                                                                </div>
+
+                                                            <?php endif; ?>
+
+
+                                                        </td>
+
+
+                                                        <td>
+
+                                                            <?= dinero(
+                                                                $detalle[
+                                                                    'valor_original'
+                                                                ]
+                                                            ) ?>
+
+                                                        </td>
+
+
+                                                        <td>
+
+                                                            <?= dinero(
+                                                                $detalle[
+                                                                    'valor_pagado'
+                                                                ]
+                                                            ) ?>
+
+                                                        </td>
+
+
+                                                        <td>
+
+                                                            <strong>
+
+                                                                <?= dinero(
+                                                                    $detalle[
+                                                                        'saldo'
+                                                                    ]
+                                                                ) ?>
+
+                                                            </strong>
+
+                                                        </td>
+
+
+                                                        <td>
+
+                                                            <?= e(
+                                                                date(
+                                                                    'd/m/Y',
+                                                                    strtotime(
+                                                                        $detalle[
+                                                                            'fecha_vencimiento'
+                                                                        ]
+                                                                    )
+                                                                )
+                                                            ) ?>
+
+                                                        </td>
+
+
+                                                        <td>
+
+                                                            <?php if (
+                                                                $detalle[
+                                                                    'estado'
+                                                                ] === 'PAGADA'
+                                                            ): ?>
+
+                                                                <span class="activo">
+                                                                    PAGADA
+                                                                </span>
+
+
+                                                            <?php elseif (
+                                                                $detalle[
+                                                                    'estado'
+                                                                ] === 'ANULADA'
+                                                            ): ?>
+
+                                                                <span class="inactivo">
+                                                                    ANULADA
+                                                                </span>
+
+
+                                                            <?php else: ?>
+
+                                                                <span class="inactivo">
+                                                                    PENDIENTE
+                                                                </span>
+
+                                                            <?php endif; ?>
+
+                                                        </td>
+
+
+                                                    </tr>
+
+
+                                                <?php endforeach; ?>
+
+
+                                            <?php endif; ?>
+
+
+                                            </tbody>
+
+
+                                        </table>
+
+                                    </div>
+
+
+                                    <br>
+
+
+                                    <a
+                                        href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$facturaVencida['id_factura'] ?>&origen=cartera_detalle&id_unidad=<?= (int)$idUnidad ?>"
+                                        class="btn-filtrar"
+                                    >
+                                        Ver factura completa
+                                    </a>
+
+
+                                </div>
+
+
+                            <?php endforeach; ?>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <br>
+
+                <?php endif; ?>
+
+
             </div>
+
+
 
         </div>
 
@@ -1178,16 +2169,14 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             CARTERA
-        ===== -->
+        <!--CARTERA -->
 
         <div class="bloque filtros">
 
             <div class="form-card">
 
-                <h3>
-                    Obligaciones
+                <h3 id="tituloDetalleFacturaSeleccionada">
+                    Detalle de factura seleccionada
                 </h3>
 
                 <br>
@@ -1235,7 +2224,18 @@ $saldosFavor =
 
                             <?php foreach ($obligaciones as $fila): ?>
 
-                                <tr>
+                                <?php
+                                    $idFacturaFila =
+                                        !empty($fila['id_factura'])
+                                            ? (int)$fila['id_factura']
+                                            : 0;
+                                ?>
+
+                                <tr
+                                    class="fila-cartera-factura"
+                                    data-id-factura="<?= $idFacturaFila ?>"
+                                    style="display:none;"
+                                >
 
                                     <td>
 
@@ -1430,7 +2430,7 @@ $saldosFavor =
 
                                             <a
                                                 href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>&origen=cartera_detalle&id_unidad=<?= (int)$idUnidad ?>"
-                                                class="btn-secondary"
+                                                class="btn-filtrar"
                                             >
                                                 Ver factura
                                             </a>
@@ -1446,33 +2446,30 @@ $saldosFavor =
                                 </tr>
 
                                 <?php
-                                    $claveDetalleFactura =
-                                        !empty($fila['id_factura'])
+                                    $claveDetalleFactura = !empty($fila['id_factura'])
                                             ? 'factura_' . (int)$fila['id_factura']
-                                            : '';
+                                            : 'cartera_' .(int)$fila['id_cartera_referencia'];
 
-                                    $detallesFactura =
-                                        $claveDetalleFactura !== ''
-                                        && isset($detallePorFactura[$claveDetalleFactura])
+                                    $detallesFactura =isset(
+                                            $detallePorFactura[$claveDetalleFactura])
                                             ? $detallePorFactura[$claveDetalleFactura]
                                             : [];
                                 ?>
 
                                 <?php if (!empty($detallesFactura)): ?>
 
-                                    <tr>
+                                    <tr
+                                        class="fila-cartera-detalle"
+                                        data-id-factura="<?= $idFacturaFila ?>"
+                                        style="display:none;"
+                                    >
+
                                         <td colspan="9">
-
-                                            <div class="detalle-obligaciones">
-
-                                                <strong>
-                                                    Detalle por obligación
-                                                </strong>
+                                            <div class="tabla-detalle-factura">
+                                                <strong>Detalle por obligación</strong>
 
                                                 <div class="tabla-responsive" style="margin-top:8px;">
-
                                                     <table>
-
                                                         <thead>
                                                             <tr>
                                                                 <th>Tipo</th>
@@ -1637,9 +2634,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             SALDOS A FAVOR
-        ===== -->
+        <!--SALDOS A FAVOR -->
 
         <div class="bloque filtros">
 
@@ -1768,7 +2763,7 @@ $saldosFavor =
 
                                             <a
                                                 href="<?= BASE_URL ?>configuracion/aplicar_saldo_favor.php?id_saldo_favor=<?= (int)$saldoFavor['id_saldo_favor'] ?>"
-                                                class="btn-secondary"
+                                                class="btn-filtrar"
                                             >
                                                 Aplicar saldo
                                             </a>
@@ -1803,9 +2798,7 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             PAGOS
-        ===== -->
+        <!--PAGOS -->
 
         <div class="bloque filtros">
 
@@ -1821,7 +2814,7 @@ $saldosFavor =
                         class="btn-filtrar"
                         style="text-decoration:none; display:inline-block;"
                     >
-                        + Registrar nuevo pago
+                        Registrar nuevo pago
                     </a>
                 </div>
 
@@ -1955,7 +2948,7 @@ $saldosFavor =
 
                                             <a
                                                 href="<?= BASE_URL ?>configuracion/aplicar_pago.php?id_pago=<?= (int)$pago['id_pago'] ?>"
-                                                class="btn-secondary"
+                                                class="btn-filtrar"
                                             >
                                                 Aplicar pago
                                             </a>
@@ -1990,62 +2983,113 @@ $saldosFavor =
         <br>
 
 
-        <!-- ====
-             APLICACIONES
-        ===== -->
+        <!--HISTORIAL DE APLICACIONES-->
 
         <div class="bloque filtros">
 
             <div class="form-card">
 
+
                 <h3>
-                    Aplicaciones de pagos
+                    Historial de aplicaciones
                 </h3>
+
+
+                <p style="margin-top:6px; color:#64748b;">
+
+                    Movimientos aplicados a las obligaciones de esta unidad,
+                    incluyendo pagos registrados y saldos a favor utilizados.
+
+                </p>
+
 
                 <br>
 
+
                 <div class="tabla-responsive">
 
+
                     <table class="tabla">
+
 
                         <thead>
 
                             <tr>
 
-                                <th>Fecha aplicación</th>
-                                <th>Pago</th>
-                                <th>Factura</th>
-                                <th>Período</th>
-                                <th>Concepto</th>
-                                <th>Valor aplicado</th>
-                                <th>Tipo</th>
+                                <th>
+                                    Fecha aplicación
+                                </th>
+
+                                <th>
+                                    Origen
+                                </th>
+
+                                <th>
+                                    Referencia
+                                </th>
+
+                                <th>
+                                    Factura
+                                </th>
+
+                                <th>
+                                    Período
+                                </th>
+
+                                <th>
+                                    Concepto
+                                </th>
+
+                                <th>
+                                    Valor aplicado
+                                </th>
+
+                                <th>
+                                    Tipo
+                                </th>
 
                             </tr>
 
                         </thead>
 
+
                         <tbody>
 
 
-                        <?php if (empty($aplicaciones)): ?>
+                        <?php if (
+                            empty(
+                                $aplicaciones
+                            )
+                        ): ?>
+
 
                             <tr>
 
                                 <td
-                                    colspan="7"
+                                    colspan="8"
                                     align="center"
                                 >
-                                    Todavía no existen aplicaciones de pago.
+
+                                    Todavía no existen aplicaciones registradas.
+
                                 </td>
 
                             </tr>
 
+
                         <?php else: ?>
 
 
-                            <?php foreach ($aplicaciones as $aplicacion): ?>
+                            <?php foreach (
+                                $aplicaciones
+                                as $aplicacion
+                            ): ?>
+
 
                                 <tr>
+
+
+                                    <!-- FECHA -->
 
                                     <td>
 
@@ -2063,68 +3107,243 @@ $saldosFavor =
                                     </td>
 
 
+                                    <!-- ORIGEN -->
+
                                     <td>
 
-                                        #<?= (int)$aplicacion['id_pago'] ?>
 
                                         <?php if (
-                                            !empty(
-                                                $aplicacion['referencia']
-                                            )
+                                            $aplicacion[
+                                                'origen_aplicacion'
+                                            ] === 'PAGO'
                                         ): ?>
 
-                                            <br>
 
-                                            <small>
-                                                <?= e(
-                                                    $aplicacion['referencia']
-                                                ) ?>
-                                            </small>
+                                            <span class="activo">
+
+                                                PAGO
+
+                                            </span>
+
+
+                                        <?php else: ?>
+
+
+                                            <span
+                                                style="
+                                                    display:inline-block;
+                                                    padding:4px 8px;
+                                                    border-radius:6px;
+                                                    background:#e8f1ff;
+                                                    color:#174f7a;
+                                                    font-weight:700;
+                                                "
+                                            >
+
+                                                SALDO A FAVOR
+
+                                            </span>
+
 
                                         <?php endif; ?>
 
+
                                     </td>
 
 
+                                    <!-- REFERENCIA -->
+
                                     <td>
+
+
+                                        <?php if (
+                                            $aplicacion[
+                                                'origen_aplicacion'
+                                            ] === 'PAGO'
+                                        ): ?>
+
+
+                                            Pago
+                                            #<?= (int)$aplicacion[
+                                                'id_pago'
+                                            ] ?>
+
+
+                                        <?php else: ?>
+
+
+                                            Saldo
+                                            #<?= (int)$aplicacion[
+                                                'id_saldo_favor'
+                                            ] ?>
+
+
+                                            <?php if (
+                                                !empty(
+                                                    $aplicacion[
+                                                        'id_pago'
+                                                    ]
+                                                )
+                                            ): ?>
+
+                                                <br>
+
+                                                <small>
+
+                                                    Pago origen:
+                                                    #<?= (int)$aplicacion[
+                                                        'id_pago'
+                                                    ] ?>
+
+                                                </small>
+
+                                            <?php endif; ?>
+
+
+                                        <?php endif; ?>
+
+
+                                        <?php if (
+                                            !empty(
+                                                $aplicacion[
+                                                    'referencia'
+                                                ]
+                                            )
+                                        ): ?>
+
+
+                                            <br>
+
+
+                                            <small>
+
+                                                <?= e(
+                                                    $aplicacion[
+                                                        'referencia'
+                                                    ]
+                                                ) ?>
+
+                                            </small>
+
+
+                                        <?php endif; ?>
+
+
+                                    </td>
+
+
+                                    <!-- FACTURA -->
+
+                                    <td>
+
                                         <?= e(
-                                            $aplicacion['numero_factura']
+                                            $aplicacion[
+                                                'numero_factura'
+                                            ]
                                             ?? '-'
                                         ) ?>
+
                                     </td>
 
 
+                                    <!-- PERÍODO -->
+
                                     <td>
 
-                                        <?= e(
-                                            date(
-                                                'm/Y',
-                                                strtotime(
-                                                    $aplicacion['periodo']
-                                                )
+
+                                        <?php if (
+                                            !empty(
+                                                $aplicacion[
+                                                    'periodo'
+                                                ]
                                             )
-                                        ) ?>
+                                        ): ?>
+
+
+                                            <?= e(
+                                                date(
+                                                    'm/Y',
+                                                    strtotime(
+                                                        $aplicacion[
+                                                            'periodo'
+                                                        ]
+                                                    )
+                                                )
+                                            ) ?>
+
+
+                                        <?php else: ?>
+
+                                            -
+
+                                        <?php endif; ?>
+
 
                                     </td>
 
+
+                                    <!-- CONCEPTO -->
 
                                     <td>
 
-                                        <?= e(
-                                            $aplicacion['concepto']
-                                            ?? $aplicacion['cartera_descripcion']
-                                            ?? 'Obligación'
-                                        ) ?>
+
+                                        <strong>
+
+                                            <?= e(
+                                                $aplicacion[
+                                                    'concepto'
+                                                ]
+                                                ??
+                                                $aplicacion[
+                                                    'cartera_descripcion'
+                                                ]
+                                                ??
+                                                'Obligación'
+                                            ) ?>
+
+                                        </strong>
+
+
+                                        <?php if (
+                                            !empty(
+                                                $aplicacion[
+                                                    'id_interes'
+                                                ]
+                                            )
+                                        ): ?>
+
+
+                                            <br>
+
+
+                                            <small
+                                                style="
+                                                    color:#9a4d00;
+                                                    font-weight:700;
+                                                "
+                                            >
+
+                                                Interés de mora
+
+                                            </small>
+
+
+                                        <?php endif; ?>
+
 
                                     </td>
 
+
+                                    <!-- VALOR -->
 
                                     <td>
 
                                         <strong>
 
                                             <?= dinero(
-                                                $aplicacion['valor_aplicado']
+                                                $aplicacion[
+                                                    'valor_aplicado'
+                                                ]
                                             ) ?>
 
                                         </strong>
@@ -2132,13 +3351,21 @@ $saldosFavor =
                                     </td>
 
 
+                                    <!-- TIPO -->
+
                                     <td>
+
                                         <?= e(
-                                            $aplicacion['tipo_aplicacion']
+                                            $aplicacion[
+                                                'tipo_aplicacion'
+                                            ]
                                         ) ?>
+
                                     </td>
 
+
                                 </tr>
+
 
                             <?php endforeach; ?>
 
@@ -2148,19 +3375,203 @@ $saldosFavor =
 
                         </tbody>
 
+
                     </table>
+
 
                 </div>
 
+
             </div>
-
-        </div>
-
 
     </main>
 
-
 </div>
+
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const botones =
+            document.querySelectorAll(
+                '.cartera-tab'
+            );
+
+        const contenidos =
+            document.querySelectorAll(
+                '.cartera-tab-contenido'
+            );
+
+        const filasFacturas =
+            document.querySelectorAll(
+                '.fila-cartera-factura'
+            );
+
+        const filasDetalles =
+            document.querySelectorAll(
+                '.fila-cartera-detalle'
+            );
+
+
+        // ==================================================
+        // MOSTRAR SOLO LA FACTURA SELECCIONADA
+        // ==================================================
+
+        function mostrarFacturaSeleccionada(
+            idFactura
+        ) {
+
+            filasFacturas.forEach(
+                function (fila) {
+
+                    const idFila =
+                        fila.dataset.idFactura;
+
+                    fila.style.display =
+                        idFila === idFactura
+                            ? ''
+                            : 'none';
+
+                }
+            );
+
+
+            filasDetalles.forEach(
+                function (fila) {
+
+                    const idFila =
+                        fila.dataset.idFactura;
+
+                    fila.style.display =
+                        idFila === idFactura
+                            ? ''
+                            : 'none';
+
+                }
+            );
+
+        }
+
+
+        // ==================================================
+        // CAMBIO DE PESTAÑA
+        // ==================================================
+
+        botones.forEach(
+            function (boton) {
+
+                boton.addEventListener(
+                    'click',
+                    function () {
+
+                        const idTab =
+                            this.dataset.tab;
+
+                        const idFactura =
+                            this.dataset.idFactura;
+
+
+                        // Quitar pestaña activa
+
+                        botones.forEach(
+                            function (btn) {
+
+                                btn.classList.remove(
+                                    'activo-tab'
+                                );
+
+                            }
+                        );
+
+
+                        // Ocultar contenidos superiores
+
+                        contenidos.forEach(
+                            function (contenido) {
+
+                                contenido.classList.remove(
+                                    'activo'
+                                );
+
+                            }
+                        );
+
+
+                        // Activar botón
+
+                        this.classList.add(
+                            'activo-tab'
+                        );
+
+
+                        // Mostrar contenido superior
+
+                        const contenidoActivo =
+                            document.getElementById(
+                                idTab
+                            );
+
+
+                        if (
+                            contenidoActivo
+                        ) {
+
+                            contenidoActivo.classList.add(
+                                'activo'
+                            );
+
+                        }
+
+
+                        // Mostrar detalle inferior
+                        // únicamente de esta factura.
+
+                        if (
+                            idFactura
+                        ) {
+
+                            mostrarFacturaSeleccionada(
+                                idFactura
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+
+        // ==================================================
+        // CARGA INICIAL
+        // ==================================================
+
+        const primeraPestana =
+            document.querySelector(
+                '.cartera-tab'
+            );
+
+
+        if (
+            primeraPestana
+            &&
+            primeraPestana.dataset.idFactura
+        ) {
+
+            mostrarFacturaSeleccionada(
+                primeraPestana.dataset.idFactura
+            );
+
+        }
+
+    }
+);
+
+</script>
 
 
 </body>

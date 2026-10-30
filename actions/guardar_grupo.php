@@ -64,8 +64,7 @@ function redireccionarGrupo(
 
 try {
 
-    // ====
-    // DATOS DEL FORMULARIO
+    // // DATOS DEL FORMULARIO
     // ====
 
     $idTipoVivienda =
@@ -112,8 +111,7 @@ try {
             : null;
 
 
-    // ====
-    // VALIDAR TIPO DE UNIDAD
+    // // VALIDAR TIPO DE UNIDAD
     // ====
 
     if ($idTipoVivienda <= 0) {
@@ -125,8 +123,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR NOMBRE
+    // // VALIDAR NOMBRE
     // ====
 
     if ($nombreGrupo === "") {
@@ -147,8 +144,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR CANTIDAD
+    // // VALIDAR CANTIDAD
     // ====
 
     if ($cantidad <= 0) {
@@ -160,8 +156,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR ÁREA
+    // // VALIDAR ÁREA
     // ====
 
     if (
@@ -176,8 +171,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR COEFICIENTE
+    // // VALIDAR COEFICIENTE
     // ====
 
     if (
@@ -192,8 +186,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR OBSERVACIONES
+    // // VALIDAR OBSERVACIONES
     // ====
 
     if (
@@ -208,8 +201,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR QUE EL TIPO DE UNIDAD EXISTA
+    // // VERIFICAR QUE EL TIPO DE UNIDAD EXISTA
     // ====
 
     $sqlTipo = "
@@ -235,8 +227,7 @@ try {
 
     $stmtTipo->execute([
 
-        ':id_tipo_vivienda'
-            => $idTipoVivienda
+        ':id_tipo_vivienda'> $idTipoVivienda
 
     ]);
 
@@ -256,10 +247,8 @@ try {
     }
 
 
-    // ====
-    // VALIDAR NOMBRE DUPLICADO
-    // ====
-    //
+    // // VALIDAR NOMBRE DUPLICADO
+    // //
     // No permitimos dos grupos activos con el mismo nombre.
     //
     // Ejemplo:
@@ -291,8 +280,7 @@ try {
 
     $stmtDuplicado->execute([
 
-        ':nombre_grupo'
-            => $nombreGrupo
+        ':nombre_grupo'> $nombreGrupo
 
     ]);
 
@@ -308,8 +296,7 @@ try {
     }
 
 
-    // ====
-    // CREAR GRUPO
+    // // CREAR GRUPO
     // ====
 
     $sqlInsertar = "
@@ -344,37 +331,29 @@ try {
 
     $stmtInsertar->execute([
 
-        ':id_tipo_vivienda'
-            => $idTipoVivienda,
+        ':id_tipo_vivienda'> $idTipoVivienda,
 
-        ':nombre_grupo'
-            => $nombreGrupo,
+        ':nombre_grupo'> $nombreGrupo,
 
-        ':cantidad_unidades'
-            => $cantidad,
+        ':cantidad_unidades'> $cantidad,
 
-        ':area_total'
-            => $area,
+        ':area_total'> $area,
 
-        ':coeficiente_total'
-            => $coeficiente,
+        ':coeficiente_total'> $coeficiente,
 
-        ':observaciones'
-            => $observaciones
+        ':observaciones'> $observaciones
 
     ]);
 
 
-    // ====
-    // ID DEL NUEVO GRUPO
+    // // ID DEL NUEVO GRUPO
     // ====
 
     $idTipoConfig =
         (int)$conexion->lastInsertId();
 
 
-    // ====
-    // MENSAJE
+    // // MENSAJE
     // ====
 
     redireccionarGrupo(

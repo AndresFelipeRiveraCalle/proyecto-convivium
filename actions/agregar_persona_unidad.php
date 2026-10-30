@@ -168,15 +168,13 @@ if (
 
 try {
 
-    // ====
-    // TRANSACCIÓN
+    // // TRANSACCIÓN
     // ====
 
     $conexion->beginTransaction();
 
 
-    // ====
-    // VALIDAR UNIDAD
+    // // VALIDAR UNIDAD
     // ====
 
     $sqlUnidad = "
@@ -232,8 +230,7 @@ try {
     }
 
 
-    // ====
-    // BUSCAR USUARIO
+    // // BUSCAR USUARIO
     // ====
 
     $sqlUsuario = "
@@ -308,8 +305,7 @@ try {
         (int)$usuario['id'];
 
 
-    // ====
-    // VALIDAR RELACIÓN ACTIVA DUPLICADA
+    // // VALIDAR RELACIÓN ACTIVA DUPLICADA
     // ====
 
     $sqlRelacionActual = "
@@ -368,8 +364,7 @@ try {
     }
 
 
-    // ====
-    // BUSCAR SI YA EXISTE RECEPTOR DE FACTURA
+    // // BUSCAR SI YA EXISTE RECEPTOR DE FACTURA
     // ====
 
     $sqlReceptor = "
@@ -408,10 +403,8 @@ try {
         );
 
 
-    // ====
-    // REGLA DE FACTURACIÓN
-    // ====
-    //
+    // // REGLA DE FACTURACIÓN
+    // //
     // Si NO existe ningún receptor vigente,
     // esta nueva relación debe recibir factura.
     //
@@ -423,8 +416,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR RELACIÓN
+    // // INSERTAR RELACIÓN
     // ====
 
     $sqlInsertar = "
@@ -480,8 +472,7 @@ try {
     $conexion->commit();
 
 
-    // ====
-    // MENSAJE
+    // // MENSAJE
     // ====
 
     $mensaje =

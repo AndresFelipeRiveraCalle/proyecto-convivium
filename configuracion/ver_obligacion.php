@@ -373,8 +373,7 @@ foreach ($obligaciones as $obligacion) {
 
 
             <!-- 
-                 ENCABEZADO
-            = -->
+                 ENCABEZADO -->
 
             <div class="form-header">
 
@@ -406,8 +405,7 @@ foreach ($obligaciones as $obligacion) {
 
 
             <!-- 
-                 INFORMACIÓN DE LA UNIDAD
-            = -->
+                 INFORMACIÓN DE LA UNIDAD -->
 
             <div class="info-box">
 
@@ -449,8 +447,7 @@ foreach ($obligaciones as $obligacion) {
 
 
             <!-- 
-                 RESUMEN FINANCIERO
-            = -->
+                 RESUMEN FINANCIERO -->
 
             <div class="cards-resumen">
 
@@ -498,8 +495,7 @@ foreach ($obligaciones as $obligacion) {
 
 
             <!-- 
-                 DETALLE POR CONCEPTO
-            = -->
+                 DETALLE POR CONCEPTO -->
 
             <?php foreach ($grupos as $nombreGrupo => $items): ?>
 
@@ -713,8 +709,7 @@ foreach ($obligaciones as $obligacion) {
 
 
             <!-- 
-                 TOTAL
-            = -->
+                 TOTAL -->
 
             <div class="info-box">
 
@@ -805,8 +800,7 @@ foreach ($obligaciones as $obligacion) {
 
 
             <!-- 
-                 ACCIONES
-            = -->
+                 ACCIONES -->
 
             <div class="form-actions">
 

@@ -258,8 +258,7 @@ if (
 
 try {
 
-    // ====
-    // VALIDAR QUE LA TARIFA EXISTA
+    // // VALIDAR QUE LA TARIFA EXISTA
     // ====
 
     $sqlTarifa = "
@@ -281,8 +280,7 @@ try {
 
     $stmtTarifa->execute([
 
-        ':id_tarifa'
-            => $idTarifa
+        ':id_tarifa'> $idTarifa
 
     ]);
 
@@ -296,8 +294,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR CONCEPTO ACTIVO
+    // // VALIDAR CONCEPTO ACTIVO
     // ====
 
     $sqlConcepto = "
@@ -324,8 +321,7 @@ try {
 
     $stmtConcepto->execute([
 
-        ':id_concepto'
-            => $idConcepto
+        ':id_concepto'> $idConcepto
 
     ]);
 
@@ -344,8 +340,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR TIPO DE UNIDAD
+    // // VALIDAR TIPO DE UNIDAD
     // ====
 
     $sqlTipoUnidad = "
@@ -371,8 +366,7 @@ try {
 
     $stmtTipoUnidad->execute([
 
-        ':id_tipo_config'
-            => $idTipoConfig
+        ':id_tipo_config'> $idTipoConfig
 
     ]);
 
@@ -391,10 +385,8 @@ try {
     }
 
 
-    // ====
-    // VALIDAR SOLAPAMIENTO
-    // ====
-    //
+    // // VALIDAR SOLAPAMIENTO
+    // //
     // Solo verificamos solapamiento si la tarifa que estamos
     // editando quedará ACTIVA.
     //
@@ -506,8 +498,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR TARIFA
+    // // ACTUALIZAR TARIFA
     // ====
 
     $sqlActualizar = "
@@ -550,38 +541,28 @@ try {
 
     $stmtActualizar->execute([
 
-        ':id_concepto'
-            => $idConcepto,
+        ':id_concepto'> $idConcepto,
 
-        ':id_tipo_config'
-            => $idTipoConfig,
+        ':id_tipo_config'> $idTipoConfig,
 
-        ':nombre'
-            => $nombre,
+        ':nombre'> $nombre,
 
-        ':valor'
-            => $valor,
+        ':valor'> $valor,
 
-        ':fecha_inicio'
-            => $fechaInicio,
+        ':fecha_inicio'> $fechaInicio,
 
-        ':fecha_fin'
-            => $fechaFin,
+        ':fecha_fin'> $fechaFin,
 
-        ':estado'
-            => $estado,
+        ':estado'> $estado,
 
-        ':observaciones'
-            => $observaciones,
+        ':observaciones'> $observaciones,
 
-        ':id_tarifa'
-            => $idTarifa
+        ':id_tarifa'> $idTarifa
 
     ]);
 
 
-    // ====
-    // MENSAJE
+    // // MENSAJE
     // ====
 
     redireccionarTarifas(

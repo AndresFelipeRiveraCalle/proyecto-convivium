@@ -62,8 +62,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // BLOQUEAR MOVIMIENTO
+    // // BLOQUEAR MOVIMIENTO
     // ====
 
     $sqlExtracto = "
@@ -113,8 +112,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR QUE NO ESTÉ ASOCIADO A UN PAGO
+    // // VALIDAR QUE NO ESTÉ ASOCIADO A UN PAGO
     // ====
 
     $sqlPago = "
@@ -146,8 +144,7 @@ try {
     }
 
 
-    // ====
-    // REABRIR MOVIMIENTO
+    // // REABRIR MOVIMIENTO
     // ====
 
     $observacion =

@@ -61,8 +61,7 @@ try {
 
     $stmt->execute([
 
-        ':id_concepto'
-            => $idConcepto
+        ':id_concepto'> $idConcepto
 
     ]);
 
@@ -72,8 +71,7 @@ try {
     );
 
 
-    // ====
-    // VERIFICAR EXISTENCIA
+    // // VERIFICAR EXISTENCIA
     // ====
 
     if (!$concepto) {
@@ -87,8 +85,7 @@ try {
     }
 
 
-    // ====
-    // NORMALIZAR DATOS
+    // // NORMALIZAR DATOS
     // ====
 
     $concepto['id_concepto'] =
@@ -111,8 +108,7 @@ try {
         (int)$concepto['estado'];
 
 
-    // ====
-    // RESPUESTA
+    // // RESPUESTA
     // ====
 
     echo json_encode([

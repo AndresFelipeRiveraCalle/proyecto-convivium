@@ -88,8 +88,7 @@ try {
 
     $stmt->execute([
 
-        ':id_tarifa'
-            => $idTarifa
+        ':id_tarifa'> $idTarifa
 
     ]);
 
@@ -99,8 +98,7 @@ try {
     );
 
 
-    // ====
-    // VERIFICAR EXISTENCIA
+    // // VERIFICAR EXISTENCIA
     // ====
 
     if (!$tarifa) {
@@ -114,8 +112,7 @@ try {
     }
 
 
-    // ====
-    // NORMALIZAR DATOS
+    // // NORMALIZAR DATOS
     // ====
 
     $tarifa['id_tarifa'] =
@@ -134,8 +131,7 @@ try {
         (int)$tarifa['estado'];
 
 
-    // ====
-    // RESPUESTA
+    // // RESPUESTA
     // ====
 
     echo json_encode(

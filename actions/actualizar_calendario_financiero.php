@@ -152,8 +152,7 @@ if (
 // 
 
 try {
-    // ====
-    // VERIFICAR QUE EL PERÍODO EXISTA
+    // // VERIFICAR QUE EL PERÍODO EXISTA
     // ====
 
     $sqlExiste = "SELECT id_calendario,periodo,estado
@@ -175,8 +174,7 @@ try {
         exit;
     }
 
-    // ====
-    // VALIDAR AÑO DEL PERÍODO
+    // // VALIDAR AÑO DEL PERÍODO
     // 
 
     $anioPeriodo = date(
@@ -201,8 +199,7 @@ try {
         }
     }
 
-    // ====
-    // ACTUALIZAR REGISTRO
+    // // ACTUALIZAR REGISTRO
     // ====
 
     $sql = " UPDATE calendario_financiero SET
@@ -232,8 +229,7 @@ try {
     ]);
 
 
-    // ====
-    // CONFIRMACIÓN
+    // // CONFIRMACIÓN
     // ====
 
     header(
@@ -244,8 +240,7 @@ try {
 
 } catch (PDOException $e) {
 
-    // ====
-    // REGISTRAR ERROR
+    // // REGISTRAR ERROR
     // ====
 
     error_log(

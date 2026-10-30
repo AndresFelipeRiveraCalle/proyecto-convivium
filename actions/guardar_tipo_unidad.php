@@ -64,8 +64,7 @@ function redireccionarTipoUnidad(
 
 try {
 
-    // ====
-    // DATOS DEL FORMULARIO
+    // // DATOS DEL FORMULARIO
     // ====
 
     $idTipoConfig =
@@ -118,8 +117,7 @@ try {
             : null;
 
 
-    // ====
-    // VALIDAR ID DEL GRUPO
+    // // VALIDAR ID DEL GRUPO
     // ====
 
     if ($idTipoConfig <= 0) {
@@ -131,8 +129,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR TIPO DE UNIDAD
+    // // VALIDAR TIPO DE UNIDAD
     // ====
 
     if ($idTipoVivienda <= 0) {
@@ -145,8 +142,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR NOMBRE
+    // // VALIDAR NOMBRE
     // ====
 
     if ($nombreGrupo === "") {
@@ -169,8 +165,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR CANTIDAD
+    // // VALIDAR CANTIDAD
     // ====
 
     if ($cantidad <= 0) {
@@ -183,8 +178,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR ÁREA
+    // // VALIDAR ÁREA
     // ====
 
     if (
@@ -200,8 +194,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR COEFICIENTE
+    // // VALIDAR COEFICIENTE
     // ====
 
     if (
@@ -217,8 +210,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR QUE EL GRUPO EXISTA
+    // // VERIFICAR QUE EL GRUPO EXISTA
     // ====
 
     $sqlGrupo = "
@@ -246,8 +238,7 @@ try {
 
     $stmtGrupo->execute([
 
-        ':id_tipo_config'
-            => $idTipoConfig
+        ':id_tipo_config'> $idTipoConfig
 
     ]);
 
@@ -267,8 +258,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR QUE EL TIPO DE UNIDAD EXISTA
+    // // VERIFICAR QUE EL TIPO DE UNIDAD EXISTA
     // ====
 
     $sqlTipoVivienda = "
@@ -294,8 +284,7 @@ try {
 
     $stmtTipoVivienda->execute([
 
-        ':id_tipo_vivienda'
-            => $idTipoVivienda
+        ':id_tipo_vivienda'> $idTipoVivienda
 
     ]);
 
@@ -316,10 +305,8 @@ try {
     }
 
 
-    // ====
-    // VALIDAR NOMBRE DUPLICADO
-    // ====
-    //
+    // // VALIDAR NOMBRE DUPLICADO
+    // //
     // No permitimos otro grupo activo con el mismo nombre.
     // Excluimos el registro que estamos editando.
     // ====
@@ -347,11 +334,9 @@ try {
 
     $stmtDuplicado->execute([
 
-        ':nombre_grupo'
-            => $nombreGrupo,
+        ':nombre_grupo'> $nombreGrupo,
 
-        ':id_tipo_config'
-            => $idTipoConfig
+        ':id_tipo_config'> $idTipoConfig
 
     ]);
 
@@ -368,8 +353,7 @@ try {
     }
 
 
-    // ====
-    // OBTENER RESUMEN DE UNIDADES ACTIVAS CREADAS
+    // // OBTENER RESUMEN DE UNIDADES ACTIVAS CREADAS
     // ====
 
     $sqlResumen = "
@@ -402,8 +386,7 @@ try {
 
     $stmtResumen->execute([
 
-        ':id_tipo_config'
-            => $idTipoConfig
+        ':id_tipo_config'> $idTipoConfig
 
     ]);
 
@@ -426,8 +409,7 @@ try {
         (float)($resumen['coeficiente_real'] ?? 0);
 
 
-    // ====
-    // VALIDAR CANTIDAD CONTRA UNIDADES EXISTENTES
+    // // VALIDAR CANTIDAD CONTRA UNIDADES EXISTENTES
     // ====
 
     if ($cantidad < $cantidadReal) {
@@ -444,8 +426,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR ÁREA CONTRA UNIDADES EXISTENTES
+    // // VALIDAR ÁREA CONTRA UNIDADES EXISTENTES
     // ====
 
     if (
@@ -468,8 +449,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR COEFICIENTE CONTRA UNIDADES EXISTENTES
+    // // VALIDAR COEFICIENTE CONTRA UNIDADES EXISTENTES
     // ====
 
     if (
@@ -492,8 +472,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR GRUPO
+    // // ACTUALIZAR GRUPO
     // ====
 
     $sqlActualizar = "
@@ -521,32 +500,24 @@ try {
 
     $stmtActualizar->execute([
 
-        ':id_tipo_vivienda'
-            => $idTipoVivienda,
+        ':id_tipo_vivienda'> $idTipoVivienda,
 
-        ':nombre_grupo'
-            => $nombreGrupo,
+        ':nombre_grupo'> $nombreGrupo,
 
-        ':cantidad_unidades'
-            => $cantidad,
+        ':cantidad_unidades'> $cantidad,
 
-        ':area_total'
-            => $area,
+        ':area_total'> $area,
 
-        ':coeficiente_total'
-            => $coeficiente,
+        ':coeficiente_total'> $coeficiente,
 
-        ':observaciones'
-            => $observaciones,
+        ':observaciones'> $observaciones,
 
-        ':id_tipo_config'
-            => $idTipoConfig
+        ':id_tipo_config'> $idTipoConfig
 
     ]);
 
 
-    // ====
-    // MENSAJE
+    // // MENSAJE
     // ====
 
     redireccionarTipoUnidad(

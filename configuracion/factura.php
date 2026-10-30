@@ -116,9 +116,7 @@ function nombreTipoCalculo($tipo)
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <h2 align="center">
             Generación de facturación
@@ -138,9 +136,7 @@ function nombreTipoCalculo($tipo)
         <br>
 
 
-        <!-- ====
-             INFORMACIÓN
-        ===== -->
+        <!--INFORMACIÓN -->
 
         <div class="info-box">
 
@@ -169,9 +165,7 @@ function nombreTipoCalculo($tipo)
         <br>
 
 
-        <!-- ====
-             FORMULARIO DE PREVISUALIZACIÓN
-        ===== -->
+        <!--FORMULARIO DE PREVISUALIZACIÓN -->
 
         <div class="bloque filtros">
 
@@ -497,9 +491,7 @@ function nombreTipoCalculo($tipo)
         <br>
 
 
-        <!-- ====
-             CONCEPTOS ACTIVOS
-        ===== -->
+        <!--CONCEPTOS ACTIVOS -->
 
         <div class="bloque filtros">
 

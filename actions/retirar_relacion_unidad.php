@@ -80,15 +80,13 @@ if (
 
 try {
 
-    // ====
-    // INICIAR TRANSACCIÓN
+    // // INICIAR TRANSACCIÓN
     // ====
 
     $conexion->beginTransaction();
 
 
-    // ====
-    // CONSULTAR RELACIÓN
+    // // CONSULTAR RELACIÓN
     // ====
 
     $sqlRelacion = "
@@ -154,8 +152,7 @@ try {
         $idUnidad;
 
 
-    // ====
-    // VALIDAR SI YA ESTÁ RETIRADA
+    // // VALIDAR SI YA ESTÁ RETIRADA
     // ====
 
     if (
@@ -178,8 +175,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR FECHA DESDE
+    // // VALIDAR FECHA DESDE
     // ====
 
     $fechaDesde =
@@ -208,8 +204,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR ÚLTIMO RECEPTOR DE FACTURA
+    // // VALIDAR ÚLTIMO RECEPTOR DE FACTURA
     // ====
 
     if (
@@ -274,8 +269,7 @@ try {
     }
 
 
-    // ====
-    // RETIRAR RELACIÓN
+    // // RETIRAR RELACIÓN
     // ====
 
     $sqlRetirar = "
@@ -317,8 +311,7 @@ try {
     }
 
 
-    // ====
-    // CONFIRMAR
+    // // CONFIRMAR
     // ====
 
     $conexion->commit();

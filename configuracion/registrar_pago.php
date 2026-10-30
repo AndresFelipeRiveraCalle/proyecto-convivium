@@ -177,8 +177,7 @@ $texto = trim($_GET['texto'] ?? $_GET['mensaje'] ?? '');
 
 <?php if ($texto !== ''): ?>
 
-    <!-- ====
-         MENSAJE DE RESULTADO
+    <!--      MENSAJE DE RESULTADO
          Muestra el resultado del registro en una ventana emergente.
     ===== -->
     <div
@@ -271,10 +270,8 @@ $texto = trim($_GET['texto'] ?? $_GET['mensaje'] ?? '');
             const btnCerrar = document.getElementById('cerrarModalMensajePago');
             const btnAceptar = document.getElementById('aceptarModalMensajePago');
 
-            // ====
-            // CERRAR MENSAJE
+            //         // CERRAR MENSAJE
             // Oculta el popup y limpia el mensaje de la URL.
-            // ====
             function cerrarMensaje() {
                 if (modal) {
                     modal.style.display = 'none';

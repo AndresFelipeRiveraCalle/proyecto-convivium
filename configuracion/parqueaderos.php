@@ -76,9 +76,7 @@ try {
 
         <main class="contenido">
 
-        <!-- ====
-            ENCABEZADO
-        ===== -->
+        <!--         ENCABEZADO -->
 
             <div class="contenido-header">
 
@@ -97,9 +95,7 @@ try {
             </div>
 
 
-            <!-- ====
-                TABLA
-            ===== -->
+            <!--   TABLA==== -->
 
             <div class="table-container">
 

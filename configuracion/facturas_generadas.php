@@ -236,9 +236,7 @@ function formatoPeriodoFactura(
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <h2 align="center">
             Facturas
@@ -257,9 +255,7 @@ function formatoPeriodoFactura(
         <br>
 
 
-        <!-- ====
-             FILTROS
-        ===== -->
+        <!--FILTROS -->
   
         <div class="bloque filtros">
             <div class="form-card">
@@ -346,9 +342,7 @@ function formatoPeriodoFactura(
             </div>
         </div>
 
-        <!-- ====
-             LISTADO
-        ===== -->
+        <!--LISTADO -->
 
         <div class="bloque filtros">
 

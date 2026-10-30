@@ -593,8 +593,7 @@ foreach (
         $periodoTexto;
 
 
-    // ====
-    // REGISTRAR INTENTO
+    // // REGISTRAR INTENTO
     // ====
 
     $sqlEnvio = "
@@ -631,17 +630,13 @@ foreach (
 
     $stmtEnvio->execute([
 
-        ':id_factura'
-            => $idFactura,
+        ':id_factura'> $idFactura,
 
-        ':destinatario'
-            => $correoDestinatario,
+        ':destinatario'> $correoDestinatario,
 
-        ':nombre_destinatario'
-            => $nombreDestinatario,
+        ':nombre_destinatario'> $nombreDestinatario,
 
-        ':asunto'
-            => $asunto
+        ':asunto'> $asunto
 
     ]);
 
@@ -1112,14 +1107,11 @@ header(
     BASE_URL .
     "configuracion/factura_detalle.php?" .
     http_build_query([
-        'id'
-            => $idFactura,
+        'id'> $idFactura,
 
-        'tipo'
-            => $tipo,
+        'tipo'> $tipo,
 
-        'texto'
-            => $texto
+        'texto'> $texto
     ])
 );
 

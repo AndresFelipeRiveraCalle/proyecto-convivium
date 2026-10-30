@@ -518,8 +518,7 @@ try {
     $conexion->commit();
 
 
-    // ====
-    // ÉXITO
+    // // ÉXITO
     // ====
 
     header(
@@ -542,8 +541,7 @@ try {
     }
 
 
-    // ====
-    // ERROR
+    // // ERROR
     // ====
 
     echo "<div style='

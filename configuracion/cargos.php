@@ -354,9 +354,7 @@ function nombreEstadoCargo($estado)
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <h2 align="center">
             Cargos y cuotas
@@ -376,9 +374,7 @@ function nombreEstadoCargo($estado)
         <br>
 
 
-        <!-- ====
-             INFORMACIÓN
-        ===== -->
+        <!--INFORMACIÓN -->
 
         <div class="info-box">
 
@@ -402,9 +398,7 @@ function nombreEstadoCargo($estado)
         <br>
 
 
-        <!-- ====
-             FILTROS
-        ===== -->
+        <!--FILTROS -->
 
         <div class="bloque filtros">
 
@@ -526,9 +520,7 @@ function nombreEstadoCargo($estado)
         <br>
 
 
-        <!-- ====
-             LISTADO DE CARGOS
-        ===== -->
+        <!--LISTADO DE CARGOS -->
 
         <div class="bloque">
 
@@ -956,8 +948,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 CONCEPTO
-            = -->
+                 CONCEPTO -->
 
             <div class="form-group">
 
@@ -997,8 +988,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 NOMBRE
-            = -->
+                 NOMBRE -->
 
             <div class="form-group">
 
@@ -1019,8 +1009,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 DESCRIPCIÓN
-            = -->
+                 DESCRIPCIÓN -->
 
             <div class="form-group">
 
@@ -1040,8 +1029,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 APLICACIÓN
-            = -->
+                 APLICACIÓN -->
 
             <div class="form-group">
 
@@ -1073,8 +1061,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 GRUPO
-            = -->
+                 GRUPO -->
 
             <div
                 class="form-group"
@@ -1131,8 +1118,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 UNIDAD
-            = -->
+                 UNIDAD -->
 
             <div
                 class="form-group"
@@ -1181,8 +1167,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 DISTRIBUCIÓN
-            = -->
+                 DISTRIBUCIÓN -->
 
             <div class="form-group">
 
@@ -1251,8 +1236,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 VALOR TOTAL
-            = -->
+                 VALOR TOTAL -->
 
             <div class="form-group">
 
@@ -1274,8 +1258,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 CUOTAS
-            = -->
+                 CUOTAS -->
 
             <div class="form-group">
 
@@ -1297,8 +1280,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 PERÍODO INICIAL
-            = -->
+                 PERÍODO INICIAL -->
 
             <div class="form-group">
 
@@ -1317,8 +1299,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 OBSERVACIONES
-            = -->
+                 OBSERVACIONES -->
 
             <div class="form-group">
 
@@ -1338,8 +1319,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 ESTADO
-            = -->
+                 ESTADO -->
 
             <div class="form-group">
 
@@ -1371,8 +1351,7 @@ function nombreEstadoCargo($estado)
 
 
             <!-- 
-                 BOTONES
-            = -->
+                 BOTONES -->
 
             <div class="form-actions">
 
@@ -1472,8 +1451,7 @@ document.addEventListener(
             );
 
 
-        // ====
-        // ABRIR MODAL
+        //     // ABRIR MODAL
         // ====
 
         if (abrir) {
@@ -1491,8 +1469,7 @@ document.addEventListener(
         }
 
 
-        // ====
-        // CERRAR MODAL
+        //     // CERRAR MODAL
         // ====
 
         function cerrarModal() {
@@ -1523,8 +1500,7 @@ document.addEventListener(
         }
 
 
-        // ====
-        // CERRAR AL HACER CLICK FUERA
+        //     // CERRAR AL HACER CLICK FUERA
         // ====
 
         window.addEventListener(
@@ -1541,8 +1517,7 @@ document.addEventListener(
         );
 
 
-        // ====
-        // MOSTRAR CAMPO SEGÚN APLICACIÓN
+        //     // MOSTRAR CAMPO SEGÚN APLICACIÓN
         // ====
 
         function actualizarAplicacion() {

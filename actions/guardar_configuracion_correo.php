@@ -345,8 +345,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // ACTUALIZAR CONFIGURACIÓN
+    // // ACTUALIZAR CONFIGURACIÓN
     // ====
 
     if ($idConfiguracion > 0) {
@@ -582,8 +581,7 @@ try {
         );
 
 
-    // ====
-    // CREAR CONFIGURACIÓN
+    // // CREAR CONFIGURACIÓN
     // ====
 
     } else {
@@ -730,8 +728,7 @@ try {
     }
 
 
-    // ====
-    // CONFIRMAR
+    // // CONFIRMAR
     // ====
 
     $conexion->commit();

@@ -176,15 +176,13 @@ if (
 
 try {
 
-    // ====
-    // TRANSACCIÓN
+    // // TRANSACCIÓN
     // ====
 
     $conexion->beginTransaction();
 
 
-    // ====
-    // PROPIETARIO OBLIGATORIO
+    // // PROPIETARIO OBLIGATORIO
     // ====
 
     $sqlUsuario = "
@@ -258,8 +256,7 @@ try {
         (int)$propietario['id'];
 
 
-    // ====
-    // VALIDAR UNIDAD OPCIONAL
+    // // VALIDAR UNIDAD OPCIONAL
     // ====
 
     if ($idUnidad !== null) {
@@ -335,8 +332,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR ESPACIO VIGENTE
+    // // VALIDAR ESPACIO VIGENTE
     // ====
 
     $sqlVigente = "
@@ -404,8 +400,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR
+    // // INSERTAR
     // ====
 
     $sqlInsertar = "

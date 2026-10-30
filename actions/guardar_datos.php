@@ -60,8 +60,7 @@ function textoOpcional($valor): ?string
 
 try {
 
-    // ====
-    // ID DEL REGISTRO ACTUAL
+    // // ID DEL REGISTRO ACTUAL
     // ====
 
     $id = isset($_POST["id"]) &&
@@ -70,8 +69,7 @@ try {
         : null;
 
 
-    // ====
-    // BUSCAR VERSIÓN ACTUAL SI ES EDICIÓN
+    // // BUSCAR VERSIÓN ACTUAL SI ES EDICIÓN
     // ====
 
     $versionActual = null;
@@ -113,8 +111,7 @@ try {
     }
 
 
-    // ====
-    // DATOS GENERALES
+    // // DATOS GENERALES
     // ====
 
     $nombre = trim(
@@ -152,10 +149,8 @@ try {
     );
 
 
-    // ====
-    // TIPO DE COPROPIEDAD
-    // ====
-    //
+    // // TIPO DE COPROPIEDAD
+    // //
     // Si el select continúa disabled durante una edición,
     // no llegará por POST. En ese caso conservamos el valor
     // de la versión anterior.
@@ -181,8 +176,7 @@ try {
     }
 
 
-    // ====
-    // UBICACIÓN
+    // // UBICACIÓN
     // ====
 
     if (!empty($_POST["id_pais"])) {
@@ -241,8 +235,7 @@ try {
     }
 
 
-    // ====
-    // VALIDACIONES GENERALES
+    // // VALIDACIONES GENERALES
     // ====
 
     if ($nombre === "") {
@@ -332,8 +325,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR TIPO DE COPROPIEDAD
+    // // VALIDAR TIPO DE COPROPIEDAD
     // ====
 
     $sqlTipoCopropiedad = "
@@ -366,8 +358,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR RELACIÓN PAÍS / DEPARTAMENTO
+    // // VALIDAR RELACIÓN PAÍS / DEPARTAMENTO
     // ====
 
     $sqlDepartamento = "
@@ -387,11 +378,9 @@ try {
 
     $stmtDepartamento->execute([
 
-        ':id_departamento'
-            => $idDepartamento,
+        ':id_departamento'> $idDepartamento,
 
-        ':id_pais'
-            => $idPais
+        ':id_pais'> $idPais
 
     ]);
 
@@ -405,8 +394,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR RELACIÓN DEPARTAMENTO / CIUDAD
+    // // VALIDAR RELACIÓN DEPARTAMENTO / CIUDAD
     // ====
 
     $sqlCiudad = "
@@ -426,11 +414,9 @@ try {
 
     $stmtCiudad->execute([
 
-        ':id_ciudad'
-            => $idCiudad,
+        ':id_ciudad'> $idCiudad,
 
-        ':id_departamento'
-            => $idDepartamento
+        ':id_departamento'> $idDepartamento
 
     ]);
 
@@ -444,10 +430,8 @@ try {
     }
 
 
-    // ====
-    // CALCULAR CANTIDAD TOTAL DE UNIDADES
-    // ====
-    //
+    // // CALCULAR CANTIDAD TOTAL DE UNIDADES
+    // //
     // Ya NO se recibe desde datos.php.
     //
     // detalle_tipos_unidad pasa a ser la fuente de verdad.
@@ -472,8 +456,7 @@ try {
             ->fetchColumn();
 
 
-    // ====
-    // CARPETAS
+    // // CARPETAS
     // ====
 
     $carpetaLogos =
@@ -522,8 +505,7 @@ try {
     }
 
 
-    // ====
-    // ARCHIVOS ACTUALES
+    // // ARCHIVOS ACTUALES
     // ====
 
     $logo = $versionActual
@@ -541,8 +523,7 @@ try {
         : null;
 
 
-    // ====
-    // LOGO NUEVO
+    // // LOGO NUEVO
     // ====
 
     if (
@@ -604,8 +585,7 @@ try {
     }
 
 
-    // ====
-    // REGLAMENTO NUEVO
+    // // REGLAMENTO NUEVO
     // ====
 
     if (
@@ -652,8 +632,7 @@ try {
     }
 
 
-    // ====
-    // MANUAL NUEVO
+    // // MANUAL NUEVO
     // ====
 
     if (
@@ -700,8 +679,7 @@ try {
     }
 
 
-    // ====
-    // DETERMINAR VERSIÓN
+    // // DETERMINAR VERSIÓN
     // ====
 
     if ($versionActual) {
@@ -715,15 +693,13 @@ try {
     }
 
 
-    // ====
-    // INICIAR TRANSACCIÓN
+    // // INICIAR TRANSACCIÓN
     // ====
 
     $conexion->beginTransaction();
 
 
-    // ====
-    // DESACTIVAR VERSIÓN ANTERIOR COMO ACTUAL
+    // // DESACTIVAR VERSIÓN ANTERIOR COMO ACTUAL
     // ====
 
     if ($versionActual) {
@@ -747,10 +723,8 @@ try {
     }
 
 
-    // ====
-    // CREAR NUEVA VERSIÓN
-    // ====
-    //
+    // // CREAR NUEVA VERSIÓN
+    // //
     // IMPORTANTE:
     // Conservamos "cantidad_unidades" porque ese es el nombre
     // que utiliza actualmente tu tabla/código.
@@ -812,66 +786,48 @@ try {
 
     $stmtInsert->execute([
 
-        ':version'
-            => $version,
+        ':version'> $version,
 
-        ':nombre'
-            => $nombre,
+        ':nombre'> $nombre,
 
-        ':nit'
-            => $nit,
+        ':nit'> $nit,
 
-        ':representante_legal'
-            => $representante,
+        ':representante_legal'> $representante,
 
-        ':id_pais'
-            => $idPais,
+        ':id_pais'> $idPais,
 
-        ':id_departamento'
-            => $idDepartamento,
+        ':id_departamento'> $idDepartamento,
 
-        ':id_ciudad'
-            => $idCiudad,
+        ':id_ciudad'> $idCiudad,
 
-        ':direccion'
-            => $direccion,
+        ':direccion'> $direccion,
 
-        ':sector'
-            => $sector,
+        ':sector'> $sector,
 
-        ':id_tipo_copropiedad'
-            => $idTipoCopropiedad,
+        ':id_tipo_copropiedad'> $idTipoCopropiedad,
 
-        ':cantidad_unidades'
-            => $cantidadUnidades,
+        ':cantidad_unidades'> $cantidadUnidades,
 
-        ':correo'
-            => $correo,
+        ':correo'> $correo,
 
-        ':telefono'
-            => $telefono,
+        ':telefono'> $telefono,
 
-        ':logo'
-            => $logo,
+        ':logo'> $logo,
 
-        ':reglamento'
-            => $reglamento,
+        ':reglamento'> $reglamento,
 
-        ':manual'
-            => $manual
+        ':manual'> $manual
 
     ]);
 
 
-    // ====
-    // CONFIRMAR
+    // // CONFIRMAR
     // ====
 
     $conexion->commit();
 
 
-    // ====
-    // MENSAJE
+    // // MENSAJE
     // ====
 
     if ($versionActual) {
@@ -894,8 +850,7 @@ try {
 
 } catch (Throwable $e) {
 
-    // ====
-    // ROLLBACK
+    // // ROLLBACK
     // ====
 
     if ($conexion->inTransaction()) {
@@ -904,8 +859,7 @@ try {
     }
 
 
-    // ====
-    // REGISTRAR ERROR REAL
+    // // REGISTRAR ERROR REAL
     // ====
 
     error_log(
@@ -914,8 +868,7 @@ try {
     );
 
 
-    // ====
-    // MENSAJE
+    // // MENSAJE
     // ====
 
     if ($e instanceof RuntimeException) {

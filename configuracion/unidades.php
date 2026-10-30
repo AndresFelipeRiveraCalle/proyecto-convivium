@@ -151,8 +151,7 @@ if ($idGrupoSeleccionado > 0) {
 
     $stmtUnidades->execute([
 
-        ':id_tipo_config'
-            => $idGrupoSeleccionado
+        ':id_tipo_config' => $idGrupoSeleccionado
 
     ]);
 
@@ -216,9 +215,7 @@ $puedeCrearUnidad =
 
     <main class="contenido">
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <h2 align="center">Unidades</h2>
 
@@ -228,9 +225,7 @@ $puedeCrearUnidad =
 
         <br>
 
-        <!-- ====
-             ACCIONES
-        ===== -->
+        <!--ACCIONES -->
 
         <div class="form-actions">
             <?php if ($grupoSeleccionado): ?>
@@ -250,9 +245,7 @@ $puedeCrearUnidad =
         
         <br>
 
-        <!-- ====
-             TABS
-        ===== -->
+        <!--TABS -->
 
         <?php if (!empty($grupos)): ?>
             <div class="tabs-container">
@@ -280,9 +273,7 @@ $puedeCrearUnidad =
             
         <?php endif; ?>
 
-        <!-- ====
-             INFORMACIÓN SIMPLE DEL GRUPO
-        ===== -->
+        <!--INFORMACIÓN SIMPLE DEL GRUPO -->
 
         <?php if ($grupoSeleccionado): ?>
             <div class="bloque filtros">
@@ -324,9 +315,7 @@ $puedeCrearUnidad =
 
         <?php endif; ?>
 
-        <!-- ====
-             TABLA DE UNIDADES
-        ===== -->
+        <!--TABLA DE UNIDADES -->
         <div class="bloque filtros">
             <div class="form-card">
                 <h3>
@@ -1190,8 +1179,7 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
-        // ====
-        // NUEVA UNIDAD
+        //     // NUEVA UNIDAD
         // ====
 
         const btnNuevaUnidad =
@@ -1291,8 +1279,7 @@ document.addEventListener(
         }
 
 
-        // ====
-        // EDITAR UNIDAD
+        //     // EDITAR UNIDAD
         // ====
 
         const modalEditar =

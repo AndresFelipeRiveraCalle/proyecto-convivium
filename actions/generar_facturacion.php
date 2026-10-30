@@ -148,15 +148,13 @@ $valorInteresesGenerados = 0;
 
 try {
 
-    // ====
-    // INICIAR TRANSACCIÓN
+    // // INICIAR TRANSACCIÓN
     // ====
 
     $conexion->beginTransaction();
 
 
-    // ====
-    // BUSCAR CALENDARIO
+    // // BUSCAR CALENDARIO
     // ====
 
     $sqlCalendario = "
@@ -184,8 +182,7 @@ try {
 
     $stmtCalendario->execute([
 
-        ':id_calendario'
-            => $idCalendario
+        ':id_calendario'> $idCalendario
 
     ]);
 
@@ -204,8 +201,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR ESTADO DEL PERÍODO
+    // // VALIDAR ESTADO DEL PERÍODO
     // ====
 
     if (
@@ -219,8 +215,7 @@ try {
     }
 
 
-    // ====
-    // DATOS DEL PERÍODO
+    // // DATOS DEL PERÍODO
     // ====
 
     $periodo =
@@ -262,8 +257,7 @@ try {
         );
 
 
-    // ====
-    // CONFIGURACIÓN DE MORA VIGENTE
+    // // CONFIGURACIÓN DE MORA VIGENTE
     // ====
 
     $sqlConfiguracionMora = "
@@ -318,11 +312,9 @@ try {
 
     $stmtConfiguracionMora->execute([
 
-        ':fecha_mora_inicio'
-            => $fechaFacturacion,
+        ':fecha_mora_inicio'> $fechaFacturacion,
 
-        ':fecha_mora_fin'
-            => $fechaFacturacion
+        ':fecha_mora_fin'> $fechaFacturacion
 
     ]);
 
@@ -360,8 +352,7 @@ try {
     }
 
 
-    // ====
-    // BUSCAR UNIDADES ACTIVAS
+    // // BUSCAR UNIDADES ACTIVAS
     // ====
 
     $sqlUnidades = "
@@ -437,8 +428,7 @@ try {
     }
 
 
-    // ====
-    // CONFIGURACIÓN DE CONCEPTOS DE ESPACIOS
+    // // CONFIGURACIÓN DE CONCEPTOS DE ESPACIOS
     // ====
 
     $sqlConfigEspacios = "
@@ -493,8 +483,7 @@ try {
         );
 
 
-    // ====
-    // BUSCAR CONCEPTOS OBLIGATORIOS
+    // // BUSCAR CONCEPTOS OBLIGATORIOS
     // ====
 
     $sqlObligatorios = "
@@ -537,8 +526,7 @@ try {
         );
 
 
-    // ====
-    // EXCLUIR CONCEPTOS DE ESPACIOS DE LOS GENERALES
+    // // EXCLUIR CONCEPTOS DE ESPACIOS DE LOS GENERALES
     // ====
 
     $conceptosOpcionalesGenerales =
@@ -550,8 +538,7 @@ try {
         );
 
 
-    // ====
-    // UNIR CONCEPTOS GENERALES
+    // // UNIR CONCEPTOS GENERALES
     // ====
 
     $idsConceptos =
@@ -565,8 +552,7 @@ try {
         );
 
 
-    // ====
-    // CARGAR CONCEPTOS GENERALES
+    // // CARGAR CONCEPTOS GENERALES
     // ====
 
     $conceptos = [];
@@ -626,8 +612,7 @@ try {
     }
 
 
-    // ====
-    // CONSULTA TARIFA
+    // // CONSULTA TARIFA
     // ====
 
     $sqlTarifa = "
@@ -672,8 +657,7 @@ try {
         );
 
 
-    // ====
-    // CONSULTA FACTURA EXISTENTE
+    // // CONSULTA FACTURA EXISTENTE
     // ====
 
     $sqlFacturaExiste = "
@@ -713,8 +697,7 @@ try {
         );
 
 
-    // ====
-    // CONSULTA CUOTAS DE CARGOS
+    // // CONSULTA CUOTAS DE CARGOS
     // ====
 
     $sqlCargosUnidad = "
@@ -782,8 +765,7 @@ try {
         );
 
 
-    // ====
-    // CONSULTA ESPACIOS VIGENTES
+    // // CONSULTA ESPACIOS VIGENTES
     // ====
 
     $sqlEspacios = "
@@ -839,8 +821,7 @@ try {
         );
 
 
-    // ====
-    // SALDO ANTERIOR DE LA UNIDAD
+    // // SALDO ANTERIOR DE LA UNIDAD
     // Suma la cartera pendiente de períodos anteriores.
     // ====
 
@@ -873,8 +854,7 @@ try {
         );
 
 
-    // ====
-    // CARTERA VENCIDA PARA MORA
+    // // CARTERA VENCIDA PARA MORA
     // Solo toma conceptos habilitados para interés de mora.
     // ====
 
@@ -946,8 +926,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR INTERÉS DE CARTERA
+    // // INSERTAR INTERÉS DE CARTERA
     // ====
 
     $sqlInsertInteres = "
@@ -992,8 +971,7 @@ try {
         );
 
 
-    // ====
-    // INSERTAR FACTURA NUEVA
+    // // INSERTAR FACTURA NUEVA
     // Guarda también el saldo anterior.
     // ====
 
@@ -1037,8 +1015,7 @@ try {
         );
 
 
-    // ====
-    // ACTUALIZAR NÚMERO DE FACTURA
+    // // ACTUALIZAR NÚMERO DE FACTURA
     // ====
 
     $sqlNumeroFactura = "
@@ -1060,8 +1037,7 @@ try {
         );
 
 
-    // ====
-    // INSERTAR DETALLE
+    // // INSERTAR DETALLE
     // ====
 
     $sqlInsertDetalle = "
@@ -1100,8 +1076,7 @@ try {
         );
 
 
-    // ====
-    // INSERTAR CARTERA DESDE DETALLE
+    // // INSERTAR CARTERA DESDE DETALLE
     // ====
 
     $sqlInsertCartera = "
@@ -1144,8 +1119,7 @@ try {
         );
 
 
-    // ====
-    // MARCAR CUOTA COMO FACTURADA
+    // // MARCAR CUOTA COMO FACTURADA
     // ====
 
     $sqlActualizarCuota = "
@@ -1176,8 +1150,7 @@ try {
         );
 
 
-    // ====
-    // INCREMENTAR FACTURA EXISTENTE
+    // // INCREMENTAR FACTURA EXISTENTE
     // Agrega cargos o intereses nuevos.
     // ====
 
@@ -1214,8 +1187,7 @@ try {
         );
 
 
-    // ====
-    // ACTUALIZAR SALDO ANTERIOR
+    // // ACTUALIZAR SALDO ANTERIOR
     // Mantiene el total sincronizado con cartera.
     // ====
 
@@ -1248,8 +1220,7 @@ try {
         );
 
 
-    // ====
-    // RECORRER UNIDADES
+    // // RECORRER UNIDADES
     // ====
 
     foreach ($unidades as $unidad) {
@@ -3583,15 +3554,13 @@ try {
         $facturasGeneradas++;
     }
 
-    // ====
-    // CONFIRMAR TRANSACCIÓN
+    // // CONFIRMAR TRANSACCIÓN
     // ====
 
     $conexion->commit();
 
 
-    // ====
-    // MENSAJE FINAL
+    // // MENSAJE FINAL
     // ====
 
     $mensaje =

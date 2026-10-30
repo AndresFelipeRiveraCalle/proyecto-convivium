@@ -1120,8 +1120,7 @@ function imprimirTablaPersonas($lista)
 
 
 <!-- =======
-     MODAL AGREGAR PERSONA
-======= -->
+     MODAL AGREGAR PERSONA== -->
 
 <div
     id="modalAgregarPersonaUnidad"
@@ -1289,8 +1288,7 @@ function imprimirTablaPersonas($lista)
 
 
 <!-- =======
-     MODAL EDITAR RELACIÓN
-======= -->
+     MODAL EDITAR RELACIÓN== -->
 
 <div
     id="modalEditarRelacion"
@@ -1483,8 +1481,7 @@ function imprimirTablaPersonas($lista)
 
 
 <!-- =======
-     MODAL RETIRAR PERSONA
-======= -->
+     MODAL RETIRAR PERSONA== -->
 
 <div
     id="modalRetirarRelacion"
@@ -1611,11 +1608,9 @@ function imprimirTablaPersonas($lista)
 
 
 <!-- =======
-     MODAL AGREGAR ESPACIO
-======= -->
+     MODAL AGREGAR ESPACIO== -->
 <!-- =======
-     MODAL AGREGAR ESPACIO
-======= -->
+     MODAL AGREGAR ESPACIO== -->
 
 <div
     id="modalAgregarEspacioUnidad"
@@ -1826,8 +1821,7 @@ function imprimirTablaPersonas($lista)
 
 
 <!-- =======
-     MODAL EDITAR ESPACIO
-======= -->
+     MODAL EDITAR ESPACIO== -->
 
 <div
     id="modalEditarEspacio"
@@ -2014,8 +2008,7 @@ function imprimirTablaPersonas($lista)
 
 
 <!-- =======
-     MODAL TRANSFERIR ESPACIO
-======= -->
+     MODAL TRANSFERIR ESPACIO== -->
 
 <div
     id="modalTransferirEspacio"
@@ -2268,8 +2261,7 @@ function imprimirTablaPersonas($lista)
 
 
 <!-- =======
-     JAVASCRIPT
-======= -->
+     JAVASCRIPT== -->
 
 <script>
 

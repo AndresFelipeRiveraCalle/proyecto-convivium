@@ -132,9 +132,7 @@ try {
         <main class="contenido">
 
 
-            <!-- ====
-            ENCABEZADO
-        ===== -->
+            <!--         ENCABEZADO -->
 
             <div class="contenido-header">
 
@@ -162,9 +160,7 @@ try {
 
 
 
-            <!-- ====
-            TABLA
-        ===== -->
+            <!--         TABLA -->
 
             <div class="table-container">
 
@@ -1162,8 +1158,7 @@ try {
                 }
 
 
-                // ====
-                // ABRIR
+                //   // ABRIR
                 // ====
 
                 btnNuevo.addEventListener(
@@ -1178,8 +1173,7 @@ try {
                 );
 
 
-                // ====
-                // CERRAR
+                //   // CERRAR
                 // ====
 
                 function cerrarModal() {
@@ -1209,8 +1203,7 @@ try {
                 }
 
 
-                // ====
-                // CLIC FUERA
+                //   // CLIC FUERA
                 // ====
 
                 modal.addEventListener(
@@ -1227,8 +1220,7 @@ try {
                 );
 
 
-                // ====
-                // ESC
+                //   // ESC
                 // ====
 
                 document.addEventListener(

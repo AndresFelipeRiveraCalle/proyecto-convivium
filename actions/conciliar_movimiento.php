@@ -65,8 +65,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // BLOQUEAR MOVIMIENTO BANCARIO
+    // // BLOQUEAR MOVIMIENTO BANCARIO
     // ====
 
     $sqlExtracto = "
@@ -119,8 +118,7 @@ try {
     }
 
 
-    // ====
-    // BLOQUEAR PAGO
+    // // BLOQUEAR PAGO
     // ====
 
     $sqlPago = "
@@ -183,8 +181,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR VALOR
+    // // VALIDAR VALOR
     // ====
 
     $diferenciaValor =
@@ -202,8 +199,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR FECHA ±3 DÍAS
+    // // VALIDAR FECHA ±3 DÍAS
     // ====
 
     $fechaExtracto =
@@ -228,8 +224,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR QUE EL EXTRACTO NO ESTÉ EN OTRO PAGO
+    // // VALIDAR QUE EL EXTRACTO NO ESTÉ EN OTRO PAGO
     // ====
 
     $sqlUsoExtracto = "
@@ -259,8 +254,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR PAGO
+    // // ACTUALIZAR PAGO
     // ====
 
     $sqlActualizarPago = "
@@ -291,8 +285,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR MOVIMIENTO
+    // // ACTUALIZAR MOVIMIENTO
     // ====
 
     $observacionConciliacion =
@@ -345,8 +338,7 @@ try {
     }
 
 
-    // ====
-    // CONFIRMAR
+    // // CONFIRMAR
     // ====
 
     $conexion->commit();

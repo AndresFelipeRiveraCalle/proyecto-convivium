@@ -270,14 +270,11 @@ if ($idGrupoSeleccionado > 0) {
 
         $resumenUnidades = [
 
-            'cantidad_creadas'
-            => (int)$resultadoResumen['cantidad_creadas'],
+            'cantidad_creadas'> (int)$resultadoResumen['cantidad_creadas'],
 
-            'area_real'
-            => (float)$resultadoResumen['area_real'],
+            'area_real'> (float)$resultadoResumen['area_real'],
 
-            'coeficiente_real'
-            => (float)$resultadoResumen['coeficiente_real']
+            'coeficiente_real'> (float)$resultadoResumen['coeficiente_real']
 
         ];
     }
@@ -378,9 +375,7 @@ $tiposUnidad =
 
         <main class="contenido">
 
-            <!-- ====
-             ENCABEZADO
-        ===== -->
+            <!--ENCABEZADO -->
 
             <h2 align="center">
                 Configuración básica
@@ -395,9 +390,7 @@ $tiposUnidad =
 
             <br>
 
-            <!-- ====
-             GRUPOS
-        ===== -->
+            <!--GRUPOS -->
             <h3>
                 Configuración de tipos de unidades
             </h3>
@@ -435,9 +428,7 @@ $tiposUnidad =
                 </div>
             </div>
 
-            <!-- ====
-             DETALLE DEL GRUPO
-        ===== -->
+            <!--DETALLE DEL GRUPO -->
 
             <?php if ($grupoSeleccionado): ?>
 
@@ -828,8 +819,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 TIPO DE UNIDAD
-            = -->
+                 TIPO DE UNIDAD -->
 
                 <div class="form-group">
 
@@ -876,8 +866,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 NOMBRE
-            = -->
+                 NOMBRE -->
 
                 <div class="form-group">
 
@@ -902,8 +891,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 CANTIDAD
-            = -->
+                 CANTIDAD -->
 
                 <div class="form-group">
 
@@ -935,8 +923,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 ÁREA TOTAL
-            = -->
+                 ÁREA TOTAL -->
 
                 <div class="form-group">
 
@@ -970,8 +957,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 COEFICIENTE
-            = -->
+                 COEFICIENTE -->
 
                 <div class="form-group">
 
@@ -1005,8 +991,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 OBSERVACIONES
-            = -->
+                 OBSERVACIONES -->
 
                 <div class="form-group">
 
@@ -1030,8 +1015,7 @@ $tiposUnidad =
 
 
                 <!-- 
-                 BOTONES
-            = -->
+                 BOTONES -->
 
                 <div class="form-actions">
 

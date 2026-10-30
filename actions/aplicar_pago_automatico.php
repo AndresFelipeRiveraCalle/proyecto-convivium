@@ -228,15 +228,13 @@ if ($idPago <= 0) {
 
 try {
 
-    // ====
-    // TRANSACCIÓN
+    // // TRANSACCIÓN
     // ====
 
     $conexion->beginTransaction();
 
 
-    // ====
-    // BLOQUEAR PAGO
+    // // BLOQUEAR PAGO
     // ====
 
     $sqlPago = "
@@ -276,8 +274,7 @@ try {
     }
 
 
-    // ====
-    // VALOR YA APLICADO
+    // // VALOR YA APLICADO
     // ====
 
     $sqlAplicado = "
@@ -297,8 +294,7 @@ try {
         (float)$stmtAplicado->fetchColumn();
 
 
-    // ====
-    // SALDO YA CONVERTIDO
+    // // SALDO YA CONVERTIDO
     // Resta el excedente que ya pasó a saldo a favor.
     // ====
 
@@ -340,8 +336,7 @@ try {
         );
     }
 
-    // ====
-    // CARTERA PENDIENTE DE LA UNIDAD
+    // // CARTERA PENDIENTE DE LA UNIDAD
     // Aplica primero a la deuda con vencimiento más antiguo.
     // ====
 
@@ -393,8 +388,7 @@ try {
 
     $stmtCartera->execute([
 
-        ':id_unidad'
-            => (int)$pago[
+        ':id_unidad'> (int)$pago[
                 'id_unidad'
             ]
 
@@ -409,8 +403,7 @@ try {
     $obligaciones =
         $stmtCartera->fetchAll(PDO::FETCH_ASSOC);
 
-    // ====
-    // SIN OBLIGACIONES PENDIENTES
+    // // SIN OBLIGACIONES PENDIENTES
     // Convierte todo el disponible en saldo a favor.
     // ====
 
@@ -468,8 +461,7 @@ try {
         );
     }
 
-    // ====
-    // INSERT APLICACIÓN
+    // // INSERT APLICACIÓN
     // ====
 
     $sqlInsertAplicacion = "
@@ -497,8 +489,7 @@ try {
         $conexion->prepare($sqlInsertAplicacion);
 
 
-    // ====
-    // ACTUALIZAR CARTERA
+    // // ACTUALIZAR CARTERA
     // ====
 
     $sqlUpdateCartera = "
@@ -533,8 +524,7 @@ try {
         $conexion->prepare($sqlUpdateCartera);
 
 
-    // ====
-    // APLICAR
+    // // APLICAR
     // ====
 
     $totalAplicadoAhora = 0;
@@ -612,8 +602,7 @@ try {
                 '.'
             );
         }
-        // ====
-        // SINCRONIZAR INTERÉS DE MORA
+        //     // SINCRONIZAR INTERÉS DE MORA
         // Si esta cartera representa interés, actualiza también
         // intereses_cartera.
         // ====
@@ -790,8 +779,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR ESTADOS DE FACTURAS
+    // // ACTUALIZAR ESTADOS DE FACTURAS
     // ====
 
     foreach (
@@ -806,8 +794,7 @@ try {
     }
 
 
-    // ====
-    // SALDO A FAVOR
+    // // SALDO A FAVOR
     // Convierte el excedente si ya no quedan obligaciones pendientes.
     // ====
 
@@ -824,8 +811,7 @@ try {
     }
 
 
-    // ====
-    // COMMIT
+    // // COMMIT
     // Confirma las aplicaciones y el posible saldo a favor.
     // ====
 

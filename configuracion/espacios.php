@@ -1143,8 +1143,7 @@ function nombreTipoEspacio($tipo)
 
 
 <!-- =======
-     MODAL NUEVO ESPACIO
-======= -->
+     MODAL NUEVO ESPACIO== -->
 
 <div
     id="modalNuevoEspacio"
@@ -1393,8 +1392,7 @@ function nombreTipoEspacio($tipo)
 
 
 <!-- =======
-     MODAL EDITAR ESPACIO
-======= -->
+     MODAL EDITAR ESPACIO== -->
 
 <div
     id="modalEditarEspacio"
@@ -1572,8 +1570,7 @@ function nombreTipoEspacio($tipo)
 
 
 <!-- =======
-     MODAL TRANSFERIR ESPACIO
-======= -->
+     MODAL TRANSFERIR ESPACIO== -->
 
 <div
     id="modalTransferirEspacio"
@@ -1812,8 +1809,7 @@ function nombreTipoEspacio($tipo)
 
 
 <!-- =======
-     JAVASCRIPT
-======= -->
+     JAVASCRIPT== -->
 
 <script>
 

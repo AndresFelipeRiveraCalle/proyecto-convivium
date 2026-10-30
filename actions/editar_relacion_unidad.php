@@ -139,15 +139,13 @@ if (
 
 try {
 
-    // ====
-    // INICIAR TRANSACCIÓN
+    // // INICIAR TRANSACCIÓN
     // ====
 
     $conexion->beginTransaction();
 
 
-    // ====
-    // CONSULTAR RELACIÓN ACTUAL
+    // // CONSULTAR RELACIÓN ACTUAL
     // ====
 
     $sqlRelacion = "
@@ -214,8 +212,7 @@ try {
         $idUnidad;
 
 
-    // ====
-    // VALIDAR QUE SIGA ACTIVA
+    // // VALIDAR QUE SIGA ACTIVA
     // ====
 
     if (
@@ -238,10 +235,8 @@ try {
     }
 
 
-    // ====
-    // VALIDAR ÚLTIMO RECEPTOR DE FACTURA
-    // ====
-    //
+    // // VALIDAR ÚLTIMO RECEPTOR DE FACTURA
+    // //
     // Solo aplica cuando:
     //
     // Antes: recibe_factura = 1
@@ -312,8 +307,7 @@ try {
     }
 
 
-    // ====
-    // ACTUALIZAR RELACIÓN
+    // // ACTUALIZAR RELACIÓN
     // ====
 
     $sqlActualizar = "
@@ -354,8 +348,7 @@ try {
     ]);
 
 
-    // ====
-    // CONFIRMAR
+    // // CONFIRMAR
     // ====
 
     $conexion->commit();
@@ -376,8 +369,7 @@ try {
 } catch (Throwable $e) {
 
 
-    // ====
-    // ROLLBACK
+    // // ROLLBACK
     // ====
 
     if ($conexion->inTransaction()) {
@@ -386,8 +378,7 @@ try {
     }
 
 
-    // ====
-    // RETORNO ERROR
+    // // RETORNO ERROR
     // ====
 
     $urlError =

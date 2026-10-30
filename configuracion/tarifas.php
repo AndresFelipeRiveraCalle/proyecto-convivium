@@ -214,9 +214,7 @@ function formatoValorTarifa($valor, $tipoCalculo)
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <h2 align="center">
             Tarifas de facturación
@@ -238,9 +236,7 @@ function formatoValorTarifa($valor, $tipoCalculo)
         <br>
 
 
-        <!-- ====
-             INFORMACIÓN
-        ===== -->
+        <!--INFORMACIÓN -->
 
         <div class="info-box">
 
@@ -273,9 +269,7 @@ function formatoValorTarifa($valor, $tipoCalculo)
         <br>
 
 
-        <!-- ====
-             LISTADO
-        ===== -->
+        <!--LISTADO -->
 
         <div class="bloque filtros">
 
@@ -744,8 +738,7 @@ function formatoValorTarifa($valor, $tipoCalculo)
 
 
             <!-- 
-                 TIPO DE UNIDAD
-            = -->
+                 TIPO DE UNIDAD -->
 
             <div class="form-group">
 

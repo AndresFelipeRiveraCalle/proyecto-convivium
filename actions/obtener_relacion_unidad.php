@@ -29,8 +29,7 @@ if ($idRelacion <= 0) {
 
 try {
 
-    // ====
-    // CONSULTAR RELACIÓN
+    // // CONSULTAR RELACIÓN
     // ====
 
     $sql = "

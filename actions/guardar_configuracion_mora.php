@@ -104,8 +104,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // VALIDAR TASA
+    // // VALIDAR TASA
     // ====
 
     $sqlTasa = "
@@ -152,8 +151,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR CONCEPTO
+    // // VALIDAR CONCEPTO
     // ====
 
     $sqlConcepto = "
@@ -184,8 +182,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR
+    // // INSERTAR
     // ====
 
     $sql = "

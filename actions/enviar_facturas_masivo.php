@@ -258,8 +258,7 @@ foreach (
 ) {
 
 
-    // ====
-    // FACTURA
+    // // FACTURA
     // ====
 
     $sqlFactura = "
@@ -301,8 +300,7 @@ foreach (
 
     $stmtFactura->execute([
 
-        ':id_factura'
-            => $idFactura
+        ':id_factura'> $idFactura
 
     ]);
 
@@ -326,8 +324,7 @@ foreach (
     $facturasProcesadas++;
 
 
-    // ====
-    // DESTINATARIOS
+    // // DESTINATARIOS
     // Solo personas configuradas para recibir factura.
     // ====
 
@@ -377,8 +374,7 @@ foreach (
 
     $stmtDestinatarios->execute([
 
-        ':id_unidad'
-            => (int)$factura[
+        ':id_unidad'> (int)$factura[
                 'id_unidad'
             ]
 
@@ -391,8 +387,7 @@ foreach (
         );
 
 
-    // ====
-    // VALIDAR CORREOS
+    // // VALIDAR CORREOS
     // ====
 
     $destinatariosValidos = [];
@@ -430,8 +425,7 @@ foreach (
     }
 
 
-    // ====
-    // GENERAR PDF
+    // // GENERAR PDF
     // ====
 
     try {
@@ -482,8 +476,7 @@ foreach (
         false;
 
 
-    // ====
-    // ENVIAR A DESTINATARIOS
+    // // ENVIAR A DESTINATARIOS
     // ====
 
     foreach (
@@ -1052,17 +1045,13 @@ header(
     BASE_URL .
     "configuracion/envio_facturas.php?" .
     http_build_query([
-        'anio'
-            => $anio,
+        'anio'> $anio,
 
-        'mes'
-            => $mes,
+        'mes'> $mes,
 
-        'tipo'
-            => $tipo,
+        'tipo'> $tipo,
 
-        'texto'
-            => $texto
+        'texto'> $texto
     ])
 );
 

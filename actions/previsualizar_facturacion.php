@@ -200,8 +200,7 @@ $tieneCargosEspacios = false;
 
 try {
 
-    // ====
-    // BUSCAR CALENDARIO
+    // // BUSCAR CALENDARIO
     // ====
 
     $sqlCalendario = "
@@ -228,8 +227,7 @@ try {
 
     $stmtCalendario->execute([
 
-        ':id_calendario'
-            => $idCalendario
+        ':id_calendario'> $idCalendario
 
     ]);
 
@@ -247,8 +245,7 @@ try {
     }
 
 
-    // ====
-    // DATOS DEL PERÍODO
+    // // DATOS DEL PERÍODO
     // ====
 
     $periodo =
@@ -282,8 +279,7 @@ try {
     );
 
 
-    // ====
-    // VALIDAR ESTADO
+    // // VALIDAR ESTADO
     // ====
 
     if ($estadoCalendario === 'CERRADO') {
@@ -295,8 +291,7 @@ try {
     }
 
 
-    // ====
-    // BUSCAR UNIDADES ACTIVAS
+    // // BUSCAR UNIDADES ACTIVAS
     // ====
 
     $sqlUnidades = "
@@ -366,8 +361,7 @@ try {
     }
 
 
-    // ====
-    // CARGAR CONFIGURACIÓN DE CONCEPTOS DE ESPACIOS
+    // // CARGAR CONFIGURACIÓN DE CONCEPTOS DE ESPACIOS
     // ====
 
     $sqlConfigEspacios = "
@@ -428,8 +422,7 @@ try {
         );
 
 
-    // ====
-    // CARGAR CONCEPTOS OBLIGATORIOS
+    // // CARGAR CONCEPTOS OBLIGATORIOS
     // ====
 
     $sqlObligatorios = "
@@ -467,8 +460,7 @@ try {
     );
 
 
-    // ====
-    // EVITAR DUPLICAR CONCEPTOS DE ESPACIOS
+    // // EVITAR DUPLICAR CONCEPTOS DE ESPACIOS
     // ====
 
     $conceptosOpcionalesGenerales =
@@ -480,8 +472,7 @@ try {
         );
 
 
-    // ====
-    // UNIR OBLIGATORIOS + OPCIONALES GENERALES
+    // // UNIR OBLIGATORIOS + OPCIONALES GENERALES
     // ====
 
     $idsConceptos = array_values(
@@ -494,8 +485,7 @@ try {
     );
 
 
-    // ====
-    // BUSCAR CONCEPTOS GENERALES
+    // // BUSCAR CONCEPTOS GENERALES
     // ====
 
     if (!empty($idsConceptos)) {
@@ -548,8 +538,7 @@ try {
     }
 
 
-    // ====
-    // PREPARAR CONSULTA TARIFA
+    // // PREPARAR CONSULTA TARIFA
     // ====
 
     $sqlTarifa = "
@@ -592,8 +581,7 @@ try {
     );
 
 
-    // ====
-    // PREPARAR CONSULTA FACTURA EXISTENTE
+    // // PREPARAR CONSULTA FACTURA EXISTENTE
     // ====
 
     $sqlFacturaExiste = "
@@ -625,8 +613,7 @@ try {
     );
 
 
-    // ====
-    // PREPARAR CONSULTA DE CARGOS PENDIENTES
+    // // PREPARAR CONSULTA DE CARGOS PENDIENTES
     // ====
 
     $sqlCargosUnidad = "
@@ -693,8 +680,7 @@ try {
         );
 
 
-    // ====
-    // PREPARAR CONSULTA ESPACIOS DE UNA UNIDAD
+    // // PREPARAR CONSULTA ESPACIOS DE UNA UNIDAD
     // ====
 
     $sqlEspaciosUnidad = "
@@ -754,8 +740,7 @@ try {
         );
 
 
-    // ====
-    // DETECTAR ESPACIOS SUELTOS
+    // // DETECTAR ESPACIOS SUELTOS
     // ====
 
     $sqlEspaciosSueltos = "
@@ -797,11 +782,9 @@ try {
 
     $stmtEspaciosSueltos->execute([
 
-        ':fecha_facturacion_desde'
-            => $fechaFacturacion,
+        ':fecha_facturacion_desde'> $fechaFacturacion,
 
-        ':fecha_facturacion_hasta'
-            => $fechaFacturacion
+        ':fecha_facturacion_hasta'> $fechaFacturacion
 
     ]);
 
@@ -821,8 +804,7 @@ try {
     }
 
 
-    // ====
-    // RECORRER UNIDADES
+    // // RECORRER UNIDADES
     // ====
 
     foreach ($unidades as $unidad) {
@@ -1887,9 +1869,7 @@ $puedeGenerar =
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <h2 align="center">
             Vista previa de facturación
@@ -1899,9 +1879,7 @@ $puedeGenerar =
         <br>
 
 
-        <!-- ====
-             INFORMACIÓN DEL PERÍODO
-        ===== -->
+        <!--INFORMACIÓN DEL PERÍODO -->
 
         <?php if ($calendario): ?>
 
@@ -1997,9 +1975,7 @@ $puedeGenerar =
         <?php endif; ?>
 
 
-        <!-- ====
-             ERRORES GENERALES
-        ===== -->
+        <!--ERRORES GENERALES -->
 
         <?php if (!empty($erroresGenerales)): ?>
 
@@ -2030,9 +2006,7 @@ $puedeGenerar =
         <?php endif; ?>
 
 
-        <!-- ====
-             ADVERTENCIAS
-        ===== -->
+        <!--ADVERTENCIAS -->
 
         <?php if (!empty($advertencias)): ?>
 
@@ -2063,9 +2037,7 @@ $puedeGenerar =
         <?php endif; ?>
 
 
-        <!-- ====
-             RESUMEN
-        ===== -->
+        <!--RESUMEN -->
 
         <div class="bloque filtros">
 
@@ -2223,9 +2195,7 @@ $puedeGenerar =
         <br>
 
 
-        <!-- ====
-             DETALLE
-        ===== -->
+        <!--DETALLE -->
 
         <div class="bloque filtros">
 
@@ -2545,9 +2515,7 @@ $puedeGenerar =
         <br>
 
 
-        <!-- ====
-             ACCIONES
-        ===== -->
+        <!--ACCIONES -->
 
         <div class="form-actions">
 

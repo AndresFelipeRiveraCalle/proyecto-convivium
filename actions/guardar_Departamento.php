@@ -94,8 +94,7 @@ if ($nombre === "") {
 
 try {
 
-    // ====
-    // VERIFICAR QUE EL PAÍS EXISTA Y ESTÉ ACTIVO
+    // // VERIFICAR QUE EL PAÍS EXISTA Y ESTÉ ACTIVO
     // ====
 
     $sql = "
@@ -119,8 +118,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR DEPARTAMENTO DUPLICADO
+    // // VERIFICAR DEPARTAMENTO DUPLICADO
     // ====
 
     $sql = "
@@ -145,8 +143,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR DEPARTAMENTO
+    // // INSERTAR DEPARTAMENTO
     // ====
 
     $sql = "
@@ -174,8 +171,7 @@ try {
     ]);
 
 
-    // ====
-    // MENSAJE DE ÉXITO
+    // // MENSAJE DE ÉXITO
     // ====
 
     $mensaje = urlencode(

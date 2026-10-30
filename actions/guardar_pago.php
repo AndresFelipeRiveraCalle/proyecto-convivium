@@ -41,11 +41,9 @@ function redirigirPago(
 
     $parametros = [
 
-        'tipo'
-            => $tipo,
+        'tipo'> $tipo,
 
-        'mensaje'
-            => $mensaje
+        'mensaje'> $mensaje
 
     ];
 
@@ -81,8 +79,7 @@ function redirigirPago(
 try {
 
 
-    // ====
-    // ID PAGO
+    // // ID PAGO
     // Se usa cuando el formulario también sirve para editar.
     // ====
 
@@ -94,8 +91,7 @@ try {
             : 0;
 
 
-    // ====
-    // DATOS DEL PAGO
+    // // DATOS DEL PAGO
     // ====
 
     $idUnidad =
@@ -167,8 +163,7 @@ try {
         );
 
 
-    // ====
-    // VALIDACIONES GENERALES
+    // // VALIDACIONES GENERALES
     // ====
 
     if (
@@ -191,8 +186,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR FECHA
+    // // VALIDAR FECHA
     // ====
 
     $fechaObjeto =
@@ -216,8 +210,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR VALOR
+    // // VALIDAR VALOR
     // ====
 
     if (
@@ -237,8 +230,7 @@ try {
         );
 
 
-    // ====
-    // MEDIOS PERMITIDOS
+    // // MEDIOS PERMITIDOS
     // ====
 
     $mediosPermitidos = [
@@ -267,8 +259,7 @@ try {
     }
 
 
-    // ====
-    // ORÍGENES PERMITIDOS
+    // // ORÍGENES PERMITIDOS
     // ====
 
     $origenesPermitidos = [
@@ -294,8 +285,7 @@ try {
     }
 
 
-    // ====
-    // VALIDAR LONGITUDES
+    // // VALIDAR LONGITUDES
     // ====
 
     if (
@@ -350,8 +340,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR UNIDAD
+    // // VERIFICAR UNIDAD
     // ====
 
     $sqlUnidad = "
@@ -379,8 +368,7 @@ try {
 
     $stmtUnidad->execute([
 
-        ":id_unidad"
-            => $idUnidad
+        ":id_unidad"> $idUnidad
 
     ]);
 
@@ -401,8 +389,7 @@ try {
     }
 
 
-    // ====
-    // VERIFICAR REFERENCIA DUPLICADA
+    // // VERIFICAR REFERENCIA DUPLICADA
     // La referencia debe ser única dentro de la misma unidad.
     // ====
 
@@ -471,8 +458,7 @@ try {
     }
 
 
-    // ====
-    // EDITAR PAGO
+    // // EDITAR PAGO
     // ====
 
     if (
@@ -737,8 +723,7 @@ try {
     }
 
 
-    // ====
-    // NUEVO PAGO
+    // // NUEVO PAGO
     // ====
 
     $sqlInsertar = "
@@ -782,38 +767,29 @@ try {
 
     $stmtInsertar->execute([
 
-        ":id_unidad"
-            => $idUnidad,
+        ":id_unidad"> $idUnidad,
 
-        ":fecha_pago"
-            => $fechaPago,
+        ":fecha_pago"> $fechaPago,
 
-        ":valor"
-            => $valor,
+        ":valor"> $valor,
 
-        ":medio_pago"
-            => $medioPago,
+        ":medio_pago"> $medioPago,
 
-        ":origen_pago"
-            => $origenPago,
+        ":origen_pago"> $origenPago,
 
-        ":referencia"
-            => $referencia !== ""
+        ":referencia"> $referencia !== ""
                 ? $referencia
                 : null,
 
-        ":referencia_externa"
-            => $referenciaExterna !== ""
+        ":referencia_externa"> $referenciaExterna !== ""
                 ? $referenciaExterna
                 : null,
 
-        ":id_externo"
-            => $idExterno !== ""
+        ":id_externo"> $idExterno !== ""
                 ? $idExterno
                 : null,
 
-        ":observaciones"
-            => $observaciones !== ""
+        ":observaciones"> $observaciones !== ""
                 ? $observaciones
                 : null
 
@@ -824,8 +800,7 @@ try {
         (int)$conexion->lastInsertId();
 
 
-    // ====
-    // REDIRECCIÓN
+    // // REDIRECCIÓN
     // ====
 
     redirigirPago(
@@ -839,8 +814,7 @@ try {
 } catch (Throwable $e) {
 
 
-    // ====
-    // ERROR
+    // // ERROR
     // ====
 
     redirigirPago(

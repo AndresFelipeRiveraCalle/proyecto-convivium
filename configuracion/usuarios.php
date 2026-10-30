@@ -37,8 +37,7 @@ try {
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
         <main class="contenido">
             <!-- ==
-                    ENCABEZADO
-            == -->
+                    ENCABEZADO= -->
 
             <div class="form-actions">
                 <div>
@@ -384,8 +383,7 @@ try {
         </div>
 
         <!-- =======
-            MODAL EDITAR USUARIO
-        ======= -->
+            MODAL EDITAR USUARIO== -->
         <div id="modalEditarUsuario" class="modal">
             <div class="modal-contenido">
                 <span id="cerrarEditarUsuario" class="cerrar">

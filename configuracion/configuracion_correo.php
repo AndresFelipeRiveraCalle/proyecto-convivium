@@ -138,9 +138,7 @@ function e($valor)
     <main class="contenido">
 
 
-        <!-- ====
-             ENCABEZADO
-        ===== -->
+        <!--ENCABEZADO -->
 
         <div class="form-card">
             <div class="form-header">
@@ -157,8 +155,7 @@ function e($valor)
             </div>
 
             <!-- 
-                 FORMULARIO
-            = -->
+                 FORMULARIO -->
 
             <form method="POST" action="<?= BASE_URL ?>actions/guardar_configuracion_correo.php"
             >

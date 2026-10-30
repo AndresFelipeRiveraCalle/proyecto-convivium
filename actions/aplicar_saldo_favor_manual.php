@@ -183,8 +183,7 @@ try {
     $conexion->beginTransaction();
 
 
-    // ====
-    // BLOQUEAR SALDO FAVOR
+    // // BLOQUEAR SALDO FAVOR
     // ====
 
     $sqlSaldo = "
@@ -240,22 +239,36 @@ try {
     }
 
 
-    // ====
-    // BLOQUEAR CARTERA
+    // // BLOQUEAR CARTERA
     // ====
 
-    $sqlCartera = "
-        SELECT
-            id_cartera,
-            id_factura,
-            id_unidad,
-            saldo,
-            estado
-        FROM cartera
-        WHERE id_cartera = :id_cartera
-        LIMIT 1
-        FOR UPDATE
-    ";
+$sqlCartera = "
+    SELECT
+        c.id_cartera,
+        c.id_factura,
+        c.id_detalle,
+        c.id_unidad,
+        c.valor_original,
+        c.valor_pagado,
+        c.saldo,
+        c.estado,
+
+        fd.id_interes
+
+    FROM cartera c
+
+    LEFT JOIN facturas_detalle fd
+        ON fd.id_detalle =
+           c.id_detalle
+
+    WHERE
+        c.id_cartera =
+            :id_cartera
+
+    LIMIT 1
+
+    FOR UPDATE
+";
 
     $stmtCartera = $conexion->prepare($sqlCartera);
 
@@ -307,8 +320,7 @@ try {
     }
 
 
-    // ====
-    // INSERTAR APLICACIÓN
+    // // INSERTAR APLICACIÓN
     // ====
 
     $sqlInsert = "
@@ -336,22 +348,17 @@ try {
 
     $stmtInsert->execute([
 
-        ':id_saldo_favor'
-            => $idSaldoFavor,
+        ':id_saldo_favor'> $idSaldoFavor,
 
-        ':id_cartera'
-            => $idCartera,
+        ':id_cartera'> $idCartera,
 
-        ':valor_aplicado'
-            => $valorAplicar,
+        ':valor_aplicado'> $valorAplicar,
 
-        ':observaciones'
-            => 'Aplicación manual de saldo a favor.'
+        ':observaciones'> 'Aplicación manual de saldo a favor.'
     ]);
 
 
-    // ====
-    // UPDATE CARTERA
+    // // UPDATE CARTERA
     // ====
 
     $nuevoSaldoCartera =
@@ -389,22 +396,157 @@ try {
 
     $stmtUpdateCartera->execute([
 
-        ':valor_aplicado'
-            => $valorAplicar,
+        ':valor_aplicado'> $valorAplicar,
 
-        ':saldo'
-            => max($nuevoSaldoCartera, 0),
+        ':saldo'> max($nuevoSaldoCartera, 0),
 
-        ':estado'
-            => $nuevoEstadoCartera,
+        ':estado'> $nuevoEstadoCartera,
 
-        ':id_cartera'
-            => $idCartera
+        ':id_cartera'> $idCartera
     ]);
 
+    // =====
+    // SINCRONIZAR INTERÉS DE MORA
+    // Si la obligación corresponde a un interés, cartera e
+    // intereses_cartera deben conservar el mismo saldo.
+    // =====
 
-    // ====
-    // UPDATE SALDO FAVOR
+    if (
+        !empty(
+            $cartera['id_interes']
+        )
+    ) {
+
+        $idInteres =
+            (int)$cartera[
+                'id_interes'
+            ];
+
+
+        $sqlInteres = "
+            SELECT
+                id_interes,
+                valor_interes,
+                valor_pagado,
+                saldo,
+                estado
+            FROM intereses_cartera
+            WHERE
+                id_interes =
+                    :id_interes
+            LIMIT 1
+            FOR UPDATE
+        ";
+
+
+        $stmtInteres =
+            $conexion->prepare(
+                $sqlInteres
+            );
+
+
+        $stmtInteres->execute([
+            ':id_interes'
+                => $idInteres
+        ]);
+
+
+        $interes =
+            $stmtInteres->fetch(
+                PDO::FETCH_ASSOC
+            );
+
+
+        if (!$interes) {
+
+            throw new Exception(
+                'La obligación corresponde a un interés de mora, ' .
+                'pero el registro del interés no existe.'
+            );
+        }
+
+
+        $nuevoValorPagadoInteres =
+            round(
+                (float)$interes[
+                    'valor_pagado'
+                ]
+                +
+                $valorAplicar,
+                2
+            );
+
+
+        $nuevoSaldoInteres =
+            round(
+                (float)$interes[
+                    'saldo'
+                ]
+                -
+                $valorAplicar,
+                2
+            );
+
+
+        if (
+            $nuevoSaldoInteres < 0.009
+        ) {
+
+            $nuevoSaldoInteres = 0;
+
+        }
+
+
+        $nuevoEstadoInteres =
+            $nuevoSaldoInteres <= 0.009
+                ? 'PAGADO'
+                : 'PENDIENTE';
+
+
+        $sqlUpdateInteres = "
+            UPDATE intereses_cartera
+
+            SET
+                valor_pagado =
+                    :valor_pagado,
+
+                saldo =
+                    :saldo,
+
+                estado =
+                    :estado
+
+            WHERE
+                id_interes =
+                    :id_interes
+        ";
+
+
+        $stmtUpdateInteres =
+            $conexion->prepare(
+                $sqlUpdateInteres
+            );
+
+
+        $stmtUpdateInteres->execute([
+
+            ':valor_pagado'
+                => $nuevoValorPagadoInteres,
+
+            ':saldo'
+                => $nuevoSaldoInteres,
+
+            ':estado'
+                => $nuevoEstadoInteres,
+
+            ':id_interes'
+                => $idInteres
+
+        ]);
+
+    }
+
+    //UPDATE SALDO FAVOR
     // ====
 
     $nuevoUtilizado =
@@ -443,22 +585,17 @@ try {
 
     $stmtUpdateSaldo->execute([
 
-        ':valor_utilizado'
-            => $nuevoUtilizado,
+        ':valor_utilizado'> $nuevoUtilizado,
 
-        ':saldo_disponible'
-            => max($nuevoDisponible, 0),
+        ':saldo_disponible'> max($nuevoDisponible, 0),
 
-        ':estado'
-            => $nuevoEstadoSaldo,
+        ':estado'> $nuevoEstadoSaldo,
 
-        ':id_saldo_favor'
-            => $idSaldoFavor
+        ':id_saldo_favor'> $idSaldoFavor
     ]);
 
 
-    // ====
-    // ESTADO FACTURA
+    //ESTADO FACTURA
     // ====
 
     if (!empty($cartera['id_factura'])) {

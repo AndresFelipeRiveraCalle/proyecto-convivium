@@ -208,9 +208,9 @@ try {
         </main>
     </div>
 
-    <!-- ========================================================= -->
+    <!-- ==== -->
     <!-- MODAL: REGISTRAR PAQUETE                                  -->
-    <!-- ========================================================= -->
+    <!-- ==== -->
     <div id="modal-crear" class="modal">
         <div class="modal-contenido">
             <div class="modal-header">

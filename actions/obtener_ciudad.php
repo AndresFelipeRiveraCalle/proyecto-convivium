@@ -24,8 +24,7 @@ try {
     }
 
 
-    // ====
-    // CONSULTAR CIUDAD
+    // // CONSULTAR CIUDAD
     // ====
 
     $sql = "
