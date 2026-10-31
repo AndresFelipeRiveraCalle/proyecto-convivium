@@ -596,13 +596,13 @@ $sqlCartera = "
 
     $stmtUpdateSaldo->execute([
 
-        ':valor_utilizado'> $nuevoUtilizado,
+        ':valor_utilizado' => $nuevoUtilizado,
 
-        ':saldo_disponible'> max($nuevoDisponible, 0),
+        ':saldo_disponible' => max($nuevoDisponible, 0),
 
-        ':estado'> $nuevoEstado,
+        ':estado' => $nuevoEstado,
 
-        ':id_saldo_favor'> $idSaldoFavor
+        ':id_saldo_favor' => $idSaldoFavor
     ]);
 
 

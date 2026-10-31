@@ -890,7 +890,7 @@ $aplicaciones =
 
                                             <a
                                                 href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>"
-                                                class="btn-secondary"
+                                                class="btn-filtrar"
                                             >
                                                 Ver factura
                                             </a>

@@ -153,7 +153,7 @@ function formatoPeriodo($periodo)
 
                     <a
                         href="<?= BASE_URL ?>configuracion/calendario_financiero.php"
-                        class="btn-secondary"
+                        class="btn-filtrar"
                     >
                         ← Calendario financiero
                     </a>
@@ -429,7 +429,7 @@ function formatoPeriodo($periodo)
 
                         <a
                             href="<?= BASE_URL ?>configuracion/generar_obligacion.php"
-                            class="btn-secondary"
+                            class="btn-filtrar"
                         >
                             Cancelar
                         </a>

@@ -240,7 +240,7 @@ switch ($calendario['estado']) {
 
                     <a
                         href="<?= BASE_URL ?>configuracion/calendario_financiero.php"
-                        class="btn-secondary"
+                        class="btn-filtrar"
                     >
                         ← Volver
                     </a>
@@ -559,7 +559,7 @@ switch ($calendario['estado']) {
 
                     <a
                         href="<?= BASE_URL ?>configuracion/calendario_financiero.php"
-                        class="btn-secondary"
+                        class="btn-filtrar"
                     >
                         Cancelar
                     </a>

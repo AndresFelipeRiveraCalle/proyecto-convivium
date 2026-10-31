@@ -408,7 +408,7 @@ function estadoVigencia($fechaInicio, $fechaFin)
                                         >
                                             <button
                                                 type="button"
-                                                class="btn-secondary btnEditarTasa"
+                                                class="btn-filtrar btnEditarTasa"
                                                 data-id="<?= (int)$tasa['id_tasa_interes'] ?>"
                                                 data-nombre="<?= e($tasa['nombre']) ?>"
                                                 data-fuente="<?= e($tasa['fuente'] ?? '') ?>"

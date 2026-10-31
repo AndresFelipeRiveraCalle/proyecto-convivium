@@ -725,7 +725,7 @@ $urlPdfTodo =
 
             <a
                 href="<?= e($urlExcelVista) ?>"
-                class="btn-secondary"
+                class="btn-filtrar"
             >
                 <i class="fa-solid fa-file-excel"></i>
                 Exportar Excel
@@ -734,7 +734,7 @@ $urlPdfTodo =
 
             <a
                 href="<?= e($urlPdfVista) ?>"
-                class="btn-secondary"
+                class="btn-filtrar"
                 target="_blank"
             >
                 <i class="fa-solid fa-file-pdf"></i>
@@ -1036,14 +1036,14 @@ $urlPdfTodo =
 
                             <a
                                 href="<?= BASE_URL ?>configuracion/pagos.php"
-                                class="btn-secondary"
+                                class="btn-filtrar"
                             >
                                 Ver pagos
                             </a>
 
                             <a
                                 href="<?= BASE_URL ?>configuracion/cartera_detalle.php?id_unidad=<?= (int)$conciliacionReciente['id_unidad'] ?>"
-                                class="btn-secondary"
+                                class="btn-filtrar"
                             >
                                 Ver cartera de la unidad
                             </a>
@@ -1330,7 +1330,7 @@ $urlPdfTodo =
 
                             <a
                                 href="<?= BASE_URL ?>configuracion/conciliacion.php?estado_conciliacion=RECHAZADO"
-                                class="btn-secondary"
+                                class="btn-filtrar"
                             >
                                 Ver rechazados
                             </a>
@@ -2010,7 +2010,7 @@ $urlPdfTodo =
 
                                                             <button
                                                                 type="submit"
-                                                                class="btn-secondary"
+                                                                class="btn-filtrar"
                                                             >
                                                                 Marcar diferencia
                                                             </button>
@@ -2039,7 +2039,7 @@ $urlPdfTodo =
 
                                                             <button
                                                                 type="submit"
-                                                                class="btn-secondary"
+                                                                class="btn-filtrar"
                                                             >
                                                                 Conciliar
                                                             </button>
@@ -2204,7 +2204,7 @@ $urlPdfTodo =
 
                                     <button
                                         type="submit"
-                                        class="btn-secondary"
+                                        class="btn-filtrar"
                                     >
                                         Reabrir conciliación
                                     </button>

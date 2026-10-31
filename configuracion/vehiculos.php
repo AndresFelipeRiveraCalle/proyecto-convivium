@@ -387,7 +387,7 @@ try {
 
                                         <button
                                             type="button"
-                                            class="btn-secondary btnEditarVehiculo"
+                                            class="btn-filtrar btnEditarVehiculo"
                                             data-id="<?= (int)$v['id_vehiculo'] ?>">
 
                                             Editar
@@ -731,7 +731,7 @@ try {
 
                     <button
                         type="button"
-                        class="btn-secondary"
+                        class="btn-filtrar"
                         id="cancelarVehiculo">
 
                         Cancelar
@@ -1093,7 +1093,7 @@ try {
 
                     <button
                         type="button"
-                        class="btn-secondary"
+                        class="btn-filtrar"
                         id="cancelarEditarVehiculo">
 
                         Cancelar

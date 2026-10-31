@@ -945,7 +945,7 @@ $pagos =
 
                                             <a
                                                 href="<?= BASE_URL ?>configuracion/cartera_detalle.php?id_unidad=<?= (int)$pago['id_unidad'] ?>"
-                                                class="btn-secondary"
+                                                class="btn-filtrar"
                                             >
                                                 Ver cartera
                                             </a>
@@ -958,7 +958,7 @@ $pagos =
 
                                                 <a
                                                     href="<?= BASE_URL ?>configuracion/aplicar_pago.php?id_pago=<?= (int)$pago['id_pago'] ?>"
-                                                    class="btn-secondary"
+                                                    class="btn-filtrar"
                                                 >
                                                     Aplicar pago
                                                 </a>

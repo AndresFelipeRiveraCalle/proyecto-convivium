@@ -41,9 +41,9 @@ function redirigirPago(
 
     $parametros = [
 
-        'tipo'> $tipo,
+        'tipo' => $tipo,
 
-        'mensaje'> $mensaje
+        'mensaje' => $mensaje
 
     ];
 
@@ -368,7 +368,7 @@ try {
 
     $stmtUnidad->execute([
 
-        ":id_unidad"> $idUnidad
+        ":id_unidad" => $idUnidad
 
     ]);
 
@@ -767,29 +767,29 @@ try {
 
     $stmtInsertar->execute([
 
-        ":id_unidad"> $idUnidad,
+        ":id_unidad" => $idUnidad,
 
-        ":fecha_pago"> $fechaPago,
+        ":fecha_pago" => $fechaPago,
 
-        ":valor"> $valor,
+        ":valor" => $valor,
 
-        ":medio_pago"> $medioPago,
+        ":medio_pago" => $medioPago,
 
-        ":origen_pago"> $origenPago,
+        ":origen_pago" => $origenPago,
 
-        ":referencia"> $referencia !== ""
+        ":referencia" => $referencia !== ""
                 ? $referencia
                 : null,
 
-        ":referencia_externa"> $referenciaExterna !== ""
+        ":referencia_externa" => $referenciaExterna !== ""
                 ? $referenciaExterna
                 : null,
 
-        ":id_externo"> $idExterno !== ""
+        ":id_externo" => $idExterno !== ""
                 ? $idExterno
                 : null,
 
-        ":observaciones"> $observaciones !== ""
+        ":observaciones" => $observaciones !== ""
                 ? $observaciones
                 : null
 

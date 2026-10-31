@@ -1,3 +1,4 @@
+
 <?php
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -15,3 +16,9 @@ if (
     header('Location: ' . $urlLogin);
     exit();
 }
+
+if ((int) ($_SESSION['rol_usuario_autenticado'] ?? 0) !== 1) {
+    http_response_code(403);
+    exit('No tienes permisos para acceder a esta sección.');
+}
+?>

@@ -238,7 +238,7 @@ try {
 
     $stmtGrupo->execute([
 
-        ':id_tipo_config'> $idTipoConfig
+        ':id_tipo_config' => $idTipoConfig
 
     ]);
 
@@ -284,7 +284,7 @@ try {
 
     $stmtTipoVivienda->execute([
 
-        ':id_tipo_vivienda'> $idTipoVivienda
+        ':id_tipo_vivienda' => $idTipoVivienda
 
     ]);
 
@@ -334,9 +334,9 @@ try {
 
     $stmtDuplicado->execute([
 
-        ':nombre_grupo'> $nombreGrupo,
+        ':nombre_grupo' => $nombreGrupo,
 
-        ':id_tipo_config'> $idTipoConfig
+        ':id_tipo_config' => $idTipoConfig
 
     ]);
 
@@ -386,7 +386,7 @@ try {
 
     $stmtResumen->execute([
 
-        ':id_tipo_config'> $idTipoConfig
+        ':id_tipo_config' => $idTipoConfig
 
     ]);
 
@@ -500,19 +500,19 @@ try {
 
     $stmtActualizar->execute([
 
-        ':id_tipo_vivienda'> $idTipoVivienda,
+        ':id_tipo_vivienda' => $idTipoVivienda,
 
-        ':nombre_grupo'> $nombreGrupo,
+        ':nombre_grupo' => $nombreGrupo,
 
-        ':cantidad_unidades'> $cantidad,
+        ':cantidad_unidades' => $cantidad,
 
-        ':area_total'> $area,
+        ':area_total' => $area,
 
-        ':coeficiente_total'> $coeficiente,
+        ':coeficiente_total' => $coeficiente,
 
-        ':observaciones'> $observaciones,
+        ':observaciones' => $observaciones,
 
-        ':id_tipo_config'> $idTipoConfig
+        ':id_tipo_config' => $idTipoConfig
 
     ]);
 

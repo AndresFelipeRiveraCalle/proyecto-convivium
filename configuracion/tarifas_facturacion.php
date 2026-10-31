@@ -326,10 +326,10 @@ $conceptos = $stmtConceptos->fetchAll(PDO::FETCH_ASSOC);
 
                                     <button
                                         type="button"
-                                        class="btn-secondary btnEditarTarifa"
+                                        class="btn-filtrar btnEditarTarifa"
                                         data-id="<?= $tarifa['id_tarifa'] ?>">
 
-                                        ✏ Editar
+                                        Editar
 
                                     </button>
 

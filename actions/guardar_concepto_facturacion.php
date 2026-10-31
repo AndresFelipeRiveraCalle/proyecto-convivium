@@ -181,7 +181,7 @@ try {
 
     $stmtTipoObligacion->execute([
 
-        ":id_tipo_obligacion"> $id_tipo_obligacion
+        ":id_tipo_obligacion" => $id_tipo_obligacion
 
     ]);
 
@@ -287,7 +287,7 @@ try {
 
     $stmtDuplicado->execute([
 
-        ":nombre"> $nombre
+        ":nombre" => $nombre
 
     ]);
 
@@ -340,19 +340,19 @@ try {
 
     $stmt->execute([
 
-        ":nombre"> $nombre,
+        ":nombre" => $nombre,
 
-        ":descripcion"> $descripcion,
+        ":descripcion" => $descripcion,
 
-        ":tipo_calculo"> $tipo_calculo,
+        ":tipo_calculo" => $tipo_calculo,
 
-        ":id_tipo_obligacion"> $id_tipo_obligacion,
+        ":id_tipo_obligacion" => $id_tipo_obligacion,
 
-        ":id_cuenta_contable"> $id_cuenta_contable,
+        ":id_cuenta_contable" => $id_cuenta_contable,
 
-        ":obligatorio"> $obligatorio,
+        ":obligatorio" => $obligatorio,
 
-        ":estado"> $estado
+        ":estado" => $estado
 
     ]);
 

@@ -1,6 +1,7 @@
 <?php
 // Agregamos el archivo de configuración que define ROOT_PATH
 require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 $stmtZonas    = $conexion->query("SELECT id, nombre FROM zona_comun ORDER BY nombre");

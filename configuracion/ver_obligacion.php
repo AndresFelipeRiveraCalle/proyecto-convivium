@@ -394,7 +394,7 @@ foreach ($obligaciones as $obligacion) {
 
                     <a
                         href="<?= BASE_URL ?>configuracion/obligaciones.php"
-                        class="btn-secondary"
+                        class="btn-filtrar"
                     >
                         ← Obligaciones
                     </a>
@@ -807,7 +807,7 @@ foreach ($obligaciones as $obligacion) {
 
                 <a
                     href="<?= BASE_URL ?>configuracion/obligaciones.php"
-                    class="btn-secondary"
+                    class="btn-filtrar"
                 >
                     ← Volver a obligaciones
                 </a>

@@ -270,11 +270,11 @@ if ($idGrupoSeleccionado > 0) {
 
         $resumenUnidades = [
 
-            'cantidad_creadas'> (int)$resultadoResumen['cantidad_creadas'],
+            'cantidad_creadas' => (int)$resultadoResumen['cantidad_creadas'],
 
-            'area_real'> (float)$resultadoResumen['area_real'],
+            'area_real' => (float)$resultadoResumen['area_real'],
 
-            'coeficiente_real'> (float)$resultadoResumen['coeficiente_real']
+            'coeficiente_real' => (float)$resultadoResumen['coeficiente_real']
 
         ];
     }

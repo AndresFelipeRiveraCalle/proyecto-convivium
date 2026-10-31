@@ -325,9 +325,9 @@ $personas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <td>
                                     <button
                                         type="button"
-                                        class="btn-secondary btnEditarPersona"
+                                        class="btn-filtrar btnEditarPersona"
                                         data-id="<?= $persona['id'] ?>">
-                                        ✏ Editar
+                                        Editar
                                     </button>
                                 </td>
                             </tr>

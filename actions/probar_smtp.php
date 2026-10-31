@@ -545,9 +545,9 @@ try {
 
     $stmtActualizar->execute([
 
-        ':resultado'> $resultado,
+        ':resultado' => $resultado,
 
-        ':id_configuracion_correo'> $idConfiguracion
+        ':id_configuracion_correo' => $idConfiguracion
 
     ]);
 

@@ -292,7 +292,7 @@ try {
 
     $stmtConcepto->execute([
 
-        ':id_concepto'> $idConcepto
+        ':id_concepto' => $idConcepto
 
     ]);
 

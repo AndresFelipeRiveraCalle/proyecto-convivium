@@ -388,7 +388,7 @@ try {
 
     $stmtCartera->execute([
 
-        ':id_unidad'> (int)$pago[
+        ':id_unidad' => (int)$pago[
                 'id_unidad'
             ]
 

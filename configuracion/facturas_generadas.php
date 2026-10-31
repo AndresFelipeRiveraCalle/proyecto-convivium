@@ -620,7 +620,7 @@ function formatoPeriodoFactura(
 
                                         <a
                                             href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$factura['id_factura'] ?>"
-                                            class="btn-secondary"
+                                            class="btn-filtrar"
                                         >
 
                                             Ver detalle

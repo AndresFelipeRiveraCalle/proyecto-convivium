@@ -278,7 +278,7 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <a
                                                     href="<?= BASE_URL . ltrim($rutaWeb, '/') ?>"
                                                     target="_blank"
-                                                    class="btn-secondary">
+                                                    class="btn-filtrar">
                                                     Ver
                                                 </a>
 
@@ -294,7 +294,7 @@ $extractos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                                             <a
                                                 href="<?= BASE_URL ?>actions/procesar_extracto_bancario.php?id_documento=<?= (int)$documento['id_documento'] ?>"
-                                                class="btn-secondary"
+                                                class="btn-filtrar"
                                                 onclick="return confirm('El documento presentó un error. ¿Desea procesarlo nuevamente?');">
                                                 Reintentar
                                             </a>

@@ -13,6 +13,7 @@
 
 // Incluir la ruta de la conexión a la base de datos y config.php
 require_once "../config/config.php";
+require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once "../config/conexion.php";
 
 // Consultar a la base de datos todas la zonas comunes organizadas ascendentemente

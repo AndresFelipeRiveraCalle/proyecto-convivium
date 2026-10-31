@@ -456,7 +456,7 @@ function imprimirTablaPersonas($lista)
 
                         <button
                             type="button"
-                            class="btn-secondary btnEditarRelacion"
+                            class="btn-filtrar btnEditarRelacion"
                             data-id="<?= (int)$persona['id_relacion'] ?>"
                         >
 
@@ -937,7 +937,7 @@ function imprimirTablaPersonas($lista)
 
                                     <button
                                         type="button"
-                                        class="btn-secondary btnEditarEspacio"
+                                        class="btn-filtrar btnEditarEspacio"
 
                                         data-id="<?= (int)$espacio['id_espacio_unidad'] ?>"
 

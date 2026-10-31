@@ -103,7 +103,7 @@ if (!$unidad) {
 
                 <a
                     href="unidades.php?id=<?= $unidad['id_tipo_config'] ?>"
-                    class="btn-secondary">
+                    class="btn-filtrar">
 
                     ← Volver a unidades
 

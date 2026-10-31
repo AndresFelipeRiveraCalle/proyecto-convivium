@@ -182,7 +182,7 @@ try {
 
     $stmtCalendario->execute([
 
-        ':id_calendario'> $idCalendario
+        ':id_calendario' => $idCalendario
 
     ]);
 
@@ -312,9 +312,9 @@ try {
 
     $stmtConfiguracionMora->execute([
 
-        ':fecha_mora_inicio'> $fechaFacturacion,
+        ':fecha_mora_inicio' => $fechaFacturacion,
 
-        ':fecha_mora_fin'> $fechaFacturacion
+        ':fecha_mora_fin' => $fechaFacturacion
 
     ]);
 

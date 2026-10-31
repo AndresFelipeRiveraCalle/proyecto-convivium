@@ -434,7 +434,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         Guardar
                     </button>
 
-                    <button type="button" class="btn-secondary" id="cancelarPais">
+                    <button type="button" class="btn-filtrar" id="cancelarPais">
                         Cancelar
                     </button>
                 </div>
@@ -536,7 +536,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         Guardar
                     </button>
 
-                    <button type="button" class="btn-secondary" id="cancelarDepartamento">
+                    <button type="button" class="btn-filtrar" id="cancelarDepartamento">
                         Cancelar
                     </button>
                 </div>
@@ -628,7 +628,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         Guardar
                     </button>
 
-                    <button type="button" class="btn-secondary" id="cancelarCiudad">
+                    <button type="button" class="btn-filtrar" id="cancelarCiudad">
                         Cancelar
                     </button>
                 </div>
@@ -706,7 +706,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         Actualizar
                     </button>
 
-                    <button type="button" class="btn-secondary" id="cancelarEditarCiudad">
+                    <button type="button" class="btn-filtrar" id="cancelarEditarCiudad">
                         Cancelar
                     </button>
                 </div>
@@ -753,7 +753,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     </button>
 
                     <button
-                        type="button" class="btn-secondary" id="cancelarNuevoTipoDocumento">
+                        type="button" class="btn-filtrar" id="cancelarNuevoTipoDocumento">
                         Cancelar
                     </button>
                 </div>
@@ -796,7 +796,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         Guardar
                     </button>
 
-                    <button type="button" class="btn-secondary" id="cancelarNuevoEstadoCivil">
+                    <button type="button" class="btn-filtrar" id="cancelarNuevoEstadoCivil">
                         Cancelar
                     </button>
                 </div>
@@ -839,7 +839,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                     </button>
 
                     <button
-                        type="button" class="btn-secondary" id="cancelarNuevaOcupacion">
+                        type="button" class="btn-filtrar" id="cancelarNuevaOcupacion">
                         Cancelar
                     </button>
                 </div>
@@ -876,7 +876,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         Guardar
                     </button>
 
-                    <button type="button" class="btn-secondary" id="cancelarNuevoGenero">
+                    <button type="button" class="btn-filtrar" id="cancelarNuevoGenero">
                         Cancelar
                     </button>
                 </div>
@@ -916,7 +916,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
                 <div class="modal-botones">
-                    <button type="button" class="btn-secondary" id="cancelarEditarPais">
+                    <button type="button" class="btn-filtrar" id="cancelarEditarPais">
                         Cancelar
                     </button>
 
@@ -1046,7 +1046,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
 
                     <button
                         type="button"
-                        class="btn-secondary"
+                        class="btn-filtrar"
                         id="cancelarEditarDepartamento">
                         Cancelar
                     </button>
@@ -1107,7 +1107,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         Actualizar
                     </button>
 
-                    <button type="button" class="btn-secondary" id="cancelarEditarTipoDocumento">
+                    <button type="button" class="btn-filtrar" id="cancelarEditarTipoDocumento">
                         Cancelar
                     </button>
                 </div>
@@ -1156,7 +1156,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         Actualizar
                     </button>
 
-                    <button type="button" class="btn-secondary" id="cancelarEditarEstadoCivil">
+                    <button type="button" class="btn-filtrar" id="cancelarEditarEstadoCivil">
                         Cancelar
                     </button>
                 </div>
@@ -1201,7 +1201,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         Actualizar
                     </button>
 
-                    <button type="button" class="btn-secondary" id="cancelarEditarOcupacion">
+                    <button type="button" class="btn-filtrar" id="cancelarEditarOcupacion">
                         Cancelar
                     </button>
                 </div>
@@ -1246,7 +1246,7 @@ $generos = $stmtGeneros->fetchAll(PDO::FETCH_ASSOC);
                         Actualizar
                     </button>
 
-                    <button type="button" class="btn-secondary" id="cancelarEditarGenero">
+                    <button type="button" class="btn-filtrar" id="cancelarEditarGenero">
                         Cancelar
                     </button>
                 </div>

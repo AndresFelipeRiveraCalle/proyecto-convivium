@@ -210,7 +210,7 @@ try {
                                     <td>
                                         <button
                                             type="button"
-                                            class="btn-secondary btnEditarParqueadero"
+                                            class="btn-filtrar btnEditarParqueadero"
                                             data-id="<?= (int)$p['id_parqueadero'] ?>">
                                             Editar
                                         </button>
@@ -463,7 +463,7 @@ try {
 
                     <button
                         type="button"
-                        class="btn-secondary"
+                        class="btn-filtrar"
                         id="cancelarParqueadero">
                         Cancelar
                     </button>
@@ -706,7 +706,7 @@ try {
 
                     <button
                         type="button"
-                        class="btn-secondary"
+                        class="btn-filtrar"
                         id="cancelarEditarParqueadero">
                         Cancelar
                     </button>

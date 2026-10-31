@@ -227,7 +227,7 @@ try {
 
     $stmtTipo->execute([
 
-        ':id_tipo_vivienda'> $idTipoVivienda
+        ':id_tipo_vivienda' => $idTipoVivienda
 
     ]);
 
@@ -280,7 +280,7 @@ try {
 
     $stmtDuplicado->execute([
 
-        ':nombre_grupo'> $nombreGrupo
+        ':nombre_grupo' => $nombreGrupo
 
     ]);
 
@@ -331,17 +331,17 @@ try {
 
     $stmtInsertar->execute([
 
-        ':id_tipo_vivienda'> $idTipoVivienda,
+        ':id_tipo_vivienda' => $idTipoVivienda,
 
-        ':nombre_grupo'> $nombreGrupo,
+        ':nombre_grupo' => $nombreGrupo,
 
-        ':cantidad_unidades'> $cantidad,
+        ':cantidad_unidades' => $cantidad,
 
-        ':area_total'> $area,
+        ':area_total' => $area,
 
-        ':coeficiente_total'> $coeficiente,
+        ':coeficiente_total' => $coeficiente,
 
-        ':observaciones'> $observaciones
+        ':observaciones' => $observaciones
 
     ]);
 

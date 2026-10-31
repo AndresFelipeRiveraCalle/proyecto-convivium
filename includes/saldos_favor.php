@@ -813,7 +813,7 @@ $saldosFavor =
 
                                             <a
                                                 href="<?= BASE_URL ?>configuracion/cartera_detalle.php?id_unidad=<?= (int)$fila['id_unidad'] ?>"
-                                                class="btn-secondary"
+                                                class="btn-filtrar"
                                             >
                                                 Ver cartera
                                             </a>
@@ -826,7 +826,7 @@ $saldosFavor =
 
                                                 <a
                                                     href="<?= BASE_URL ?>configuracion/aplicar_saldo_favor.php?id_saldo_favor=<?= (int)$fila['id_saldo_favor'] ?>"
-                                                    class="btn-secondary"
+                                                    class="btn-filtrar"
                                                 >
                                                     Aplicar saldo
                                                 </a>

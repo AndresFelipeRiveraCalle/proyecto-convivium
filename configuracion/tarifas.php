@@ -536,11 +536,11 @@ function formatoValorTarifa($valor, $tipoCalculo)
 
                                         <button
                                             type="button"
-                                            class="btn-secondary btnEditarTarifa"
+                                            class="btn-filtrar btnEditarTarifa"
                                             data-id="<?= (int)$tarifa['id_tarifa'] ?>"
                                         >
 
-                                            ✏ Editar
+                                            Editar
 
                                         </button>
 

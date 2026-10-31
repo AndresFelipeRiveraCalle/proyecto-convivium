@@ -488,13 +488,13 @@ try {
 
     $stmtInsert->execute([
 
-        ':id_pago'> $idPago,
+        ':id_pago' => $idPago,
 
-        ':id_cartera'> $idCartera,
+        ':id_cartera' => $idCartera,
 
-        ':valor_aplicado'> $valorAplicar,
+        ':valor_aplicado' => $valorAplicar,
 
-        ':observaciones'> 'Aplicación manual realizada desde cartera.'
+        ':observaciones' => 'Aplicación manual realizada desde cartera.'
     ]);
 
 
@@ -535,16 +535,16 @@ try {
 
     $stmtUpdate->execute([
 
-        ':valor_aplicado'> $valorAplicar,
+        ':valor_aplicado' => $valorAplicar,
 
-        ':saldo'> max(
+        ':saldo' => max(
                 $nuevoSaldo,
                 0
             ),
 
-        ':estado'> $nuevoEstado,
+        ':estado' => $nuevoEstado,
 
-        ':id_cartera'> $idCartera
+        ':id_cartera' => $idCartera
     ]);
 
 

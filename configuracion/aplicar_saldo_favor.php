@@ -930,7 +930,7 @@ $aplicaciones =
 
                                                 <button
                                                     type="submit"
-                                                    class="btn-secondary"
+                                                    class="btn-filtrar"
                                                 >
                                                     Aplicar
                                                 </button>

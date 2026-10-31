@@ -494,7 +494,7 @@ $configuraciones =
 
                                         <button
                                             type="button"
-                                            class="btn-secondary btnEditarConfiguracion"
+                                            class="btn-filtrar btnEditarConfiguracion"
                                             data-id="<?= (int)$fila['id_configuracion_mora'] ?>"
                                             data-nombre="<?= e($fila['nombre']) ?>"
                                             data-concepto="<?= (int)($fila['id_concepto'] ?? 0) ?>"

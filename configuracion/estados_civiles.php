@@ -72,9 +72,9 @@ $estadosCiviles = $stmtEstadosCiviles->fetchAll(PDO::FETCH_ASSOC);
                             </td>
 
                             <td>
-                                <button class="btn-secondary btnEditarEstado"
+                                <button class="btn-filtrar btnEditarEstado"
                                     data-id="<?= $estado['id_estado_civil'] ?>">
-                                    ✏ Editar
+                                    Editar
                                 </button>
                             </td>
                         </tr>
@@ -143,7 +143,7 @@ $estadosCiviles = $stmtEstadosCiviles->fetchAll(PDO::FETCH_ASSOC);
 
                         <button 
                             type="button"
-                            class="btn-secondary"
+                            class="btn-filtrar"
                             id="cancelarEstadoCivil">
                             Cancelar
                         </button>

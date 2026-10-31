@@ -68,7 +68,7 @@ $texto = trim($_GET['texto'] ?? $_GET['mensaje'] ?? '');
                 <p>Registra un nuevo ingreso para una unidad. El pago quedará disponible para aplicarlo posteriormente a una o varias obligaciones.</p>
             </div>
 
-            <a href="<?= BASE_URL ?>configuracion/pagos.php" class="btn-secondary">
+            <a href="<?= BASE_URL ?>configuracion/pagos.php" class="btn-filtrar">
                 ← Volver a pagos
             </a>
         </div>

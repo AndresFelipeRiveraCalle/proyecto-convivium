@@ -61,7 +61,7 @@ try {
 
     $stmt->execute([
 
-        ':id_concepto'> $idConcepto
+        ':id_concepto' => $idConcepto
 
     ]);
 

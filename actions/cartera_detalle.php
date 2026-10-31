@@ -991,7 +991,7 @@ $saldosFavor =
 
                                             <a
                                                 href="<?= BASE_URL ?>configuracion/factura_detalle.php?id=<?= (int)$fila['id_factura'] ?>&origen=cartera_detalle&id_unidad=<?= (int)$idUnidad ?>"
-                                                class="btn-secondary"
+                                                class="btn-filtrar"
                                             >
                                                 Ver factura
                                             </a>
@@ -1155,7 +1155,7 @@ $saldosFavor =
 
                                             <a
                                                 href="<?= BASE_URL ?>configuracion/aplicar_saldo_favor.php?id_saldo_favor=<?= (int)$saldoFavor['id_saldo_favor'] ?>"
-                                                class="btn-secondary"
+                                                class="btn-filtrar"
                                             >
                                                 Aplicar saldo
                                             </a>
@@ -1325,7 +1325,7 @@ $saldosFavor =
 
                                             <a
                                                 href="<?= BASE_URL ?>configuracion/aplicar_pagos.php?id_pago=<?= (int)$pago['id_pago'] ?>"
-                                                class="btn-secondary"
+                                                class="btn-filtrar"
                                             >
                                                 Aplicar pago
                                             </a>

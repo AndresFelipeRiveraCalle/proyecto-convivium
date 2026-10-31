@@ -408,10 +408,10 @@ $tiposObligacion = $stmtTiposObligacion->fetchAll(
 
                                         <button
                                             type="button"
-                                            class="btn-secondary btnEditarConcepto"
+                                            class="btn-filtrar btnEditarConcepto"
                                             data-id="<?= (int)$concepto['id_concepto'] ?>"
                                         >
-                                            ✏ Editar
+                                            Editar
                                         </button>
 
                                     </td>
@@ -442,7 +442,7 @@ $tiposObligacion = $stmtTiposObligacion->fetchAll(
                     id="btnNuevoConcepto"
                     class="btn-filtrar"
                 >
-                    + Agregar concepto
+                    Agregar concepto
                 </button>
 
 

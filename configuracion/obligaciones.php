@@ -586,7 +586,7 @@ function claseEstado($estado)
 
                     <a
                         href="<?= BASE_URL ?>configuracion/obligaciones.php"
-                        class="btn-secondary"
+                        class="btn-filtrar"
                     >
                         Limpiar
                     </a>
@@ -786,7 +786,7 @@ function claseEstado($estado)
 
                                     <a
                                         href="<?= BASE_URL ?>configuracion/ver_obligacion.php?id=<?= (int)$obligacion['id_obligacion'] ?>"
-                                        class="btn-secondary"
+                                        class="btn-filtrar"
                                     >
                                         Ver
                                     </a>

@@ -26,7 +26,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $datos_del_usuario_encontrado = $sentencia_preparada->fetch(PDO::FETCH_ASSOC);
 
         // verificamos que el usuario exista y este activo
-        if ($datos_del_usuario_encontrado && $datos_del_usuario_encontrado['estado'] == 1) {
+        if (
+            $datos_del_usuario_encontrado
+            && (int) $datos_del_usuario_encontrado['estado'] === 1
+            && (int) ($datos_del_usuario_encontrado['rol_id'] ?? 0) === 1
+        ) {
 
             // password verify compara la clave del usuario con el hash de la base de datos protegiendo contra ataques de tiempo
             if (
