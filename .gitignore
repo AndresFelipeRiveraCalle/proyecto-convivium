@@ -40,3 +40,4 @@ Thumbs.db
 
 # Cobertura de pruebas
 coverage/
+/database/
