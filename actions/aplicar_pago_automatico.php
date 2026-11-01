@@ -396,11 +396,6 @@ try {
 
 
     $obligaciones =
-        $stmtCartera->fetchAll(
-            PDO::FETCH_ASSOC
-        );
-
-    $obligaciones =
         $stmtCartera->fetchAll(PDO::FETCH_ASSOC);
 
     // // SIN OBLIGACIONES PENDIENTES

@@ -605,10 +605,14 @@ try {
                 ':estado' => $nuevoEstadoInteres,
                 ':id_interes' => (int)$cartera['id_interes']
             ]);
+        } else {
+            throw new Exception(
+                'No se encontró el registro de interés asociado a la obligación #' .
+                (int)$cartera['id_cartera'] .
+                '.'
+            );
         }
     }
-
-
     // // ESTADO FACTURA
     // ====
 
