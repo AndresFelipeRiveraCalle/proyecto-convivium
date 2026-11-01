@@ -4,16 +4,16 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
-// 
+//
 // CONFIGURACIÓN EXTERNA
-// 
+//
 
 $tesseract = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe';
 $pdftoppm  = 'C:\\poppler\\Library\\bin\\pdftoppm.exe';
 
-// 
+//
 // VALIDAR INSTALACIONES
-// 
+//
 
 if (!file_exists($tesseract)) {
     die("No se encontró Tesseract en: " . $tesseract);
@@ -24,9 +24,9 @@ if (!file_exists($pdftoppm)) {
 }
 
 
-// 
+//
 // VALIDAR ID
-// 
+//
 
 $idDocumento = filter_input( INPUT_GET, 'id_documento',FILTER_VALIDATE_INT);
 
@@ -42,9 +42,9 @@ if (!$idDocumento) {
 }
 
 
-// 
+//
 // FUNCIONES
-// 
+//
 
 function ejecutarComando($comando, &$salida = null, &$codigo = null)
 {
@@ -57,9 +57,9 @@ function ejecutarComando($comando, &$salida = null, &$codigo = null)
 }
 
 /*------------------------------------------------------------------*/
-// 
+//
 // PARSER DE MOVIMIENTOS BANCARIOS
-// 
+//
 
 function detectarMovimientosBancarios(
     string $texto,
@@ -134,9 +134,9 @@ function detectarMovimientosBancarios(
             trim($coincidencias[6]);
 
 
-        // 
+        //
         // VALIDAR FECHA
-        // 
+        //
 
         if (
             !checkdate(
@@ -149,9 +149,9 @@ function detectarMovimientosBancarios(
         }
 
 
-        // 
+        //
         // CONVERTIR VALOR
-        // 
+        //
 
         $valorTexto =
             str_replace(
@@ -175,9 +175,9 @@ function detectarMovimientosBancarios(
         }
 
 
-        // 
+        //
         // TIPO DE MOVIMIENTO
-        // 
+        //
 
         $tipoMovimiento =
             $signo === '+'
@@ -185,9 +185,9 @@ function detectarMovimientosBancarios(
             : 'EGRESO';
 
 
-        // 
+        //
         // FECHA
-        // 
+        //
 
         $fechaMovimiento =
             sprintf(
@@ -198,9 +198,9 @@ function detectarMovimientosBancarios(
             );
 
 
-        // 
+        //
         // GUARDAR MOVIMIENTO DETECTADO
-        // 
+        //
 
         $movimientos[] = [
 
@@ -232,84 +232,122 @@ function detectarMovimientosBancarios(
     return $movimientos;
 }
 
-// 
+//
 // PROCESAMIENTO
-// 
+//
+
+$reprocesar =
+    ($_GET['reprocesar'] ?? '') === '1';
+
+$procesamientoIniciado = false;
 
 try {
 
-    // // BUSCAR DOCUMENTO
-    // ====
+    $conexion->beginTransaction();
 
     $sql = "
         SELECT
-            db.id_documento,
-            db.id_cuenta_bancaria,
-            db.nombre_archivo,
-            db.nombre_original,
-            db.ruta_archivo,
-            db.tipo_archivo,
-            db.estado_procesamiento
-        FROM documentos_bancarios db
-        WHERE db.id_documento = :id_documento
+            id_documento,
+            id_cuenta_bancaria,
+            nombre_archivo,
+            nombre_original,
+            ruta_archivo,
+            tipo_archivo,
+            estado_procesamiento
+        FROM documentos_bancarios
+        WHERE id_documento = :id_documento
         LIMIT 1
+        FOR UPDATE
     ";
 
     $stmt = $conexion->prepare($sql);
-
     $stmt->execute([
         ':id_documento' => $idDocumento
     ]);
 
     $documento = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
     if (!$documento) {
+        throw new Exception('El documento bancario no existe.');
+    }
 
+    $estadoActual = $documento['estado_procesamiento'];
+
+    if ($estadoActual === 'PROCESANDO') {
+        throw new Exception('El documento ya se encuentra en proceso.');
+    }
+
+    if ($reprocesar) {
+        if (!in_array($estadoActual, ['PROCESADO', 'ERROR'], true)) {
+            throw new Exception(
+                'El documento no está disponible para reprocesarse.'
+            );
+        }
+    } elseif (!in_array($estadoActual, ['PENDIENTE', 'ERROR'], true)) {
         throw new Exception(
-            "El documento bancario no existe."
+            'Usa la opción de reprocesar para volver a analizar este documento.'
         );
     }
 
+    $sqlMovimientos = "
+        SELECT
+            e.id_extracto,
+            e.estado_conciliacion,
+            EXISTS (
+                SELECT 1
+                FROM pagos p
+                WHERE p.id_extracto = e.id_extracto
+            ) AS tiene_pago
+        FROM extractos_bancarios e
+        WHERE e.id_documento = :id_documento
+        FOR UPDATE
+    ";
 
-    // // EVITAR PROCESAMIENTO SIMULTÁNEO
-    // ====
+    $stmtMovimientos = $conexion->prepare($sqlMovimientos);
+    $stmtMovimientos->execute([
+        ':id_documento' => $idDocumento
+    ]);
 
-    if (
-        $documento['estado_procesamiento'] === 'PROCESANDO'
-    ) {
+    $movimientosExistentes =
+        $stmtMovimientos->fetchAll(PDO::FETCH_ASSOC);
 
+    $hayMovimientosProtegidos = false;
+
+    foreach ($movimientosExistentes as $movimientoExistente) {
+        if (
+            $movimientoExistente['estado_conciliacion'] === 'CONCILIADO'
+            || (int)$movimientoExistente['tiene_pago'] > 0
+        ) {
+            $hayMovimientosProtegidos = true;
+            break;
+        }
+    }
+
+    if ($hayMovimientosProtegidos) {
         throw new Exception(
-            "El documento ya se encuentra en proceso."
+            'No se puede procesar: el documento tiene movimientos conciliados o vinculados a pagos.'
         );
     }
 
-
-    // // RUTA DEL ARCHIVO
-    // ====
+    if (!$reprocesar && !empty($movimientosExistentes)) {
+        throw new Exception(
+            'El documento ya tiene movimientos. Debes usar la opción de reprocesar.'
+        );
+    }
 
     $rutaArchivo = $documento['ruta_archivo'];
 
     if (empty($rutaArchivo)) {
-
         throw new Exception(
-            "El documento no tiene una ruta registrada."
+            'El documento no tiene una ruta registrada.'
         );
     }
 
-
-    if (
-        !preg_match(
-            '/^[A-Za-z]:[\\\\\/]/',
-            $rutaArchivo
-        )
-    ) {
-
+    if (!preg_match('/^[A-Za-z]:[\\\\\\/]/', $rutaArchivo)) {
         $rutaArchivo =
-            ROOT_PATH . "/" .
-            ltrim($rutaArchivo, "/\\");
+            ROOT_PATH . DIRECTORY_SEPARATOR .
+            ltrim($rutaArchivo, '/\\');
     }
-
 
     $rutaArchivo = str_replace(
         ['/', '\\'],
@@ -317,18 +355,11 @@ try {
         $rutaArchivo
     );
 
-
     if (!file_exists($rutaArchivo)) {
-
         throw new Exception(
-            "No se encontró el archivo físico: " .
-                $rutaArchivo
+            'No se encontró el archivo físico: ' . $rutaArchivo
         );
     }
-
-
-    // // MARCAR COMO PROCESANDO
-    // ====
 
     $sqlEstado = "
         UPDATE documentos_bancarios
@@ -336,16 +367,25 @@ try {
             estado_procesamiento = 'PROCESANDO',
             fecha_procesamiento = NULL,
             observaciones = NULL
-        WHERE id_documento = :id_documento
+        WHERE
+            id_documento = :id_documento
+            AND estado_procesamiento = :estado_actual
     ";
 
-    $stmtEstado =
-        $conexion->prepare($sqlEstado);
-
+    $stmtEstado = $conexion->prepare($sqlEstado);
     $stmtEstado->execute([
-        ':id_documento' => $idDocumento
+        ':id_documento' => $idDocumento,
+        ':estado_actual' => $estadoActual
     ]);
 
+    if ($stmtEstado->rowCount() !== 1) {
+        throw new Exception(
+            'El estado del documento cambió. Actualiza la página e inténtalo de nuevo.'
+        );
+    }
+
+    $conexion->commit();
+    $procesamientoIniciado = true;
 
     // // EXTENSIÓN
     // ====
@@ -429,17 +469,17 @@ try {
 
     elseif ($extension === 'pdf') {
 
-        // 
+        //
         // BUSCAR PDftotext
-        // 
+        //
 
         $pdftotext =
             'C:\\poppler\\Library\\bin\\pdftotext.exe';
 
 
-        // 
+        //
         // INTENTAR TEXTO DIRECTO
-        // 
+        //
 
         if (file_exists($pdftotext)) {
 
@@ -492,9 +532,9 @@ try {
         }
 
 
-        // 
+        //
         // SI NO HAY TEXTO -> OCR
-        // 
+        //
 
         if (
             trim($textoExtraido) === ''
@@ -691,9 +731,9 @@ try {
         );
     }
 
-    // 
+    //
     // DETECTAR AÑO DEL EXTRACTO
-    // 
+    //
 
     $anioExtracto = null;
 
@@ -710,9 +750,9 @@ try {
     }
 
 
-    // 
+    //
     // SI NO SE ENCUENTRA AÑO
-    // 
+    //
 
     if (!$anioExtracto) {
 
@@ -721,9 +761,9 @@ try {
     }
 
 
-    // 
+    //
     // PARSEAR MOVIMIENTOS
-    // 
+    //
 
     $movimientosDetectados =
         detectarMovimientosBancarios(
@@ -732,9 +772,9 @@ try {
         );
 
 
-    // 
+    //
     // VALIDAR RESULTADO
-    // 
+    //
 
     if (
         empty($movimientosDetectados)
@@ -790,9 +830,10 @@ try {
         UPDATE documentos_bancarios
         SET
             metodo_extraccion = :metodo,
-            estado_procesamiento = 'PROCESANDO',
             observaciones = :observaciones
-        WHERE id_documento = :id_documento
+        WHERE
+            id_documento = :id_documento
+            AND estado_procesamiento = 'PROCESANDO'
     ";
 
 
@@ -814,6 +855,12 @@ try {
         $idDocumento
 
     ]);
+
+    if ($stmtActualizar->rowCount() !== 1) {
+        throw new Exception(
+            'El documento dejó de estar en proceso antes de mostrar el OCR.'
+        );
+    }
 
 
     // // MOSTRAR RESULTADO DEL PARSER
@@ -876,6 +923,12 @@ try {
         type="hidden"
         name="id_documento"
         value="' . $idDocumento . '"
+    >';
+
+    echo '<input
+        type="hidden"
+        name="reprocesar"
+        value="' . ($reprocesar ? '1' : '0') . '"
     >';
 
 
@@ -1068,9 +1121,14 @@ try {
 
     echo '<div class="acciones-formulario">';
 
-    echo '<a href="' . BASE_URL . 'configuracion/extractos_bancarios.php" class="btn-secondary">
+    echo '<button
+        type="submit"
+        class="btn-filtrar"
+        formaction="' . BASE_URL . 'actions/restablecer_procesamiento_extracto.php"
+        formmethod="POST"
+        onclick="return confirm(\'¿Cancelar la confirmación? Podrás procesar el documento nuevamente.\');">
         Cancelar
-    </a>';
+    </button>';
 
     echo '<button type="submit" class="btn-primary">
         Confirmar y guardar movimientos
@@ -1112,18 +1170,22 @@ try {
     exit;
 } catch (Throwable $e) {
 
-    // // GUARDAR ERROR
-    // ====
+    if ($conexion->inTransaction()) {
+        $conexion->rollBack();
+    }
 
-    try {
+    if ($procesamientoIniciado) {
+        try {
 
-        $sqlError = "
+            $sqlError = "
             UPDATE documentos_bancarios
             SET
                 estado_procesamiento = 'ERROR',
                 fecha_procesamiento = NOW(),
                 observaciones = :observaciones
-            WHERE id_documento = :id_documento
+            WHERE
+                id_documento = :id_documento
+                AND estado_procesamiento = 'PROCESANDO'
         ";
 
 
@@ -1146,10 +1208,10 @@ try {
             $idDocumento
 
         ]);
-    } catch (Throwable $errorBD) {
-        // No hacemos nada adicional.
+        } catch (Throwable $errorBD) {
+            // No hacemos nada adicional.
+        }
     }
-
 
     header(
         "Location: " . BASE_URL .
@@ -1162,3 +1224,4 @@ try {
 
     exit;
 }
+
