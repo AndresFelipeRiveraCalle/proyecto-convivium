@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/almacenamiento.php';
+
 function guardarFotoPersona(?array $archivo): ?string
 {
     if (
@@ -30,7 +33,11 @@ function guardarFotoPersona(?array $archivo): ?string
     $tamano = filesize($rutaTemporal);
     $tamanoMaximo = 5 * 1024 * 1024; // 5 MB
 
-    if ($tamano === false || $tamano <= 0 || $tamano > $tamanoMaximo) {
+    if (
+        $tamano === false
+        || $tamano <= 0
+        || $tamano > $tamanoMaximo
+    ) {
         throw new RuntimeException(
             'La fotografía debe pesar máximo 5 MB.'
         );
@@ -65,19 +72,7 @@ function guardarFotoPersona(?array $archivo): ?string
         );
     }
 
-    $directorio = ROOT_PATH
-        . DIRECTORY_SEPARATOR . 'uploads'
-        . DIRECTORY_SEPARATOR . 'personas';
-
-    if (
-        !is_dir($directorio)
-        && !mkdir($directorio, 0750, true)
-        && !is_dir($directorio)
-    ) {
-        throw new RuntimeException(
-            'No fue posible preparar la carpeta de fotografías.'
-        );
-    }
+    $directorio = convivium_storage_directory('uploads/personas');
 
     $nombre = bin2hex(random_bytes(16))
         . '.'
@@ -93,8 +88,10 @@ function guardarFotoPersona(?array $archivo): ?string
         );
     }
 
+    // La base de datos conserva una ruta relativa al almacenamiento.
     return 'uploads/personas/' . $nombre;
 }
+
 function eliminarFotoPersonaAnterior(?string $rutaRelativa): void
 {
     if ($rutaRelativa === null || $rutaRelativa === '') {
@@ -103,11 +100,13 @@ function eliminarFotoPersonaAnterior(?string $rutaRelativa): void
 
     $directorioRelativo = 'uploads/personas/';
 
-    if (strncmp(
-        $rutaRelativa,
-        $directorioRelativo,
-        strlen($directorioRelativo)
-    ) !== 0) {
+    if (
+        strncmp(
+            $rutaRelativa,
+            $directorioRelativo,
+            strlen($directorioRelativo)
+        ) !== 0
+    ) {
         return;
     }
 
@@ -128,11 +127,9 @@ function eliminarFotoPersonaAnterior(?string $rutaRelativa): void
         return;
     }
 
-    $directorio = ROOT_PATH
-        . DIRECTORY_SEPARATOR . 'uploads'
-        . DIRECTORY_SEPARATOR . 'personas';
-
+    $directorio = convivium_storage_path('uploads/personas');
     $directorioReal = realpath($directorio);
+
     $archivoReal = realpath(
         $directorio . DIRECTORY_SEPARATOR . $nombre
     );

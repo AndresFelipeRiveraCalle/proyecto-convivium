@@ -41,3 +41,15 @@ Thumbs.db
 # Cobertura de pruebas
 coverage/
 /database/
+
+# Archivos cargados durante el uso de la aplicación
+/uploads/*
+!/uploads/.htaccess
+/mantenimiento/uploads/*
+!/mantenimiento/uploads/.htaccess
+
+# Archivos cargados desde la configuración de la copropiedad
+/assets/logos/*
+!/assets/logos/.htaccess
+/assets/documentos/*
+!/assets/documentos/.htaccess

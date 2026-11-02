@@ -1,13 +1,14 @@
 <?php
 
 require_once dirname(__DIR__) . "/config/config.php";
+require_once ROOT_PATH . "/config/almacenamiento.php";
 require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// 
+//
 // VALIDAR MÉTODO
-// 
+//
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
@@ -21,9 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 }
 
 
-// 
+//
 // FUNCIÓN REDIRECCIONAR
-// 
+//
 
 function redireccionarDatos(
     string $tipo,
@@ -44,9 +45,9 @@ function redireccionarDatos(
 }
 
 
-// 
+//
 // FUNCIÓN NORMALIZAR TEXTO OPCIONAL
-// 
+//
 
 function textoOpcional($valor): ?string
 {
@@ -60,7 +61,7 @@ function textoOpcional($valor): ?string
 
 try {
 
-    // // ID DEL REGISTRO ACTUAL
+    // ID DEL REGISTRO ACTUAL
     // ====
 
     $id = isset($_POST["id"]) &&
@@ -69,7 +70,7 @@ try {
         : null;
 
 
-    // // BUSCAR VERSIÓN ACTUAL SI ES EDICIÓN
+    // BUSCAR VERSIÓN ACTUAL SI ES EDICIÓN
     // ====
 
     $versionActual = null;
@@ -111,7 +112,7 @@ try {
     }
 
 
-    // // DATOS GENERALES
+    // DATOS GENERALES
     // ====
 
     $nombre = trim(
@@ -149,8 +150,8 @@ try {
     );
 
 
-    // // TIPO DE COPROPIEDAD
-    // //
+    // TIPO DE COPROPIEDAD
+    //
     // Si el select continúa disabled durante una edición,
     // no llegará por POST. En ese caso conservamos el valor
     // de la versión anterior.
@@ -176,7 +177,7 @@ try {
     }
 
 
-    // // UBICACIÓN
+    // UBICACIÓN
     // ====
 
     if (!empty($_POST["id_pais"])) {
@@ -235,7 +236,7 @@ try {
     }
 
 
-    // // VALIDACIONES GENERALES
+    // VALIDACIONES GENERALES
     // ====
 
     if ($nombre === "") {
@@ -325,7 +326,7 @@ try {
     }
 
 
-    // // VALIDAR TIPO DE COPROPIEDAD
+    // VALIDAR TIPO DE COPROPIEDAD
     // ====
 
     $sqlTipoCopropiedad = "
@@ -358,7 +359,7 @@ try {
     }
 
 
-    // // VALIDAR RELACIÓN PAÍS / DEPARTAMENTO
+    // VALIDAR RELACIÓN PAÍS / DEPARTAMENTO
     // ====
 
     $sqlDepartamento = "
@@ -394,7 +395,7 @@ try {
     }
 
 
-    // // VALIDAR RELACIÓN DEPARTAMENTO / CIUDAD
+    // VALIDAR RELACIÓN DEPARTAMENTO / CIUDAD
     // ====
 
     $sqlCiudad = "
@@ -430,8 +431,8 @@ try {
     }
 
 
-    // // CALCULAR CANTIDAD TOTAL DE UNIDADES
-    // //
+    // CALCULAR CANTIDAD TOTAL DE UNIDADES
+    //
     // Ya NO se recibe desde datos.php.
     //
     // detalle_tipos_unidad pasa a ser la fuente de verdad.
@@ -456,57 +457,21 @@ try {
             ->fetchColumn();
 
 
-    // // CARPETAS
-    // ====
-
-    $carpetaLogos =
-        ROOT_PATH .
-        "/assets/logos/";
+    // CARPETAS
 
 
-    $carpetaDocs =
-        ROOT_PATH .
-        "/assets/documentos/";
+    $carpetaLogos = convivium_storage_directory(
+        'assets/logos'
+    ) . DIRECTORY_SEPARATOR;
+
+    $carpetaDocs = convivium_storage_directory(
+        'assets/documentos'
+    ) . DIRECTORY_SEPARATOR;
 
 
-    if (!is_dir($carpetaLogos)) {
 
-        if (
-            !mkdir(
-                $carpetaLogos,
-                0777,
-                true
-            ) &&
-            !is_dir($carpetaLogos)
-        ) {
+    // ARCHIVOS ACTUALES
 
-            throw new RuntimeException(
-                'No fue posible crear la carpeta de logos.'
-            );
-        }
-    }
-
-
-    if (!is_dir($carpetaDocs)) {
-
-        if (
-            !mkdir(
-                $carpetaDocs,
-                0777,
-                true
-            ) &&
-            !is_dir($carpetaDocs)
-        ) {
-
-            throw new RuntimeException(
-                'No fue posible crear la carpeta de documentos.'
-            );
-        }
-    }
-
-
-    // // ARCHIVOS ACTUALES
-    // ====
 
     $logo = $versionActual
         ? ($versionActual["logo"] ?? null)
@@ -523,8 +488,8 @@ try {
         : null;
 
 
-    // // LOGO NUEVO
-    // ====
+    // LOGO NUEVO
+
 
     if (
         isset($_FILES["logo"]) &&
@@ -585,7 +550,7 @@ try {
     }
 
 
-    // // REGLAMENTO NUEVO
+    // REGLAMENTO NUEVO
     // ====
 
     if (
@@ -632,7 +597,7 @@ try {
     }
 
 
-    // // MANUAL NUEVO
+    // MANUAL NUEVO
     // ====
 
     if (
@@ -679,7 +644,7 @@ try {
     }
 
 
-    // // DETERMINAR VERSIÓN
+    // DETERMINAR VERSIÓN
     // ====
 
     if ($versionActual) {
@@ -693,13 +658,13 @@ try {
     }
 
 
-    // // INICIAR TRANSACCIÓN
+    // INICIAR TRANSACCIÓN
     // ====
 
     $conexion->beginTransaction();
 
 
-    // // DESACTIVAR VERSIÓN ANTERIOR COMO ACTUAL
+    // DESACTIVAR VERSIÓN ANTERIOR COMO ACTUAL
     // ====
 
     if ($versionActual) {
@@ -723,8 +688,8 @@ try {
     }
 
 
-    // // CREAR NUEVA VERSIÓN
-    // //
+    // CREAR NUEVA VERSIÓN
+    //
     // IMPORTANTE:
     // Conservamos "cantidad_unidades" porque ese es el nombre
     // que utiliza actualmente tu tabla/código.
@@ -821,13 +786,13 @@ try {
     ]);
 
 
-    // // CONFIRMAR
+    // CONFIRMAR
     // ====
 
     $conexion->commit();
 
 
-    // // MENSAJE
+    // MENSAJE
     // ====
 
     if ($versionActual) {
@@ -850,7 +815,7 @@ try {
 
 } catch (Throwable $e) {
 
-    // // ROLLBACK
+    // ROLLBACK
     // ====
 
     if ($conexion->inTransaction()) {
@@ -859,7 +824,7 @@ try {
     }
 
 
-    // // REGISTRAR ERROR REAL
+    // REGISTRAR ERROR REAL
     // ====
 
     error_log(
@@ -868,7 +833,7 @@ try {
     );
 
 
-    // // MENSAJE
+    // MENSAJE
     // ====
 
     if ($e instanceof RuntimeException) {

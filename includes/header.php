@@ -1,6 +1,6 @@
 <header class="header">
     <div class="logo">
-        <a href="<?= BASE_URL ?>index.php">
+        <a href="<?= BASE_URL ?>inicio.php">
             <img src="<?= BASE_URL ?>assets/img/Logo_2.png" alt="Convivium">
         </a>
     </div>

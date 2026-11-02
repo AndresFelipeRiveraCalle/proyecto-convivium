@@ -85,7 +85,7 @@ try {
                                     <td>
                                         <?php if (!empty($u['foto'])): ?>
                                             <img
-                                                src="../<?= htmlspecialchars($u['foto']) ?>"
+                                                src="<?= BASE_URL ?>actions/abrir_archivo_privado.php?tipo=foto&amp;id=<?= (int)$u['id'] ?>"
                                                 class="foto-persona-listado">
                                         <?php else: ?>
                                             <span class="sin-foto">

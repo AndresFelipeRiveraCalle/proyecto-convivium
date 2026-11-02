@@ -138,22 +138,11 @@ function escaparExtracto($valor): string
     return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
 }
 
-function urlArchivoExtracto(?string $ruta): string
+function urlArchivoExtracto(int $idDocumento): string
 {
-    if ($ruta === null || trim($ruta) === '') {
-        return '';
-    }
-
-    $ruta = str_replace('\\', '/', trim($ruta));
-    $posicionUploads = strpos($ruta, 'uploads/');
-
-    if ($posicionUploads !== false) {
-        $ruta = substr($ruta, $posicionUploads);
-    } else {
-        $ruta = 'uploads/' . basename($ruta);
-    }
-
-    return BASE_URL . ltrim($ruta, '/');
+    return BASE_URL .
+        'actions/abrir_archivo_privado.php?tipo=extracto&id=' .
+        $idDocumento;
 }
 
 ?>
@@ -246,7 +235,7 @@ function urlArchivoExtracto(?string $ruta): string
                                 $cantidadMovimientos = (int)$documento['cantidad_movimientos'];
                                 $estadoDocumento = (string)$documento['estado_procesamiento'];
                                 $periodosDocumento = $mesesPorDocumento[$idDocumentoFila] ?? [];
-                                $urlArchivo = urlArchivoExtracto($documento['ruta_archivo'] ?? null);
+                                $urlArchivo = urlArchivoExtracto($idDocumentoFila);
                                 ?>
                                 <tr>
                                     <td>

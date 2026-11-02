@@ -3,14 +3,16 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
-
+require_once ROOT_PATH . "/config/almacenamiento.php";
 
 // 
 // CONFIGURACIÓN
 // 
 
 $carpetaRelativa = "uploads/documentos_bancarios/";
-$carpetaFisica = ROOT_PATH . "/" . $carpetaRelativa;
+$carpetaFisica = convivium_storage_directory(
+    "uploads/documentos_bancarios"
+) . DIRECTORY_SEPARATOR;
 
 
 // Crear carpeta si no existe
@@ -220,7 +222,7 @@ if (
 try {
     $conexion->beginTransaction();
 
-    // // INSERTAR DOCUMENTO
+    //INSERTAR DOCUMENTO
     // ====
 
     $sqlDocumento = "INSERT INTO documentos_bancarios (
@@ -263,7 +265,7 @@ try {
 
     $idDocumento = $conexion->lastInsertId();
 
-    // // IMPORTANTE
+    //IMPORTANTE
     //
     // Todavía no insertamos un movimiento en
     // extractos_bancarios porque el documento puede
@@ -289,21 +291,21 @@ try {
 
 } catch (Throwable $e) {
 
-    // // DESHACER TRANSACCIÓN
+    //DESHACER TRANSACCIÓN
     if (
         $conexion->inTransaction()
     ) {
         $conexion->rollBack();
     }
 
-    // // ELIMINAR ARCHIVO SI FALLÓ LA BASE DE DATOS
+    //ELIMINAR ARCHIVO SI FALLÓ LA BASE DE DATOS
     if (
         file_exists($rutaFisica)
     ) {
         unlink($rutaFisica);
     }
 
-    // // ERROR
+    //ERROR
     // ====
 
     header(

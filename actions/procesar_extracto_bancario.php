@@ -3,7 +3,7 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
-
+require_once ROOT_PATH . "/config/almacenamiento.php";
 //
 // CONFIGURACIÓN EXTERNA
 //
@@ -335,18 +335,19 @@ try {
         );
     }
 
-    $rutaArchivo = $documento['ruta_archivo'];
+    $rutaRegistrada = trim((string)$documento['ruta_archivo']);
 
-    if (empty($rutaArchivo)) {
-        throw new Exception(
-            'El documento no tiene una ruta registrada.'
-        );
+    if ($rutaRegistrada === '') {
+        throw new Exception("El documento no tiene una ruta registrada.");
     }
 
-    if (!preg_match('/^[A-Za-z]:[\\\\\\/]/', $rutaArchivo)) {
-        $rutaArchivo =
-            ROOT_PATH . DIRECTORY_SEPARATOR .
-            ltrim($rutaArchivo, '/\\');
+    // Compatibilidad con rutas absolutas de Windows guardadas anteriormente.
+    if (preg_match('/^[A-Za-z]:[\\\\\/]/', $rutaRegistrada)) {
+        $rutaArchivo = $rutaRegistrada;
+    } else {
+        $rutaArchivo = convivium_storage_path(
+            ltrim($rutaRegistrada, '/\\')
+        );
     }
 
     $rutaArchivo = str_replace(
@@ -355,9 +356,9 @@ try {
         $rutaArchivo
     );
 
-    if (!file_exists($rutaArchivo)) {
+    if (!is_file($rutaArchivo)) {
         throw new Exception(
-            'No se encontró el archivo físico: ' . $rutaArchivo
+            "No se encontró el archivo físico: " . $rutaArchivo
         );
     }
 
@@ -387,7 +388,7 @@ try {
     $conexion->commit();
     $procesamientoIniciado = true;
 
-    // // EXTENSIÓN
+    //EXTENSIÓN
     // ====
 
     $extension = strtolower(
@@ -402,7 +403,7 @@ try {
     $metodoExtraccion = '';
 
 
-    // // IMAGEN
+    //IMAGEN
     // ====
 
     if (
@@ -464,7 +465,7 @@ try {
     }
 
 
-    // // PDF
+    //PDF
     // ====
 
     elseif ($extension === 'pdf') {
@@ -707,7 +708,7 @@ try {
     }
 
 
-    // // FORMATO NO SOPORTADO
+    //FORMATO NO SOPORTADO
     // ====
 
     else {
@@ -719,7 +720,7 @@ try {
     }
 
 
-    // // VALIDAR OCR
+    //VALIDAR OCR
     // ====
 
     if (
@@ -788,7 +789,7 @@ try {
     }
 
 
-    // // GUARDAR TEXTO EN ARCHIVO TEMPORAL
+    //GUARDAR TEXTO EN ARCHIVO TEMPORAL
     // ====
 
     /*
@@ -798,15 +799,11 @@ try {
      */
 
     $archivoDebug =
-        ROOT_PATH .
-        DIRECTORY_SEPARATOR .
-        'uploads' .
-        DIRECTORY_SEPARATOR .
-        'documentos_bancarios' .
-        DIRECTORY_SEPARATOR .
-        'ocr_debug_' .
-        $idDocumento .
-        '.txt';
+    rtrim(sys_get_temp_dir(), '/\\')
+    . DIRECTORY_SEPARATOR
+    . 'convivium_ocr_debug_'
+    . $idDocumento
+    . '.txt';
 
 
     file_put_contents(
@@ -815,7 +812,7 @@ try {
     );
 
 
-    // // MOSTRAR RESULTADO TEMPORAL
+    //MOSTRAR RESULTADO TEMPORAL
     // ====
 
     /*
@@ -863,7 +860,7 @@ try {
     }
 
 
-    // // MOSTRAR RESULTADO DEL PARSER
+    //MOSTRAR RESULTADO DEL PARSER
     // ====
 
     echo '<!DOCTYPE html>';
@@ -873,7 +870,7 @@ try {
     echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
     echo '<title>Confirmar movimientos bancarios</title>';
 
-    // // CSS
+    //CSS
     // ====
 
     echo '<link rel="stylesheet" href="' . BASE_URL . 'assets/css/style.css">';
@@ -884,13 +881,13 @@ try {
     echo '<div class="contenido">';
 
 
-    // // TÍTULO
+    //TÍTULO
     // ====
 
     echo '<h2>Confirmar movimientos bancarios</h2>';
 
 
-    // // MENSAJE
+    //MENSAJE
     // ====
 
     echo '<div class="alert alert-success">';
@@ -908,7 +905,7 @@ try {
     echo '</div>';
 
 
-    // // FORMULARIO
+    //FORMULARIO
     // ====
 
     echo '<form method="POST" action="' .
@@ -916,7 +913,7 @@ try {
         'actions/guardar_movimientos_extracto.php">';
 
 
-    // // ID DOCUMENTO
+    //ID DOCUMENTO
     // ====
 
     echo '<input
@@ -932,7 +929,7 @@ try {
     >';
 
 
-    // // ID CUENTA
+    //ID CUENTA
     // ====
 
     echo '<input
@@ -944,7 +941,7 @@ try {
     >';
 
 
-    // // TABLA
+    //TABLA
     // ====
 
     echo '<div class="tabla-responsive">';
@@ -969,7 +966,7 @@ try {
     echo '<tbody>';
 
 
-    // // MOVIMIENTOS
+    //MOVIMIENTOS
     // ====
 
     foreach (
@@ -1116,7 +1113,7 @@ try {
     echo '</div>';
 
 
-    // // BOTONES
+    //BOTONES
     // ====
 
     echo '<div class="acciones-formulario">';
@@ -1139,7 +1136,7 @@ try {
     echo '</form>';
 
 
-    // // OCR COMPLETO
+    //OCR COMPLETO
     // ====
 
     echo '<details class="ocr">';
