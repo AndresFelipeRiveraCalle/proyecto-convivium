@@ -25,7 +25,7 @@ $zonas = $conexion->query("SELECT id, nombre FROM zona_comun ORDER BY nombre")->
 $usuarios = $conexion->query("SELECT id, nombres, apellidos FROM usuario ORDER BY nombres")->fetchAll();
 
 // Consulta principal
-$sql = "SELECT m.*, 
+$sql = "SELECT m.*,
                 z.nombre  AS nombre_zona,
                 u.nombres  AS nombre_usuario,
                 u.apellidos AS apellido_usuario
@@ -49,13 +49,13 @@ if ($prioridad !== "") {
     $params[':prioridad'] = $prioridad;
 }
 
-// Ordenamos por prioridades 
-$sql .= " ORDER BY 
-            CASE m.prioridad 
+// Ordenamos por prioridades
+$sql .= " ORDER BY
+            CASE m.prioridad
                 WHEN 'critica' THEN 1
-                WHEN 'alta'  THEN 2 
-                WHEN 'media' THEN 3 
-                WHEN 'baja'  THEN 4 
+                WHEN 'alta'  THEN 2
+                WHEN 'media' THEN 3
+                WHEN 'baja'  THEN 4
             END, m.id DESC";
 
 $stmt = $conexion->prepare($sql);
@@ -75,11 +75,11 @@ $mantenimientos = $stmt->fetchAll();
 
     <div class="contenedor">
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-        
+
         <!-- CONTENIDO -->
         <main class="contenido">
 
-            <h2 align="center">Lista de mantenimientos</h2>            
+            <h2 align="center">Lista de mantenimientos</h2>
 
             <!-- BOTÓN NUEVO -->
             <button type="button" id="btnAbrirModalMantenimiento" class="btn-filtrar" style="margin-bottom: 20px; cursor: pointer;">
@@ -120,73 +120,73 @@ $mantenimientos = $stmt->fetchAll();
 
             <!-- TABLA -->
             <h3>Historial de Mantenimientos</h3>
-            
-            <div class="bloque historial-grid">
-                <div class="card">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Prioridad</th>
-                                <th>Descripción</th>
-                                <th>Estado</th>
-                                <th>Zona</th>
-                                <th>Solicitante</th>
-                                <th>Fecha Reporte</th>
-                                <th>Fecha Solución</th>
-                                <th>Evidencia</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
 
-                        <tbody>
-                            <?php if (count($mantenimientos) > 0): ?>
-                                <?php foreach ($mantenimientos as $fila): ?>
-                                    <tr>
-                                        <td><?= $fila['id'] ?></td>
-                                        <td><?= etiquetaPrioridad($fila['prioridad']) ?></td>
-                                        <td><?= htmlspecialchars($fila['descripcion']) ?></td>
-                                        <td><?= etiquetaEstado($fila['estado']) ?></td>
-                                        <td><?= htmlspecialchars($fila['nombre_zona'] ?? '-') ?></td>
-                                        <td>
-                                            <?= htmlspecialchars(
-                                                ($fila['nombre_usuario'] ?? '') . ' ' . ($fila['apellido_usuario'] ?? '')
-                                            ) ?>
-                                        </td>
-                                        <td><?= $fila['fecha_reporte'] ?></td>
-                                        <td><?= $fila['fecha_solucion'] ?: '-' ?></td>
-                                        <td>
-                                            <?php if (!empty($fila['evidencia'])): ?>
-                                                <a href="<?= rtrim(BASE_URL, '/') . '/' . ltrim($fila['evidencia'], '/') ?>" target="_blank">Ver archivo</a>
-                                            <?php else: ?>
-                                                -
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <a href="#" 
-                                                class="btn-abrir-editar"
-                                                data-id="<?= $fila['id'] ?>"
-                                                data-zona="<?= $fila['zona_id'] ?>"
-                                                data-solicitante="<?= $fila['usuario_reporta_id'] ?>"
-                                                data-desc="<?= htmlspecialchars($fila['descripcion']) ?>"
-                                                data-prioridad="<?= $fila['prioridad'] ?>"
-                                                data-estado="<?= $fila['estado'] ?>"
-                                                data-fecha="<?= $fila['fecha_solucion'] ?>">
-                                                Editar
-                                            </a>
-                                            |
-                                            <a href="eliminar.php?id=<?= $fila['id'] ?>" onclick="return confirm('¿Seguro que deseas eliminar este mantenimiento?')">Eliminar</a>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
+            <div class="bloque filtros">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Prioridad</th>
+                            <th>Descripción</th>
+                            <th>Estado</th>
+                            <th>Zona</th>
+                            <th>Solicitante</th>
+                            <th>Fecha Reporte</th>
+                            <th>Fecha Solución</th>
+                            <th>Evidencia</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <?php if (count($mantenimientos) > 0): ?>
+                            <?php foreach ($mantenimientos as $fila): ?>
                                 <tr>
-                                    <td colspan="10">No hay mantenimientos registrados.</td>
+                                    <td><?= $fila['id'] ?></td>
+                                    <td><?= etiquetaPrioridad($fila['prioridad']) ?></td>
+                                    <td><?= htmlspecialchars($fila['descripcion']) ?></td>
+                                    <td><?= etiquetaEstado($fila['estado']) ?></td>
+                                    <td><?= htmlspecialchars($fila['nombre_zona'] ?? '-') ?></td>
+                                    <td>
+                                        <?= htmlspecialchars(
+                                            ($fila['nombre_usuario'] ?? '') . ' ' . ($fila['apellido_usuario'] ?? '')
+                                        ) ?>
+                                    </td>
+                                    <td><?= $fila['fecha_reporte'] ?></td>
+                                    <td><?= $fila['fecha_solucion'] ?: '-' ?></td>
+                                    <td>
+                                        <?php if (!empty($fila['evidencia'])): ?>
+                                            <a href="<?= rtrim(BASE_URL, '/') . '/' . ltrim($fila['evidencia'], '/') ?>" target="_blank">Ver archivo</a>
+                                        <?php else: ?>
+                                            -
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <a href="#"
+                                            class="btn-abrir-editar"
+                                            data-id="<?= $fila['id'] ?>"
+                                            data-zona="<?= $fila['zona_id'] ?>"
+                                            data-solicitante="<?= $fila['usuario_reporta_id'] ?>"
+                                            data-desc="<?= htmlspecialchars($fila['descripcion']) ?>"
+                                            data-prioridad="<?= $fila['prioridad'] ?>"
+                                            data-estado="<?= $fila['estado'] ?>"
+                                            data-fecha="<?= $fila['fecha_solucion'] ?>">
+                                            Editar
+                                        </a>
+                                        |
+                                        <a href="eliminar.php?id=<?= $fila['id'] ?>" onclick="return confirm('¿Seguro que deseas eliminar este mantenimiento?')">Eliminar</a>
+                                    </td>
                                 </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="10">No hay mantenimientos registrados.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+
             </div>
         </main>
     </div>
@@ -196,7 +196,7 @@ $mantenimientos = $stmt->fetchAll();
         <div class="modal-content-custom">
             <span class="close-modal">&times;</span>
             <h2>Crear Nuevo Mantenimiento</h2>
-            
+
             <form action="guardar.php" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="zona_id">Zona Común:</label>
@@ -262,7 +262,7 @@ $mantenimientos = $stmt->fetchAll();
         <div class="modal-content-custom">
             <span class="close-modal-editar">&times;</span>
             <h2>Editar Mantenimiento</h2>
-            
+
             <form action="actualizar.php" method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="id" id="edit_id">
 

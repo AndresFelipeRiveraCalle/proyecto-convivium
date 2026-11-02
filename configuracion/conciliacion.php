@@ -5,9 +5,9 @@ require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
 
-// 
+//
 // FUNCIONES
-// 
+//
 
 function e($valor)
 {
@@ -39,9 +39,9 @@ function diferenciaDias($fecha1, $fecha2)
 }
 
 
-// 
+//
 // FILTROS
-// 
+//
 
 $buscar =
     trim(
@@ -80,9 +80,9 @@ $fechaHasta =
     );
 
 
-// 
+//
 // WHERE DE MOVIMIENTOS
-// 
+//
 
 $where = [
     "eb.tipo_movimiento = 'INGRESO'",
@@ -139,10 +139,10 @@ $whereSql =
     );
 
 
-// 
+//
 // MOVIMIENTOS BANCARIOS
 // Obtiene una sola fila por movimiento bancario.
-// 
+//
 
 $sqlMovimientos = "
     SELECT
@@ -196,9 +196,9 @@ $movimientos =
     );
 
 
-// 
+//
 // PREPARAR DATOS SEGÚN ESTADO
-// 
+//
 
 $filas = [];
 
@@ -214,9 +214,9 @@ $conteo = [
 
 if ($estadoConciliacion === 'PENDIENTE') {
 
-// 
+//
 // PREPARAR BÚSQUEDA DE CANDIDATOS
-// 
+//
 
 $sqlCandidatos = "
     SELECT
@@ -285,9 +285,9 @@ $stmtCandidatos =
     );
 
 
-// 
+//
 // CLASIFICAR MOVIMIENTOS
-// 
+//
 
 
 
@@ -345,9 +345,9 @@ foreach ($movimientos as $movimiento) {
 }
 
 
-// 
+//
 // CLASIFICAR TENIENDO EN CUENTA CONFLICTOS GLOBALES
-// 
+//
 
 foreach ($filas as $indice => $fila) {
 
@@ -428,9 +428,9 @@ foreach ($filas as $indice => $fila) {
 }
 
 
-// 
+//
 // FILTRO DE VISTA
-// 
+//
 
 if (
     in_array(
@@ -461,9 +461,9 @@ if (
 }
 
 
-// 
+//
 // DETALLE DE CONCILIACIÓN RECIENTE
-// 
+//
 
 if (
     isset($_GET['conciliado']) &&
@@ -556,9 +556,9 @@ if (
 }
 
 
-// 
+//
 // DETALLE DE MOVIMIENTO RECHAZADO RECIENTE
-// 
+//
 
 $rechazoReciente = null;
 
@@ -618,9 +618,9 @@ if (
         );
 }
 
-// 
+//
 // URLS DE EXPORTACIÓN
-// 
+//
 
 $queryExportacion = [
     'estado_conciliacion' => $estadoConciliacion,
@@ -1514,7 +1514,7 @@ $urlPdfTodo =
 
         <div class="bloque filtros">
 
-            <div class="form-card">
+
 
                 <h3>
                     Filtros
@@ -1527,19 +1527,8 @@ $urlPdfTodo =
                     action=""
                 >
 
-                    <div
-                        style="
-                            display:grid;
-                            grid-template-columns:
-                                repeat(
-                                    auto-fit,
-                                    minmax(210px,1fr)
-                                );
-                            gap:15px;
-                        "
-                    >
 
-                        <div>
+
 
                             <label>
                                 Buscar
@@ -1552,7 +1541,7 @@ $urlPdfTodo =
                                 placeholder="Descripción, referencia, archivo..."
                             >
 
-                        </div>
+
 
 
                         <input
@@ -1564,7 +1553,7 @@ $urlPdfTodo =
 
                         <?php if ($estadoConciliacion === 'PENDIENTE'): ?>
 
-                        <div>
+
 
                             <label>
                                 Coincidencia
@@ -1630,12 +1619,12 @@ $urlPdfTodo =
 
                             </select>
 
-                        </div>
+
 
                         <?php endif; ?>
 
 
-                        <div>
+
 
                             <label>
                                 Desde
@@ -1647,10 +1636,7 @@ $urlPdfTodo =
                                 value="<?= e($fechaDesde) ?>"
                             >
 
-                        </div>
 
-
-                        <div>
 
                             <label>
                                 Hasta
@@ -1662,15 +1648,12 @@ $urlPdfTodo =
                                 value="<?= e($fechaHasta) ?>"
                             >
 
-                        </div>
-
-                    </div>
 
 
-                    <br>
 
 
-                    <div class="form-actions">
+
+
 
                         <button
                             type="submit"
@@ -1687,11 +1670,11 @@ $urlPdfTodo =
                             Limpiar
                         </a>
 
-                    </div>
+
 
                 </form>
 
-            </div>
+
 
         </div>
 
