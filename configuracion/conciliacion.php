@@ -95,18 +95,21 @@ $params = [
 
 
 if ($buscar !== '') {
-
     $where[] = "
         (
-            eb.descripcion LIKE :buscar
-            OR eb.referencia LIKE :buscar
-            OR eb.numero_documento LIKE :buscar
-            OR eb.archivo_origen LIKE :buscar
+            eb.descripcion LIKE :buscar_descripcion
+            OR eb.referencia LIKE :buscar_referencia
+            OR eb.numero_documento LIKE :buscar_numero_documento
+            OR eb.archivo_origen LIKE :buscar_archivo
         )
     ";
 
-    $params[':buscar'] =
-        '%' . $buscar . '%';
+    $terminoBusqueda = '%' . $buscar . '%';
+
+    $params[':buscar_descripcion'] = $terminoBusqueda;
+    $params[':buscar_referencia'] = $terminoBusqueda;
+    $params[':buscar_numero_documento'] = $terminoBusqueda;
+    $params[':buscar_archivo'] = $terminoBusqueda;
 }
 
 
@@ -305,7 +308,41 @@ $stmtCandidatos =
  * conciliarse con dos movimientos distintos.
  */
 
-$usoCandidatos = [];
+$sqlUsoCandidatosGlobal = "
+    SELECT
+        p.id_pago,
+        COUNT(DISTINCT eb.id_extracto) AS cantidad_movimientos
+    FROM pagos p
+    INNER JOIN unidades u
+        ON u.id_unidad = p.id_unidad
+    INNER JOIN extractos_bancarios eb
+        ON eb.tipo_movimiento = 'INGRESO'
+        AND eb.estado_conciliacion = 'PENDIENTE'
+        AND (
+            ABS(p.valor - eb.valor) <= 0.01
+            OR ABS(p.valor - eb.valor)
+               <= GREATEST(1000, p.valor * 0.01)
+        )
+        AND ABS(DATEDIFF(p.fecha_pago, eb.fecha_movimiento)) <= 3
+    WHERE
+        p.estado = 'REGISTRADO'
+        AND p.estado_conciliacion = 'PENDIENTE'
+        AND p.id_extracto IS NULL
+    GROUP BY p.id_pago
+";
+
+$stmtUsoCandidatosGlobal =
+    $conexion->query($sqlUsoCandidatosGlobal);
+
+$usoCandidatosGlobal = [];
+
+foreach (
+    $stmtUsoCandidatosGlobal->fetchAll(PDO::FETCH_ASSOC)
+    as $usoCandidato
+) {
+    $usoCandidatosGlobal[(int)$usoCandidato['id_pago']] =
+        (int)$usoCandidato['cantidad_movimientos'];
+}
 
 
 foreach ($movimientos as $movimiento) {
@@ -322,19 +359,6 @@ foreach ($movimientos as $movimiento) {
             PDO::FETCH_ASSOC
         );
 
-
-    foreach ($candidatos as $candidato) {
-
-        $idPagoCandidato =
-            (int)$candidato['id_pago'];
-
-        if (!isset($usoCandidatos[$idPagoCandidato])) {
-
-            $usoCandidatos[$idPagoCandidato] = 0;
-        }
-
-        $usoCandidatos[$idPagoCandidato]++;
-    }
 
 
     $filas[] = [
@@ -379,8 +403,7 @@ foreach ($filas as $indice => $fila) {
         $idPagoCandidato =
             (int)$candidatos[0]['id_pago'];
 
-        $cantidadMovimientosParaPago =
-            $usoCandidatos[$idPagoCandidato] ?? 0;
+        $cantidadMovimientosParaPago = $usoCandidatosGlobal[$idPagoCandidato] ?? 0;
 
 
         if ($cantidadMovimientosParaPago > 1) {
@@ -1895,7 +1918,7 @@ $urlPdfTodo =
                                                 $idPagoEvaluado = (int)$c['id_pago'];
 
                                                 $cantidadMovimientosParaPago =
-                                                    $usoCandidatos[$idPagoEvaluado] ?? 0;
+                                                    $usoCandidatosGlobal[$idPagoEvaluado] ?? 0;
                                             ?>
 
                                             <tr>
@@ -2165,10 +2188,8 @@ $urlPdfTodo =
                             </div>
 
 
-                            <?php if (
-                                $estadoConciliacion === 'RECHAZADO'
-                                &&
-                                empty($m['pago_relacionado'])
+                            <?php if ($estadoConciliacion === 'RECHAZADO'
+                                && empty($m['pago_relacionado'])
                             ): ?>
 
                                 <br>
@@ -2176,22 +2197,40 @@ $urlPdfTodo =
                                 <form
                                     method="POST"
                                     action="<?= BASE_URL ?>actions/reabrir_movimiento.php"
-                                    onsubmit="return confirm('¿Desea reabrir este movimiento para volver a conciliarlo?');"
+                                    onsubmit="return confirm('¿Desea reabrir este movimiento rechazado?');"
                                 >
-
                                     <input
                                         type="hidden"
                                         name="id_extracto"
                                         value="<?= (int)$m['id_extracto'] ?>"
                                     >
 
-                                    <button
-                                        type="submit"
-                                        class="btn-filtrar"
-                                    >
+                                    <button type="submit" class="btn-filtrar">
                                         Reabrir conciliación
                                     </button>
+                                </form>
 
+                            <?php elseif (
+                                $estadoConciliacion === 'CON_DIFERENCIA'
+                                && !empty($m['pago_relacionado'])
+                            ): ?>
+
+                                <br>
+
+                                <form
+                                    method="POST"
+                                    action="<?= BASE_URL ?>actions/reabrir_diferencia.php"
+                                    onsubmit="return confirm('El pago asociado volverá a estado pendiente y se desvinculará del movimiento. ¿Desea continuar?');"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="id_extracto"
+                                        value="<?= (int)$m['id_extracto'] ?>"
+                                    >
+
+                                    <button type="submit" class="btn-filtrar">
+                                        Reabrir diferencia
+                                    </button>
                                 </form>
 
                             <?php endif; ?>
