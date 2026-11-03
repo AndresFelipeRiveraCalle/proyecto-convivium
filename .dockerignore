@@ -6,8 +6,6 @@ vendor/
 node_modules/
 *.log
 
-/config/seguridad_correo.php
-
 /uploads/*
 !/uploads/.htaccess
 

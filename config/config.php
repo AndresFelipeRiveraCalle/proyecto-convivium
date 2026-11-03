@@ -29,33 +29,49 @@ $baseUrl = rtrim($baseUrl, '/') . '/';
 
 define("BASE_URL", $baseUrl);
 
-$archivoSecretosCorreo = getenv('CONVIVIUM_SECRETS_FILE');
+$claveCorreo = getenv('CONVIVIUM_CORREO_ENCRYPTION_KEY');
 
 if (
-    ($archivoSecretosCorreo === false || $archivoSecretosCorreo === '')
-    && isset($_SERVER['CONVIVIUM_SECRETS_FILE'])
+    is_string($claveCorreo)
+    && trim($claveCorreo) !== ''
 ) {
-    $archivoSecretosCorreo = $_SERVER['CONVIVIUM_SECRETS_FILE'];
+    if (!defined('CORREO_ENCRYPTION_KEY')) {
+        define(
+            'CORREO_ENCRYPTION_KEY',
+            trim($claveCorreo)
+        );
+    }
+} else {
+    // Respaldo para la instalación local.
+    $archivoSecretosCorreo = getenv('CONVIVIUM_SECRETS_FILE');
+
+    if (
+        ($archivoSecretosCorreo === false || $archivoSecretosCorreo === '')
+        && isset($_SERVER['CONVIVIUM_SECRETS_FILE'])
+    ) {
+        $archivoSecretosCorreo = $_SERVER['CONVIVIUM_SECRETS_FILE'];
+    }
+
+    if (!is_string($archivoSecretosCorreo)) {
+        throw new RuntimeException(
+            'Configure CONVIVIUM_CORREO_ENCRYPTION_KEY o la ruta del archivo privado.'
+        );
+    }
+
+    $archivoSecretosCorreo = trim($archivoSecretosCorreo);
+
+    if (
+        $archivoSecretosCorreo === ''
+        || !is_file($archivoSecretosCorreo)
+        || !is_readable($archivoSecretosCorreo)
+    ) {
+        throw new RuntimeException(
+            'El archivo privado de secretos no existe o no se puede leer.'
+        );
+    }
+
+    require_once $archivoSecretosCorreo;
+    unset($archivoSecretosCorreo);
 }
 
-if (!is_string($archivoSecretosCorreo)) {
-    throw new RuntimeException(
-        'No se configuró la ruta de los secretos de correo.'
-    );
-}
-
-$archivoSecretosCorreo = trim($archivoSecretosCorreo);
-
-if (
-    $archivoSecretosCorreo === ''
-    || !is_file($archivoSecretosCorreo)
-    || !is_readable($archivoSecretosCorreo)
-) {
-    throw new RuntimeException(
-        'El archivo privado de secretos no existe o no se puede leer.'
-    );
-}
-
-require_once $archivoSecretosCorreo;
-
-unset($archivoSecretosCorreo);
+unset($claveCorreo);
