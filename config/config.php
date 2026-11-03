@@ -1,39 +1,61 @@
 <?php
-    define("ROOT_PATH", realpath(__DIR__ . "/.."));
-    define("BASE_URL", "/proyecto-convivium/");
 
-    //
-    // CIFRADO DE CREDENCIALES DE CORREO
-    // Clave privada utilizada para SMTP e IMAP.
-    //
+$rootPath = realpath(__DIR__ . "/..");
 
-    $archivoSecretosCorreo = getenv('CONVIVIUM_SECRETS_FILE');
+if ($rootPath === false) {
+    throw new RuntimeException(
+        'No se pudo determinar la ruta raíz del proyecto.'
+    );
+}
 
-    if (
-        ($archivoSecretosCorreo === false || $archivoSecretosCorreo === '')
-        && isset($_SERVER['CONVIVIUM_SECRETS_FILE'])
-    ) {
-        $archivoSecretosCorreo = $_SERVER['CONVIVIUM_SECRETS_FILE'];
-    }
+define("ROOT_PATH", $rootPath);
 
-    if (!is_string($archivoSecretosCorreo)) {
-        throw new RuntimeException(
-            'No se configuró la ruta de los secretos de correo.'
-        );
-    }
+$baseUrl = getenv('APP_BASE_URL');
 
-    $archivoSecretosCorreo = trim($archivoSecretosCorreo);
+if ($baseUrl === false || trim($baseUrl) === '') {
+    $baseUrl = '/proyecto-convivium/';
+}
 
-    if (
-        $archivoSecretosCorreo === ''
-        || !is_file($archivoSecretosCorreo)
-        || !is_readable($archivoSecretosCorreo)
-    ) {
-        throw new RuntimeException(
-            'El archivo privado de secretos no existe o no se puede leer.'
-        );
-    }
+$baseUrl = trim($baseUrl);
 
-    require_once $archivoSecretosCorreo;
-    unset($archivoSecretosCorreo);
-?>
+if (preg_match('#^[a-z][a-z0-9+.-]*://#i', $baseUrl)) {
+    throw new RuntimeException(
+        'APP_BASE_URL debe ser una ruta, por ejemplo / o /proyecto-convivium/.'
+    );
+}
+
+$baseUrl = '/' . trim($baseUrl, '/');
+$baseUrl = rtrim($baseUrl, '/') . '/';
+
+define("BASE_URL", $baseUrl);
+
+$archivoSecretosCorreo = getenv('CONVIVIUM_SECRETS_FILE');
+
+if (
+    ($archivoSecretosCorreo === false || $archivoSecretosCorreo === '')
+    && isset($_SERVER['CONVIVIUM_SECRETS_FILE'])
+) {
+    $archivoSecretosCorreo = $_SERVER['CONVIVIUM_SECRETS_FILE'];
+}
+
+if (!is_string($archivoSecretosCorreo)) {
+    throw new RuntimeException(
+        'No se configuró la ruta de los secretos de correo.'
+    );
+}
+
+$archivoSecretosCorreo = trim($archivoSecretosCorreo);
+
+if (
+    $archivoSecretosCorreo === ''
+    || !is_file($archivoSecretosCorreo)
+    || !is_readable($archivoSecretosCorreo)
+) {
+    throw new RuntimeException(
+        'El archivo privado de secretos no existe o no se puede leer.'
+    );
+}
+
+require_once $archivoSecretosCorreo;
+
+unset($archivoSecretosCorreo);

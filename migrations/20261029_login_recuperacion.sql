@@ -1,4 +1,5 @@
--- Ejecutar una sola vez en cada base de datos del proyecto.
+-- Migración histórica para bases anteriores al esquema inicial.
+-- No ejecutar después de migrations/000_schema_inicial.sql.
 -- contrasena almacena hashes generados con password_hash().
 -- token_recuperacion almacena el SHA-256 del token enviado por correo.
 
