@@ -4,23 +4,69 @@ require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 require_once ROOT_PATH . "/config/almacenamiento.php";
-//
-// CONFIGURACIÓN EXTERNA
-//
 
-$tesseract = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe';
-$pdftoppm  = 'C:\\poppler\\Library\\bin\\pdftoppm.exe';
 
 //
-// VALIDAR INSTALACIONES
+// CONFIGURACIÓN DE HERRAMIENTAS OCR
 //
 
-if (!file_exists($tesseract)) {
-    die("No se encontró Tesseract en: " . $tesseract);
+$esWindows = PHP_OS_FAMILY === 'Windows';
+
+$obtenerRutaBinario = static function (
+    string $variable,
+    string $rutaWindows,
+    string $rutaLinux
+): string {
+    $configurada = getenv($variable);
+
+    if ($configurada !== false && trim($configurada) !== '') {
+        return trim($configurada);
+    }
+
+    return PHP_OS_FAMILY === 'Windows'
+        ? $rutaWindows
+        : $rutaLinux;
+};
+
+$tesseract = $obtenerRutaBinario(
+    'CONVIVIUM_TESSERACT_BIN',
+    'C:\\Program Files\\Tesseract-OCR\\tesseract.exe',
+    '/usr/bin/tesseract'
+);
+
+$pdftoppm = $obtenerRutaBinario(
+    'CONVIVIUM_PDFTOPPM_BIN',
+    'C:\\poppler\\Library\\bin\\pdftoppm.exe',
+    '/usr/bin/pdftoppm'
+);
+
+$idiomaTesseract = getenv('CONVIVIUM_TESSERACT_LANG');
+
+if ($idiomaTesseract === false || trim($idiomaTesseract) === '') {
+    $idiomaTesseract = 'eng';
+} else {
+    $idiomaTesseract = trim($idiomaTesseract);
 }
 
-if (!file_exists($pdftoppm)) {
-    die("No se encontró pdftoppm en: " . $pdftoppm);
+$pdftotext = $obtenerRutaBinario(
+    'CONVIVIUM_PDFTOTEXT_BIN',
+    'C:\\poppler\\Library\\bin\\pdftotext.exe',
+    '/usr/bin/pdftotext'
+);
+
+//
+// VALIDAR HERRAMIENTAS REQUERIDAS
+// pdftotext sigue siendo opcional; pdftoppm permite procesar el PDF con OCR.
+//
+
+foreach ([
+    'Tesseract' => $tesseract,
+    'pdftoppm'  => $pdftoppm,
+    'pdftotext' => $pdftotext
+] as $nombreHerramienta => $rutaHerramienta) {
+    if (!is_file($rutaHerramienta)) {
+        die('No se encontró la herramienta requerida: ' . $nombreHerramienta);
+    }
 }
 
 
@@ -424,6 +470,7 @@ try {
             '"' . $tesseract . '"' .
             ' "' . $rutaArchivo . '"' .
             ' "' . $archivoSalida . '"' .
+            ' -l ' . escapeshellarg($idiomaTesseract) .
             ' --psm 6';
 
         ejecutarComando(
@@ -470,17 +517,7 @@ try {
 
     elseif ($extension === 'pdf') {
 
-        //
-        // BUSCAR PDftotext
-        //
-
-        $pdftotext =
-            'C:\\poppler\\Library\\bin\\pdftotext.exe';
-
-
-        //
         // INTENTAR TEXTO DIRECTO
-        //
 
         if (file_exists($pdftotext)) {
 
@@ -655,7 +692,9 @@ try {
                     $imagen .
                     '" "' .
                     $salidaOCR .
-                    '" --psm 6';
+                    '"' .
+                    ' -l ' . escapeshellarg($idiomaTesseract) .
+                    ' --psm 6';
 
 
                 ejecutarComando(
