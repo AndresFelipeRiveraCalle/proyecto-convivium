@@ -1,6 +1,6 @@
 <?php
 // Archivo: recuperar_contrasena.php
-session_start();
+require_once __DIR__ . "/config/sesion.php";
 if (isset($_SESSION['id_usuario_autenticado'])) {
     header("Location: inicio.php");
     exit();

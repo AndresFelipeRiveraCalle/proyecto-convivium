@@ -2,7 +2,7 @@
 // Archivo: auth/procesar_recuperacion.php
 
 
-session_start();
+require_once dirname(__DIR__) . "/config/sesion.php";
 
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/config/conexion.php";

@@ -1,6 +1,6 @@
 <?php
 // 1. Iniciamos sesión para comprobar si el usuario ya está autenticado
-session_start();
+require_once __DIR__ . "/config/sesion.php";
 
 // 2. Si el usuario ya tiene una sesión activa, lo enviamos al inicio.
 if (isset($_SESSION['id_usuario_autenticado'])) {

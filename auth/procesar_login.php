@@ -1,6 +1,6 @@
 <?php
 // iniciamos sesion php antes de cualquier html o impresion para recordar la autenticacion del usuario
-session_start();
+require_once dirname(__DIR__) . "/config/sesion.php";
 
 // Traemos tu archivo de conexión a la base de datos
 require_once "../config/conexion.php";

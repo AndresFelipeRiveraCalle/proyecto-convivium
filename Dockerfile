@@ -14,7 +14,7 @@ RUN apt-get update \
         tesseract-ocr-spa \
         unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" dom gd intl mbstring pdo_mysql zip \
+    && docker-php-ext-install -j"$(nproc)" gd intl mbstring pdo_mysql zip \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
@@ -40,7 +40,8 @@ RUN mkdir -p /var/data/convivium \
     && chown www-data:www-data /var/data/convivium
 
 COPY docker-entrypoint.sh /usr/local/bin/convivium-entrypoint
-RUN chmod +x /usr/local/bin/convivium-entrypoint
+RUN sed -i 's/\r$//' /usr/local/bin/convivium-entrypoint \
+    && chmod +x /usr/local/bin/convivium-entrypoint
 
 EXPOSE 10000
 

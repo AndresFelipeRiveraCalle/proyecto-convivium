@@ -1,9 +1,9 @@
 
 <?php
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+
+    require_once dirname(__DIR__) . "/config/sesion.php";
+
 
 if (
     empty($_SESSION['id_usuario_autenticado'])
