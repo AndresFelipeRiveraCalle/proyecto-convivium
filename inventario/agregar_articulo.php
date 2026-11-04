@@ -19,13 +19,13 @@ require_once ROOT_PATH . "/config/conexion.php";
 
     <div class="contenedor">
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-        <main class="contenido">
+        <main class="contenido inventario-page">
 
-            <div class="container">
-                <h2>Registrar Nuevo Artículo</h2>
+            <div class="container inventario-container inventario-form-container">
+                <h2 class="inventario-titulo">Registrar Nuevo Artículo</h2>
                 
                 <!-- Formulario que envía los datos por POST a guardar_articulo.php -->
-                <form action="guardar_articulo.php" method="POST">
+                <form class="inventario-form" action="guardar_articulo.php" method="POST">
                     
                     <label for="nombre">Nombre del artículo:</label><br>
                     <input type="text" id="nombre" name="nombre" required placeholder="Ej: Cloro, Escoba, Bombillo"><br><br>
@@ -42,8 +42,10 @@ require_once ROOT_PATH . "/config/conexion.php";
                         <option value="Paquete">Paquete</option>
                     </select><br><br>
                     
-                    <button type="submit">Guardar en Catálogo</button>
-                    <a href="listar.php">Cancelar</a>
+                    <div class="inventario-form-actions">
+                        <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Guardar en catálogo</button>
+                        <a class="inventario-btn-cancelar" href="listar.php">Cancelar</a>
+                    </div>
                 </form>
             </div>
         </main>
