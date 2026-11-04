@@ -37,14 +37,14 @@ if ($buscar != '') {
 
     <div class="contenedor">
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-        <main class="contenido">
+        <main class="contenido inventario-page">
 
-            <div class="container">
-                <h2>Control de Inventario</h2>
+            <div class="container inventario-container">
+                <h2 class="inventario-titulo">Control de Inventario</h2>
 
                 <!-- Notificaciones de éxito -->
                 <?php if (isset($_GET['mensaje'])): ?>
-                    <div>
+                    <div class="inventario-alert" role="status">
                         <strong>
                             <?php
                             if ($_GET['mensaje'] == 'creado') echo "Artículo creado exitosamente.";
@@ -57,23 +57,24 @@ if ($buscar != '') {
                     </div>
                 <?php endif; ?>
 
-                <div class="acciones">
-                    <a href="agregar_articulo.php">Crear Nuevo Artículo</a> |
-                    <a href="movimiento.php">Registrar Entrada/Salida o Ajuste</a> |
-                    <a href="historial.php">Ver Historial de Movimientos</a>
+                <div class="acciones inventario-acciones">
+                    <a href="agregar_articulo.php"><i class="fa-solid fa-plus"></i> Crear nuevo artículo</a>
+                    <a href="movimiento.php"><i class="fa-solid fa-arrow-right-arrow-left"></i> Registrar entrada / salida</a>
+                    <a href="historial.php"><i class="fa-solid fa-clock-rotate-left"></i> Historial de movimientos</a>
                 </div>
-                <br>
 
                 <!-- Formulario del Buscador -->
-                <form action="listar.php" method="GET">
-                    <label for="buscar">Buscar producto:</label>
-                    <input type="text" id="buscar" name="buscar" placeholder="Nombre o categoría..." value="<?php echo htmlspecialchars($buscar); ?>">
-                    <button type="submit">Buscar</button>
-                    <a href="listar.php">Mostrar todos</a>
+                <form class="inventario-filtros" action="listar.php" method="GET">
+                    <div>
+                        <label for="buscar">Buscar producto</label>
+                        <input type="text" id="buscar" name="buscar" placeholder="Nombre o categoría..." value="<?php echo htmlspecialchars($buscar); ?>">
+                    </div>
+                    <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                    <a class="inventario-mostrar-todos" href="listar.php">Mostrar todos</a>
                 </form>
-                <br>
 
-                <table border="1" cellpadding="10">
+                <div class="inventario-tabla-wrap">
+                <table class="tabla-general inventario-tabla">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -94,13 +95,14 @@ if ($buscar != '') {
                                 echo "<td>" . htmlspecialchars($fila['categoria']) . "</td>";
                                 echo "<td>" . htmlspecialchars($fila['unidad_medida']) . "</td>";
 
-                                $color_stock = ($fila['stock_actual'] <= 0) ? 'color: red; font-weight: bold;' : '';
-                                echo "<td style='$color_stock'>" . $fila['stock_actual'] . "</td>";
+                                $stockAgotado = ((float) $fila['stock_actual'] <= 0);
+                                $claseStock = $stockAgotado ? 'inventario-stock inventario-stock--agotado' : 'inventario-stock';
+                                echo "<td class='" . $claseStock . "'>" . htmlspecialchars((string) $fila['stock_actual']) . "</td>";
 
-                                echo "<td>";
-                                echo "<a href='editar_articulo.php?id=" . $fila['id_articulo'] . "'>Editar</a> | ";
-                                echo "<a href='eliminar_articulo.php?id=" . $fila['id_articulo'] . "' onclick='return confirm(\"¿Estás seguro de que deseas ocultar este artículo del catálogo?\");'>Eliminar</a>";
-                                echo "</td>";
+                                echo "<td><div class='inventario-acciones-fila'>";
+                                echo "<a href='editar_articulo.php?id=" . (int) $fila['id_articulo'] . "'>Editar</a>";
+                                echo "<a class='btn-eliminar' href='eliminar_articulo.php?id=" . (int) $fila['id_articulo'] . "' onclick='return confirm(\"¿Estás seguro de que deseas ocultar este artículo del catálogo?\");'>Eliminar</a>";
+                                echo "</div></td>";
 
                                 echo "</tr>";
                             }
@@ -110,6 +112,7 @@ if ($buscar != '') {
                         ?>
                     </tbody>
                 </table>
+                </div>
             </div>
         </main>
     </div>
