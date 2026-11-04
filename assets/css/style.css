@@ -4575,10 +4575,6 @@ vertical-align: center;
     --cv-shadow: 0 3px 14px rgba(20, 42, 74, .055);
 }
 
-* {
-    padding: 0;
-}
-
 *,
 *::before,
 *::after {
