@@ -1,5 +1,11 @@
 <aside class="menu">
-    <nav>
+    <div class="sidebar-brand">
+        <a href="<?= BASE_URL ?>inicio.php" aria-label="Ir al panel principal de Convivium">
+            <img src="<?= BASE_URL ?>assets/img/Logo_2.png" alt="Convivium">
+        </a>
+    </div>
+
+    <nav aria-label="Navegación principal">
         <ul class="menu-principal">
             <li>
                 <a href="<?= BASE_URL ?>inicio.php">
