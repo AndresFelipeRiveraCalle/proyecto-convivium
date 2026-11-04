@@ -1,5 +1,7 @@
 <?php
 $archivoHeader = basename($_SERVER['PHP_SELF'] ?? '');
+$rutaHeader = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+$moduloHeader = basename(dirname($rutaHeader));
 
 $titulosHeader = [
     'inicio.php' => 'Panel principal',
@@ -14,8 +16,27 @@ $titulosHeader = [
     'crear.php' => 'Nueva solicitud'
 ];
 
-$tituloHeader = $tituloPagina
-    ?? ($titulosHeader[$archivoHeader] ?? 'Gestión de la copropiedad');
+/*
+ * Los módulos pueden compartir nombres de archivo (por ejemplo, listar.php).
+ * Se prioriza el nombre específico de la carpeta para evitar títulos incorrectos.
+ */
+$titulosPorModulo = [
+    'inventario' => [
+        'listar.php' => 'Control de inventario',
+        'agregar_articulo.php' => 'Nuevo artículo',
+        'editar_articulo.php' => 'Editar artículo',
+        'movimiento.php' => 'Movimientos de inventario',
+        'historial.php' => 'Historial de inventario'
+    ]
+];
+
+$tituloPorRuta = $titulosHeader[$archivoHeader] ?? 'Gestión de la copropiedad';
+
+if (isset($titulosPorModulo[$moduloHeader][$archivoHeader])) {
+    $tituloPorRuta = $titulosPorModulo[$moduloHeader][$archivoHeader];
+}
+
+$tituloHeader = $tituloPagina ?? $tituloPorRuta;
 
 $nombreUsuarioHeader = trim((string) (
     $_SESSION['nombre_usuario_autenticado']
