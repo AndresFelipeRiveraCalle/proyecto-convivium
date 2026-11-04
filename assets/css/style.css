@@ -4,7 +4,7 @@
 
 * {
     margin: 0;
-    padding: 5;
+    padding: 0;
     box-sizing: border-box;
 }
 
@@ -6173,4 +6173,286 @@ table:not(.factura-tabla):not(.tabla-ocr) tbody td {
         margin: 10px auto;
         padding: 17px 14px;
     }
+}
+
+
+/* ======================================================================
+   COMPATIBILIDAD VISUAL — MÓDULO DE INVENTARIO
+   Viste el HTML heredado sin alterar sus rutas, nombres o lógica PHP.
+====================================================================== */
+
+.inventario-page { min-width: 0; }
+
+.inventario-container {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 22px;
+    border: 1px solid var(--cv-border);
+    border-radius: var(--cv-radius);
+    background: var(--cv-surface);
+    box-shadow: var(--cv-shadow);
+}
+
+.inventario-titulo {
+    margin: 0 0 20px;
+    color: var(--cv-text);
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -.035em;
+}
+
+.inventario-alert {
+    margin: 0 0 17px;
+    padding: 12px 15px;
+    border: 1px solid #bce8d1;
+    border-radius: 9px;
+    background: #eaf9f1;
+    color: #08784e;
+    font-size: 13px;
+}
+
+.inventario-acciones {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin: 0 0 19px;
+}
+
+.inventario-acciones a,
+.inventario-form-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 39px;
+    padding: 9px 14px;
+    border: 1px solid #d7e2f1;
+    border-radius: 8px;
+    background: #f7faff;
+    color: var(--cv-blue-700);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: .18s ease;
+}
+
+.inventario-acciones a:hover,
+.inventario-form-actions a:hover {
+    border-color: #b9cff2;
+    background: var(--cv-blue-100);
+    color: var(--cv-blue-700);
+    text-decoration: none;
+}
+
+.inventario-filtros {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0 0 19px;
+    padding: 14px;
+    border: 1px solid var(--cv-border);
+    border-radius: 10px;
+    background: #f8faff;
+}
+
+.inventario-filtros label {
+    display: block;
+    margin: 0 0 6px;
+    color: #35465f;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.inventario-filtros input {
+    width: min(340px, 100%);
+    min-height: 40px;
+    padding: 9px 11px;
+    border: 1px solid #d5deea;
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--cv-text);
+    font-size: 13px;
+}
+
+.inventario-filtros button,
+.inventario-form button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 9px 16px;
+    border: 1px solid var(--cv-blue-700);
+    border-radius: 8px;
+    background: var(--cv-blue-700);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.inventario-filtros button:hover,
+.inventario-form button:hover {
+    border-color: var(--cv-blue-600);
+    background: var(--cv-blue-600);
+}
+
+.inventario-mostrar-todos {
+    align-self: center;
+    margin: 0 0 2px;
+    color: var(--cv-blue-700);
+    font-size: 12px;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.inventario-mostrar-todos:hover { text-decoration: underline; }
+
+.inventario-tabla-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--cv-border);
+    border-radius: 10px;
+}
+
+table.inventario-tabla {
+    width: 100%;
+    min-width: 700px;
+    margin: 0;
+    border: 0 !important;
+    border-collapse: separate !important;
+    border-spacing: 0;
+    background: #ffffff;
+}
+
+table.inventario-tabla thead th {
+    padding: 12px 14px !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--cv-border) !important;
+    background: #f2f5fa !important;
+    color: #53627a !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: .045em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+table.inventario-tabla tbody td {
+    padding: 12px 14px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #edf1f6 !important;
+    background: #ffffff;
+    color: #35445c;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+table.inventario-tabla tbody tr:last-child td { border-bottom: 0 !important; }
+table.inventario-tabla tbody tr:hover td { background: #f8faff; }
+
+.inventario-stock {
+    color: var(--cv-green-600);
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+}
+
+.inventario-stock--agotado { color: var(--cv-red-600); }
+
+.inventario-tabla .inventario-acciones-fila {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.inventario-tabla .inventario-acciones-fila a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 29px;
+    padding: 5px 9px;
+    border: 1px solid #d7e2f1;
+    border-radius: 6px;
+    background: #f7faff;
+    color: var(--cv-blue-700);
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.inventario-tabla .inventario-acciones-fila a:hover { background: var(--cv-blue-100); }
+
+.inventario-tabla .inventario-acciones-fila a.btn-eliminar {
+    border-color: #f2d0d0;
+    background: #fff7f7;
+    color: #bd3037;
+}
+
+.inventario-tabla .inventario-acciones-fila a.btn-eliminar:hover { background: var(--cv-red-100); }
+
+.inventario-form-container { max-width: 900px; }
+
+.inventario-form {
+    max-width: 720px;
+    padding: 21px;
+    border: 1px solid var(--cv-border);
+    border-radius: 11px;
+    background: #f8faff;
+}
+
+.inventario-form br { display: none; }
+
+.inventario-form label {
+    display: block;
+    margin: 12px 0 6px;
+    color: #35465f;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.inventario-form input:not([type="hidden"]),
+.inventario-form select,
+.inventario-form textarea {
+    display: block;
+    width: min(100%, 520px);
+    min-height: 42px;
+    margin: 0 0 15px;
+    padding: 9px 11px;
+    border: 1px solid #d5deea;
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--cv-text);
+    font-size: 13px;
+}
+
+.inventario-form input[type="hidden"] { display: none; }
+
+.inventario-form-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 5px;
+}
+
+.inventario-form-actions a { min-height: 40px; }
+
+.inventario-form .inventario-btn-cancelar {
+    border-color: #d7e2f1;
+    background: #ffffff;
+    color: #53627a;
+}
+
+@media (max-width: 700px) {
+    .inventario-container { padding: 14px; }
+    .inventario-titulo { font-size: 20px; }
+    .inventario-filtros { align-items: stretch; flex-direction: column; }
+    .inventario-filtros input,
+    .inventario-filtros button { width: 100%; }
+    .inventario-form { padding: 15px; }
 }
