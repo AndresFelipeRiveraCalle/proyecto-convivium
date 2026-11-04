@@ -42,10 +42,11 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
     <div class="contenedor">
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-        <main class="contenido">
-            <h2>Editar Artículo</h2>
+        <main class="contenido inventario-page">
+            <div class="container inventario-container inventario-form-container">
+            <h2 class="inventario-titulo">Editar Artículo</h2>
 
-            <form action="actualizar_articulo.php" method="POST">
+            <form class="inventario-form" action="actualizar_articulo.php" method="POST">
                 <!-- Campo oculto importantísimo para saber qué artículo actualizar -->
                 <input type="hidden" name="id_articulo" value="<?php echo $articulo['id_articulo']; ?>">
 
@@ -65,9 +66,12 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
                     <option value="Paquete" <?php if ($articulo['unidad_medida'] == 'Paquete') echo 'selected'; ?>>Paquete</option>
                 </select><br><br>
 
-                <button type="submit">Actualizar Artículo</button>
-                <a href="listar.php">Cancelar</a>
+                <div class="inventario-form-actions">
+                    <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Actualizar artículo</button>
+                    <a class="inventario-btn-cancelar" href="listar.php">Cancelar</a>
+                </div>
             </form>
+            </div>
         </main>
     </div>
 </body>
