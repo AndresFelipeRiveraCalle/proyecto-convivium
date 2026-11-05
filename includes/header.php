@@ -45,9 +45,17 @@ $nombreUsuarioHeader = trim((string) (
 ));
 
 $rolUsuarioHeader = trim((string) (
-    $_SESSION['rol_usuario_autenticado']
-    ?? 'Administrador'
+    $_SESSION['rol_nombre']
+    ?? 'Administrador General'
 ));
+
+// La foto se sirve mediante el controlador privado para respetar
+// el almacenamiento protegido de las fotografías de usuarios.
+$idUsuarioHeader = (int) ($_SESSION['id_usuario_autenticado'] ?? 0);
+$fotoUsuarioFallback = BASE_URL . 'assets/img/user.png';
+$fotoUsuarioHeader = $idUsuarioHeader > 0
+    ? BASE_URL . 'actions/abrir_archivo_privado.php?tipo=foto&id=' . $idUsuarioHeader
+    : $fotoUsuarioFallback;
 ?>
 
 <header class="header">
@@ -62,7 +70,12 @@ $rolUsuarioHeader = trim((string) (
         </a>
 
         <div class="usuario">
-            <img src="<?= BASE_URL ?>assets/img/user.png" alt="Perfil de usuario">
+            <img
+                class="usuario-avatar"
+                src="<?= htmlspecialchars($fotoUsuarioHeader, ENT_QUOTES, 'UTF-8') ?>"
+                alt="Foto de <?= htmlspecialchars($nombreUsuarioHeader, ENT_QUOTES, 'UTF-8') ?>"
+                onerror="this.onerror=null;this.src='<?= htmlspecialchars($fotoUsuarioFallback, ENT_QUOTES, 'UTF-8') ?>';"
+            >
             <div class="usuario-info">
                 <span class="nombre">
                     <?= htmlspecialchars($nombreUsuarioHeader, ENT_QUOTES, 'UTF-8') ?>
