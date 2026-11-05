@@ -106,14 +106,14 @@ try {
                 <div class="bloque correspondencia-panel">
                     
                     <!-- PESTAÑAS DE NAVEGACIÓN -->
-                    <div class="nav-pestañas correspondencia-tabs" role="tablist" aria-label="Estado de los paquetes">
+                    <nav class="nav-pestañas correspondencia-tabs" aria-label="Filtrar paquetes por estado">
                         <a href="listar_correspondencia.php?estado=Pendiente" class="pestana correspondencia-tab <?php echo $filtro_estado == 'Pendiente' ? 'activa' : ''; ?>" <?php echo $filtro_estado == 'Pendiente' ? 'aria-current="page"' : ''; ?>>
                             Paquetes Pendientes (En portería)
                         </a>
                         <a href="listar_correspondencia.php?estado=Entregado" class="pestana correspondencia-tab <?php echo $filtro_estado == 'Entregado' ? 'activa' : ''; ?>" <?php echo $filtro_estado == 'Entregado' ? 'aria-current="page"' : ''; ?>>
                             Historial Entregados
                         </a>
-                    </div>
+                    </nav>
 
                     <form action="listar_correspondencia.php" method="GET" class="filtros correspondencia-filtros">
                         <!-- Mantener el estado actual en el buscador -->
@@ -237,7 +237,7 @@ try {
     </div>
 
     <!-- Cargar JS específico del módulo -->
-    <script src="<?php echo BASE_URL; ?>/assets/js/correspondencia.js"></script>
+    <script src="<?php echo BASE_URL; ?>/assets/js/correspondencia.js?v=<?php echo time(); ?>"></script>
 
 </body>
 </html>
