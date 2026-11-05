@@ -4484,7 +4484,7 @@ vertical-align: center;
 
 .modal-content-custom {
     background-color: #ffffff;
-    margin: 5% auto;
+    margin: 1% auto;
     padding: 25px;
     border: 1px solid #888;
     width: 90%;
@@ -6455,4 +6455,306 @@ table.inventario-tabla tbody tr:hover td { background: #f8faff; }
     .inventario-filtros input,
     .inventario-filtros button { width: 100%; }
     .inventario-form { padding: 15px; }
+}
+
+
+/* =========================================================
+   SIDEBAR CONVIVIUM
+   Azul institucional + estilo moderno y ligero
+   Mantiene las clases existentes y su funcionalidad.
+========================================================= */
+
+.menu {
+    --sb-fondo: #102F50;
+    --sb-azul-activo: #0866E8;
+    --sb-azul-hover: #0B57C5;
+    --sb-azul-claro: #E8F1FF;
+    --sb-blanco: #FFFFFF;
+    --sb-texto: #172B4D;
+    --sb-texto-secundario: #52677F;
+    --sb-verde-claro: #DDF7E8;
+    --sb-verde: #16A34A;
+    --sb-borde: #DCE6F0;
+
+    background: var(--sb-fondo);
+    color: #FFFFFF;
+}
+
+/* Espaciado general */
+.menu ul {
+    margin: 0;
+    padding: 0;
+}
+
+.menu li {
+    margin: 3px 0;
+    padding: 0;
+    border-radius: 9px;
+}
+
+/* Opciones principales */
+.menu nav > ul > li > a {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
+    min-height: 43px;
+    padding: 10px 13px;
+
+    border-radius: 9px;
+
+    color: #E8F0FA;
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition:
+        background-color .2s ease,
+        color .2s ease;
+}
+
+/* Hover de opciones principales */
+.menu nav > ul > li > a:hover {
+    background: rgba(255, 255, 255, .10);
+    color: #FFFFFF;
+}
+
+/* Inicio u otra opción principal seleccionada */
+.menu nav > ul > li.activo > a,
+.menu nav > ul > li > a.activo {
+    background: var(--sb-azul-activo);
+    color: #FFFFFF;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, .12);
+}
+
+/* Iconos de opciones principales */
+.menu-principal i.icono {
+    color: #C6D5E7;
+    transition: color .2s ease;
+}
+
+.menu-principal a:hover i.icono,
+.menu-principal li.activo > a i.icono {
+    color: #FFFFFF;
+}
+
+/* =========================================================
+   ENCABEZADO DE LOS SUBMENÚS
+========================================================= */
+
+.menu .submenu-titulo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    min-height: 45px;
+    padding: 10px 13px;
+
+    border-radius: 10px;
+
+    color: #E8F0FA;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+/* Submenú abierto: encabezado azul claro */
+.menu .submenu.activo > .submenu-titulo {
+    background: var(--sb-azul-claro);
+    color: var(--sb-texto);
+}
+
+/* Icono del encabezado abierto */
+.menu .submenu.activo > .submenu-titulo i {
+    color: #234D78;
+}
+
+/* Hover en encabezados cerrados */
+.menu .submenu:not(.activo) > .submenu-titulo:hover {
+    background: rgba(255, 255, 255, .10);
+    color: #FFFFFF;
+}
+
+/* Flecha de expansión */
+.menu .flecha {
+    transition: transform .25s ease;
+}
+
+.menu .submenu.activo .flecha {
+    transform: rotate(180deg);
+}
+
+/* =========================================================
+   PANEL BLANCO DEL SUBMENÚ
+========================================================= */
+
+.menu .submenu-items {
+    margin: 5px 0 12px;
+    padding: 8px;
+
+    border: 1px solid var(--sb-borde);
+    border-radius: 11px;
+
+    background: var(--sb-blanco);
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+}
+
+/* Elementos internos */
+.menu .submenu-items li {
+    margin: 3px 0;
+    padding: 0;
+
+    background: transparent;
+}
+
+/* Enlaces del submenú */
+.menu .submenu-items li a {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    min-height: 38px;
+    padding: 8px 11px;
+
+    border-left: 4px solid transparent;
+    border-radius: 7px;
+
+    background: transparent;
+    color: var(--sb-texto);
+
+    font-size: 13px;
+    font-weight: 500;
+
+    text-decoration: none;
+
+    transition:
+        background-color .18s ease,
+        color .18s ease;
+}
+
+/* Iconos del submenú */
+.menu .submenu-items li a i,
+.menu .submenu-items li a .icono {
+    color: var(--sb-texto-secundario);
+    transition: color .2s ease;
+}
+
+/* Hover de los elementos internos */
+.menu .submenu-items li a:hover {
+    background: #EFF5FC;
+    color: #123F70;
+}
+
+.menu .submenu-items li a:hover i,
+.menu .submenu-items li a:hover .icono {
+    color: #0866E8;
+}
+
+/* Elemento seleccionado del submenú */
+.menu .submenu-items li.activo > a,
+.menu .submenu-items li > a.activo,
+.menu .submenu-items li a[aria-current="page"] {
+    border-left-color: var(--sb-verde);
+
+    background: var(--sb-verde-claro);
+    color: #14532D;
+
+    font-weight: 650;
+}
+
+/* Icono del elemento seleccionado */
+.menu .submenu-items li.activo > a i,
+.menu .submenu-items li > a.activo i {
+    color: #15803D;
+}
+
+/* =========================================================
+   OTROS MÓDULOS: FACTURACIÓN, CARTERA, ETC.
+========================================================= */
+
+.menu .submenu:not(.activo) {
+    background: transparent;
+}
+
+.menu .submenu:not(.activo) > .submenu-titulo {
+    color: #E8F0FA;
+}
+
+.menu .submenu:not(.activo) > .submenu-titulo:hover {
+    background: rgba(255, 255, 255, .10);
+}
+
+/* Separación visual entre módulos */
+.menu nav > ul > li + li {
+    margin-top: 4px;
+}
+
+/* Barra de desplazamiento */
+.menu {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.30) transparent;
+}
+
+.menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.menu::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,.30);
+    border-radius: 10px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .menu .submenu-items {
+        background: #FFFFFF;
+        border: 1px solid var(--sb-borde);
+        box-shadow: 0 8px 18px rgba(0,0,0,.14);
+    }
+
+    .menu .submenu-items li a {
+        color: var(--sb-texto);
+    }
+
+    .menu .submenu.activo > .submenu-titulo {
+        background: var(--sb-azul-claro);
+        color: var(--sb-texto);
+    }
+}
+/* Texto negro en las opciones del sidebar */
+.menu .submenu-items li a,
+.menu .submenu-items li a:hover,
+.menu .submenu-items li.activo > a,
+.menu .submenu-items li > a.activo,
+.menu .submenu-items li a[aria-current="page"] {
+    color: #000000 !important;
+}
+/* Sombra para la opción seleccionada del submenú */
+.menu .submenu-items li.activo > a,
+.menu .submenu-items li > a.activo,
+.menu .submenu-items li a[aria-current="page"] {
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.08),
+        0 5px 12px rgba(16, 47, 80, 0.14);
+
+    border-left: 4px solid #16A34A;
+    border-radius: 7px;
+
+    position: relative;
+    z-index: 1;
+
+    transition: box-shadow 0.2s ease;
 }

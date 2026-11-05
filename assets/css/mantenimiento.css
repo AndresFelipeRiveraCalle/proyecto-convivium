@@ -1,0 +1,343 @@
+
+/* =====================================================
+   CONVIVIUM - MÓDULO DE MANTENIMIENTO
+   Diseño institucional azul y verde
+===================================================== */
+
+.mantenimiento-crear {
+    flex: 1;
+    min-width: 0;
+    padding: 28px;
+    color: #172B4D;
+}
+
+.mantenimiento-crear * {
+    box-sizing: border-box;
+}
+
+/* ENCABEZADO */
+
+.mantenimiento-encabezado {
+    margin: 0 auto 25px;
+    max-width: 1100px;
+}
+
+.mantenimiento-etiqueta {
+    display: inline-block;
+    margin-bottom: 8px;
+    color: #16A34A;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.mantenimiento-encabezado h1 {
+    margin: 0;
+    color: #102F50;
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.mantenimiento-encabezado p {
+    margin: 8px 0 0;
+    color: #64748B;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* FORMULARIO */
+
+.formulario-mantenimiento {
+    display: grid;
+    gap: 20px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* TARJETAS */
+
+.mantenimiento-crear .bloque.filtros.mantenimiento-card {
+    width: 100%;
+    margin: 0;
+    padding: 23px;
+
+    background: #FFFFFF;
+    border: 1px solid #E1EAF2;
+    border-radius: 14px;
+
+    box-shadow: 0 4px 14px rgba(16, 47, 80, 0.06);
+}
+
+/* TÍTULOS DE TARJETAS */
+
+.mantenimiento-card-titulo {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid #EDF1F5;
+}
+
+.mantenimiento-card-titulo h3 {
+    margin: 0;
+    color: #102F50;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.mantenimiento-card-titulo p {
+    margin: 5px 0 0;
+    color: #64748B;
+    font-size: 12px;
+}
+
+.mantenimiento-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 43px;
+    height: 43px;
+    flex-shrink: 0;
+
+    background: #E8F1FF;
+    color: #0866E8;
+    border-radius: 11px;
+
+    font-size: 18px;
+}
+
+.mantenimiento-icono-verde {
+    background: #DDF7E8;
+    color: #16A34A;
+}
+
+/* DISTRIBUCIÓN DE CAMPOS */
+
+.mantenimiento-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.campo-mantenimiento {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.campo-completo {
+    grid-column: 1 / -1;
+}
+
+/* ETIQUETAS */
+
+.mantenimiento-crear .campo-mantenimiento label {
+    display: block;
+    margin-bottom: 8px;
+
+    color: #172B4D;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+/* INPUTS Y SELECTS */
+
+.mantenimiento-crear .campo-mantenimiento input:not([type="file"]),
+.mantenimiento-crear .campo-mantenimiento select,
+.mantenimiento-crear .campo-mantenimiento textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 11px 13px;
+
+    border: 1px solid #D6E1EB;
+    border-radius: 8px;
+
+    background: #FFFFFF;
+    color: #172B4D;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    outline: none;
+
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+/* EFECTO AL SELECCIONAR */
+
+.mantenimiento-crear .campo-mantenimiento input:focus,
+.mantenimiento-crear .campo-mantenimiento select:focus,
+.mantenimiento-crear .campo-mantenimiento textarea:focus {
+    border-color: #0866E8;
+    box-shadow: 0 0 0 3px rgba(8, 102, 232, .12);
+}
+
+/* DESCRIPCIÓN */
+
+.mantenimiento-crear .campo-mantenimiento textarea {
+    min-height: 135px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.mantenimiento-crear .campo-mantenimiento textarea::placeholder {
+    color: #94A3B8;
+}
+
+/* ARCHIVO */
+
+.mantenimiento-crear .campo-mantenimiento input[type="file"] {
+    width: 100%;
+    padding: 12px;
+
+    border: 1px dashed #B8C9DA;
+    border-radius: 9px;
+
+    background: #F8FAFC;
+    color: #475569;
+
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.mantenimiento-crear .campo-mantenimiento input[type="file"]:focus {
+    border-color: #0866E8;
+    outline: 2px solid rgba(8, 102, 232, .12);
+}
+
+.mantenimiento-crear .campo-mantenimiento small {
+    margin-top: 7px;
+    color: #64748B;
+    font-size: 11px;
+}
+
+/* MENSAJE INFORMATIVO */
+
+.mantenimiento-ayuda {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+
+    margin-bottom: 20px;
+    padding: 14px;
+
+    border-left: 4px solid #0866E8;
+    border-radius: 7px;
+
+    background: #E8F1FF;
+    color: #234D78;
+
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.mantenimiento-ayuda i {
+    margin-top: 2px;
+    color: #0866E8;
+    font-size: 16px;
+}
+
+/* BOTONES */
+
+.mantenimiento-acciones {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    padding: 5px 0 20px;
+}
+
+.btn-guardar-mantenimiento,
+.btn-cancelar-mantenimiento {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    min-height: 44px;
+    padding: 11px 20px;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+
+    text-decoration: none;
+    cursor: pointer;
+
+    transition: all .2s ease;
+}
+
+/* GUARDAR */
+
+.btn-guardar-mantenimiento {
+    border: 1px solid #0866E8;
+    background: #0866E8;
+    color: #FFFFFF;
+
+    box-shadow: 0 3px 8px rgba(8, 102, 232, .16);
+}
+
+.btn-guardar-mantenimiento:hover {
+    background: #0B57C5;
+    border-color: #0B57C5;
+    box-shadow: 0 5px 12px rgba(8, 102, 232, .22);
+    transform: translateY(-1px);
+}
+
+/* CANCELAR */
+
+.btn-cancelar-mantenimiento {
+    border: 1px solid #D6E1EB;
+    background: #FFFFFF;
+    color: #102F50;
+}
+
+.btn-cancelar-mantenimiento:hover {
+    background: #F1F5F9;
+    border-color: #AFC2D5;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+
+    .mantenimiento-crear {
+        padding: 17px;
+    }
+
+    .mantenimiento-encabezado h1 {
+        font-size: 22px;
+    }
+
+    .mantenimiento-crear .bloque.filtros.mantenimiento-card {
+        padding: 17px;
+    }
+
+    .mantenimiento-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .campo-completo {
+        grid-column: auto;
+    }
+
+    .mantenimiento-acciones {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .btn-guardar-mantenimiento,
+    .btn-cancelar-mantenimiento {
+        width: 100%;
+    }
+}
