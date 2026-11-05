@@ -69,30 +69,7 @@ try {
 <head>
     <?php include ROOT_PATH . "/includes/head.php"; ?>
     <!-- Cargar CSS específico del módulo -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/correspondencia.css">
-    
-    <!-- Estilos rápidos para las pestañas de navegación -->
-    <style>
-        .nav-pestañas {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        .pestana {
-            padding: 8px 16px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            color: #333;
-            background-color: #f1f5f9;
-            border: 1px solid #cbd5e1;
-        }
-        .pestana.activa {
-            background-color: #1e293b;
-            color: white;
-            border-color: #1e293b;
-        }
-    </style>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/correspondencia.css?v=<?php echo time(); ?>">
 </head>
 <body>
 
@@ -102,14 +79,21 @@ try {
     <div class="contenedor">
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
         
-        <main class="contenido">
-            <div class="container">
-                <h2 class="titulo-pagina" style="margin-bottom: 5px;">Correspondencia</h2>
-                <p class="subtitulo-pagina">Recepción y control de paquetes en portería</p>
+        <main class="contenido correspondencia-page">
+            <div class="container correspondencia-container">
+                <div class="correspondencia-encabezado">
+                    <div>
+                        <h2 class="titulo-pagina correspondencia-titulo">Correspondencia</h2>
+                        <p class="subtitulo-pagina">Recepción y control de paquetes en portería</p>
+                    </div>
+                    <button id="btn-abrir-crear" class="btn btn-success correspondencia-btn-primary" type="button">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i> Registrar paquete
+                    </button>
+                </div>
 
                 <!-- Alertas -->
                 <?php if (isset($_GET['mensaje'])): ?>
-                    <div class="alerta-exito">
+                    <div class="alerta-exito correspondencia-alerta" role="status">
                         <strong>
                             <?php
                             if ($_GET['mensaje'] == 'creado') echo "Paquete registrado en portería.";
@@ -119,30 +103,29 @@ try {
                     </div>
                 <?php endif; ?>
 
-                <button id="btn-abrir-crear" class="btn btn-success" style="margin-bottom: 15px;">Registrar Paquete</button>
-
-                <div class="bloque" style="display: block; padding: 20px;">
+                <div class="bloque correspondencia-panel">
                     
                     <!-- PESTAÑAS DE NAVEGACIÓN -->
-                    <div class="nav-pestañas">
-                        <a href="listar_correspondencia.php?estado=Pendiente" class="pestana <?php echo $filtro_estado == 'Pendiente' ? 'activa' : ''; ?>">
+                    <div class="nav-pestañas correspondencia-tabs" role="tablist" aria-label="Estado de los paquetes">
+                        <a href="listar_correspondencia.php?estado=Pendiente" class="pestana correspondencia-tab <?php echo $filtro_estado == 'Pendiente' ? 'activa' : ''; ?>" <?php echo $filtro_estado == 'Pendiente' ? 'aria-current="page"' : ''; ?>>
                             Paquetes Pendientes (En portería)
                         </a>
-                        <a href="listar_correspondencia.php?estado=Entregado" class="pestana <?php echo $filtro_estado == 'Entregado' ? 'activa' : ''; ?>">
+                        <a href="listar_correspondencia.php?estado=Entregado" class="pestana correspondencia-tab <?php echo $filtro_estado == 'Entregado' ? 'activa' : ''; ?>" <?php echo $filtro_estado == 'Entregado' ? 'aria-current="page"' : ''; ?>>
                             Historial Entregados
                         </a>
                     </div>
 
-                    <form action="listar_correspondencia.php" method="GET" class="filtros" style="margin-bottom: 20px;">
+                    <form action="listar_correspondencia.php" method="GET" class="filtros correspondencia-filtros">
                         <!-- Mantener el estado actual en el buscador -->
                         <input type="hidden" name="estado" value="<?php echo htmlspecialchars($filtro_estado); ?>">
-                        <input type="text" id="buscar" name="buscar" placeholder="Buscar remitente o apto..." value="<?php echo htmlspecialchars($buscar); ?>">
-                        <button type="submit" class="btn-filtrar">Buscar</button>
-                        <a href="listar_correspondencia.php?estado=<?php echo htmlspecialchars($filtro_estado); ?>" class="btn-limpiar">Mostrar todos</a>
+                        <label class="sr-only" for="buscar">Buscar remitente o apartamento</label>
+                        <input type="search" id="buscar" name="buscar" placeholder="Buscar remitente o apartamento..." value="<?php echo htmlspecialchars($buscar); ?>">
+                        <button type="submit" class="btn-filtrar correspondencia-btn-search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Buscar</button>
+                        <a href="listar_correspondencia.php?estado=<?php echo htmlspecialchars($filtro_estado); ?>" class="btn-limpiar correspondencia-btn-reset">Mostrar todos</a>
                     </form>
 
-                    <div class="card-tabla">
-                        <table class="tabla-general">
+                    <div class="card-tabla correspondencia-table-wrap">
+                        <table class="tabla-general correspondencia-table">
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -165,9 +148,9 @@ try {
                                             <!-- Columna de Estado con clases CSS -->
                                             <td>
                                                 <?php if($fila['estado'] == 'Pendiente'): ?>
-                                                    <span class="estado-etiqueta estado-pendiente">Pendiente</span>
+                                                    <span class="estado-etiqueta estado-pendiente correspondencia-status">Pendiente</span>
                                                 <?php else: ?>
-                                                    <span class="estado-etiqueta estado-entregado">Entregado</span>
+                                                    <span class="estado-etiqueta estado-entregado correspondencia-status">Entregado</span>
                                                 <?php endif; ?>
                                             </td>
 
@@ -179,7 +162,7 @@ try {
                                                         <?php 
                                                             $mensajeWa = urlencode("Hola " . $fila['nombre_residente'] . ", te informamos desde la portería de Convivium que acaba de llegar un paquete de " . $fila['remitente'] . " a tu nombre. ¡Puedes pasar a recogerlo!");
                                                         ?>
-                                                        <a href="https://wa.me/57<?php echo preg_replace('/[^0-9]/', '', $fila['celular']); ?>?text=<?php echo $mensajeWa; ?>" target="_blank" class="btn-accion-tabla btn-whatsapp">
+                                                        <a href="https://wa.me/57<?php echo preg_replace('/[^0-9]/', '', $fila['celular']); ?>?text=<?php echo $mensajeWa; ?>" target="_blank" class="btn-accion-tabla btn-whatsapp correspondencia-action">
                                                             <i class="fa-brands fa-whatsapp"></i> Avisar
                                                         </a>
                                                     <?php else: ?>
@@ -187,7 +170,7 @@ try {
                                                     <?php endif; ?>
 
                                                     <!-- BOTÓN DE ENTREGAR -->
-                                                    <a href="entregar_correspondencia.php?id=<?php echo $fila['id_correspondencia']; ?>" class="btn-accion-tabla btn-entregar" onclick="return confirm('¿Confirmas que el residente ya recogió este paquete?');">
+                                                    <a href="entregar_correspondencia.php?id=<?php echo $fila['id_correspondencia']; ?>" class="btn-accion-tabla btn-entregar correspondencia-action" onclick="return confirm('¿Confirmas que el residente ya recogió este paquete?');">
                                                         <i class="fa-solid fa-check"></i> Entregar
                                                     </a>
 
@@ -211,26 +194,26 @@ try {
     <!-- ==== -->
     <!-- MODAL: REGISTRAR PAQUETE                                  -->
     <!-- ==== -->
-    <div id="modal-crear" class="modal">
-        <div class="modal-contenido">
+    <div id="modal-crear" class="modal correspondencia-modal" role="presentation" aria-hidden="true">
+        <div class="modal-contenido correspondencia-modal-content" role="dialog" aria-modal="true" aria-labelledby="correspondencia-modal-title">
             <div class="modal-header">
-                <h3>Registrar Paquete</h3>
-                <button type="button" id="btn-cerrar-crear" class="cerrar">&times;</button>
+                <h3 id="correspondencia-modal-title">Registrar paquete</h3>
+                <button type="button" id="btn-cerrar-crear" class="cerrar" aria-label="Cerrar ventana">&times;</button>
             </div>
-            <form action="guardar_correspondencia.php" method="POST">
-                <h4 style="margin-bottom: 10px; color: #333;">Información del envío</h4>
+            <form action="guardar_correspondencia.php" method="POST" class="correspondencia-form">
+                <h4 class="correspondencia-form-section">Información del envío</h4>
                 <div class="form-group">
-                    <label>Remitente / Empresa de mensajería *</label>
-                    <input type="text" name="remitente" placeholder="Ej: Servientrega, MercadoLibre, Familiar" required>
+                    <label for="correspondencia-remitente">Remitente / empresa de mensajería *</label>
+                    <input type="text" id="correspondencia-remitente" name="remitente" placeholder="Ej: Servientrega, MercadoLibre, Familiar" autocomplete="organization" required>
                 </div>
                 <div class="form-group">
-                    <label>Descripción del paquete *</label>
-                    <input type="text" name="descripcion" placeholder="Ej: Caja grande, Sobre manila, Domicilio" required>
+                    <label for="correspondencia-descripcion">Descripción del paquete *</label>
+                    <input type="text" id="correspondencia-descripcion" name="descripcion" placeholder="Ej: Caja grande, sobre manila, domicilio" required>
                 </div>
                 
-                <h4 class="modal-separador">Destinatario</h4>
+                <h4 class="modal-separador correspondencia-form-section">Destinatario</h4>
                 <div class="form-group">
-                    <label>Apartamento destino *</label>
+                    <label for="crear_id_unidad">Apartamento destino *</label>
                     <select id="crear_id_unidad" name="id_unidad" required>
                         <option value="" data-torre="">Seleccione...</option>
                         <?php foreach ($lista_unidades as $unidad): ?>
@@ -241,13 +224,13 @@ try {
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Agrupación</label>
+                    <label for="crear_torre">Agrupación</label>
                     <input type="text" id="crear_torre" class="campo-solo-lectura" readonly>
                 </div>
 
-                <div class="acciones-modal" style="justify-content: flex-end; margin-top: 20px;">
-                    <button type="button" id="btn-cancelar-crear" class="btn" style="background: #ccc; margin-right: 10px;">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Guardar Paquete</button>
+                <div class="acciones-modal correspondencia-modal-actions">
+                    <button type="button" id="btn-cancelar-crear" class="btn correspondencia-btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-success correspondencia-btn-primary">Guardar paquete</button>
                 </div>
             </form>
         </div>
