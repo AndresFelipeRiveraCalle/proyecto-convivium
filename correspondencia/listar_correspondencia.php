@@ -1,67 +1,109 @@
 <?php
 
-
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
 
-// 1. FILTROS Y BUSCADOR
-$buscar = isset($_GET['buscar']) ? trim($_GET['buscar']) : '';
-$filtro_estado = isset($_GET['estado']) && $_GET['estado'] == 'Entregado' ? 'Entregado' : 'Pendiente';
+// Filtros de la bandeja.
+$buscar = isset($_GET['buscar']) ? trim((string) $_GET['buscar']) : '';
+$filtro_estado = (($_GET['estado'] ?? '') === 'Entregado')
+    ? 'Entregado'
+    : 'Pendiente';
+
+$correspondencias = [];
+$errorCorrespondencia = false;
 
 try {
-    if ($buscar != '') {
-        $query = "SELECT 
-                    c.id_correspondencia, c.remitente, c.descripcion, c.estado, c.fecha_recepcion,
-                    u.id_unidad, u.codigo AS apartamento, dtu.nombre_grupo AS torre,
-                    MAX(usr.nombres) AS nombre_residente, MAX(usr.celular) AS celular
-                    FROM correspondencia c
-                    INNER JOIN unidades u ON c.id_unidad = u.id_unidad
-                    INNER JOIN detalle_tipos_unidad dtu ON u.id_tipo_config = dtu.id_tipo_config
-                    LEFT JOIN residente r ON u.id_unidad = r.unidad_id AND r.activo = 1
-                    LEFT JOIN usuario usr ON r.usuario_id = usr.id
-                    WHERE c.estado = :estado 
-                    AND (c.remitente LIKE :buscar1 OR u.codigo LIKE :buscar2)
-                    GROUP BY c.id_correspondencia
-                    ORDER BY c.fecha_recepcion DESC";
-                
-        $stmt = $conexion->prepare($query);
-        $stmt->execute([
-            ':estado'  => $filtro_estado,
-            ':buscar1' => '%' . $buscar . '%',
-            ':buscar2' => '%' . $buscar . '%'
-        ]);
-    } else {
-        $query = "SELECT 
-                    c.id_correspondencia, c.remitente, c.descripcion, c.estado, c.fecha_recepcion,
-                    u.id_unidad, u.codigo AS apartamento, dtu.nombre_grupo AS torre,
-                    MAX(usr.nombres) AS nombre_residente, MAX(usr.celular) AS celular
-                    FROM correspondencia c
-                    INNER JOIN unidades u ON c.id_unidad = u.id_unidad
-                    INNER JOIN detalle_tipos_unidad dtu ON u.id_tipo_config = dtu.id_tipo_config
-                    LEFT JOIN residente r ON u.id_unidad = r.unidad_id AND r.activo = 1
-                    LEFT JOIN usuario usr ON r.usuario_id = usr.id
-                    WHERE c.estado = :estado
-                    GROUP BY c.id_correspondencia
-                    ORDER BY c.fecha_recepcion DESC";
-                
-        $stmt = $conexion->prepare($query);
-        $stmt->execute([':estado' => $filtro_estado]);
+    $query = "
+        SELECT
+            c.id_correspondencia,
+            c.remitente,
+            c.descripcion,
+            c.estado,
+            c.fecha_recepcion,
+            u.id_unidad,
+            u.codigo AS apartamento,
+            dtu.nombre_grupo AS torre,
+            MAX(usr.nombres) AS nombre_residente,
+            MAX(usr.celular) AS celular
+        FROM correspondencia c
+        INNER JOIN unidades u
+            ON c.id_unidad = u.id_unidad
+        INNER JOIN detalle_tipos_unidad dtu
+            ON u.id_tipo_config = dtu.id_tipo_config
+        LEFT JOIN residente r
+            ON u.id_unidad = r.unidad_id
+            AND r.activo = 1
+            AND r.fecha_hasta IS NULL
+        LEFT JOIN usuario usr
+            ON r.usuario_id = usr.id
+        WHERE c.estado = :estado
+    ";
+
+    $parametros = [
+        ':estado' => $filtro_estado
+    ];
+
+    if ($buscar !== '') {
+        $query .= "
+            AND (
+                c.remitente LIKE :buscar_remitente
+                OR u.codigo LIKE :buscar_unidad
+            )
+        ";
+
+        $terminoBusqueda = '%' . $buscar . '%';
+        $parametros[':buscar_remitente'] = $terminoBusqueda;
+        $parametros[':buscar_unidad'] = $terminoBusqueda;
     }
+
+    // Se incluyen todas las columnas no agregadas para que la consulta
+    // también funcione con ONLY_FULL_GROUP_BY habilitado.
+    $query .= "
+        GROUP BY
+            c.id_correspondencia,
+            c.remitente,
+            c.descripcion,
+            c.estado,
+            c.fecha_recepcion,
+            u.id_unidad,
+            u.codigo,
+            dtu.nombre_grupo
+        ORDER BY c.fecha_recepcion DESC
+    ";
+
+    $stmt = $conexion->prepare($query);
+    $stmt->execute($parametros);
+    $correspondencias = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 } catch (PDOException $e) {
-    die("Error de SQL exacto: " . $e->getMessage());
+    error_log("Error al cargar correspondencia: " . $e->getMessage());
+    $errorCorrespondencia = true;
 }
 
-// CARGAR UNIDADES (Para el select del modal de crear)
+// Unidades disponibles para el formulario de registro.
+$lista_unidades = [];
+
 try {
-    $consulta_unidades = "SELECT u.id_unidad, u.codigo, dtu.nombre_grupo AS nombre_torre
-                            FROM unidades u
-                            INNER JOIN detalle_tipos_unidad dtu ON u.id_tipo_config = dtu.id_tipo_config
-                            WHERE u.activo = 1 ORDER BY dtu.nombre_grupo ASC, u.codigo ASC";
-    $lista_unidades = $conexion->query($consulta_unidades)->fetchAll();
+    $consulta_unidades = "
+        SELECT
+            u.id_unidad,
+            u.codigo,
+            dtu.nombre_grupo AS nombre_torre
+        FROM unidades u
+        INNER JOIN detalle_tipos_unidad dtu
+            ON u.id_tipo_config = dtu.id_tipo_config
+        WHERE u.activo = 1
+        ORDER BY dtu.nombre_grupo ASC, u.codigo ASC
+    ";
+
+    $stmtUnidades = $conexion->query($consulta_unidades);
+    $lista_unidades = $stmtUnidades->fetchAll(PDO::FETCH_ASSOC);
+
 } catch (PDOException $e) {
-    $lista_unidades = [];
+    error_log("Error al cargar unidades para correspondencia: " . $e->getMessage());
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -69,7 +111,7 @@ try {
 <head>
     <?php include ROOT_PATH . "/includes/head.php"; ?>
     <!-- Cargar CSS específico del módulo -->
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/correspondencia.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/correspondencia.css?v=<?php echo time(); ?>">
 </head>
 <body>
 
@@ -137,8 +179,14 @@ try {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if ($stmt->rowCount() > 0): ?>
-                                    <?php while ($fila = $stmt->fetch(PDO::FETCH_ASSOC)): ?>
+                                <?php if ($errorCorrespondencia): ?>
+                                    <tr>
+                                        <td colspan="6" class="sin-datos">
+                                            No fue posible cargar los paquetes. Revisa el registro de errores de PHP para identificar la causa.
+                                        </td>
+                                    </tr>
+                                <?php elseif (!empty($correspondencias)): ?>
+                                    <?php foreach ($correspondencias as $fila): ?>
                                         <tr>
                                             <td><?php echo $fila['id_correspondencia']; ?></td>
                                             <td><strong><?php echo htmlspecialchars($fila['remitente']); ?></strong></td>
@@ -179,7 +227,7 @@ try {
                                                 <?php endif; ?>
                                             </td>
                                         </tr>
-                                    <?php endwhile; ?>
+                                    <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr><td colspan='6' class='sin-datos'>No hay paquetes <?php echo strtolower($filtro_estado); ?>s.</td></tr>
                                 <?php endif; ?>
@@ -216,11 +264,15 @@ try {
                     <label for="crear_id_unidad">Apartamento destino *</label>
                     <select id="crear_id_unidad" name="id_unidad" required>
                         <option value="" data-torre="">Seleccione...</option>
-                        <?php foreach ($lista_unidades as $unidad): ?>
-                            <option value="<?php echo $unidad['id_unidad']; ?>" data-torre="<?php echo htmlspecialchars($unidad['nombre_torre']); ?>">
-                                <?php echo htmlspecialchars('Apto ' . $unidad['codigo']); ?>
-                            </option>
-                        <?php endforeach; ?>
+                        <?php if (empty($lista_unidades)): ?>
+                            <option value="" disabled>No hay unidades activas disponibles</option>
+                        <?php else: ?>
+                            <?php foreach ($lista_unidades as $unidad): ?>
+                                <option value="<?php echo (int) $unidad['id_unidad']; ?>" data-torre="<?php echo htmlspecialchars($unidad['nombre_torre'], ENT_QUOTES, 'UTF-8'); ?>">
+                                    <?php echo htmlspecialchars('Apto ' . $unidad['codigo'], ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </select>
                 </div>
                 <div class="form-group">
@@ -237,7 +289,7 @@ try {
     </div>
 
     <!-- Cargar JS específico del módulo -->
-    <script src="<?php echo BASE_URL; ?>/assets/js/correspondencia.js?v=<?php echo time(); ?>"></script>
+    <script src="<?php echo BASE_URL; ?>assets/js/correspondencia.js?v=<?php echo time(); ?>"></script>
 
 </body>
 </html>
