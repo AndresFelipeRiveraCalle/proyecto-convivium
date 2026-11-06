@@ -1,3 +1,4 @@
+
 /* assets/js/correspondencia.js */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -6,10 +7,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnCerrarCrear = document.getElementById("btn-cerrar-crear");
     const btnCancelarCrear = document.getElementById("btn-cancelar-crear");
 
-    /**
-     * Mantiene sincronizados el estado visual, la accesibilidad y el scroll
-     * de fondo. Se conservan los mismos IDs utilizados por el módulo.
-     */
     function abrirModal() {
         if (!modalCrear) return;
 
@@ -21,9 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
             'input:not([type="hidden"]), select, textarea'
         );
 
-        if (primerCampo) {
-            primerCampo.focus();
-        }
+        if (primerCampo) primerCampo.focus();
     }
 
     function cerrarModal() {
@@ -33,17 +28,13 @@ document.addEventListener("DOMContentLoaded", function () {
         modalCrear.setAttribute("aria-hidden", "true");
         document.body.style.overflow = "";
 
-        if (btnAbrirCrear) {
-            btnAbrirCrear.focus();
-        }
+        if (btnAbrirCrear) btnAbrirCrear.focus();
     }
 
-    // Abrir el formulario de registro.
     if (btnAbrirCrear && modalCrear) {
         btnAbrirCrear.addEventListener("click", abrirModal);
     }
 
-    // Cerrar desde la X o desde el botón Cancelar.
     if (btnCerrarCrear && modalCrear) {
         btnCerrarCrear.addEventListener("click", cerrarModal);
     }
@@ -52,15 +43,11 @@ document.addEventListener("DOMContentLoaded", function () {
         btnCancelarCrear.addEventListener("click", cerrarModal);
     }
 
-    // Cerrar al hacer clic sobre el fondo, sin cerrar al usar el formulario.
     if (modalCrear) {
         modalCrear.addEventListener("click", function (event) {
-            if (event.target === modalCrear) {
-                cerrarModal();
-            }
+            if (event.target === modalCrear) cerrarModal();
         });
 
-        // Permitir cerrar con Escape.
         document.addEventListener("keydown", function (event) {
             if (
                 event.key === "Escape" &&
@@ -71,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Autocompletar la agrupación según el apartamento seleccionado.
+    // Autocompletar la agrupación según la unidad seleccionada.
     const selectCrear = document.getElementById("crear_id_unidad");
     const inputTorre = document.getElementById("crear_torre");
 
@@ -81,4 +68,56 @@ document.addEventListener("DOMContentLoaded", function () {
                 this.options[this.selectedIndex].getAttribute("data-torre") || "";
         });
     }
+
+    // =====================================================
+    // WHATSAPP: ACTIVAR AVISAR AL ELEGIR UN CONTACTO
+    // =====================================================
+
+    document.querySelectorAll(".correspondencia-contacto-select").forEach(function (selector) {
+        const boton = Array.from(
+            document.querySelectorAll(".correspondencia-btn-notificar")
+        ).find(function (elemento) {
+            return elemento.dataset.selectId === selector.id;
+        });
+
+        if (!boton) return;
+
+        function actualizarEstadoBoton() {
+            boton.disabled = selector.value.trim() === "";
+        }
+
+        // Inicialmente, Avisar permanece desactivado.
+        actualizarEstadoBoton();
+
+        // Activar el botón cuando se seleccione un contacto.
+        selector.addEventListener("change", actualizarEstadoBoton);
+
+        boton.addEventListener("click", function () {
+            const telefono = selector.value.trim();
+
+            if (!telefono) {
+                actualizarEstadoBoton();
+                alert("Selecciona primero el contacto que deseas notificar.");
+                return;
+            }
+
+            const opcion = selector.options[selector.selectedIndex];
+            const nombre = opcion.dataset.nombre || "Residente";
+            const remitente = selector.dataset.remitente || "";
+            const destino = selector.dataset.destino || "";
+
+            const mensaje =
+                `Hola ${nombre}, te informamos desde la portería de Convivium ` +
+                `que acaba de llegar un paquete de ${remitente} para ${destino}. ` +
+                `Puedes pasar a recogerlo. ¡Muchas gracias!`;
+
+            const url =
+                "https://wa.me/" +
+                encodeURIComponent(telefono) +
+                "?text=" +
+                encodeURIComponent(mensaje);
+
+            window.open(url, "_blank", "noopener,noreferrer");
+        });
+    });
 });

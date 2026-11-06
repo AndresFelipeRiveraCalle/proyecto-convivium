@@ -183,6 +183,25 @@
 
             </li>
 
+            <!-- PARQUEADERO -->
+            <li class="submenu">
+                <div class="submenu-titulo">
+                    <span><i class="fa-solid fa-screwdriver-wrench icono"></i> Parqueaderos</span>
+                    <i class="fa-solid fa-chevron-down flecha"></i>
+                </div>
+                <ul class="submenu-items">
+
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/parqueaderos.php">
+                            <i class="fa-solid fa-car icono"></i> Parqueaderos</a>
+                    </li>
+                    <li>
+                        <a href="<?= BASE_URL ?>configuracion/vehiculos.php">
+                            <i class="fa-solid fa-car icono"></i> Vehículos</a>
+                    </li>
+                </ul>
+            </li>
+
             <!-- ZONAS COMUNES -->
             <li class="submenu">
                 <div class="submenu-titulo">
@@ -194,11 +213,12 @@
                     <li>
                         <a href="<?= BASE_URL ?>zonas/index.php">
                         Zonas comunes</a>
+                        <i class="fa-solid fa-chevron-down flecha"></i>
                     </li>
 
-                    <li><a href="<?= BASE_URL ?>reservas/index.php">
+                    <!-- <li><a href="<!?= BASE_URL ?>reservas/index.php">
                         Reservas</a>
-                    </li>
+                    </li> -->
                 </ul>
             </li>
 
@@ -235,24 +255,7 @@
                 </a>
             </li>
 
-            <!-- PARQUEADERO -->
-            <li class="submenu">
-                <div class="submenu-titulo">
-                    <span><i class="fa-solid fa-screwdriver-wrench icono"></i> Parqueaderos</span>
-                    <i class="fa-solid fa-chevron-down flecha"></i>
-                </div>
-                <ul class="submenu-items">
 
-                    <li>
-                        <a href="<?= BASE_URL ?>configuracion/parqueaderos.php">
-                            <i class="fa-solid fa-car icono"></i> Parqueaderos</a>
-                    </li>
-                    <li>
-                        <a href="<?= BASE_URL ?>configuracion/vehiculos.php">
-                            <i class="fa-solid fa-car icono"></i> Vehículos</a>
-                    </li>
-                </ul>
-            </li>
 
             <!-- correspondencia -->
             <li>

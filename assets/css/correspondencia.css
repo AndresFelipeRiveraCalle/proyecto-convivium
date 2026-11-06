@@ -5,7 +5,7 @@
 
 .correspondencia-page {
     min-width: 0;
-    padding: 26px 28px;
+    padding: 88px 28px 30px;
     color: var(--cv-text, #17243a);
 }
 
@@ -461,14 +461,18 @@ table.correspondencia-table tbody td:first-child {
 
 @media (max-width: 900px) {
     .correspondencia-page {
-        padding: 20px 16px;
+        padding: 88px 16px 20px;
     }
 
     .correspondencia-panel {
         padding: 15px !important;
     }
 }
-
+@media (max-width: 860px) {
+    .correspondencia-page {
+        padding: 20px 16px;
+    }
+}
 @media (max-width: 600px) {
     .correspondencia-page {
         padding: 15px 10px;
@@ -521,5 +525,89 @@ table.correspondencia-table tbody td:first-child {
 
     .correspondencia-modal-actions .btn {
         width: 100%;
+    }
+}
+
+/* Selector de contacto para notificación WhatsApp */
+
+.correspondencia-notificar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+    min-width: 200px;
+    max-width: 260px;
+}
+
+.correspondencia-contacto-select {
+    width: 100%;
+    min-width: 0;
+    min-height: 34px;
+    padding: 6px 9px;
+    border: 1px solid #d5deea;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #35445c;
+    font-size: 11px;
+}
+
+.correspondencia-btn-notificar {
+    align-self: flex-start;
+    cursor: pointer;
+}
+
+.correspondencia-btn-notificar:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    transform: none !important;
+}
+/* =========================================
+   CONTACTO Y ACCIONES EN COLUMNAS SEPARADAS
+========================================= */
+
+table.correspondencia-table {
+    min-width: 1050px;
+}
+
+.correspondencia-contacto-select {
+    width: 100%;
+    min-width: 190px;
+    max-width: 250px;
+    min-height: 36px;
+    padding: 7px 9px;
+    border: 1px solid #d5deea;
+    border-radius: 7px;
+    background: #fff;
+    color: #35445c;
+    font-size: 11px;
+}
+
+.correspondencia-acciones {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-width: 150px;
+}
+
+.correspondencia-acciones .correspondencia-action {
+    margin: 0 !important;
+    white-space: nowrap;
+}
+
+.correspondencia-btn-notificar:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+@media (max-width: 600px) {
+    .correspondencia-contacto-select {
+        min-width: 180px;
+    }
+
+    .correspondencia-acciones {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }

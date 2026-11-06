@@ -23,20 +23,12 @@ try {
             c.fecha_recepcion,
             u.id_unidad,
             u.codigo AS apartamento,
-            dtu.nombre_grupo AS torre,
-            MAX(usr.nombres) AS nombre_residente,
-            MAX(usr.celular) AS celular
+            dtu.nombre_grupo AS torre
         FROM correspondencia c
         INNER JOIN unidades u
             ON c.id_unidad = u.id_unidad
         INNER JOIN detalle_tipos_unidad dtu
             ON u.id_tipo_config = dtu.id_tipo_config
-        LEFT JOIN residente r
-            ON u.id_unidad = r.unidad_id
-            AND r.activo = 1
-            AND r.fecha_hasta IS NULL
-        LEFT JOIN usuario usr
-            ON r.usuario_id = usr.id
         WHERE c.estado = :estado
     ";
 
@@ -57,20 +49,7 @@ try {
         $parametros[':buscar_unidad'] = $terminoBusqueda;
     }
 
-    // Se incluyen todas las columnas no agregadas para que la consulta
-    // también funcione con ONLY_FULL_GROUP_BY habilitado.
-    $query .= "
-        GROUP BY
-            c.id_correspondencia,
-            c.remitente,
-            c.descripcion,
-            c.estado,
-            c.fecha_recepcion,
-            u.id_unidad,
-            u.codigo,
-            dtu.nombre_grupo
-        ORDER BY c.fecha_recepcion DESC
-    ";
+    $query .= " ORDER BY c.fecha_recepcion DESC";
 
     $stmt = $conexion->prepare($query);
     $stmt->execute($parametros);
@@ -79,6 +58,74 @@ try {
 } catch (PDOException $e) {
     error_log("Error al cargar correspondencia: " . $e->getMessage());
     $errorCorrespondencia = true;
+}
+
+
+// =====================================================
+// CONTACTOS ACTIVOS POR UNIDAD PARA NOTIFICAR POR WHATSAPP
+// =====================================================
+
+$contactosPorUnidad = [];
+
+try {
+    $consultaContactos = "
+        SELECT
+            r.unidad_id,
+            r.tipo,
+            usr.nombres,
+            usr.apellidos,
+            usr.celular
+        FROM residente r
+        INNER JOIN usuario usr
+            ON r.usuario_id = usr.id
+        WHERE r.activo = 1
+          AND r.fecha_hasta IS NULL
+          AND COALESCE(usr.estado, 1) = 1
+          AND usr.celular IS NOT NULL
+          AND TRIM(usr.celular) <> ''
+        ORDER BY usr.nombres ASC, usr.apellidos ASC
+    ";
+
+    $stmtContactos = $conexion->query($consultaContactos);
+
+    while ($contacto = $stmtContactos->fetch(PDO::FETCH_ASSOC)) {
+
+        // Normalizar el número para WhatsApp Colombia.
+        $telefono = preg_replace(
+            '/[^0-9]/',
+            '',
+            (string) $contacto['celular']
+        );
+
+        // Aceptar celulares colombianos de 10 dígitos.
+        if (
+            strlen($telefono) === 10 &&
+            substr($telefono, 0, 1) === '3'
+        ) {
+            $telefono = '57' . $telefono;
+
+        // También aceptar números que ya tengan el indicativo 57.
+        } elseif (
+            strlen($telefono) === 12 &&
+            substr($telefono, 0, 3) === '573'
+        ) {
+            // El número ya está normalizado.
+        } else {
+            continue;
+        }
+
+        $contacto['nombre_completo'] = trim(
+            $contacto['nombres'] . ' ' . $contacto['apellidos']
+        );
+
+        $contacto['telefono_whatsapp'] = $telefono;
+        $contacto['telefono_visible'] = substr($telefono, 2);
+
+        $contactosPorUnidad[(int) $contacto['unidad_id']][] = $contacto;
+    }
+
+} catch (PDOException $e) {
+    error_log("Error al consultar contactos de correspondencia: " . $e->getMessage());
 }
 
 // Unidades disponibles para el formulario de registro.
@@ -175,13 +222,14 @@ try {
                                     <th>Descripción</th>
                                     <th>Destino</th>
                                     <th>Estado</th>
-                                    <th>Notificar / Entregar</th>
+                                    <th>Contacto para notificar</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if ($errorCorrespondencia): ?>
                                     <tr>
-                                        <td colspan="6" class="sin-datos">
+                                        <td colspan="7" class="sin-datos">
                                             No fue posible cargar los paquetes. Revisa el registro de errores de PHP para identificar la causa.
                                         </td>
                                     </tr>
@@ -202,26 +250,69 @@ try {
                                                 <?php endif; ?>
                                             </td>
 
+                                            <?php
+                                                $contactosUnidad = $contactosPorUnidad[(int) $fila['id_unidad']] ?? [];
+                                                $idSelector = 'contacto-correspondencia-' . (int) $fila['id_correspondencia'];
+                                                $destino = $fila['torre'] . ' - Apto ' . $fila['apartamento'];
+                                            ?>
+
+                                            <!-- COLUMNA: CONTACTO PARA NOTIFICAR -->
                                             <td>
-                                                <?php if($fila['estado'] == 'Pendiente'): ?>
-                                                    
-                                                    <!-- BOTÓN DE WHATSAPP -->
-                                                    <?php if(!empty($fila['celular'])): ?>
-                                                        <?php 
-                                                            $mensajeWa = urlencode("Hola " . $fila['nombre_residente'] . ", te informamos desde la portería de Convivium que acaba de llegar un paquete de " . $fila['remitente'] . " a tu nombre. ¡Puedes pasar a recogerlo!");
-                                                        ?>
-                                                        <a href="https://wa.me/57<?php echo preg_replace('/[^0-9]/', '', $fila['celular']); ?>?text=<?php echo $mensajeWa; ?>" target="_blank" class="btn-accion-tabla btn-whatsapp correspondencia-action">
-                                                            <i class="fa-brands fa-whatsapp"></i> Avisar
+                                                <?php if ($fila['estado'] === 'Pendiente' && !empty($contactosUnidad)): ?>
+                                                    <select
+                                                        id="<?php echo htmlspecialchars($idSelector, ENT_QUOTES, 'UTF-8'); ?>"
+                                                        class="correspondencia-contacto-select"
+                                                        data-remitente="<?php echo htmlspecialchars($fila['remitente'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                        data-destino="<?php echo htmlspecialchars($destino, ENT_QUOTES, 'UTF-8'); ?>"
+                                                        aria-label="Seleccionar contacto para notificar"
+                                                    >
+                                                        <option value="">Seleccionar contacto...</option>
+
+                                                        <?php foreach ($contactosUnidad as $contacto): ?>
+                                                            <option
+                                                                value="<?php echo htmlspecialchars($contacto['telefono_whatsapp'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                                data-nombre="<?php echo htmlspecialchars($contacto['nombre_completo'], ENT_QUOTES, 'UTF-8'); ?>"
+                                                            >
+                                                                <?php echo htmlspecialchars(
+                                                                    $contacto['nombre_completo'] . ' - ' .
+                                                                    ucfirst($contacto['tipo']) . ' - ' .
+                                                                    $contacto['telefono_visible'],
+                                                                    ENT_QUOTES,
+                                                                    'UTF-8'
+                                                                ); ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                <?php else: ?>
+                                                    <span class="sin-accion">
+                                                        <?php echo $fila['estado'] === 'Pendiente' ? 'Sin contacto disponible' : '—'; ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                            </td>
+
+                                            <!-- COLUMNA: ACCIONES -->
+                                            <td>
+                                                <?php if ($fila['estado'] === 'Pendiente'): ?>
+                                                    <div class="correspondencia-acciones">
+                                                        <?php if (!empty($contactosUnidad)): ?>
+                                                            <button
+                                                                type="button"
+                                                                class="btn-accion-tabla btn-whatsapp correspondencia-action correspondencia-btn-notificar"
+                                                                data-select-id="<?php echo htmlspecialchars($idSelector, ENT_QUOTES, 'UTF-8'); ?>"
+                                                                disabled
+                                                            >
+                                                                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Avisar
+                                                            </button>
+                                                        <?php endif; ?>
+
+                                                        <a
+                                                            href="entregar_correspondencia.php?id=<?php echo (int) $fila['id_correspondencia']; ?>"
+                                                            class="btn-accion-tabla btn-entregar correspondencia-action"
+                                                            onclick="return confirm('¿Confirmas que el residente ya recogió este paquete?');"
+                                                        >
+                                                            <i class="fa-solid fa-check" aria-hidden="true"></i> Entregar
                                                         </a>
-                                                    <?php else: ?>
-                                                        <span class="sin-accion">Sin celular</span>
-                                                    <?php endif; ?>
-
-                                                    <!-- BOTÓN DE ENTREGAR -->
-                                                    <a href="entregar_correspondencia.php?id=<?php echo $fila['id_correspondencia']; ?>" class="btn-accion-tabla btn-entregar correspondencia-action" onclick="return confirm('¿Confirmas que el residente ya recogió este paquete?');">
-                                                        <i class="fa-solid fa-check"></i> Entregar
-                                                    </a>
-
+                                                    </div>
                                                 <?php else: ?>
                                                     <span class="sin-accion">Sin acciones</span>
                                                 <?php endif; ?>
@@ -229,7 +320,7 @@ try {
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <tr><td colspan='6' class='sin-datos'>No hay paquetes <?php echo strtolower($filtro_estado); ?>s.</td></tr>
+                                    <tr><td colspan='7' class='sin-datos'>No hay paquetes <?php echo strtolower($filtro_estado); ?>s.</td></tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>

@@ -434,9 +434,7 @@ body {
 }
 
 
-/* ==
-   BLOQUES
-== */
+/* ==BLOQUES== */
 
 .bloque {
     background: white;
@@ -445,16 +443,17 @@ body {
     margin-bottom: 5px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
     display: flex;
+    align-content: center; /* 1. Centra verticalmente los elementos de cualquier bloque */
     box-sizing: border-box;
     overflow: visible;
 }
 
 .bloque.filtros {
     display: flex;
-    justify-content: center;
+    align-content: center;
+    align-items: center; /* Centra verticalmente los elementos */
     gap: 8px;
-    flex-wrap: nowrap;
-    /* Todo en una sola línea */
+    flex-wrap: nowrap;    /* Todo en una sola línea */
     border-radius: 15px;
 }
 .bloque-superior{
@@ -478,9 +477,7 @@ body {
     box-sizing: border-box;
 }
 
-/* ===
-   FORMULARIO PERSONA - MODAL
-=== */
+/* ===FORMULARIO PERSONA - MODAL=== */
 
 .modal-form-persona {
     width: 100%;
@@ -852,6 +849,7 @@ tbody td {
     border-radius: 12px;
     padding: 5px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    display: flex;
     
     /* Nuevas propiedades para centrar */
     display: grid;
@@ -5021,14 +5019,16 @@ button,
     display: flex;
     width: 100%;
     margin-bottom: 15px;
-    padding: 16px;
+    padding: 8px;
+    align-items: center;
+
 }
 
 .bloque.filtros,
 .bloque-superior {
-    align-items: flex-end;
-    justify-content: flex-start;
-    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     flex-wrap: wrap;
     padding: 14px;
 }
@@ -5651,7 +5651,7 @@ table:not(.factura-tabla):not(.tabla-ocr) tbody td {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     align-items: end;
-    gap: 9px;
+    gap: 1px;
     height: 218px;
     padding: 0 5px;
     border-bottom: 1px solid #dce4ef;
@@ -5678,7 +5678,7 @@ table:not(.factura-tabla):not(.tabla-ocr) tbody td {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    gap: 4px;
+    gap: 1px;
     width: 100%;
     height: calc(100% - 22px);
 }
@@ -6757,4 +6757,11 @@ table.inventario-tabla tbody tr:hover td { background: #f8faff; }
     z-index: 1;
 
     transition: box-shadow 0.2s ease;
+}
+input[type="date"] {
+  width: fit-content;       /* Hace que el ancho se adapte solo al texto de la fecha */
+  min-width: 130px;         /* Evita que se rompa o se corte en navegadores móviles */
+  padding: 6px 10px;        /* Reduce el espacio interno para que se vea más compacto */
+  font-size: 14px;          /* Ajusta el tamaño de la letra si es necesario */
+  box-sizing: border-box;
 }
