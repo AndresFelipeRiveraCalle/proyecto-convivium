@@ -26,9 +26,10 @@ $stmt_articulos = $conexion->query($query_articulos);
 
     <div class="contenedor">
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-        <main class="contenido">
-            <h2>Registrar Entrada o Salida</h2>
-            <form action="guardar_movimiento.php" method="POST">
+        <main class="contenido inventario-page">
+            <div class="container inventario-container inventario-form-container">
+            <h2 class="inventario-titulo">Registrar Entrada o Salida</h2>
+            <form class="inventario-form" action="guardar_movimiento.php" method="POST">
 
                 <label for="id_articulo">Seleccione el Artículo:</label><br>
                 <select id="id_articulo" name="id_articulo" required>
@@ -55,9 +56,12 @@ $stmt_articulos = $conexion->query($query_articulos);
                 <label for="nota">Justificación / Nota (Opcional):</label><br>
                 <input type="text" id="nota" name="nota" placeholder="Ej: Compra mensual, aseo de torre 1"><br><br>
 
-                <button type="submit">Registrar Movimiento</button>
-                <a href="listar.php">Cancelar</a>
+                <div class="inventario-form-actions">
+                    <button type="submit"><i class="fa-solid fa-arrow-right-arrow-left"></i> Registrar movimiento</button>
+                    <a class="inventario-btn-cancelar" href="listar.php">Cancelar</a>
+                </div>
             </form>
+            </div>
         </main>
     </div>
 </body>

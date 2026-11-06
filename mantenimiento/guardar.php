@@ -3,6 +3,8 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
+require_once ROOT_PATH . "/config/almacenamiento.php";
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $zona_id            = $_POST["zona_id"] ?? null;
@@ -20,7 +22,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $evidencia = null;
     if (isset($_FILES["evidencia"]) && $_FILES["evidencia"]["error"] == 0) {
         $carpetaRelativa = "uploads/";
-        $carpetaFisica   = "../uploads/";
+        $carpetaFisica = convivium_storage_directory(
+            "mantenimiento/uploads"
+        ) . DIRECTORY_SEPARATOR;
 
         if (!file_exists($carpetaFisica)) {
             mkdir($carpetaFisica, 0777, true);

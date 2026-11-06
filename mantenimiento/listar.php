@@ -157,7 +157,12 @@ $mantenimientos = $stmt->fetchAll();
                                     <td><?= $fila['fecha_solucion'] ?: '-' ?></td>
                                     <td>
                                         <?php if (!empty($fila['evidencia'])): ?>
-                                            <a href="<?= rtrim(BASE_URL, '/') . '/' . ltrim($fila['evidencia'], '/') ?>" target="_blank">Ver archivo</a>
+                                            <a
+                                                href="<?= BASE_URL ?>actions/abrir_archivo_privado.php?tipo=mantenimiento&amp;id=<?= (int)$fila['id'] ?>"
+                                                target="_blank"
+                                                rel="noopener">
+                                                Ver archivo
+                                            </a>
                                         <?php else: ?>
                                             -
                                         <?php endif; ?>

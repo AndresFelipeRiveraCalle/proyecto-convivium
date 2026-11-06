@@ -3,6 +3,7 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
+require_once ROOT_PATH . "/config/almacenamiento.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -26,21 +27,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $evidencia = $registroAntiguo['evidencia'] ?? null;
 
     // 2. Si se adjuntó un archivo nuevo en la edición, guardarlo limpiamente en la raíz
-    if (isset($_FILES["evidencia"]) && $_FILES["evidencia"]["error"] == 0) {
+    if (
+    isset($_FILES["evidencia"]) && $_FILES["evidencia"]["error"] === UPLOAD_ERR_OK
+    ) {
         $carpetaRelativa = "uploads/";
-        $carpetaFisica   = "../uploads/";
 
-        if (!file_exists($carpetaFisica)) {
-            mkdir($carpetaFisica, 0777, true);
-        }
+        $carpetaFisica = convivium_storage_directory(
+            "mantenimiento/uploads"
+        ) . DIRECTORY_SEPARATOR;
 
-        $nombreArchivo        = time() . "_" . basename($_FILES["evidencia"]["name"]);
-        $rutaCompletaFisica   = $carpetaFisica . $nombreArchivo;
-        // Limpiamos los slashes para evitar duplicados como '//uploads/'
+        $nombreArchivo = time()
+            . "_"
+            . basename($_FILES["evidencia"]["name"]);
+
+        $rutaCompletaFisica = $carpetaFisica . $nombreArchivo;
+
         $rutaCompletaRelativa = $carpetaRelativa . $nombreArchivo;
 
-        if (move_uploaded_file($_FILES["evidencia"]["tmp_name"], $rutaCompletaFisica)) {
-            $evidencia = $rutaCompletaRelativa; 
+        if (
+            move_uploaded_file(
+                $_FILES["evidencia"]["tmp_name"],
+                $rutaCompletaFisica
+            )
+        ) {
+            $evidencia = $rutaCompletaRelativa;
         }
     }
 

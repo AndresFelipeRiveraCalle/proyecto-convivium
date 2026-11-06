@@ -85,7 +85,7 @@ try {
                                     <td>
                                         <?php if (!empty($u['foto'])): ?>
                                             <img
-                                                src="../<?= htmlspecialchars($u['foto']) ?>"
+                                                src="<?= BASE_URL ?>actions/abrir_archivo_privado.php?tipo=foto&amp;id=<?= (int)$u['id'] ?>"
                                                 class="foto-persona-listado">
                                         <?php else: ?>
                                             <span class="sin-foto">
@@ -402,20 +402,14 @@ try {
                     = -->
                     <h3>Datos personales</h3>
                     <div class="bloque filtros">
-                        <div class="card">
-                            <label>Nombres</label>
+                        <label>Nombres</label>
+                        <input type="text" name="nombres"id="editar_nombres"required>
 
-                            <input type="text" name="nombres"id="editar_nombres"required>
-                        </div>
-
-                        <div class="card">
-                            <label>Apellidos</label>
-
-                            <input type="text" name="apellidos" id="editar_apellidos" required>
-                        </div>
+                        <label>Apellidos</label>
+                        <input type="text" name="apellidos" id="editar_apellidos" required>
                     </div>
                     <div class="bloque filtros">                    
-                        <div class="card">
+
                             <label>Tipo de documento</label>
 
                             <select name="id_tipo_documento" id="editar_id_tipo_documento"required>
@@ -441,7 +435,7 @@ try {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                        </div>
+
 
                         <div class="card">
                             <label>Número de documento</label>
@@ -452,37 +446,27 @@ try {
                     </div>
 
                     <h3>Información de contacto</h3>
-                    <div class="bloque filtros">
-                        <div class="card">
-                            <label>Correo</label>
 
-                            <input type="email" name="correo" id="editar_correo">
+                        <div class="form card">
+                        <label>Correo</label>
+                        <input type="email" name="correo" id="editar_correo">
+                        </div>
+                        <div class="form card">
+                        <label>Teléfono</label>
+                        <input type="text" name="telefono" id="editar_telefono">
+                        </div>
+                        <div class="form card">
+                        <label>Celular</label>
+                        <input type="text" name="celular" id="editar_celular">
                         </div>
 
-                        <div class="card">
-                            <label>Teléfono</label>
-
-                            <input type="text" name="telefono" id="editar_telefono">
-                        </div>
-                    </div>
-                    <div class="bloque filtros">                    
-                        <div class="card">
-                            <label>Celular</label>
-                            <input type="text" name="celular" id="editar_celular">
-                        </div>
-                    </div>
 
                     <h3>Información adicional</h3>
-                    <div class="bloque filtros"> 
-                        <div class="card">
+                    <div class="form card">
                             <label>Fecha de nacimiento</label>
+                                <input type="date" name="fecha_nacimiento" id="editar_fecha_nacimiento">
 
-                            <input type="date" name="fecha_nacimiento" id="editar_fecha_nacimiento">
-                        </div>
-
-                        <div class="card">
-                            <label>Género</label>
-
+                                <label>Género</label>
                             <select name="id_genero" id="editar_id_genero">
                                 <option value="">
                                     Seleccione...
@@ -504,19 +488,12 @@ try {
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                        </div>
-                    </div>
 
-                    <div class="bloque filtros">                     
-                        <div class="card">
-                            <label>
-                                Estado civil
-                            </label>
+
+                            <label>Estado civil</label>
 
                             <select
-                                name="id_estado_civil"
-                                id="editar_id_estado_civil">
-
+                                name="id_estado_civil" id="editar_id_estado_civil">
                                 <option value="">
                                     Seleccione...
                                 </option>
@@ -551,15 +528,8 @@ try {
 
                             </select>
 
-                        </div>
-
-
-                        <div class="card">
-
-                            <label>Ocupación</label>
-
-                            <select
-                                name="id_ocupacion" id="editar_id_ocupacion">
+                        <label>Ocupación</label>
+                            <select name="id_ocupacion" id="editar_id_ocupacion">
 
                                 <option value="">
                                     Seleccione...
@@ -590,19 +560,15 @@ try {
                                         ) ?>
 
                                     </option>
-
                                 <?php endforeach; ?>
-
                             </select>
 
-                        </div>
                     </div>
-                    <!-- 
-                        DIRECCIÓN
-                    = -->
 
-                    <div class="bloque filtros">
-                        <h3>Dirección</h3>
+                    <!-- DIRECCIÓN -->
+                    <h3>Dirección</h3>
+                    <div class="card">
+
 
                         <input
                             type="text" name="direccion" id="editar_direccion">
@@ -613,23 +579,21 @@ try {
                         FOTO
                     = -->
 
-                    <div class="bloque filtros";>
+                    <div class="card">
                         <div id="editar_foto_actual" ></div>
 
                         <br>
                                         
                         <input 
-                            type="file"
-                            name="foto"
-                            id="editar_foto"
+                            type="file" name="foto" id="editar_foto"
                             accept="image/*" >
 
                     </div>
 
 
-                    <br>
-                    <label>Estado </label>
+
                     <div class="bloque filtros">   
+                        <label>Estado </label>
                         <div class="card">
 
                             <select name="estado" id="editar_estado">

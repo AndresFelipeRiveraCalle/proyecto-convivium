@@ -1,250 +1,326 @@
-/**
- * =======
- * MÓDULO: Zonas Comunes - Convivium
- * ARCHIVO: zonas.css
- * DESCRIPCIÓN: Hoja de estilos del módulo de Zonas comunes.
- * AUTOR: Andrés Felipe Rivera Calle
- * FECHA: 2026-08-07
- * =======
- */
 
-/* TÍTULOS DEL MÓDULO */
+/* =========================================================
+   CONVIVIUM — ZONAS COMUNES
+   Alineado con el Sistema Visual 2026
+   Se conservan las clases funcionales existentes.
+========================================================= */
+
+.zc-contenido {
+    --zc-navy: var(--cv-navy-900, #132846);
+    --zc-navy-dark: var(--cv-navy-950, #0d1d36);
+    --zc-blue: var(--cv-blue-700, #174fc4);
+    --zc-blue-hover: var(--cv-blue-600, #2164e8);
+    --zc-blue-light: var(--cv-blue-100, #e8f2ff);
+    --zc-green: var(--cv-green-600, #0ca66b);
+    --zc-green-light: var(--cv-green-100, #e2f8ee);
+    --zc-red: var(--cv-red-600, #e5484d);
+    --zc-red-light: var(--cv-red-100, #ffe9e9);
+    --zc-page: var(--cv-page, #eef3f9);
+    --zc-surface: var(--cv-surface, #ffffff);
+    --zc-text: var(--cv-text, #14213d);
+    --zc-muted: var(--cv-muted, #71809b);
+    --zc-border: var(--cv-border, #e3eaf3);
+    --zc-shadow: var(--cv-shadow, 0 3px 14px rgba(20,42,74,.055));
+
+    flex: 1;
+    min-width: 0;
+    padding: 88px 27px 30px;
+    background: var(--zc-page);
+    color: var(--zc-text);
+}
+
+/* TÍTULOS */
+
 .zc-contenido h1 {
-    font-size: 32px;
-    font-weight: 700;
-    color: #242424;
-    margin-bottom: 20px;
+    margin: 0 0 20px;
+    color: var(--zc-text);
+    font-size: clamp(23px, 2vw, 29px);
+    font-weight: 750;
+    line-height: 1.25;
+    letter-spacing: -.035em;
 }
 
 .zc-contenido h2 {
-    font-size: 24px;
-    font-weight: 600;
-    color: #242424;
-    margin-top: 20px;
-    margin-bottom: 10px;
+    margin: 20px 0 15px;
+    color: var(--zc-navy);
+    font-size: 18px;
+    font-weight: 700;
 }
 
-/* CONTENEDOR DEL MÓDULO */
-.zc-contenedor {
-    display: flex; /* Permite que sus elementos se distribuyan horizontalmente */
-    min-height: calc(100vh - 70px);
+.zc-contenido h3 {
+    margin: 0 0 12px;
+    color: var(--zc-navy);
+    font-size: 15px;
+    font-weight: 700;
 }
 
-/* CONTENIDO DEL MÓDULO */
-.zc-contenido {
-    flex: 1;
-    padding: 20px;
-}
+/* TARJETA PRINCIPAL */
 
-/* CARD */
 .zc-card {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+    width: 100%;
+    padding: 22px;
+    border: 1px solid var(--zc-border);
+    border-radius: 13px;
+    background: var(--zc-surface);
+    box-shadow: var(--zc-shadow);
+    overflow-x: auto;
 }
 
 /* FORMULARIO */
+
 .zc-form-zona {
-    margin-bottom: 40px;
+    margin-bottom: 22px;
 }
+
 .zc-form-row {
-    display: flex;
-    gap: 10px; /* Agrgar espacio entre los elementos hijos de un contenedor */ 
-    flex-wrap: wrap; /* Si no caben todos los elementos en una sola linea, permite que bajen a la siguiente */
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
 }
 
 .zc-form-group {
     flex: 1;
-    min-width: 200px;
+    min-width: 0;
 }
 
-.zc-form-group label{
+.zc-form-group label {
     display: block;
     margin-bottom: 6px;
-    font-weight: bold;
+    color: #35465f;
+    font-size: 13px;
+    font-weight: 650;
 }
 
-.zc-form-group input{
+.zc-form-group input,
+.zc-form-group select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
+    min-height: 40px;
+    padding: 9px 11px;
+    border: 1px solid #d5deea;
     border-radius: 8px;
+    background: #ffffff;
+    color: var(--zc-text);
+    font-size: 13px;
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.zc-form-group input:focus,
+.zc-form-group select:focus {
+    border-color: var(--zc-blue-hover);
     outline: none;
+    box-shadow: 0 0 0 3px rgba(33,100,232,.11);
 }
 
-.zc-form-group input:focus{
-    border-color: #12304A;
-}
+/* DISPONIBILIDAD */
 
-.zc-form-botones {
-    margin-top: 20px;
-    display: flex;
-    gap: 20px;
-}
-
-/* DISPONIBILIDAD DE LA ZONA */
 .zc-disponibilidad {
-    margin-top: 25px;
-    padding-top: 20px;
+    min-width: 0;
+    margin-top: 24px;
+    padding: 22px 0 0;
     border: none;
+    border-top: 1px solid var(--zc-border);
 }
 
-.zc-disponibilidad h3 {
-    font-size: 16px;
-    color: #242424;
-    margin-bottom: 15px;
+.zc-disponibilidad:disabled {
+    opacity: .65;
 }
 
-/* MENSAJE INFORMATIVO CONTENEDOR HORARIOS */
 .zc-mensaje-horarios {
     margin: 0 0 15px;
-    font-size: 14px;
-    color: #666;
-    font-style: italic;
+    color: var(--zc-muted);
+    font-size: 13px;
+    line-height: 1.5;
 }
 
 /* DÍAS DE LA SEMANA */
+
 .zc-dias-semana {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 9px;
     margin-bottom: 20px;
 }
 
 .zc-dias-semana label {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
+    gap: 8px;
+    padding: 9px 12px;
+    border: 1px solid var(--zc-border);
     border-radius: 8px;
+    background: #ffffff;
+    color: var(--zc-text);
+    font-size: 13px;
     cursor: pointer;
-    background: #fff;
-    transition: .3s;
+    transition: all .18s ease;
 }
 
 .zc-dias-semana label:hover {
-    border-color: #2ecc71;
-    background: #f0fff6;
+    border-color: var(--zc-green);
+    background: var(--zc-green-light);
 }
 
 .zc-dias-semana input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--zc-green);
     cursor: pointer;
-    accent-color: #2ecc71;
 }
 
-/* FORMULARIO DE HORARIO */
+/* HORARIOS */
+
 .zc-horario-form {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
 }
 
 .zc-horario-form .zc-form-group {
-    min-width: 200px;
+    min-width: 0;
 }
 
-.zc-horario-form label {
-    font-weight: 600;
-    color: #242424;
-    display: block;
-    margin-bottom: 6px;
-}
+/* BOTONES */
 
-/* BOTONES DEL FORMULARIO */
 .zc-btn {
-    padding: 10px 20px;
-    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 38px;
+    padding: 9px 15px;
+    border: 1px solid transparent;
     border-radius: 8px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    text-decoration: none;
     cursor: pointer;
-    transition: .3s;
-    color: white;
-    text-decoration: none;     
-    font-family: inherit; /* Conservar el tipo de fuente del padre*/
-    font-size: inherit; /* Conservar el tamaño de fuente del padre*/
+    transition: background-color .18s ease,
+                border-color .18s ease,
+                box-shadow .18s ease,
+                transform .18s ease;
 }
 
-.zc-btn-principal {
-    background: #2ecc71;
+/* ACCIÓN PRINCIPAL */
+
+.zc-btn-principal,
+.zc-form-botones .filtrar.zc-btn-principal {
+    background: var(--zc-blue);
+    border-color: var(--zc-blue);
+    color: #ffffff;
+    box-shadow: 0 3px 9px rgba(23,79,196,.16);
 }
 
-.zc-btn-principal:hover {
-    background: #27ae60;
-    transform: translateY(-2px);
+.zc-btn-principal:hover,
+.zc-form-botones .filtrar.zc-btn-principal:hover {
+    background: var(--zc-blue-hover);
+    border-color: var(--zc-blue-hover);
+    color: #ffffff;
+    transform: translateY(-1px);
 }
 
-.zc-btn-cancelar {
-    background: #b0bbb4;
-}
+/* AGREGAR HORARIO */
 
-.zc-btn-cancelar:hover{
-    background: #89918c;
-    transform: translateY(-2px);
-}
-
-/* BOTÓN AGREGAR HORARIO */
 .zc-btn-secundario {
-    background: #12304A;
+    background: var(--zc-green);
+    border-color: var(--zc-green);
+    color: #ffffff;
 }
 
 .zc-btn-secundario:hover {
-    background: #1b4a70;
-    transform: translateY(-2px);
+    background: #078957;
+    border-color: #078957;
+    transform: translateY(-1px);
+}
+
+/* CANCELAR */
+
+.zc-btn-cancelar {
+    background: #ffffff;
+    border-color: var(--zc-border);
+    color: var(--zc-navy);
+}
+
+.zc-btn-cancelar:hover {
+    background: #f2f5fa;
+    border-color: #cbd6e4;
+    color: var(--zc-navy);
+}
+
+/* BOTONES DEL FORMULARIO */
+
+.zc-form-botones {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
 }
 
 /* HORARIOS CONFIGURADOS */
+
 .zc-horarios-configurados {
-    margin-top: 25px;
+    margin-top: 22px;
 }
 
 .zc-horario-visual {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
-    padding: 10px 15px;
-    margin-bottom: 8px;
-    background: #f0f1f3;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 9px;
+    padding: 12px 15px;
+    border: 1px solid var(--zc-border);
+    border-radius: 9px;
+    background: #f8fafd;
+    color: var(--zc-text);
+    font-size: 13px;
 }
 
 .zc-horario-visual button {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 6px;
-    background: #e77676;
-    color: white;
-    cursor: pointer;
+    padding: 7px 11px;
+    border: 1px solid var(--zc-red-light);
+    border-radius: 7px;
+    background: var(--zc-red-light);
+    color: var(--zc-red);
     font-family: inherit;
-    transition: .3s;
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: all .18s ease;
 }
 
 .zc-horario-visual button:hover {
-    background: #e95454;
-    transform: translateY(-1px);
+    background: var(--zc-red);
+    border-color: var(--zc-red);
+    color: #ffffff;
 }
 
-/* MENSAJES DE CONFIRMACIÓN (ÉXITO - ERROR)*/
+/* MENSAJES */
+
 .zc-mensaje {
-    padding: 10px 20px;
+    margin: 18px 0;
+    padding: 12px 15px;
+    border: 1px solid transparent;
     border-radius: 8px;
-    margin: 20px 0;
+    font-size: 13px;
     transition: opacity .5s ease;
 }
 
 .zc-mensaje-exito {
-    background: #a4ecc2;
-    color: #023d1a;
-    border: 1px solid #023d1a;
+    background: var(--zc-green-light);
+    border-color: #b8ebd4;
+    color: #08764e;
 }
 
 .zc-mensaje-error {
-    background: #f07878;
-    color: #3d0202;
-    border: 1px solid #3d0202;
+    background: var(--zc-red-light);
+    border-color: #ffc9c9;
+    color: #b42318;
 }
 
 .zc-mensaje.zc-mensaje-ocultar {
@@ -254,72 +330,217 @@
     margin-bottom: 0;
 }
 
+/* SEPARADOR */
+
 .zc-separador-listado {
+    height: 1px;
+    margin: 27px 0;
     border: none;
-    border-top: 1px solid #ddd;
-    margin: 30px 0;
+    background: var(--zc-border);
 }
 
 /* TABLA */
-.zc-tabla-zonas{
-    width: 100%; /* Permite que el elemento ocupe el 100% del ancho del contenedor del padre */
-    border-collapse: collapse; /* Permite que dibuje un solo borde cuando dos celdas comparten el mismo borde */
+
+.zc-tabla-zonas {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+    background: #ffffff;
+    color: var(--zc-text);
+    font-size: 13px;
 }
 
 .zc-tabla-zonas th,
-.zc-tabla-zonas td{
-    padding: 4px 8px; /* 4px arriba/abajo y 8px a los lados */
+.zc-tabla-zonas td {
+    padding: 12px 13px;
     vertical-align: middle;
+    text-align: left;
 }
 
-.zc-tabla-zonas th{
-    background: #e1e4e7;
-    color: #444444;
+.zc-tabla-zonas thead {
+    background: #f2f5fa;
 }
 
-.zc-tabla-zonas tbody tr:nth-child(even){ /* Pseudoclase para dar color a las filas pares */
-    background-color: #f0f1f3; 
+.zc-tabla-zonas th {
+    border-bottom: 1px solid var(--zc-border);
+    color: #46576a;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .025em;
+    text-transform: uppercase;
 }
 
-.zc-tabla-zonas tbody tr:hover{
-    background-color: #d8d6d6;
+.zc-tabla-zonas tbody tr {
+    background: #ffffff;
+    transition: background .18s ease;
+}
+
+.zc-tabla-zonas tbody tr:nth-child(even) {
+    background: #f8fafd;
+}
+
+.zc-tabla-zonas tbody tr:hover {
+    background: #edf4ff;
+}
+
+.zc-tabla-zonas td {
+    border-bottom: 1px solid #e8edf2;
+    color: #354458;
 }
 
 .zc-tabla-zonas td:last-child {
     text-align: center;
     white-space: nowrap;
-    
 }
 
-/* BOTONES DE LA TABLA */
-.zc-btn-tabla{
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
+/* BOTONES DE TABLA */
+
+.zc-btn-tabla {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 76px;
+    padding: 7px 11px;
+    margin: 2px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 650;
+    text-decoration: none;
     cursor: pointer;
-    transition: .3s;
-    color: white;
-    text-decoration: none;   
-    font-size: .9rem;
-    display: inline-block;
-    box-sizing: border-box; /* Fuerza a que el alto total sea siempre 26px */
-    width: 80px;
+    transition: all .18s ease;
 }
 
-.zc-btn-editar{
-    background: #778bff;
-    margin-right: 8px;
+/* EDITAR */
+
+.zc-btn-editar {
+    background: var(--zc-blue);
+    border-color: var(--zc-blue);
 }
 
 .zc-btn-editar:hover {
-    background: #4c62e0;
+    background: var(--zc-blue-hover);
+    border-color: var(--zc-blue-hover);
     transform: translateY(-1px);
 }
 
+/* ELIMINAR */
+
 .zc-btn-eliminar {
-    background: #e77676;
+    background: var(--zc-red);
+    border-color: var(--zc-red);
 }
+
 .zc-btn-eliminar:hover {
-    background: #e95454;
+    background: #c9363c;
+    border-color: #c9363c;
+    transform: translateY(-1px);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1000px) {
+    .zc-form-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .zc-contenido {
+        padding: 82px 17px 22px;
+    }
+
+    .zc-card {
+        padding: 17px;
+    }
+
+    .zc-form-row,
+    .zc-horario-form {
+        grid-template-columns: 1fr;
+    }
+
+    .zc-form-botones {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .zc-form-botones .zc-btn,
+    .zc-form-botones .filtrar {
+        width: 100%;
+    }
+
+    .zc-horario-visual {
+        align-items: flex-start;
+    }
+}
+
+/* =====================================================
+   BOTONES VERDES — ESTILO GENERAL CONVIVIUM
+===================================================== */
+
+/* REGISTRAR / ACTUALIZAR ZONA */
+.zc-contenido .zc-form-botones button.filtrar.zc-btn-principal {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    padding: 10px 18px !important;
+    min-height: 40px !important;
+
+    background: #2ecc71 !important;
+    border: none !important;
+    border-radius: 10px !important;
+
+    color: #FFFFFF !important;
+    font-family: inherit !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+
+    cursor: pointer !important;
+    box-shadow: none !important;
+    transition: .3s ease !important;
+}
+
+.zc-contenido .zc-form-botones button.filtrar.zc-btn-principal:hover {
+    background: #27ae60 !important;
+    color: #FFFFFF !important;
+    transform: translateY(-2px);
+}
+
+/* AGREGAR HORARIO */
+.zc-contenido #btn-agregar-horario {
+    background: #2ecc71 !important;
+    border-color: #2ecc71 !important;
+    color: #FFFFFF !important;
+}
+
+.zc-contenido #btn-agregar-horario:hover {
+    background: #27ae60 !important;
+    border-color: #27ae60 !important;
+    transform: translateY(-2px);
+}
+
+/* =====================================================
+   TODOS LOS BOTONES DE ZONAS COMUNES EN VERDE
+===================================================== */
+
+/* EDITAR Y ELIMINAR */
+.zc-contenido .zc-tabla-zonas .zc-btn-tabla.zc-btn-editar,
+.zc-contenido .zc-tabla-zonas .zc-btn-tabla.zc-btn-eliminar {
+    background: #2ecc71 !important;
+    border: none !important;
+    color: #FFFFFF !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    transition: .3s ease !important;
+}
+
+/* EFECTO HOVER */
+.zc-contenido .zc-tabla-zonas .zc-btn-tabla.zc-btn-editar:hover,
+.zc-contenido .zc-tabla-zonas .zc-btn-tabla.zc-btn-eliminar:hover {
+    background: #27ae60 !important;
+    color: #FFFFFF !important;
     transform: translateY(-2px);
 }

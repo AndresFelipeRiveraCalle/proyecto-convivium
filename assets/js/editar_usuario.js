@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             <p><strong>Foto actual:</strong></p>
 
                             <img
-                                src="../${usuario.foto}"
+                                src="../actions/abrir_archivo_privado.php?tipo=foto&id=${encodeURIComponent(usuario.id)}"
                                 class="foto-persona-listado"
                                 alt="Foto actual">
                         </div>

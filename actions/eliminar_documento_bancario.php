@@ -3,7 +3,7 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
-
+require_once ROOT_PATH . "/config/almacenamiento.php";
 
 function redirigirEliminarDocumento(
     string $tipo,
@@ -181,7 +181,7 @@ try {
         'El documento y sus movimientos se eliminaron correctamente.';
 
     $directorioDocumentos = realpath(
-        ROOT_PATH . '/uploads/documentos_bancarios'
+        convivium_storage_path('uploads/documentos_bancarios')
     );
 
     if ($directorioDocumentos !== false) {

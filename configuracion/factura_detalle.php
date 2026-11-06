@@ -3,7 +3,7 @@
 require_once dirname(__DIR__) . "/config/config.php";
 require_once ROOT_PATH . "/auth/requerir_sesion.php";
 require_once ROOT_PATH . "/config/conexion.php";
-
+require_once ROOT_PATH . "/config/almacenamiento.php";
 
 //
 // FUNCIONES
@@ -1349,37 +1349,55 @@ $documentoPersona =
 
 $logoUrl = '';
 
-
-if (
-    !empty(
-        $copropiedad['logo']
-    )
-) {
-
-    $logoGuardado =
-        ltrim(
-            $copropiedad['logo'],
-            '/'
-        );
-
+if (!empty($copropiedad['logo'])) {
+    $nombreLogo = basename(
+        str_replace('\\', '/', (string)$copropiedad['logo'])
+    );
 
     if (
-        strpos(
-            $logoGuardado,
-            'assets/'
-        ) === 0
+        $nombreLogo !== ''
+        && $nombreLogo !== '.'
+        && $nombreLogo !== '..'
     ) {
+        $directorio = realpath(
+            convivium_storage_path('assets/logos')
+        );
 
-        $logoUrl =
-            BASE_URL .
-            $logoGuardado;
+        $archivo = $directorio !== false
+            ? realpath(
+                $directorio . DIRECTORY_SEPARATOR . $nombreLogo
+            )
+            : false;
 
-    } else {
+        if (
+            $archivo !== false
+            && is_file($archivo)
+            && strpos(
+                $archivo,
+                rtrim($directorio, DIRECTORY_SEPARATOR)
+                    . DIRECTORY_SEPARATOR
+            ) === 0
+        ) {
+            $finfo = new finfo(FILEINFO_MIME_TYPE);
+            $mime = $finfo->file($archivo);
 
-        $logoUrl =
-            BASE_URL .
-            'assets/logos/' .
-            $logoGuardado;
+            $tiposPermitidos = [
+                'image/jpeg',
+                'image/png',
+                'image/webp'
+            ];
+
+            if (in_array($mime, $tiposPermitidos, true)) {
+                $contenidoLogo = file_get_contents($archivo);
+
+                if ($contenidoLogo !== false) {
+                    $logoUrl = 'data:'
+                        . $mime
+                        . ';base64,'
+                        . base64_encode($contenidoLogo);
+                }
+            }
+        }
     }
 }
 

@@ -1,5 +1,11 @@
 <aside class="menu">
-    <nav>
+    <div class="sidebar-brand">
+        <a href="<?= BASE_URL ?>inicio.php" aria-label="Ir al panel principal de Convivium">
+            <img src="<?= BASE_URL ?>assets/img/Logo_2.png" alt="Convivium">
+        </a>
+    </div>
+
+    <nav aria-label="Navegación principal">
         <ul class="menu-principal">
             <li>
                 <a href="<?= BASE_URL ?>inicio.php">
@@ -47,7 +53,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="<?= BASE_URL ?>actions/guardar_configuracion_correo.php">
+                        <a href="<?= BASE_URL ?>configuracion/configuracion_correo.php">
                             Configuración de correo
                         </a>
                     </li>
@@ -68,7 +74,7 @@
                     </li>
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/conceptos_facturacion.php">
-                            Conceptos de facturarcion
+                            Conceptos de facturación
                         </a>
                     </li>
                                         <li>
@@ -95,13 +101,13 @@
                         <a href="<?= BASE_URL ?>configuracion/facturas_generadas.php">
                             Ver facturas
                         </a>
-                    </li>            
+                    </li>
 
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/envio_facturas.php">
                             Enviar facturas
                         </a>
-                    </li>   
+                    </li>
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/extractos_bancarios.php">
                             Cargar extractos
@@ -112,21 +118,15 @@
 
             <!-- CARTERA -->
             <li class="submenu">
-
                 <div class="submenu-titulo">
-
                     <span>
                         <i class="fa-solid fa-wallet icono"></i>
                         Cartera
                     </span>
-
                     <i class="fa-solid fa-chevron-down flecha"></i>
-
                 </div>
 
-
                 <ul class="submenu-items">
-
                     <li>
                         <a href="<?= BASE_URL ?>configuracion/cartera.php">
                             Estado de cartera
@@ -142,13 +142,7 @@
                         <a href="<?= BASE_URL ?>configuracion/configuracion_mora.php">
                             Configuración de mora
                         </a>
-                    </li>   
-                    <li>
-                        <a href="<?= BASE_URL ?>configuracion/pagos.php">
-                            Pagos
-                        </a>
                     </li>
-
                 </ul>
 
             </li>
@@ -157,12 +151,10 @@
             <li class="submenu">
 
                 <div class="submenu-titulo">
-
                     <span>
                         <i class="fa-solid fa-money-bill-transfer icono"></i>
                         Pagos
                     </span>
-
                     <i class="fa-solid fa-chevron-down flecha"></i>
 
                 </div>
@@ -182,12 +174,6 @@
                     </li>
 
                     <li>
-                        <a href="<?= BASE_URL ?>configuracion/aplicaciones_pagos.php">
-                            Aplicaciones de pagos
-                        </a>
-                    </li>
-
-                    <li>
                         <a href="<?= BASE_URL ?>configuracion/saldos_favor.php">
                             Saldos a favor
                         </a>
@@ -195,56 +181,6 @@
 
                 </ul>
 
-            </li>
-
-            <!-- ZONAS COMUNES -->
-            <li class="submenu">
-                <div class="submenu-titulo">
-                    <span><i class="fa-solid fa-screwdriver-wrench icono"></i> Zonas Comunes</span>
-                    <i class="fa-solid fa-chevron-down flecha"></i>
-                </div>
-
-                <ul class="submenu-items">
-                    <li>
-                        <a href="<?= BASE_URL ?>zonas/index.php">
-                        Solicitudes</a>
-                    </li>
-                </ul>
-            </li>
-            <!-- MANTENIMIENTO -->
-            <li class="submenu">
-                <div class="submenu-titulo">
-                    <span><i class="fa-solid fa-screwdriver-wrench icono"></i> Mantenimiento</span>
-                    <i class="fa-solid fa-chevron-down flecha"></i>
-                </div>
-
-                <ul class="submenu-items">
-                    <li>
-                        <a href="<?= BASE_URL ?>mantenimiento/listar.php">
-                        Solicitudes</a>
-                    </li>
-                        
-                    <li><a href="<?= BASE_URL ?>mantenimiento/crear.php">
-                        Programación</a>
-                    </li>
-                    <li><a href="#">Proveedores</a></li>
-                </ul>
-            </li>
-
-            <!-- Módulo de Mascotas -->
-            <li>
-                    <!-- Asegúrate de usar tu ruta absoluta o ROOT_PATH si lo tienes configurado así en el sidebar -->
-                    <a href="/proyecto-convivium/mascotas/listar_mascotas.php">
-                    <!-- Puedes usar un icono de FontAwesome si los tienes integrados, como una huellita -->
-                    <i class="icono fa-solid fa-paw"></i> Mascotas
-                    </a>
-            </li>
-
-            <li>
-                <a href="<?= BASE_URL ?>inventario/listar.php">
-                    <i class="fa-solid fa-boxes-stacked icono"></i>
-                    Inventario
-                </a>
             </li>
 
             <!-- PARQUEADERO -->
@@ -256,20 +192,14 @@
                 <ul class="submenu-items">
 
                     <li>
-                        <a href="<?= BASE_URL ?>configuracion/parqueaderos.php"><i class="fa-solid fa-car icono"></i> Parqueaderos</a>
+                        <a href="<?= BASE_URL ?>configuracion/parqueaderos.php">
+                            <i class="fa-solid fa-car icono"></i> Parqueaderos</a>
                     </li>
                     <li>
-                        <a href="<?= BASE_URL ?>configuracion/vehiculos.php"><i class="fa-solid fa-car icono"></i> Vehículos</a>
+                        <a href="<?= BASE_URL ?>configuracion/vehiculos.php">
+                            <i class="fa-solid fa-car icono"></i> Vehículos</a>
                     </li>
                 </ul>
-            
-
-
-            <!-- correspondencia -->
-            <li>
-                <a href="<?php echo BASE_URL; ?>/correspondencia/listar_correspondencia.php">
-                    <i class="fa-solid fa-box icono"></i> Correspondencia
-                </a>
             </li>
 
             <!-- ZONAS COMUNES -->
@@ -283,21 +213,57 @@
                     <li>
                         <a href="<?= BASE_URL ?>zonas/index.php">
                         Zonas comunes</a>
+                        <i class="fa-solid fa-chevron-down flecha"></i>
                     </li>
-                        
-                    <li><a href="<?= BASE_URL ?>reservas/index.php">
+
+                    <!-- <li><a href="<!?= BASE_URL ?>reservas/index.php">
                         Reservas</a>
+                    </li> -->
+                </ul>
+            </li>
+
+            <!-- MANTENIMIENTO -->
+            <li class="submenu">
+                <div class="submenu-titulo">
+                    <span><i class="fa-solid fa-screwdriver-wrench icono"></i> Mantenimiento</span>
+                    <i class="fa-solid fa-chevron-down flecha"></i>
+                </div>
+
+                <ul class="submenu-items">
+                    <li>
+                        <a href="<?= BASE_URL ?>mantenimiento/listar.php">
+                        En curso</a>
+                    </li>
+
+                    <li><a href="<?= BASE_URL ?>mantenimiento/crear.php">
+                        Nueva solicitud</a>
                     </li>
                 </ul>
             </li>
 
+            <!-- Módulo de Mascotas -->
             <li>
-                <a href="#"><i class="fa-solid fa-bullhorn icono"></i> Comunicados</a>
+                    <a href="<?= BASE_URL ?>mascotas/listar_mascotas.php">
+                    <i class="icono fa-solid fa-paw"></i> Mascotas
+                    </a>
             </li>
 
             <li>
-                <a href="#"><i class="fa-solid fa-chart-pie icono"></i> Reportes</a>
+                <a href="<?= BASE_URL ?>inventario/listar.php">
+                    <i class="fa-solid fa-boxes-stacked icono"></i>
+                    Inventario
+                </a>
             </li>
+
+
+
+            <!-- correspondencia -->
+            <li>
+                <a href="<?= BASE_URL ?>correspondencia/listar_correspondencia.php">
+                    <i class="fa-solid fa-box icono"></i> Correspondencia
+                </a>
+            </li>
+
 
             <li class="cerrar-sesion">
                 <a href="<?= BASE_URL ?>cerrar_sesion.php">

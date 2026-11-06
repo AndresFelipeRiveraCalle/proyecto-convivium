@@ -575,9 +575,7 @@ $cantidadTotalUnidades =
 
                         <br>
                         <a
-                            href="<?= BASE_URL ?>assets/documentos/<?= htmlspecialchars(
-                                $unidad['reglamento']
-                            ) ?>"
+                            href="<?= BASE_URL ?>actions/abrir_archivo_privado.php?tipo=reglamento&amp;id=<?= (int)$unidad['id'] ?>"
                             target="_blank"
                             class="btn-filtrar"
                         >
@@ -609,9 +607,7 @@ $cantidadTotalUnidades =
                         <br>
 
                         <a
-                            href="<?= BASE_URL ?>assets/documentos/<?= htmlspecialchars(
-                                $unidad['manual']
-                            ) ?>"
+                            href="<?= BASE_URL ?>actions/abrir_archivo_privado.php?tipo=manual&amp;id=<?= (int)$unidad['id'] ?>"
                             target="_blank"
                             class="btn-filtrar"
                         >
@@ -644,9 +640,7 @@ $cantidadTotalUnidades =
 
                     <?php if (!empty($unidad['logo'])): ?>
                         <img
-                            src="<?= BASE_URL ?>assets/logos/<?= htmlspecialchars(
-                                $unidad['logo']
-                            ) ?>"
+                            src="<?= BASE_URL ?>actions/abrir_archivo_privado.php?tipo=logo&amp;id=<?= (int)$unidad['id'] ?>"
                             alt="Logo de la copropiedad"
                             id="logoPreview"
                             class="preview-logo"

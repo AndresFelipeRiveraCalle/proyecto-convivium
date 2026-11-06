@@ -82,23 +82,20 @@ if (isset($_GET['id_editar']) && !empty($_GET['id_editar'])) {
 <html lang="es">
 
 <head>
-    <?php require_once "../includes/head.php"; ?>    
-    <title>Zonas Comunes</title>
-    <!-- Estilos exclusivos del módulo -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/zonas.css?v=<?= time() ?>">
-    <!-- Datos enviados desde PHP hacia JavaScript -->
-    <script>
-        const horariosExistentes = <?= json_encode($horarios ?? []) ?>;
-    </script>
-    <!-- JavaScript exclusivo del módulo -->
+    <?php require_once ROOT_PATH . "/includes/head.php"; ?>
+
+    <title>Zonas Comunes | Convivium</title>
+    <link rel="stylesheet"href="<?= BASE_URL ?>assets/css/zonas.css?v=<?= time() ?>">
+    <script>const horariosExistentes = <?= json_encode($horarios ?? []) ?>;</script>
     <script src="<?= BASE_URL ?>assets/js/zonas.js?v=<?= time() ?>" defer></script>
 </head>
 
 <body>
 
-    <?php require_once "../includes/header.php"; ?>
+    <?php include ROOT_PATH . "/includes/header.php"; ?>
+    <?php require_once ROOT_PATH . "/includes/mensajes.php"; ?>
 
-    <div class="zc-contenedor">
+    <div class="contenedor">
         <?php require_once "../includes/sidebar.php"; ?>
 
         <main class="zc-contenido">

@@ -39,16 +39,17 @@ $stmt = $conexion->query($query);
 
     <div class="contenedor">
         <?php include ROOT_PATH . "/includes/sidebar.php"; ?>
-        <main class="contenido">
+        <main class="contenido inventario-page">
 
-            <h2>Historial de Movimientos (Auditoría)</h2>
+            <div class="container inventario-container">
+            <h2 class="inventario-titulo">Historial de Movimientos (Auditoría)</h2>
 
-            <div class="acciones">
-                <a href="listar.php">Volver al Inventario</a>
+            <div class="acciones inventario-acciones">
+                <a href="listar.php"><i class="fa-solid fa-arrow-left"></i> Volver al inventario</a>
             </div>
-            <br>
 
-            <table border="1" cellpadding="10">
+            <div class="inventario-tabla-wrap">
+            <table class="tabla-general inventario-tabla">
                 <thead>
                     <tr>
                         <th>Fecha y Hora</th>
@@ -82,6 +83,8 @@ $stmt = $conexion->query($query);
                     ?>
                 </tbody>
             </table>
+            </div>
+            </div>
         </main>
     </div>
 </body>
